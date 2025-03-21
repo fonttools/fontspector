@@ -91,7 +91,7 @@ jobs:
       - name: Build archive
         shell: bash
         run: |
-          dirname="diffenator3-${{ env.VERSION }}-${{ matrix.target }}"
+          dirname="fontspector-${{ env.VERSION }}-${{ matrix.target }}"
           mkdir "$dirname"
           if [ "${{ matrix.os }}" = "windows-latest" ]; then
               mv "target/${{ matrix.target }}/release/"*.exe "$dirname"
