@@ -68,6 +68,9 @@ jobs:
         uses: arduino/setup-protoc@v3
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install OpenSSL on Linux
+        if: startsWith(matrix.os, 'ubuntu')
+        run: sudo apt-get install libssl-dev
       - name: Build
         run: cargo build --verbose --release --target ${{ matrix.target }}
       - name: Decide on our version name (tag or "dev")
