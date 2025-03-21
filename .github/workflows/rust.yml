@@ -72,7 +72,9 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Install OpenSSL on Linux
         if: startsWith(matrix.os, 'ubuntu')
-        run: cargo add openssl -F vendored
+        run: |
+          cargo add openssl -F vendored
+          apd-get install musl-tools musl-dev
       - name: Build
         run: cargo build --verbose --release --target ${{ matrix.target }}
       - name: Decide on our version name (tag or "dev")
