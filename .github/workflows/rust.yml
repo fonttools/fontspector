@@ -74,7 +74,7 @@ jobs:
         if: startsWith(matrix.os, 'ubuntu')
         run: |
           cargo add openssl -F vendored
-          apd-get install musl-tools musl-dev
+          sudo apt-get install musl-tools musl-dev
       - name: Build
         run: cargo build --verbose --release --target ${{ matrix.target }}
       - name: Decide on our version name (tag or "dev")
