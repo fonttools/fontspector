@@ -20,7 +20,7 @@ jobs:
       - name: Install protoc
         run: sudo apt-get install protobuf-compiler
       - name: Build
-        run: cargo build 
+        run: cargo build
       - name: Lint for formatting
         run: cargo fmt --all -- --check
       - name: Lint for warnings
@@ -33,3 +33,77 @@ jobs:
           maturin build
           pip install ../target/wheels/fontspector*.whl
           pytest tests --verbose
+  deploy-binaries:
+    name: Build and upload binaries
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        include:
+          - build: linux
+            os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+
+          - build: macos
+            os: macos-latest
+            target: x86_64-apple-darwin
+
+          - build: macos-m1
+            os: macos-latest
+            target: aarch64-apple-darwin
+
+          - build: windows-gnu
+            os: windows-latest
+            target: x86_64-pc-windows-gnu
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          target: ${{ matrix.target }}
+      - name: Install protoc for lang repo
+        uses: arduino/setup-protoc@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build
+        run: cargo build --verbose --release --target ${{ matrix.target }}
+      - name: Decide on our version name (tag or "dev")
+        id: version
+        shell: bash
+        run: |
+          if [ -n "$GITHUB_REF" ]; then
+              if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+                  echo "VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
+              else
+                  echo "VERSION=dev" >> $GITHUB_ENV
+              fi
+          else
+              echo "VERSION=dev" >> $GITHUB_ENV
+          fi
+      - name: Build archive
+        shell: bash
+        run: |
+          dirname="diffenator3-${{ env.VERSION }}-${{ matrix.target }}"
+          mkdir "$dirname"
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+              mv "target/${{ matrix.target }}/release/"*.exe "$dirname"
+              7z a "$dirname.zip" "$dirname"
+              echo "ASSET=$dirname.zip" >> $GITHUB_ENV
+          else
+              mv "target/${{ matrix.target }}/release/fontspector" "$dirname"
+              tar -czf "$dirname.tar.gz" "$dirname"
+              echo "ASSET=$dirname.tar.gz" >> $GITHUB_ENV
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ASSET }}
+          path: ${{ env.ASSET }}
+      - if: contains(github.ref, 'refs/tags/')
+        name: Create a release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ env.ASSET }}
+          tag_name: ${{ env.VERSION }}
+          token: ${{ secrets.GITHUB_TOKEN }}
