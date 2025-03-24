@@ -45,10 +45,6 @@ jobs:
             os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
 
-          - build: linux32
-            os: ubuntu-latest
-            target: i686-unknown-linux-gnu
-
           - build: macos
             os: macos-latest
             target: x86_64-apple-darwin
@@ -60,6 +56,7 @@ jobs:
           - build: windows-gnu
             os: windows-latest
             target: x86_64-pc-windows-gnu
+        python: ["3.9", "3.10", "3.11", "3.12", 3.13"]
 
     steps:
       - name: Checkout
@@ -70,21 +67,15 @@ jobs:
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           target: ${{ matrix.target }}
+      - name: Set up python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
       - name: Install protoc for lang repo
         uses: arduino/setup-protoc@v3
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build Linux32
-        if: ${{ matrix.build == 'linux32' }}
-        run: |
-          sudo dpkg --add-architecture i386 
-          sudo apt update
-          sudo apt install gcc-multilib g++-multilib libssl-dev:i386
-          export OPENSSL_LIB_DIR=/usr/lib/i386-linux-gnu/
-          export OPENSSL_INCLUDE_DIR=/usr/include/openssl/
-          cargo build --verbose --release --target ${{ matrix.target }}
-      - name: Build not Linux32
-        if: ${{ matrix.build != 'linux32' }}
+      - name: Build
         run: cargo build --verbose --release --target ${{ matrix.target }}
       - name: Decide on our version name (tag or "dev")
         id: version
@@ -102,7 +93,7 @@ jobs:
       - name: Build archive
         shell: bash
         run: |
-          dirname="fontspector-${{ env.VERSION }}-${{ matrix.target }}"
+          dirname="fontspector-${{ env.VERSION }}-${{ matrix.target }}-py${{ matrix.python }}"
           mkdir "$dirname"
           if [ "${{ matrix.os }}" = "windows-latest" ]; then
               mv "target/${{ matrix.target }}/release/"*.exe "$dirname"
