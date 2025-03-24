@@ -74,7 +74,17 @@ jobs:
         uses: arduino/setup-protoc@v3
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build
+      - name: Build Linux32
+        if: ${{ matrix.build == 'linux32' }}
+        run: |
+          sudo dpkg --add-architecture i386 
+          sudo apt update
+          sudo apt install gcc-multilib g++-multilib libssl-dev:i386
+          export OPENSSL_LIB_DIR=/usr/lib/i386-linux-gnu/
+          export OPENSSL_INCLUDE_DIR=/usr/include/openssl/
+          cargo build --verbose --release --target ${{ matrix.target }}
+      - name: Build not Linux32
+        if: ${{ matrix.build != 'linux32' }}
         run: cargo build --verbose --release --target ${{ matrix.target }}
       - name: Decide on our version name (tag or "dev")
         id: version
