@@ -35,12 +35,12 @@ jobs:
           pytest tests --verbose
   deploy-binaries:
     name: Build and upload binaries
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.os.os }}
 
     strategy:
       fail-fast: false
       matrix:
-        include:
+        os:
           - build: linux
             os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
@@ -56,7 +56,7 @@ jobs:
           - build: windows-gnu
             os: windows-latest
             target: x86_64-pc-windows-gnu
-        python: ["3.9", "3.10", "3.11", "3.12", 3.13"]
+        python: ["3.9", "3.10", "3.11", "3.12", "3.13"]
 
     steps:
       - name: Checkout
@@ -66,7 +66,7 @@ jobs:
       - name: Install Rust
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          target: ${{ matrix.target }}
+          target: ${{ matrix.os.target }}
       - name: Set up python
         uses: actions/setup-python@v5
         with:
@@ -76,7 +76,7 @@ jobs:
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Build
-        run: cargo build --verbose --release --target ${{ matrix.target }}
+        run: cargo build --verbose --release --target ${{ matrix.os.target }}
       - name: Decide on our version name (tag or "dev")
         id: version
         shell: bash
@@ -93,14 +93,14 @@ jobs:
       - name: Build archive
         shell: bash
         run: |
-          dirname="fontspector-${{ env.VERSION }}-${{ matrix.target }}-py${{ matrix.python }}"
+          dirname="fontspector-${{ env.VERSION }}-${{ matrix.os.target }}-py${{ matrix.python }}"
           mkdir "$dirname"
-          if [ "${{ matrix.os }}" = "windows-latest" ]; then
-              mv "target/${{ matrix.target }}/release/"*.exe "$dirname"
+          if [ "${{ matrix.os.os }}" = "windows-latest" ]; then
+              mv "target/${{ matrix.os.target }}/release/"*.exe "$dirname"
               7z a "$dirname.zip" "$dirname"
               echo "ASSET=$dirname.zip" >> $GITHUB_ENV
           else
-              mv "target/${{ matrix.target }}/release/fontspector" "$dirname"
+              mv "target/${{ matrix.os.target }}/release/fontspector" "$dirname"
               tar -czf "$dirname.tar.gz" "$dirname"
               echo "ASSET=$dirname.tar.gz" >> $GITHUB_ENV
           fi
