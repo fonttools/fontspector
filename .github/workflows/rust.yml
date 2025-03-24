@@ -43,7 +43,11 @@ jobs:
         include:
           - build: linux
             os: ubuntu-latest
-            target: x86_64-unknown-linux-musl
+            target: x86_64-unknown-linux-gnu
+
+          - build: linux32
+            os: ubuntu-latest
+            target: i686-unknown-linux-gnu
 
           - build: macos
             os: macos-latest
@@ -70,16 +74,7 @@ jobs:
         uses: arduino/setup-protoc@v3
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build Linux
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          docker run --rm -t \
-            -v $HOME/.cargo/registry/:/root/.cargo/registry \
-            -v "$(pwd)":/volume \
-            clux/muslrust:stable \
-            cargo build --release --bin fontspector --target ${{ matrix.target }}
-      - name: Build non-Linux
-        if: matrix.os != 'ubuntu-latest'
+      - name: Build
         run: cargo build --verbose --release --target ${{ matrix.target }}
       - name: Decide on our version name (tag or "dev")
         id: version
