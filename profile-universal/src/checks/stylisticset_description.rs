@@ -1,4 +1,5 @@
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use hashbrown::HashSet;
 
 #[check(
     id = "stylisticset_description",
@@ -13,9 +14,11 @@ use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
 fn stylisticset_description(f: &Testable, _context: &Context) -> CheckFnResult {
     let font = testfont!(f);
     let mut problems = vec![];
+    let mut warned = HashSet::new();
     for (feature_record, feature) in font.feature_records(true) {
         let tag = feature_record.feature_tag().to_string();
-        if tag.starts_with("ss") && feature?.feature_params().is_none() {
+        if tag.starts_with("ss") && feature?.feature_params().is_none() && !warned.contains(&tag) {
+            warned.insert(tag.clone());
             problems.push(Status::warn(
                 "missing-description",
                 &format!(

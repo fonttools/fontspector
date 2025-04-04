@@ -74,11 +74,11 @@ fn font_copyright(c: &TestableCollection, context: &Context) -> CheckFnResult {
         // let filename = font.filename.as_os_str().to_str().unwrap_or_default();
         let mut copyrights = vec![];
         font.get_name_entry_strings(StringId::COPYRIGHT_NOTICE)
-            .for_each(|x| copyrights.push(("Name Table entry", x)));
+            .for_each(|x| copyrights.push((format!("{}: Name Table entry", basename), x)));
         if let Some(md_copyright) = mdpb_copyrights.get(basename) {
-            copyrights.push(("METADATA.pb", md_copyright.to_string()));
+            copyrights.push(("METADATA.pb".to_string(), md_copyright.to_string()));
         }
-        let mut copyright_sources: HashMap<String, Vec<&str>> = HashMap::new();
+        let mut copyright_sources: HashMap<String, Vec<String>> = HashMap::new();
         for (source, string) in copyrights {
             let string = string.to_lowercase();
             if !EXPECTED_COPYRIGHT_PATTERN.is_match(&string) {

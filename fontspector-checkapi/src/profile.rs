@@ -177,6 +177,10 @@ impl Profile {
                 if !included_excluded(check_id, include_checks, exclude_checks) {
                     continue;
                 }
+                // The profile itself may have excluded this check
+                if self.exclude_checks.contains(check_id) {
+                    continue;
+                }
                 if registry.checks.contains_key(check_id) {
                     sections_and_checks.push((section_name, check_id))
                 } else {

@@ -29,13 +29,6 @@ impl fontspector_checkapi::Plugin for GoogleFonts {
 
         let builder = ProfileBuilder::new()
             .include_profile("universal")
-            //        pending_review:
-            //            checks::cmap::format_12
-            //            checks::empty_letters
-            //            checks::inconsistencies_between_fvar_STAT
-            //            checks::no_mac_entries
-            //            checks::typographic_family_name
-            //            checks::vtt_volt_data
             .add_section("Article Checks")
             .add_and_register_check(checks::googlefonts::article::images)
             .add_section("Metadata Checks")
@@ -188,6 +181,14 @@ impl fontspector_checkapi::Plugin for GoogleFonts {
             .add_and_register_check(checks::googlefonts::cjk_vertical_metrics_regressions)
             .add_and_register_check(checks::googlefonts::metadata::includes_production_subsets)
             .add_and_register_check(checks::googlefonts::weightclass)
+            // Pending review
+            .exclude_check("cmap/format_12")
+            .exclude_check("empty_letters")
+            .exclude_check("inconsistencies_between_fvar_STAT")
+            .exclude_check("no_mac_entries")
+            .exclude_check("typographic_family_name")
+            .exclude_check("vtt_volt_data")
+            // Configuration defaultss
             .with_configuration_defaults(
                 "file_size",
                 HashMap::from([
