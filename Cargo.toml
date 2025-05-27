@@ -38,7 +38,7 @@ log = "0.4.14"
 itertools = "0.13.0"
 
 # Fontbakery bridge / Python module
-pyo3 = "0.22"
+pyo3 = "0.24"
 
 indexmap = { version = "2", features = ["serde"] }
 markdown-table = "0.2.0"
