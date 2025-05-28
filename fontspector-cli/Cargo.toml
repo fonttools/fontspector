@@ -14,7 +14,7 @@ python = ["dep:fontbakery-bridge", "fontspector-checkapi/python"]
 
 [build-dependencies]
 walkdir = "2.5"
-zip = "3"
+zip = "4"
 quote = "1.0"
 shadow-rs = "1.1.1"
 
@@ -48,7 +48,7 @@ serde_json = { workspace = true }
 
 # Markdown/HTML reporters
 tera = { version = "1.20.0", default-features = false }
-zip = "3"
+zip = "4"
 
 # CSV reporter
 csv = "1.3.1"
