@@ -40,7 +40,7 @@ toml = { workspace = true }
 
 # Terminal reporter
 termimad = "0"
-colored = "2.1.0"
+colored = "3.0.0"
 
 # JSON reporter
 serde = { workspace = true }
