@@ -3,3 +3,4 @@ foo*
 python
 docs
 flamegraph.svg
+node_modules/
