@@ -1427,17 +1427,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "fontspector-profile-microsoft"
-version = "0.1.0"
-dependencies = [
- "fontations",
- "fontspector-checkapi",
- "pluginator",
- "regex",
- "rustybuzz",
-]
-
-[[package]]
 name = "fontspector-profile-opentype"
 version = "1.0.2"
 dependencies = [
@@ -1503,10 +1492,10 @@ dependencies = [
  "fontspector-profile-adobe",
  "fontspector-profile-googlefonts",
  "fontspector-profile-iso15008",
- "fontspector-profile-microsoft",
  "fontspector-profile-opentype",
  "fontspector-profile-universal",
  "js-sys",
+ "profile-microsoft",
  "serde_json",
  "wasm-bindgen",
 ]
@@ -3332,6 +3321,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "02b3e5e68a3a1a02aad3ec490a98007cbc13c37cbe84a3cd7b8e406d76e7f778"
 dependencies = [
  "unicode-ident",
+]
+
+[[package]]
+name = "profile-microsoft"
+version = "0.1.0"
+dependencies = [
+ "fontations",
+ "fontspector-checkapi",
+ "pluginator",
+ "regex",
+ "rustybuzz",
 ]
 
 [[package]]

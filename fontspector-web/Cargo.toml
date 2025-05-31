@@ -14,7 +14,7 @@ profile-googlefonts = { path = "../profile-googlefonts", package = "fontspector-
 serde_json = { workspace = true, features = ["preserve_order"] }
 profile-iso15008 = { path = "../profile-iso15008", package = "fontspector-profile-iso15008" }
 profile-adobe = { path = "../profile-adobe", package = "fontspector-profile-adobe" }
-profile-microsoft = { path = "../profile-microsoft", package = "fontspector-profile-microsoft" }
+profile-microsoft = { path = "../profile-microsoft", package = "profile-microsoft" }
 
 [lib]
 crate-type = ["cdylib", "rlib"]
