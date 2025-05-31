@@ -1,0 +1,19 @@
+[package]
+name = "fontspector-profile-fontwerk"
+version = "1.0.0"
+edition = "2021"
+authors = ["Olli Meier <hallo@olli-meier.de>"]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+fontspector-checkapi = { path = "../fontspector-checkapi", features = [
+    "kurbo",
+] }
+fontations = { workspace = true }
+itertools = { workspace = true }
+
+[target.'cfg(not(target_family = "wasm"))'.dependencies]
+# Plugin architecture
+pluginator = { workspace = true }

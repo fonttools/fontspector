@@ -25,6 +25,7 @@ fontspector-checkapi = { path = "../fontspector-checkapi", features = [
 # These profiles are baked-in
 fontbakery-bridge = { path = "../fontbakery-bridge", optional = true, version = "1.0.0", package = "fontspector-fontbakery-bridge" }
 profile-universal = { path = "../profile-universal", version = "1.0.0", package = "fontspector-profile-universal" }
+profile-fontwerk = { path = "../profile-fontwerk", version = "1.0.0", package = "fontspector-profile-fontwerk" }
 profile-opentype = { path = "../profile-opentype", version = "1.0.0", package = "fontspector-profile-opentype" }
 profile-iso15008 = { path = "../profile-iso15008", version = "1.0.0", package = "fontspector-profile-iso15008" }
 profile-googlefonts = { path = "../profile-googlefonts", version = "1.0.0", package = "fontspector-profile-googlefonts" }
