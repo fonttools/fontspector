@@ -179,6 +179,9 @@ fn registered_checks() -> PyResult<Vec<String>> {
     GoogleFonts.register(&mut registry).map_err(|_| {
         PyValueError::new_err("Couldn't register Google Fonts profile, fontspector bug")
     })?;
+    Fontwerk.register(&mut registry).map_err(|_| {
+        PyValueError::new_err("Couldn't register Fontwerk profile, fontspector bug")
+    })?;
     Ok(registry.checks.keys().cloned().collect())
 }
 
