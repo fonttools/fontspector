@@ -4,3 +4,4 @@ python
 docs
 flamegraph.svg
 node_modules/
+.DS_Store
