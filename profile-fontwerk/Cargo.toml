@@ -3,6 +3,10 @@ name = "fontspector-profile-fontwerk"
 version = "1.0.0"
 edition = "2021"
 authors = ["Olli Meier <hallo@olli-meier.de>"]
+description = "Fontspector checks for Fontwerk font specification compliance"
+repository = "https://github.com/fonttools/fontspector"
+homepage = "https://fonttools.github.io/fontspector/"
+license = "Apache-2.0"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
@@ -10,7 +14,7 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 fontspector-checkapi = { path = "../fontspector-checkapi", features = [
     "kurbo",
-] }
+], version = "1.0.0" }
 fontations = { workspace = true }
 itertools = { workspace = true }
 
