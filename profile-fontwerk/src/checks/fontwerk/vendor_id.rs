@@ -32,22 +32,46 @@ mod tests {
     use super::*;
     use fontspector_checkapi::StatusCode;
 
+    use fontations::{
+        write::{
+            tables::os2::Os2,
+            tables::maxp::Maxp,
+            FontBuilder,
+        },
+        skrifa::{Tag},
+    };
+
     #[test]
     fn test_vendor_id_fontwerk() {
 
-        let testable = Testable::new_with_contents(
-            "Montserrat-Regular.ttf",
-            include_bytes!("../../../../fontspector-py/data/test/montserrat/Montserrat-Regular.ttf")
-                .to_vec(),
-        );
-        let result = vendor_id_impl(&testable, &Context::default())
-            .unwrap()
-            .next()
-            .unwrap();
+        let vendor_ids = [b"UKWN", b"WERK", b"TEST", b"ABCD"];
+        let expected = [
+            (StatusCode::Fail, Some("OS/2 achVendID value is 'UKWN', but should be 'WERK'.".to_string())),
+            (StatusCode::Pass, None),
+            (StatusCode::Fail, Some("OS/2 achVendID value is 'TEST', but should be 'WERK'.".to_string())),
+            (StatusCode::Fail, Some("OS/2 achVendID value is 'ABCD', but should be 'WERK'.".to_string())),
+        ];
 
-        // Check that the vendor ID is WERK. It is expected that this test will fail
-        // because the Montserrat font does not have the vendor ID set to WERK.
-        assert_eq!(result.severity, StatusCode::Fail);
-        assert_eq!(result.message, Some("OS/2 achVendID value is 'ULA ', but should be 'WERK'.".to_string()));
+        for (i, &vend_id) in vendor_ids.iter().enumerate() {
+            let mut builder = FontBuilder::new();
+            // We need to add a default maxp table, because otherwise 
+            // Testable::new_with_contents complains "Not a TTF file"
+            builder.add_table(&Maxp::default()).unwrap(); 
+            let mut os2 = Os2::default();
+            os2.ach_vend_id = Tag::new(vend_id);
+            builder.add_table(&os2).unwrap();
+
+            let testable = Testable::new_with_contents(
+                "demo.ttf",
+                builder.build().clone(),
+            );
+            let result = vendor_id_impl(&testable, &Context::default())
+                .unwrap()
+                .next()
+                .unwrap();
+
+            assert_eq!(result.severity, expected[i].0);
+            assert_eq!(result.message, expected[i].1);
+        }
     }
 }
