@@ -24,3 +24,30 @@ fn vendor_id(f: &Testable, _context: &Context) -> CheckFnResult {
         ))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used)]
+
+    use super::*;
+    use fontspector_checkapi::StatusCode;
+
+    #[test]
+    fn test_vendor_id_fontwerk() {
+
+        let testable = Testable::new_with_contents(
+            "Montserrat-Regular.ttf",
+            include_bytes!("../../../../fontspector-py/data/test/montserrat/Montserrat-Regular.ttf")
+                .to_vec(),
+        );
+        let result = vendor_id_impl(&testable, &Context::default())
+            .unwrap()
+            .next()
+            .unwrap();
+
+        // Check that the vendor ID is WERK. It is expected that this test will fail
+        // because the Montserrat font does not have the vendor ID set to WERK.
+        assert_eq!(result.severity, StatusCode::Fail);
+        assert_eq!(result.message, Some("OS/2 achVendID value is 'ULA ', but should be 'WERK'.".to_string()));
+    }
+}
