@@ -136,14 +136,15 @@ impl fontspector_checkapi::Plugin for GoogleFonts {
             //            checks::googlefonts::repo::upstream_yaml_has_required_fields // Redundant, no upstream.yaml any more
             //            checks::googlefonts::repo::zip_files // Upstream repos should be checked separately
             .add_section("Shaping Checks")
-            .add_and_register_check(checks::dotted_circle);
+            .add_and_register_check(checks::dotted_circle)
+            .add_and_register_check(checks::soft_dotted);
+
         #[cfg(not(target_family = "wasm"))]
         let builder = builder
             //            Realistically Simon is the only person who uses this check, and it can wait until he needs it again.
             //            checks::shaping::collides
             .add_and_register_check(checks::shaping::forbidden)
-            .add_and_register_check(checks::shaping::regression)
-            .add_and_register_check(checks::soft_dotted);
+            .add_and_register_check(checks::shaping::regression);
 
         let builder = builder
             .add_section("Outline Checks")
