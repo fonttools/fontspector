@@ -28,6 +28,11 @@ impl<'a> Registry<'a> {
         self.checks.values()
     }
 
+    /// Get an iterator over all profiles
+    pub fn iter_profiles(&self) -> impl Iterator<Item = (&String, &Profile)> {
+        self.profiles.iter()
+    }
+
     /// Load a plugin from a path
     #[cfg(not(target_family = "wasm"))]
     pub fn load_plugin(&mut self, plugin_path: &str) -> Result<(), String> {

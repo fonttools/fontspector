@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use js_sys::{Reflect, Uint8Array};
+use serde_json::{json, Value};
 use wasm_bindgen::prelude::*;
 extern crate console_error_panic_hook;
 use fontspector_checkapi::{
@@ -14,15 +15,18 @@ use profile_microsoft::Microsoft;
 use profile_opentype::OpenType;
 use profile_universal::Universal;
 
+// #[wasm_bindgen]
+// extern "C" {
+//     #[wasm_bindgen(js_namespace = console)]
+//     fn log(s: &str);
+// }
+
 #[wasm_bindgen]
 pub fn version() -> String {
     env!("CARGO_PKG_VERSION").to_string()
 }
 
-#[wasm_bindgen]
-pub fn check_fonts(fonts: &JsValue, profile: &str) -> Result<String, JsValue> {
-    console_error_panic_hook::set_once();
-
+fn register_profiles<'a>() -> Registry<'a> {
     let mut registry = Registry::new();
     OpenType
         .register(&mut registry)
@@ -53,6 +57,13 @@ pub fn check_fonts(fonts: &JsValue, profile: &str) -> Result<String, JsValue> {
             .expect("Couldn't register profile, fontspector bug");
     }
 
+    registry
+}
+
+#[wasm_bindgen]
+pub fn check_fonts(fonts: &JsValue, profile: &str) -> Result<String, JsValue> {
+    console_error_panic_hook::set_once();
+    let registry = register_profiles();
     let testables: Vec<Testable> = Reflect::own_keys(fonts)?
         .into_iter()
         .map(|filename| {
@@ -103,4 +114,43 @@ pub fn check_fonts(fonts: &JsValue, profile: &str) -> Result<String, JsValue> {
         .flat_map(|(_, _, result)| result)
         .collect();
     serde_json::to_string(&results).map_err(|e| e.to_string().into())
+}
+
+#[wasm_bindgen]
+pub fn dump_checks() -> Result<String, JsValue> {
+    console_error_panic_hook::set_once();
+    let registry = register_profiles();
+    let mut checks: HashMap<&'static str, Value> = HashMap::new();
+    for (profilename, profile) in registry.iter_profiles() {
+        for (section_name, check_ids) in profile.sections.iter() {
+            for check in check_ids {
+                let Some(check) = registry.checks.get(check) else {
+                    continue;
+                };
+                let json_check = checks.entry(check.id).or_insert_with(|| {
+                    json!({
+                        "description": check.title,
+                        "rationale": check.rationale,
+                        "proposal": check.proposal,
+                        "sections": [],
+                        "profiles": [],
+                    })
+                });
+                if let Some(sections) = json_check.get_mut("sections").and_then(Value::as_array_mut)
+                {
+                    if !sections.contains(&json!(section_name)) {
+                        // Avoid duplicates
+                        // This is a bit inefficient, but the number of sections is small
+                        // enough that it shouldn't matter.
+                        sections.push(json!(section_name));
+                    }
+                }
+                if let Some(profiles) = json_check.get_mut("profiles").and_then(Value::as_array_mut)
+                {
+                    profiles.push(json!(profilename));
+                }
+            }
+        }
+    }
+    serde_json::to_string_pretty(&checks).map_err(|e| e.to_string().into())
 }

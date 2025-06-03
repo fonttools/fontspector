@@ -4,7 +4,6 @@ async function init() {
   console.log("Loading the module");
   let wasm = await module;
   console.log("Loaded");
-  self.postMessage({ ready: true });
   const EXCLUDE_CHECKS = [
     "fontbakery_version", // We download the latest each time
     "ufo_required_fields",
@@ -19,30 +18,28 @@ async function init() {
     "fontv", // Requires a subprocess
   ];
 
+  try {
+    const version = wasm.version();
+    const checks = wasm.dump_checks();
+    self.postMessage({
+      ready: true,
+      version: version,
+      checks: JSON.parse(checks),
+    });
+  } catch (error) {
+    self.postMessage({ error });
+    return;
+  }
+
   self.onmessage = async (event) => {
     // make sure loading is done
     const { id, files, profile, loglevels, fulllists } = event.data;
     self.profile = profile;
+
     if (id == "justload") {
       return;
     }
-    if (id == "listchecks") {
-      try {
-        const checks = wasm.dump_checks();
-        self.postMessage({ checks: checks.toJs() });
-      } catch (error) {
-        self.postMessage({ error: error.message });
-      }
-      return;
-    }
 
-    try {
-      const version = wasm.version();
-      self.postMessage({ version: version });
-    } catch (error) {
-      self.postMessage({ error: error.message });
-      return;
-    }
     const callback = (msg) => self.postMessage(msg.toJs());
 
     self.loglevels = loglevels;
@@ -52,7 +49,7 @@ async function init() {
       const results = JSON.parse(wasm.check_fonts(files, profile));
       self.postMessage(results);
     } catch (error) {
-      self.postMessage({ error: error.message, id });
+      self.postMessage({ error: error, id });
     }
   };
 }

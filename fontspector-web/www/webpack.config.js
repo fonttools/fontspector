@@ -8,6 +8,7 @@ crypto.createHash = (algorithm) =>
 
 module.exports = {
   entry: "./bootstrap.js",
+  devtool: "source-map",
   module: {
     rules: [
       {
@@ -31,7 +32,7 @@ module.exports = {
   experiments: {
     asyncWebAssembly: true,
   },
-  mode: "development",
+  mode: "production",
   plugins: [
     new CopyWebpackPlugin({
       patterns: [

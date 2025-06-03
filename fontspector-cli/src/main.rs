@@ -115,40 +115,7 @@ fn main() {
     });
 
     if args.list_checks || args.list_checks_json {
-        let mut checks_per_section = HashMap::new();
-        for (section, checks) in profile.sections.iter() {
-            let checks: Vec<_> = checks
-                .iter()
-                .flat_map(|check| registry.checks.get(check))
-                .map(|check| json!({ "id": check.id, "title": check.title }))
-                .collect();
-            if checks.is_empty() {
-                continue;
-            }
-            checks_per_section.insert(section.clone(), checks);
-        }
-        if args.list_checks_json {
-            let _ = writeln!(
-                std::io::stdout(),
-                "{}",
-                serde_json::to_string_pretty(&checks_per_section).unwrap_or("{}".to_string())
-            );
-        } else {
-            for (section, checks) in checks_per_section.iter() {
-                termimad::print_text(&format!("\n# {:}\n\n", section));
-                let mut table = "|Check ID|Title|\n|---|---|\n".to_string();
-                for check in checks {
-                    #[allow(clippy::unwrap_used)] // We know these keys are present, we made them
-                    table.push_str(&format!(
-                        "|{}|{}|\n",
-                        check.get("id").unwrap().as_str().unwrap(),
-                        check.get("title").unwrap().as_str().unwrap()
-                    ));
-                }
-                termimad::print_text(&table);
-            }
-        }
-        std::process::exit(0);
+        list_checks(&args, &registry, profile);
     }
     // We create one collection for each set of testable files in a directory.
     // So let's group the inputs per directory, and then map them into a FontCollection
@@ -289,6 +256,43 @@ fn main() {
     if worst_status >= args.error_code_on {
         std::process::exit(1);
     }
+}
+
+fn list_checks(args: &Args, registry: &Registry<'static>, profile: &fontspector_checkapi::Profile) {
+    let mut checks_per_section = HashMap::new();
+    for (section, checks) in profile.sections.iter() {
+        let checks: Vec<_> = checks
+            .iter()
+            .flat_map(|check| registry.checks.get(check))
+            .map(|check| json!({ "id": check.id, "title": check.title }))
+            .collect();
+        if checks.is_empty() {
+            continue;
+        }
+        checks_per_section.insert(section.clone(), checks);
+    }
+    if args.list_checks_json {
+        let _ = writeln!(
+            std::io::stdout(),
+            "{}",
+            serde_json::to_string_pretty(&checks_per_section).unwrap_or("{}".to_string())
+        );
+    } else {
+        for (section, checks) in checks_per_section.iter() {
+            termimad::print_text(&format!("\n# {:}\n\n", section));
+            let mut table = "|Check ID|Title|\n|---|---|\n".to_string();
+            for check in checks {
+                #[allow(clippy::unwrap_used)] // We know these keys are present, we made them
+                table.push_str(&format!(
+                    "|{}|{}|\n",
+                    check.get("id").unwrap().as_str().unwrap(),
+                    check.get("title").unwrap().as_str().unwrap()
+                ));
+            }
+            termimad::print_text(&table);
+        }
+    }
+    std::process::exit(0);
 }
 
 // Group each file into a set per directory, and wrap that in a TestableCollection.
