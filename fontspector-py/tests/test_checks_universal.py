@@ -659,11 +659,11 @@ def test_check_contour_count(montserrat_ttFonts, check):
 @check_id("cjk_chws_feature")
 def test_check_cjk_chws_feature(check):
     """Does the font contain chws and vchw features?"""
-    cjk_font = TEST_FILE("cjk/SourceHanSans-Regular.otf")
+    cjk_font = TEST_FILE("cjk/YujiBoku-Regular.ttf")
     results = check(cjk_font)
-    assert_results_contain(results, WARN, "missing-chws-feature", "for Source Han Sans")
+    assert_results_contain(results, WARN, "missing-chws-feature", "for Yuji Boku")
 
-    assert_results_contain(results, WARN, "missing-vchw-feature", "for Source Han Sans")
+    assert_results_contain(results, WARN, "missing-vchw-feature", "for Yuji Boku")
 
     # Insert them.
     from fontTools.ttLib.tables.otTables import FeatureRecord
@@ -673,9 +673,7 @@ def test_check_cjk_chws_feature(check):
     chws.FeatureTag = "chws"
     vchw = FeatureRecord()
     vchw.FeatureTag = "vchw"
-    ttFont["GPOS"].table.FeatureList.FeatureRecord.extend([chws, vchw])
-    # Don't need the glyphs though, they're just heavyv
-    del ttFont["CFF "]
+    ttFont["GSUB"].table.FeatureList.FeatureRecord.extend([chws, vchw])
 
     assert_PASS(check(ttFont))
 

@@ -93,8 +93,8 @@ def test_check_shaping_forbidden(check):
 
         config = {"shaping": {"test_directory": tmp_gf_dir}}
 
-        font = TEST_FILE("cjk/SourceHanSans-Regular.otf")
-        assert_PASS(check(font, config=config), "Source Han contains CJK")
+        font = TEST_FILE("cjk/NotoSansJP[wght].ttf")
+        assert_PASS(check(font, config=config), "Noto Sans contains CJK")
 
         font = TEST_FILE("slabo/Slabo13px.ttf")
         assert_results_contain(

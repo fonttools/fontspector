@@ -22,7 +22,7 @@ def test_check_file_size(check):
     )
 
     assert_results_contain(
-        check(TEST_FILE("cjk/SourceHanSans-Regular.otf")),
+        check(TEST_FILE("cjk/NotoSansJP[wght].ttf")),
         FAIL,
         "massive-font",
         "with a very big font...",
