@@ -6,9 +6,9 @@ use fontspector_checkapi::{constants::RIBBI_STYLE_NAMES, prelude::*, testfont, F
     rationale = "
         
         We require all fonts to have values for their font family name,
-        font subfamily name, full font name, and postscript name. For RIBBI
-        fonts, we also require values for the typographic family name and
-        typographic subfamily name.
+        font subfamily name, full font name, designer, and postscript name.
+        For RIBBI fonts, we also require values for the typographic family
+        name and typographic subfamily name.
     
     ",
     proposal = "https://github.com/fonttools/fontbakery/issues/4829",
@@ -22,6 +22,7 @@ fn mandatory_entries(t: &Testable, _context: &Context) -> CheckFnResult {
         StringId::SUBFAMILY_NAME,
         StringId::FULL_NAME,
         StringId::POSTSCRIPT_NAME,
+        StringId::DESIGNER,
     ];
     if let Some(style) = f.style() {
         if !RIBBI_STYLE_NAMES.contains(&style) {
