@@ -218,7 +218,7 @@ fn main() {
     let worst_status = results.worst_status();
 
     let mut reporters: Vec<Box<dyn Reporter>> = vec![];
-    if !args.quiet {
+    if !args.quiet && !any_reports_to_stdout {
         reporters.push(Box::new(TerminalReporter::new(args.succinct)));
     }
     process_reporter_args(&args, &mut reporters);
