@@ -5827,8 +5827,3 @@ checksum = "99a5bab8d7dedf81405c4bb1f2b83ea057643d9cb28778cea9eecddeedd2e028"
 dependencies = [
  "zune-core",
 ]
-
-[[patch.unused]]
-name = "tabled"
-version = "0.19.0"
-source = "git+https://github.com/zhiburt/tabled#fd48cef72a3e87beada497689509f9ab7b5823dd"
