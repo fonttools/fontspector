@@ -58,7 +58,7 @@ fn monospace(t: &Testable, context: &Context) -> CheckFnResult {
         if !font.has_table(required) {
             return Ok(Status::just_one_fail(
                 "lacks-table",
-                &format!("Font is missing a required table: {:?}", required),
+                &format!("Font is missing a required table: {}", std::str::from_utf8(required).unwrap_or("<invalid>")),
             ));
         }
     }
