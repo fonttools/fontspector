@@ -206,6 +206,17 @@ def test_check_monospace(check):
     del ttFont["OS/2"]
     assert_results_contain(check(ttFont), FAIL, "lacks-table")
 
+    # --------------------------------------------
+    # And now we test a CFF font:
+    # --------------------------------------------
+    ttFont = TTFont(TEST_FILE("source-sans-pro/OTF/SourceSansPro-Regular.otf"))
+    msg = assert_results_contain(
+        check(ttFont),
+        FAIL,
+        "lacks-table",
+    )
+    assert msg == "Font is missing a required table: glyf"
+
 
 @check_id("opentype/name/match_familyname_fullfont")
 def test_check_name_match_familyname_fullfont(check):
