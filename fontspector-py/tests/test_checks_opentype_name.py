@@ -210,12 +210,7 @@ def test_check_monospace(check):
     # And now we test a CFF font:
     # --------------------------------------------
     ttFont = TTFont(TEST_FILE("source-sans-pro/OTF/SourceSansPro-Regular.otf"))
-    msg = assert_results_contain(
-        check(ttFont),
-        FAIL,
-        "lacks-table",
-    )
-    assert msg == "Font is missing a required table: glyf"
+    assert_PASS(check(ttFont), "with a good non-monospace font...")
 
 
 @check_id("opentype/name/match_familyname_fullfont")
