@@ -24,7 +24,9 @@ impl fontspector_checkapi::Plugin for Fontwerk {
             .exclude_check("googlefonts/vendor_id") // Custom fontwerk test below
             .exclude_check("googlefonts/version_bump")
             .exclude_check("fontdata_namecheck")
+            .include_profile("opentype")
             .add_section("Fontwerk Checks")
+            .add_and_register_check(checks::fontwerk::name_entries)
             //.add_and_register_check(checks::fontwerk::vendor_id)
             // TODO: implement other Fontwerk checks
             // .add_and_register_check("fontwerk/names_match_default_fvar")
@@ -34,6 +36,15 @@ impl fontspector_checkapi::Plugin for Fontwerk {
                 HashMap::from([
                     ("vendor_id".to_string(), json!("WERK"))
                 ]),
+            )
+            .with_configuration_defaults(
+                "fontwerk/name_entries",
+                HashMap::from([
+                    ("MANUFACTURER".to_string(), json!("Fontwerk")),
+                    ("VENDOR_URL".to_string(), json!("https://fontwerk.com")),
+                    ("LICENSE_DESCRIPTION".to_string(), json!("This Font Software is the property of Fontwerk GmbH its use by you is covered under the terms of an End-User License Agreement (EULA). Unless you have entered into a specific license agreement granting you additional rights, your use of this Font Software is limited by the terms of the actual license agreement you have entered into with Fontwerk. If you have any questions concerning your rights you should review the EULA you received with the software or contact Fontwerk. A copy of the EULA for this Font Software can be found on https://fontwerk.com/licensing.")),
+                    ("LICENSE_URL".to_string(), json!("https://fontwerk.com")),
+                    ]),
             );
         builder.build("fontwerk", cr)
     }
