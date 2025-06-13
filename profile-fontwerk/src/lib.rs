@@ -1,5 +1,7 @@
 #![deny(clippy::unwrap_used, clippy::expect_used)]
 mod checks;
+use serde_json::json;
+use std::collections::HashMap;
 
 use fontspector_checkapi::{ProfileBuilder, Registry};
 
@@ -23,10 +25,16 @@ impl fontspector_checkapi::Plugin for Fontwerk {
             .exclude_check("googlefonts/version_bump")
             .exclude_check("fontdata_namecheck")
             .add_section("Fontwerk Checks")
-            .add_and_register_check(checks::fontwerk::vendor_id);
+            //.add_and_register_check(checks::fontwerk::vendor_id)
             // TODO: implement other Fontwerk checks
             // .add_and_register_check("fontwerk/names_match_default_fvar")
             // .add_and_register_check("fontwerk/style_linking");
+            .with_configuration_defaults(
+                "opentype/vendor_id",
+                HashMap::from([
+                    ("vendor_id".to_string(), json!("WERK"))
+                ]),
+            );
         builder.build("fontwerk", cr)
     }
 }

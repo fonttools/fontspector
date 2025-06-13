@@ -17,6 +17,7 @@ fontspector-checkapi = { path = "../fontspector-checkapi", features = [
 ], version = "1.0.0" }
 fontations = { workspace = true }
 itertools = { workspace = true }
+serde_json = { workspace = true }
 
 [target.'cfg(not(target_family = "wasm"))'.dependencies]
 # Plugin architecture
