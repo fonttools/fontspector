@@ -7,15 +7,17 @@ import { CheckSpecificRendering } from "./rendering";
 import {
   FontInfo,
   StatusCode,
-  ChecksMessage,
   CheckResult,
   Message,
   Status,
+  Check,
+  ReadyMessage,
 } from "./types";
 // @ts-ignore
 let hbjs = window["hbjs"];
 
 let fonts: Record<string, FontInfo> = {};
+let allChecks: Record<string, Check> = {};
 
 declare var CmarkGFM: any;
 const tinysort = require("tinysort");
@@ -97,7 +99,6 @@ function showResult(data: CheckResult[]) {
     const tabid = $("#v-pills-tab").children().length;
     const checkid = result.check_id;
     let thispill = $(`#v-pills-tab button[data-checkid="${checkid}"]`);
-    console.log("Adding result for ", checkid);
     let worststatus = result.worst_status;
     $(`#${worststatus}-count`).html(
       (1 + parseInt($(`#${worststatus}-count`).html())).toString()
@@ -245,19 +246,24 @@ function addProfile(profilename: string, col: number) {
  *
  * @param {Map} checks: Metadata about the checks
  **/
-function listChecks(checks: [string, Map<string, any>][]) {
+function listChecks(checkName = "") {
   $("#startModal").hide();
   $("#listchecks").show();
   $("#normalresults").hide();
-  for (const [id, check] of checks) {
+  $("#checks").empty();
+  for (const id of Object.getOwnPropertyNames(allChecks)) {
+    if (checkName && !id.includes(checkName)) {
+      continue; // Skip this check
+    }
+    const check = allChecks[id];
     const card = $(`
       <div class="card my-4">
         <div class="card-header">
           <code>${id}</code>
         </div>
       <div class="card-body">
-        <a name="${id}"><h2> ${check.get("description")} </h2></a>
-        ${CmarkGFM.convert(check.get("rationale") || "")}
+        <a name="${id}"><h2> ${check.description} </h2></a>
+        ${CmarkGFM.convert(check.rationale || "")}
         <table class="table">
           <tr>
             <th>Sections</th>
@@ -271,30 +277,36 @@ function listChecks(checks: [string, Map<string, any>][]) {
       </div>
     </div>
     `);
-    if (check.has("severity")) {
-      card
-        .find(".table")
-        .prepend(
-          $(`<tr><th>Severity</th><td>${check.get("severity")}</td></tr>`)
+    if (check.proposal) {
+      if (check.proposal.length > 1) {
+        let proposal_list = check.proposal.map(
+          (p) => `<li><a href="${p}">${p}</a></li>`
         );
+        card
+          .find(".table")
+          .prepend($(`<div>More information: <ul>${proposal_list}</ul></div>`));
+      } else {
+        card
+          .find(".table")
+          .prepend($(`<a href="${check.proposal[0]}">More information</a>`));
+      }
     }
-    if (check.has("proposal")) {
-      card
-        .find(".table")
-        .prepend($(`<a href="${check.get("proposal")}">More information</a>`));
-    }
-    for (const section of check.get("sections")) {
+    for (const section of check.sections) {
       card
         .find(".sections")
         .append(
-          $(`<span class="badge rounded-pill bg-primary"> ${section} </span>`)
+          $(
+            `<span class="badge badge-pill badge-primary mr-2"> ${section} </span>`
+          )
         );
     }
-    for (const profile of check.get("profiles")) {
+    for (const profile of check.profiles) {
       card
         .find(".profiles")
         .append(
-          $(`<span class="badge rounded-pill bg-primary"> ${profile} </span>`)
+          $(
+            `<span class="badge badge-pill badge-primary mr-2"> ${profile} </span>`
+          )
         );
     }
     $("#checks").append(card);
@@ -304,16 +316,17 @@ function listChecks(checks: [string, Map<string, any>][]) {
 fbWorker.onmessage = (event) => {
   let message = event.data as Message;
   console.log("Got a message", message);
-  if ("checks" in message) {
-    listChecks((event.data as ChecksMessage).checks);
-    return;
-  }
   if ("ready" in message) {
     showLoaded();
-    return;
-  }
-  if ("version" in message) {
     $("#fb-version").html(message.version);
+    allChecks = message.checks;
+    // If we have been asked to show a particular check, do that
+    if (window.location.hash) {
+      const checkName = window.location.hash.substring(1);
+      if (checkName in allChecks) {
+        listChecks(checkName);
+      }
+    }
     return;
   }
   if ("error" in message) {
@@ -327,7 +340,6 @@ fbWorker.onmessage = (event) => {
 Dropzone.autoDiscover = false;
 
 $(function () {
-  console.log("Calling boot");
   Dropzone.options.dropzone = {
     url: "https://127.0.0.1/", // This doesn't matter
     maxFilesize: 10, // Mb
@@ -369,9 +381,7 @@ $(function () {
     console.log(files);
     fbWorker.postMessage({ profile, files, loglevels, fulllists });
   });
-  $("#listchecksbtn").click(function () {
-    fbWorker.postMessage({ id: "listchecks" });
-  });
+  $("#listchecksbtn").on("click", () => listChecks());
   $(".leftarrow").click(reset);
   fbWorker.postMessage({ id: "justload" });
 });

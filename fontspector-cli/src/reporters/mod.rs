@@ -95,7 +95,7 @@ pub trait Reporter {
 pub fn create_user_home_templates_directory(force: bool) -> PathBuf {
     #[allow(clippy::expect_used)] // Something seriously wrong here if this fails
     let home = homedir::my_home()
-        .expect("Couldn't got home directory")
+        .expect("Couldn't get home directory")
         .expect("No home directory found");
     let templates_dir = home.join(".fontspector/");
     if !templates_dir.exists() {
@@ -145,6 +145,7 @@ pub(crate) fn any_stdout(args: &Args) -> Result<bool, String> {
     let yes_stdout = Some("-".to_string());
     let count_stdout: usize = if args.json == yes_stdout { 1 } else { 0 }
         + (if args.csv == yes_stdout { 1 } else { 0 })
+        + (if args.html == yes_stdout { 1 } else { 0 })
         + if args.ghmarkdown == yes_stdout { 1 } else { 0 };
     match count_stdout {
         1 => Ok(true),

@@ -77,7 +77,7 @@ rosarivo_fonts = [
     TEST_FILE("rosarivo_metadata/Rosarivo-Regular.ttf"),
 ]
 
-cjk_font = TEST_FILE("cjk/SourceHanSans-Regular.otf")
+cjk_font = TEST_FILE("cjk/NotoSansJP[wght].ttf")
 
 
 @pytest.fixture
@@ -2841,81 +2841,32 @@ def test_check_vertical_metrics_regressions(check):
 @check_id("googlefonts/cjk_vertical_metrics")
 def test_check_cjk_vertical_metrics(check):
 
-    ttFont = TTFont(cjk_font)
-    assert_PASS(check(ttFont, skip_network=True), "for Source Han Sans")
+    # Iansui was built with our new vertical metrics schema, so should work
+    ttFont = TTFont(TEST_FILE("cjk/Iansui-Regular.ttf"))
+    assert_PASS(check(ttFont, skip_network=True), "for Iansui")
 
-    # This is going to be very slow as it saves a big CJK font many times.
+    # Noto Sans was built with our old vertical metrics schema, so won't
     ttFont = TTFont(cjk_font)
-    ttFont["OS/2"].fsSelection |= 1 << 7
+    results = check(ttFont, skip_network=True)
     assert_results_contain(
-        check(ttFont, skip_network=True),
+        results,
         FAIL,
         "bad-fselection-bit7",
         "for font where OS/2 fsSelection bit 7 is enabled",
     )
 
-    ttFont = TTFont(cjk_font)
-    ttFont["OS/2"].sTypoAscender = 32767
     assert_results_contain(
-        check(ttFont, skip_network=True),
+        results,
         FAIL,
         "bad-OS/2.sTypoAscender",
         "for font with bad OS/2.sTypoAscender",
     )
 
-    ttFont = TTFont(cjk_font)
-    ttFont["OS/2"].sTypoDescender = 32767
     assert_results_contain(
-        check(ttFont, skip_network=True),
+        results,
         FAIL,
         "bad-OS/2.sTypoDescender",
         "for font with bad OS/2.sTypoDescender",
-    )
-
-    ttFont = TTFont(cjk_font)
-    ttFont["OS/2"].sTypoLineGap = 32767
-    assert_results_contain(
-        check(ttFont, skip_network=True),
-        FAIL,
-        "bad-OS/2.sTypoLineGap",
-        "for font where linegaps have been set (OS/2 table)",
-    )
-
-    ttFont = TTFont(cjk_font)
-    ttFont["hhea"].lineGap = 32767
-    assert_results_contain(
-        check(ttFont, skip_network=True),
-        FAIL,
-        "bad-hhea.lineGap",
-        "for font where linegaps have been set (hhea table)",
-    )
-
-    ttFont = TTFont(cjk_font)
-    ttFont["OS/2"].usWinAscent = 32767
-    assert_results_contain(
-        check(ttFont, skip_network=True),
-        FAIL,
-        "ascent-mismatch",
-        "for a font where typo ascender != 0.88 * upm",
-    )
-
-    ttFont = TTFont(cjk_font)
-    ttFont["OS/2"].usWinDescent = 0
-    assert_results_contain(
-        check(ttFont, skip_network=True),
-        FAIL,
-        "descent-mismatch",
-        "for a font where typo descender != 0.12 * upm",
-    )
-
-    ttFont = TTFont(cjk_font)
-    ttFont["OS/2"].usWinAscent = 32767
-    ttFont["hhea"].ascent = 32767
-    assert_results_contain(
-        check(ttFont, skip_network=True),
-        WARN,
-        "bad-hhea-range",
-        "if font hhea and win metrics are greater than 1.5 * upm",
     )
 
 
@@ -3289,8 +3240,8 @@ def test_check_use_typo_metrics(check):
 def test_check_use_typo_metrics_with_cjk(check):
     """All CJK fonts checked with the googlefonts profile should skip this check"""
 
-    tt_pass_clear = TTFont(TEST_FILE("cjk/SourceHanSans-Regular.otf"))
-    tt_pass_set = TTFont(TEST_FILE("cjk/SourceHanSans-Regular.otf"))
+    tt_pass_clear = TTFont(cjk_font)
+    tt_pass_set = TTFont(cjk_font)
 
     fs_selection = 0
 

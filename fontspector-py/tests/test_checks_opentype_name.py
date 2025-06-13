@@ -269,8 +269,8 @@ def test_check_name_match_familyname_fullfont(check):
     msg = assert_results_contain(check(ttFont), FAIL, "missing-full-name")
 
     # Run the check on a CJK font. The font's 'name' table contains
-    # English-US (1033/0x0409) and Japanese (1041/0x0411) records. It should PASS.
-    ttFont = TTFont(TEST_FILE("cjk/SourceHanSans-Regular.otf"))
+    # English-US (1033/0x0409) and Chinese (1028/0x0404) records. It should PASS.
+    ttFont = TTFont(TEST_FILE("cjk/Iansui-Regular.ttf"))
     assert_PASS(check(ttFont))
 
     name_table = ttFont["name"]
