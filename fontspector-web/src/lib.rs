@@ -14,6 +14,7 @@ use profile_iso15008::Iso15008;
 use profile_microsoft::Microsoft;
 use profile_opentype::OpenType;
 use profile_universal::Universal;
+use profile_fontwerk::Fontwerk;
 
 // #[wasm_bindgen]
 // extern "C" {
@@ -46,10 +47,12 @@ fn register_profiles<'a>() -> Registry<'a> {
     Microsoft
         .register(&mut registry)
         .expect("Couldn't register Microsoft profile, fontspector bug");
+    Fontwerk
+        .register(&mut registry)
+        .expect("Couldn't register Fontwerk profile, fontspector bug");
 
     for (name, toml) in [
         ("fontbureau", include_str!("../../profiles/fontbureau.toml")),
-        ("fontwerk", include_str!("../../profiles/fontwerk.toml")),
     ] {
         let profile = Profile::from_toml(toml).expect("Couldn't load profile, fontspector bug");
         registry

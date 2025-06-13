@@ -10,6 +10,7 @@ js-sys = { version = "0.3.68" }
 fontspector-checkapi = { path = "../fontspector-checkapi" }
 profile-opentype = { path = "../profile-opentype", package = "fontspector-profile-opentype" }
 profile-universal = { path = "../profile-universal", package = "fontspector-profile-universal" }
+profile-fontwerk = { path = "../profile-fontwerk", package = "fontspector-profile-fontwerk" }
 profile-googlefonts = { path = "../profile-googlefonts", package = "fontspector-profile-googlefonts" }
 serde_json = { workspace = true, features = ["preserve_order"] }
 profile-iso15008 = { path = "../profile-iso15008", package = "fontspector-profile-iso15008" }

@@ -6,6 +6,7 @@ members = [
     "fontspector-checkapi",
     "fontspector-checkhelper",
     "profile-adobe",
+    "profile-fontwerk",
     "profile-designspace",
     "profile-iso15008",
     "profile-microsoft",
