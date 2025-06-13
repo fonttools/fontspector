@@ -95,7 +95,7 @@ pub trait Reporter {
 pub fn create_user_home_templates_directory(force: bool) -> PathBuf {
     #[allow(clippy::expect_used)] // Something seriously wrong here if this fails
     let home = homedir::my_home()
-        .expect("Couldn't got home directory")
+        .expect("Couldn't get home directory")
         .expect("No home directory found");
     let templates_dir = home.join(".fontspector/");
     if !templates_dir.exists() {
