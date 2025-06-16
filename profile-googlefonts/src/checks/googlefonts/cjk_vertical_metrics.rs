@@ -11,8 +11,9 @@ use fontations::{
     },
     types::{BigEndian, GlyphId, Tag},
 };
-use fontspector_checkapi::{fixfont, GetSubstitutionMap};
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, TestFont};
+use fontspector_checkapi::{
+    prelude::*, skip, testfont, FileTypeConvert, GetSubstitutionMap, TestFont,
+};
 use hashbrown::{HashMap, HashSet};
 use tabled::builder::Builder;
 

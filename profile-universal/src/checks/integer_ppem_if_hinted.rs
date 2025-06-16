@@ -1,5 +1,5 @@
 use fontations::{skrifa::raw::TableProvider, write::from_obj::ToOwnedTable};
-use fontspector_checkapi::{fixfont, prelude::*, skip, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
 
 #[check(
     id = "integer_ppem_if_hinted",
@@ -35,12 +35,8 @@ fn integer_ppem_if_hinted(f: &Testable, _context: &Context) -> CheckFnResult {
 }
 
 fn fix_integer_ppem_if_hinted(t: &mut Testable) -> FixFnResult {
-    let f = fixfont!(t);
-    let mut head: fontations::write::tables::head::Head = f
-        .font()
-        .head()
-        .map_err(|e| format!("Failed to read head table: {}", e))?
-        .to_owned_table();
+    let f = testfont!(t);
+    let mut head: fontations::write::tables::head::Head = f.font().head()?.to_owned_table();
     head.flags |= 0b1000;
     t.set(f.rebuild_with_new_tables(&[head])?);
     Ok(true)

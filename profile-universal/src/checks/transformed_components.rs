@@ -11,7 +11,7 @@ use fontations::write::{
     },
     FontBuilder,
 };
-use fontspector_checkapi::{fixfont, prelude::*, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
 use hashbrown::HashMap;
 use itertools::Itertools;
 use kurbo::Affine;
@@ -101,15 +101,9 @@ fn transformed_components(f: &Testable, context: &Context) -> CheckFnResult {
 }
 
 fn decompose_transformed_components(t: &mut Testable) -> FixFnResult {
-    let f = fixfont!(t);
-    let loca = f
-        .font()
-        .loca(None)
-        .map_err(|_| "loca table not found".to_string())?;
-    let glyf = f
-        .font()
-        .glyf()
-        .map_err(|_| "glyf table not found".to_string())?;
+    let f = testfont!(t);
+    let loca = f.font().loca(None)?;
+    let glyf = f.font().glyf()?;
     let bad_composites = f
         .all_glyphs()
         .filter_map(|gid| {
@@ -137,20 +131,16 @@ pub(crate) fn decompose_components_impl(
     t: &mut Testable,
     decompose_order: &[GlyphId],
 ) -> FixFnResult {
-    let f = fixfont!(t);
+    let f = testfont!(t);
     if f.has_table(b"gvar") {
-        return Err("Cannot (yet) decompose nested components in variable fonts".to_string());
+        return Err(FontspectorError::Fix(
+            "Cannot (yet) decompose nested components in variable fonts".to_string(),
+        ));
     }
     let mut new_font = FontBuilder::new();
     let mut builder = GlyfLocaBuilder::new();
-    let loca = f
-        .font()
-        .loca(None)
-        .map_err(|_| "loca table not found".to_string())?;
-    let glyf = f
-        .font()
-        .glyf()
-        .map_err(|_| "glyf table not found".to_string())?;
+    let loca = f.font().loca(None)?;
+    let glyf = f.font().glyf()?;
     let mut all_glyphs: HashMap<GlyphId, WriteGlyph> = f
         .all_glyphs()
         .map(|gid| {
@@ -165,10 +155,11 @@ pub(crate) fn decompose_components_impl(
                 })
                 .map(|x| (gid, x))
         })
-        .collect::<Result<HashMap<GlyphId, WriteGlyph>, _>>()
-        .map_err(|x| x.to_string())?;
+        .collect::<Result<HashMap<GlyphId, WriteGlyph>, _>>()?;
     for glyph_id in decompose_order {
-        let current_glyph = all_glyphs.get(glyph_id).ok_or("glyph not found")?;
+        let current_glyph = all_glyphs
+            .get(glyph_id)
+            .ok_or(FontspectorError::Fix("glyph not found".to_string()))?;
         match current_glyph {
             WriteGlyph::Composite(composite) => {
                 let new_glyph = decompose_glyph(composite, &all_glyphs)?;
@@ -178,12 +169,14 @@ pub(crate) fn decompose_components_impl(
         }
     }
     for glyph_id in all_glyphs.keys().sorted_by(|a, b| a.cmp(b)) {
-        let glyph = all_glyphs.get(glyph_id).ok_or("glyph not found")?;
-        builder.add_glyph(glyph).map_err(|x| x.to_string())?;
+        let glyph = all_glyphs
+            .get(glyph_id)
+            .ok_or(FontspectorError::Fix("glyph not found".to_string()))?;
+        builder.add_glyph(glyph)?;
     }
     let (new_glyph, new_loca, _head_format) = builder.build();
-    new_font.add_table(&new_glyph).map_err(|x| x.to_string())?;
-    new_font.add_table(&new_loca).map_err(|x| x.to_string())?;
+    new_font.add_table(&new_glyph)?;
+    new_font.add_table(&new_loca)?;
     new_font.copy_missing_tables(f.font());
     let new_bytes = new_font.build();
     t.set(new_bytes);
@@ -193,11 +186,13 @@ pub(crate) fn decompose_components_impl(
 fn decompose_glyph(
     composite: &CompositeGlyph,
     glyphs: &HashMap<GlyphId, WriteGlyph>,
-) -> Result<WriteGlyph, String> {
+) -> Result<WriteGlyph, FontspectorError> {
     let mut new_glyph = SimpleGlyph::default();
     for component in composite.components() {
         for (gid, affine) in flatten_component(glyphs, component)? {
-            let component_glyph = glyphs.get(&gid).ok_or("glyph not found")?;
+            let component_glyph = glyphs
+                .get(&gid)
+                .ok_or(FontspectorError::Fix("glyph not found".to_string()))?;
             match component_glyph {
                 WriteGlyph::Simple(simple) => {
                     new_glyph
@@ -227,10 +222,10 @@ fn transform_contour(c: &Contour, affine: Affine) -> Contour {
 fn flatten_component(
     glyphs: &HashMap<GlyphId, WriteGlyph>,
     component: &Component,
-) -> Result<Vec<(GlyphId, kurbo::Affine)>, String> {
+) -> Result<Vec<(GlyphId, kurbo::Affine)>, FontspectorError> {
     let glyph = glyphs
         .get(&GlyphId::from(component.glyph))
-        .ok_or("glyph not found")?;
+        .ok_or(FontspectorError::Fix("glyph not found".to_string()))?;
     let my_transform = to_kurbo_transform(&component.transform, &component.anchor);
 
     Ok(match glyph {

@@ -2,7 +2,7 @@ use fontations::{
     read::{tables::os2::SelectionFlags, TableProvider},
     write::from_obj::ToOwnedTable,
 };
-use fontspector_checkapi::{fixfont, prelude::*, skip, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
 
 #[check(
     id = "googlefonts/use_typo_metrics",
@@ -47,15 +47,11 @@ fn use_typo_metrics(t: &Testable, context: &Context) -> CheckFnResult {
 }
 
 fn fix_use_typo_metrics(t: &mut Testable) -> FixFnResult {
-    let f = fixfont!(t);
+    let f = testfont!(t);
     if f.is_cjk_font(None) {
         return Ok(false);
     }
-    let mut os2: fontations::write::tables::os2::Os2 = f
-        .font()
-        .os2()
-        .map_err(|e| format!("Couldn't read OS/2 table: {}", e))?
-        .to_owned_table();
+    let mut os2: fontations::write::tables::os2::Os2 = f.font().os2()?.to_owned_table();
     os2.fs_selection |= SelectionFlags::USE_TYPO_METRICS;
     t.set(f.rebuild_with_new_tables(&[os2])?);
     Ok(true)

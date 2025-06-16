@@ -1,5 +1,5 @@
 use fontations::skrifa::string::StringId;
-use fontspector_checkapi::{fixfont, prelude::*, testfont, FileTypeConvert, TestFont};
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, TestFont};
 use google_fonts_axisregistry::build_name_table;
 use tabled::builder::Builder;
 
@@ -42,8 +42,9 @@ fn font_names(t: &Testable, _context: &Context) -> CheckFnResult {
     }
 
     let expected_font_data = build_expected_font(&f, &[])?;
-    let expected_font = TestFont::new_from_data(&t.filename, &expected_font_data)
-        .map_err(|e| FontspectorError::General(format!("Couldn't build expected font from data: {}", e)))?;
+    let expected_font = TestFont::new_from_data(&t.filename, &expected_font_data).map_err(|e| {
+        FontspectorError::General(format!("Couldn't build expected font from data: {}", e))
+    })?;
     let mut ok = true;
     let mut md_table = Builder::new();
     md_table.push_record(vec!["Name", "Current", "Expected"]);
@@ -89,12 +90,12 @@ fn font_names(t: &Testable, _context: &Context) -> CheckFnResult {
 }
 
 fn fix_font_names(t: &mut Testable) -> FixFnResult {
-    let f = fixfont!(t);
+    let f = testfont!(t);
     if f.has_axis("MORF") {
         return Ok(false);
     }
-    let new_binary =
-        build_name_table(f.font(), None, None, &[], None).map_err(|e| e.to_string())?;
+    let new_binary = build_name_table(f.font(), None, None, &[], None)
+        .map_err(|e| FontspectorError::Fix(format!("Couldn't build name table: {}", e)))?;
     t.set(new_binary);
     Ok(true)
 }

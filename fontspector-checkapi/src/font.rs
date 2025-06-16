@@ -513,12 +513,10 @@ impl TestFont<'_> {
     pub fn rebuild_with_new_tables<T: FontWrite + Validate + TopLevelTable>(
         &self,
         tables: &[T],
-    ) -> Result<Vec<u8>, String> {
+    ) -> Result<Vec<u8>, FontspectorError> {
         let mut new_font = fontations::write::FontBuilder::new();
         for table in tables {
-            new_font
-                .add_table(table)
-                .map_err(|e| format!("Error adding table to new font: {}", e))?;
+            new_font.add_table(table)?;
         }
         new_font.copy_missing_tables(self.font());
         Ok(new_font.build())

@@ -1,6 +1,6 @@
 use std::vec;
 
-use fontspector_checkapi::{fixfont, prelude::*, skip, testfont, FileTypeConvert, TestFont};
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, TestFont};
 use google_fonts_axisregistry::build_fvar_instances;
 use indexmap::{IndexMap, IndexSet};
 use tabled::builder::Builder;
@@ -127,11 +127,12 @@ fn fvar_instances(t: &Testable, _context: &Context) -> CheckFnResult {
 }
 
 fn fix_fvar_instances(t: &mut Testable) -> FixFnResult {
-    let f = fixfont!(t);
+    let f = testfont!(t);
     if !f.is_variable_font() {
         return Ok(false);
     }
-    let new_binary = build_fvar_instances(f.font(), None).map_err(|e| e.to_string())?;
+    let new_binary =
+        build_fvar_instances(f.font(), None).map_err(|e| FontspectorError::Fix(e.to_string()))?;
     t.set(new_binary);
     Ok(true)
 }

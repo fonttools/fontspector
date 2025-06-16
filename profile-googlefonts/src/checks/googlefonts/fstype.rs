@@ -1,5 +1,5 @@
 use fontations::{skrifa::raw::TableProvider, write::from_obj::ToOwnedTable};
-use fontspector_checkapi::{fixfont, prelude::*, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
 
 const FSTYPE_RESTRICTIONS: [(u16, &str); 5] = [
     (0x0002,
@@ -61,12 +61,8 @@ fn fstype(t: &Testable, _context: &Context) -> CheckFnResult {
 }
 
 fn fix_fstype(t: &mut Testable) -> FixFnResult {
-    let f = fixfont!(t);
-    let mut os2: fontations::write::tables::os2::Os2 = f
-        .font()
-        .os2()
-        .map_err(|e| format!("Failed to read OS/2 table: {}", e))?
-        .to_owned_table();
+    let f = testfont!(t);
+    let mut os2: fontations::write::tables::os2::Os2 = f.font().os2()?.to_owned_table();
     os2.fs_type = 0;
     t.set(f.rebuild_with_new_tables(&[os2])?);
     Ok(true)

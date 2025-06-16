@@ -3,7 +3,7 @@ use fontations::{
     types::Tag,
     write::FontBuilder,
 };
-use fontspector_checkapi::{fixfont, prelude::*, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
 use tabled::builder::Builder;
 
 const NON_HINTING_MESSAGE: &str =  "If you are dealing with an unhinted font, it can be fixed by running the fonts through the command 'gftools fix-nonhinting'\nGFTools is available at https://pypi.org/project/gftools/";
@@ -110,7 +110,7 @@ fn gasp(t: &Testable, _context: &Context) -> CheckFnResult {
 }
 
 fn fix_unhinted_font(t: &mut Testable) -> FixFnResult {
-    let f = fixfont!(t);
+    let f = testfont!(t);
     if f.has_table(b"fpgm") || (f.has_table(b"prep") && f.has_table(b"gasp")) {
         return Ok(false);
     }
@@ -128,9 +128,7 @@ fn fix_unhinted_font(t: &mut Testable) -> FixFnResult {
     // PUSHW[] 511 SCANCTRL[] PUSHB[] 4 SCANTYPE[]
     let new_prep = b"\xb8\x01\xff\x85\xb0\x04\x8d";
     let mut new_font = FontBuilder::new();
-    new_font
-        .add_table(&new_gasp)
-        .map_err(|e| format!("Error while adding gasp table to font: {}", e))?;
+    new_font.add_table(&new_gasp)?;
     new_font.add_raw(Tag::new(b"prep"), new_prep);
     new_font.copy_missing_tables(f.font());
     let new_bytes = new_font.build();

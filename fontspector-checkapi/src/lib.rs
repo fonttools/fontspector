@@ -72,13 +72,6 @@ pub mod prelude {
                 })?
         };
     }
-    #[macro_export]
-    /// The same as [testfont!] but for hotfixing.
-    macro_rules! fixfont {
-        ($f: ident) => {
-            TTF.from_testable($f).ok_or("Not a TTF file")?
-        };
-    }
     /// Return a skip status with a code and message
     ///
     /// This macro has two forms:
@@ -96,7 +89,7 @@ pub mod prelude {
         };
     }
     /// The expected return type of a hotfix function
-    pub type FixFnResult = Result<bool, String>;
+    pub type FixFnResult = Result<bool, FontspectorError>;
     pub use crate::{
         return_result, utils::*, Check, CheckFlags, CheckFnResult, CheckImplementation, Context,
         FileType, FontspectorError, Profile, ProfileBuilder, Registry, Status, StatusList,

@@ -373,7 +373,7 @@ fn try_fixing_stuff(results: &mut RunResults, args: &Args, registry: &Registry) 
                     modified |= hotfix_behaviour;
                     Some(FixResult::Fixed)
                 }
-                Err(e) => Some(FixResult::FixError(e)),
+                Err(e) => Some(FixResult::FixError(e.to_string())),
             }
         }
         if modified {

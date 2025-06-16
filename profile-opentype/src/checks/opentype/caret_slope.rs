@@ -1,5 +1,5 @@
 use fontations::{skrifa::raw::TableProvider, types::Fixed, write::from_obj::ToOwnedTable};
-use fontspector_checkapi::{fixfont, prelude::*, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
 
 #[check(
     id = "opentype/caret_slope",
@@ -77,25 +77,14 @@ fn caret_slope(t: &Testable, _context: &Context) -> CheckFnResult {
 // }
 
 fn fix_caret_slope(t: &mut Testable) -> FixFnResult {
-    let f = fixfont!(t);
-    let mut hhea: fontations::write::tables::hhea::Hhea = f
-        .font()
-        .hhea()
-        .map_err(|e| format!("Couldn't get hhea table: {}", e))?
-        .to_owned_table();
-    let post = f
-        .font()
-        .post()
-        .map_err(|e| format!("Couldn't get post table: {}", e))?;
+    let f = testfont!(t);
+    let mut hhea: fontations::write::tables::hhea::Hhea = f.font().hhea()?.to_owned_table();
+    let post = f.font().post()?;
     if post.italic_angle() == Fixed::ZERO {
         println!("Skipping fix_caret_slope for non-italic font");
         return Ok(false);
     }
-    let upem = f
-        .font()
-        .head()
-        .map_err(|e| format!("Couldn't get head table: {}", e))?
-        .units_per_em();
+    let upem = f.font().head()?.units_per_em();
     hhea.caret_slope_rise = upem as i16;
     hhea.caret_slope_run =
         (-post.italic_angle().to_f32().to_radians().tan() * upem as f32).round() as i16;

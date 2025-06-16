@@ -8,7 +8,7 @@ use fontations::skrifa::raw::{
     TableProvider,
 };
 use fontations::skrifa::GlyphId;
-use fontspector_checkapi::{fixfont, prelude::*, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
 
 use super::transformed_components::decompose_components_impl;
 
@@ -83,15 +83,9 @@ fn get_depth(glyph_id: GlyphId, loca: &Loca, glyf: &Glyf) -> u32 {
 }
 
 fn decompose_nested_components(t: &mut Testable) -> FixFnResult {
-    let font = fixfont!(t);
-    let loca = font
-        .font()
-        .loca(None)
-        .map_err(|_| "loca table not found".to_string())?;
-    let glyf = font
-        .font()
-        .glyf()
-        .map_err(|_| "glyf table not found".to_string())?;
+    let font = testfont!(t);
+    let loca = font.font().loca(None)?;
+    let glyf = font.font().glyf()?;
     let mut depths = HashMap::new();
     for glyph in font.all_glyphs() {
         depths.insert(glyph, get_depth(glyph, &loca, &glyf));

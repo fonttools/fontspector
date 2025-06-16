@@ -5,7 +5,7 @@ use fontations::{
     },
     write::from_obj::ToOwnedTable,
 };
-use fontspector_checkapi::{fixfont, prelude::*, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
 
 #[check(
     id = "opentype/fsselection",
@@ -76,15 +76,11 @@ fn fsselection(f: &Testable, _context: &Context) -> CheckFnResult {
 }
 
 fn fix_fsselection(t: &mut Testable) -> FixFnResult {
-    let f = fixfont!(t);
+    let f = testfont!(t);
     let Some(style) = f.style() else {
         return Ok(false);
     };
-    let mut os2: fontations::write::tables::os2::Os2 = f
-        .font()
-        .os2()
-        .map_err(|e| format!("Couldn't read OS/2 table: {}", e))?
-        .to_owned_table();
+    let mut os2: fontations::write::tables::os2::Os2 = f.font().os2()?.to_owned_table();
     os2.fs_selection &= SelectionFlags::USE_TYPO_METRICS;
     let bold_expected = style == "Bold" || style == "BoldItalic";
     let italic_expected = style.contains("Italic");
