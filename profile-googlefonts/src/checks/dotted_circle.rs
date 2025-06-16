@@ -36,7 +36,9 @@ fn is_complex_shaper_font(f: &TestFont) -> Option<bool> {
 
 type AttachmentMap = HashMap<GlyphId, Vec<GlyphId>>;
 
-fn find_all_attachments(f: &TestFont) -> Result<(HashSet<GlyphId>, AttachmentMap), CheckError> {
+fn find_all_attachments(
+    f: &TestFont,
+) -> Result<(HashSet<GlyphId>, AttachmentMap), FontspectorError> {
     let attachment_rules = f
         .font()
         .gpos()?

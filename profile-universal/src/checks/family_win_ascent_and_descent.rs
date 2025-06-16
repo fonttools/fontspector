@@ -13,15 +13,15 @@ struct Metrics {
 #[allow(dead_code)]
 fn all_simple_glyphs<'a>(
     font: &'a TestFont,
-) -> Result<impl Iterator<Item = SimpleGlyph<'a>>, CheckError> {
+) -> Result<impl Iterator<Item = SimpleGlyph<'a>>, FontspectorError> {
     let loca = font
         .font()
         .loca(None)
-        .map_err(|_| CheckError::Error("loca table not found".to_string()))?;
+        .map_err(|_| FontspectorError::General("loca table not found".to_string()))?;
     let glyf = font
         .font()
         .glyf()
-        .map_err(|_| CheckError::Error("glyf table not found".to_string()))?;
+        .map_err(|_| FontspectorError::General("glyf table not found".to_string()))?;
     Ok(font.all_glyphs().filter_map(move |glyphid| {
         if let Some(Glyph::Simple(simple)) = loca.get_glyf(glyphid, &glyf).ok()? {
             Some(simple)
@@ -31,7 +31,7 @@ fn all_simple_glyphs<'a>(
     }))
 }
 
-fn family_metrics(fonts: &[TestFont]) -> Result<Metrics, CheckError> {
+fn family_metrics(fonts: &[TestFont]) -> Result<Metrics, FontspectorError> {
     let mut metrics = Metrics::default();
     for font in fonts {
         // The original fontbakery code checked whether the font was

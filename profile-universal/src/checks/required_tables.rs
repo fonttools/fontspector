@@ -68,7 +68,7 @@ fn required_tables(t: &Testable, _context: &Context) -> CheckFnResult {
     for tag in OPTIONAL_TABLE_TAGS {
         if f.has_table(tag) {
             optional.push(String::from_utf8(tag.to_vec()).map_err(|_| {
-                CheckError::Error(format!("Font tag '{:?}' wasn't UTF8?", tag.to_vec()))
+                FontspectorError::General(format!("Font tag '{:?}' wasn't UTF8?", tag.to_vec()))
             })?)
         }
     }
@@ -86,7 +86,7 @@ fn required_tables(t: &Testable, _context: &Context) -> CheckFnResult {
     for tag in required_table_tags {
         if !f.has_table(tag) {
             missing.push(String::from_utf8(tag.to_vec()).map_err(|_| {
-                CheckError::Error(format!("Font tag '{:?}' wasn't UTF8?", tag.to_vec()))
+                FontspectorError::General(format!("Font tag '{:?}' wasn't UTF8?", tag.to_vec()))
             })?);
         }
     }

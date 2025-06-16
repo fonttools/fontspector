@@ -21,7 +21,7 @@ use std::fs::read_to_string;
 fn escaped_strings(c: &TestableCollection, _context: &Context) -> CheckFnResult {
     let mdpb = c
         .get_file("METADATA.pb")
-        .ok_or_else(|| CheckError::skip("no-mdpb", "No METADATA.pb file found"))?;
+        .ok_or_else(|| FontspectorError::skip("no-mdpb", "No METADATA.pb file found"))?;
     let mut problems = vec![];
 
     for line in read_to_string(mdpb.filename.clone())?.lines() {

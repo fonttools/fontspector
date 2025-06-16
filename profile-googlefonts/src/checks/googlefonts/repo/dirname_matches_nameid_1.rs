@@ -26,10 +26,12 @@ fn dirname_matches_nameid_1(t: &Testable, _context: &Context) -> CheckFnResult {
         "variable-exempt",
         "Variable fonts are exempt from this check."
     );
-    let family_name = f.best_familyname().ok_or(CheckError::Error(format!(
-        "Could not determine a family name for {}",
-        f.filename.to_string_lossy()
-    )))?;
+    let family_name = f
+        .best_familyname()
+        .ok_or(FontspectorError::General(format!(
+            "Could not determine a family name for {}",
+            f.filename.to_string_lossy()
+        )))?;
     let expected = family_name.to_lowercase().replace(" ", "").replace("-", "");
     let Some(parent) = f.filename.parent().and_then(|x| x.file_name()) else {
         skip!(

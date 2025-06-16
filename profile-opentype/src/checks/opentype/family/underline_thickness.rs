@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use fontations::skrifa::raw::{types::FWord, TableProvider};
-use fontspector_checkapi::{prelude::*, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, skip, FileTypeConvert};
 use itertools::Itertools;
 
 #[check(
@@ -19,12 +19,7 @@ use itertools::Itertools;
 )]
 fn underline_thickness(c: &TestableCollection, _context: &Context) -> CheckFnResult {
     let fonts = TTF.from_collection(c);
-    if fonts.len() < 2 {
-        return Err(CheckError::Skip {
-            code: "no-siblings".to_string(),
-            message: "No sibling fonts found".to_string(),
-        });
-    }
+    skip!(fonts.len() < 2, "no-siblings", "No sibling fonts found");
     let posts: Vec<(&PathBuf, FWord)> = fonts
         .iter()
         .map(|font| {

@@ -29,11 +29,11 @@ fn os2_metrics_match_hhea(t: &Testable, context: &Context) -> CheckFnResult {
     let os2 = f
         .font()
         .os2()
-        .map_err(|_| CheckError::Error("OS/2 table missing".to_string()))?;
+        .map_err(|_| FontspectorError::General("OS/2 table missing".to_string()))?;
     let hhea = f
         .font()
         .hhea()
-        .map_err(|_| CheckError::Error("hhea table missing".to_string()))?;
+        .map_err(|_| FontspectorError::General("hhea table missing".to_string()))?;
     let mut problems = vec![];
     if os2.s_typo_ascender() != hhea.ascender().to_i16() {
         problems.push(Status::fail(

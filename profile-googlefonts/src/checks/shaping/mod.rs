@@ -3,7 +3,7 @@ mod regression;
 pub(crate) mod schema;
 use std::str::FromStr;
 
-use fontspector_checkapi::{CheckError, Context, Testable};
+use fontspector_checkapi::{Context, FontspectorError, Testable};
 pub use forbidden::forbidden;
 pub use regression::regression;
 
@@ -19,25 +19,26 @@ pub(crate) fn create_buffer_and_run(
     face: &mut Face,
     input: &str,
     options: &ShapingOptions,
-) -> Result<GlyphBuffer, CheckError> {
+) -> Result<GlyphBuffer, FontspectorError> {
     let mut buffer = UnicodeBuffer::new();
     buffer.push_str(input);
     if let Some(script) = options.script.as_deref() {
         buffer.set_script(
             rustybuzz::Script::from_str(script)
-                .map_err(|e| CheckError::Error(format!("Bad 'script' argument {}", e)))?,
+                .map_err(|e| FontspectorError::Shaping(format!("Bad 'script' argument {}", e)))?,
         );
     }
     if let Some(language) = options.language.as_deref() {
-        buffer.set_language(
-            rustybuzz::Language::from_str(language)
-                .map_err(|e| CheckError::Error(format!("Bad 'language' argument {}", e)))?,
-        );
+        buffer
+            .set_language(rustybuzz::Language::from_str(language).map_err(|e| {
+                FontspectorError::Shaping(format!("Bad 'language' argument {}", e))
+            })?);
     }
     if let Some(direction) = options.direction.as_deref() {
         buffer.set_direction(
-            rustybuzz::Direction::from_str(direction)
-                .map_err(|e| CheckError::Error(format!("Bad 'direction' argument {}", e)))?,
+            rustybuzz::Direction::from_str(direction).map_err(|e| {
+                FontspectorError::Shaping(format!("Bad 'direction' argument {}", e))
+            })?,
         );
     }
     let features = options
@@ -74,9 +75,10 @@ pub(crate) trait ShapingCheck {
         &self,
         t: &Testable,
         context: &Context,
-    ) -> Result<Vec<(String, Vec<FailedCheck>)>, CheckError> {
-        let mut face = Face::from_slice(&t.contents, 0)
-            .ok_or(CheckError::Error("Failed to load font file".to_string()))?;
+    ) -> Result<Vec<(String, Vec<FailedCheck>)>, FontspectorError> {
+        let mut face = Face::from_slice(&t.contents, 0).ok_or(FontspectorError::Shaping(
+            "Failed to load font file".to_string(),
+        ))?;
 
         let basename = t.basename().unwrap_or_default();
         let mut results = vec![];
@@ -86,11 +88,15 @@ pub(crate) trait ShapingCheck {
             .and_then(|shaping| shaping.as_object())
             .and_then(|shaping| shaping.get("test_directory"))
             .and_then(|test_directory: &serde_json::Value| test_directory.as_str())
-            .ok_or(CheckError::skip(
+            .ok_or(FontspectorError::skip(
                 "no-tests",
                 "Shaping test directory not defined in configuration file",
             ))?;
-        let files = glob::glob(&format!("{}/*.json", shaping_file))?.flatten();
+        let files = glob::glob(&format!("{}/*.json", shaping_file))
+        .map_err(|_| {
+            FontspectorError::General("Invalid pattern in glob for shaping tests (shaping directory in configuration file was bad?)".to_string())
+        })?
+        .flatten();
 
         for file in files {
             let file_contents = std::fs::read_to_string(&file)?;

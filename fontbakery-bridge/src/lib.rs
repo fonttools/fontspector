@@ -99,17 +99,21 @@ fn python_checkrunner(c: &Testable, context: &Context) -> CheckFnResult {
     let module = context
         .check_metadata
         .get("module")
-        .ok_or_else(|| CheckError::Error("No module specified".to_string()))?
+        .ok_or_else(|| FontspectorError::Python("No module specified".to_string()))?
         .as_str()
-        .ok_or_else(|| CheckError::Error("module in metadata was not a string!".to_string()))?;
+        .ok_or_else(|| {
+            FontspectorError::Python("module in metadata was not a string!".to_string())
+        })?;
     let function = context
         .check_metadata
         .get("function")
-        .ok_or_else(|| CheckError::Error("No function specified".to_string()))?
+        .ok_or_else(|| FontspectorError::Python("No function specified".to_string()))?
         .as_str()
-        .ok_or_else(|| CheckError::Error("function in metadata was not a string!".to_string()))?;
+        .ok_or_else(|| {
+            FontspectorError::Python("function in metadata was not a string!".to_string())
+        })?;
     python_checkrunner_impl(module, function, c)
-        .unwrap_or_else(|e| Err(CheckError::Error(format!("Python error: {}", e))))
+        .unwrap_or_else(|e| Err(FontspectorError::Python(format!("Python error: {}", e))))
 }
 
 pub fn register_python_checks(

@@ -23,6 +23,9 @@ pub mod codetesting;
 pub mod constants;
 /// Data structures for managing the context in which a check is run
 mod context;
+/// Error types
+mod error;
+
 /// Managing a registry of file types
 mod filetype;
 /// Represents a TrueType font, together with useful routines for dealing with them
@@ -44,12 +47,13 @@ mod utils;
 pub use check::{return_result, Check, CheckFlags, CheckId, CheckImplementation, HotfixFunction};
 pub use checkresult::{CheckResult, FixResult};
 pub use context::Context;
+pub use error::FontspectorError;
 pub use filetype::{FileType, FileTypeConvert};
 pub use font::{TestFont, DEFAULT_LOCATION, TTF};
 pub use gsub::{GetSubstitutionMap, SubstitutionMap};
 pub use profile::{Override, Profile, ProfileBuilder};
 pub use registry::Registry;
-pub use status::{CheckError, CheckFnResult, Status, StatusCode, StatusList};
+pub use status::{CheckFnResult, Status, StatusCode, StatusList};
 pub use testable::{Testable, TestableCollection, TestableType};
 
 /// The prelude module contains the most common items you will need when writing checks
@@ -61,7 +65,11 @@ pub mod prelude {
     macro_rules! testfont {
         ($f: ident) => {
             TTF.from_testable($f)
-                .ok_or(CheckError::Error("Not a TTF file".to_string()))?
+                .ok_or(FontspectorError::InappropriateFile {
+                    expected: "TTF",
+                    filename: $f.filename.to_string_lossy().to_string(),
+                    more_details: "Not a TTF file".to_string(),
+                })?
         };
     }
     #[macro_export]
@@ -90,9 +98,9 @@ pub mod prelude {
     /// The expected return type of a hotfix function
     pub type FixFnResult = Result<bool, String>;
     pub use crate::{
-        return_result, utils::*, Check, CheckError, CheckFlags, CheckFnResult, CheckImplementation,
-        Context, FileType, Profile, ProfileBuilder, Registry, Status, StatusList, Testable,
-        TestableCollection, TestableType, TTF,
+        return_result, utils::*, Check, CheckFlags, CheckFnResult, CheckImplementation, Context,
+        FileType, FontspectorError, Profile, ProfileBuilder, Registry, Status, StatusList,
+        Testable, TestableCollection, TestableType, TTF,
     };
 }
 

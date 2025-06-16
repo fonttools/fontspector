@@ -28,7 +28,7 @@ fn trailing_spaces(f: &Testable, _context: &Context) -> CheckFnResult {
                     name_record.encoding_id,
                     name_record.language_id,
                     name_record.name_id,
-                    name_record.string(name_table.string_data()).map_err(|_| CheckError::Error("Error reading string".to_string()))?,
+                    name_record.string(name_table.string_data()).map_err(|_| FontspectorError::General("Error reading string".to_string()))?,
                 )))
             }
         }

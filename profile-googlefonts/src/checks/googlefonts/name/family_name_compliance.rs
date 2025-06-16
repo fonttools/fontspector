@@ -49,9 +49,9 @@ static ABBREVIATION_EXCEPTIONS: LazyLock<HashSet<String>> = LazyLock::new(|| {
 )]
 fn family_name_compliance(t: &Testable, _context: &Context) -> CheckFnResult {
     let f = testfont!(t);
-    let family_name = f
-        .best_familyname()
-        .ok_or(CheckError::Error("Couldn't determine family name".into()))?;
+    let family_name = f.best_familyname().ok_or(FontspectorError::General(
+        "Couldn't determine family name".into(),
+    ))?;
     let family_name = family_name.strip_suffix(" SC").unwrap_or(&family_name);
     let mut problems = vec![];
     if family_name

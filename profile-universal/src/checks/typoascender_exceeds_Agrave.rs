@@ -29,12 +29,12 @@ fn typoascender_exceeds_Agrave(f: &Testable, _context: &Context) -> CheckFnResul
     let os2 = font
         .font()
         .os2()
-        .map_err(|_| CheckError::Error("OS/2 table not found".to_string()))?;
+        .map_err(|_| FontspectorError::General("OS/2 table not found".to_string()))?;
     let agrave = font
         .font()
         .charmap()
         .map(0x00C0u32)
-        .ok_or(CheckError::skip(
+        .ok_or(FontspectorError::skip(
             "lacks-Agrave",
             "Font file lacks the /Agrave, so it can’t be compared with typoAscender",
         ))?;
@@ -42,7 +42,7 @@ fn typoascender_exceeds_Agrave(f: &Testable, _context: &Context) -> CheckFnResul
         .font()
         .glyph_metrics(Size::unscaled(), LocationRef::new(&[]))
         .bounds(agrave)
-        .ok_or(CheckError::Error(
+        .ok_or(FontspectorError::General(
             "Error getting bounds of Agrave (maybe it's empty?)".to_string(),
         ))?;
     let typo_ascender = os2.s_typo_ascender();

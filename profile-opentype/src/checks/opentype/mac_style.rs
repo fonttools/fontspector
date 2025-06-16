@@ -20,7 +20,7 @@ fn mac_style(f: &Testable, _context: &Context) -> CheckFnResult {
     let head = font.font().head()?;
     let style = font
         .style()
-        .ok_or(CheckError::skip("no-style", "No style detected"))?;
+        .ok_or(FontspectorError::skip("no-style", "No style detected"))?;
     let bold = style == "Bold" || style == "BoldItalic";
     let italic = style.contains("Italic");
     let bits = head.mac_style();

@@ -13,9 +13,7 @@ use fontspector_checkapi::{prelude::*, StatusCode};
     title="METADATA.pb: Copyright notice is the same in all fonts?"
 )]
 fn copyright(c: &Testable, context: &Context) -> CheckFnResult {
-    let msg = family_proto(c).map_err(|e| {
-        CheckError::Error(format!("METADATA.pb is not a valid FamilyProto: {:?}", e))
-    })?;
+    let msg = family_proto(c)?;
     assert_all_the_same(
         context,
         &(msg.fonts.iter().map(|f|

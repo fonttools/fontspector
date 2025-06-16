@@ -42,17 +42,17 @@ fn font_version(f: &Testable, _context: &Context) -> CheckFnResult {
         .font()
         .localized_strings(NameId::VERSION_STRING)
         .english_or_first()
-        .ok_or(CheckError::Error("No name ID 5".to_string()))?
+        .ok_or(FontspectorError::General("No name ID 5".to_string()))?
         .chars();
     let name_id_5_version_str = parse_version(name_id_5_version);
 
     if name_id_5_version_str.is_empty() {
-        return Err(CheckError::Error(
+        return Err(FontspectorError::General(
             "No version string in name table".to_string(),
         ));
     }
     let name_id_5_version = name_id_5_version_str.parse::<f32>().map_err(|e| {
-        CheckError::Error(format!("Could not parse name ID 5 version as float: {}", e))
+        FontspectorError::General(format!("Could not parse name ID 5 version as float: {}", e))
     })?;
     let warn_tolerance = 1.0 / (0x10000 as f32);
     let fail_tolerance = 1.0 / 2000.0;

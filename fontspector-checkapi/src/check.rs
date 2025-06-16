@@ -2,8 +2,9 @@ use std::time::Duration;
 
 use crate::{
     context::Context,
+    error::FontspectorError,
     prelude::FixFnResult,
-    status::{CheckError, CheckFnResult},
+    status::CheckFnResult,
     testable::{TestableCollection, TestableType},
     CheckResult, Registry, Status, Testable,
 };
@@ -124,8 +125,8 @@ impl<'a> Check<'a> {
     ) -> CheckResult {
         let subresults = match fn_result {
             Ok(results) => results.collect::<Vec<_>>(),
-            Err(CheckError::Error(e)) => vec![Status::error(None, &format!("Error: {}", e))],
-            Err(CheckError::Skip { code, message }) => vec![Status::skip(&code, &message)],
+            Err(FontspectorError::Skip { code, message }) => vec![Status::skip(code, message)],
+            Err(e) => vec![Status::error(None, &format!("Error: {}", e))],
         };
         let mut res = if subresults.is_empty() {
             vec![Status::pass()]

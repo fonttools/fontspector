@@ -20,7 +20,7 @@ fn family_directory_name(c: &Testable, _context: &Context) -> CheckFnResult {
     let last_component = fullpath
         .parent()
         .and_then(|p| p.file_name())
-        .ok_or(CheckError::Error("No directory name".to_string()))?
+        .ok_or(FontspectorError::General("No directory name".to_string()))?
         .to_string_lossy();
     let expected = msg.name().replace(" ", "").to_lowercase();
     if expected != last_component {

@@ -200,14 +200,14 @@ impl OurLang<'_> {
 fn tofu(c: &TestableCollection, context: &Context) -> CheckFnResult {
     let mdpb = c
         .get_file("METADATA.pb")
-        .ok_or_else(|| CheckError::skip("no-mdpb", "No METADATA.pb file found"))?;
+        .ok_or_else(|| FontspectorError::skip("no-mdpb", "No METADATA.pb file found"))?;
     let msg = family_proto(mdpb)?;
     let testable = msg
         .fonts
         .first()
         .and_then(|f| f.filename.as_ref())
         .and_then(|f| c.get_file(f))
-        .ok_or_else(|| CheckError::skip("no-fonts", "No font files found in METADATA.pb"))?;
+        .ok_or_else(|| FontspectorError::skip("no-fonts", "No font files found in METADATA.pb"))?;
     let font = testfont!(testable);
     // Determine language support: (a) is primary_language in metadata, or (b) supports all base
     // exemplars for a lang or (c) support all sample text except punctuation and spaces

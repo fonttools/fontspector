@@ -31,7 +31,7 @@ fn clean_url(url: &str) -> String {
 fn consistent_repo_urls(c: &TestableCollection, context: &Context) -> CheckFnResult {
     let mdpb = c
         .get_file("METADATA.pb")
-        .ok_or_else(|| CheckError::skip("no-mdpb", "No METADATA.pb file found"))?;
+        .ok_or_else(|| FontspectorError::skip("no-mdpb", "No METADATA.pb file found"))?;
     let msg = family_proto(mdpb)?;
     let repo_url = clean_url(msg.source.repository_url());
     if repo_url.is_empty() {
@@ -53,8 +53,7 @@ fn consistent_repo_urls(c: &TestableCollection, context: &Context) -> CheckFnRes
     }
 
     if let Some(ofl) = c.get_file("OFL.txt") {
-        let license_contents = String::from_utf8(ofl.contents.clone())
-            .map_err(|e| CheckError::Error(format!("OFL.txt is not valid UTF-8: {:?}", e)))?;
+        let license_contents = String::from_utf8(ofl.contents.clone())?;
         let first_line = license_contents.lines().next().unwrap_or_default();
         if first_line.contains("http") {
             let link = clean_url(first_line.split("http").nth(1).unwrap_or_default());
@@ -65,13 +64,7 @@ fn consistent_repo_urls(c: &TestableCollection, context: &Context) -> CheckFnRes
     }
 
     if let Some(description) = c.get_file("DESCRIPTION.en_us.html") {
-        let description_contents =
-            String::from_utf8(description.contents.clone()).map_err(|e| {
-                CheckError::Error(format!(
-                    "DESCRIPTION.en_us.html is not valid UTF-8: {:?}",
-                    e
-                ))
-            })?;
+        let description_contents = String::from_utf8(description.contents.clone())?;
         let headless = repo_url
             .trim_start_matches("https://")
             .trim_start_matches("http://");

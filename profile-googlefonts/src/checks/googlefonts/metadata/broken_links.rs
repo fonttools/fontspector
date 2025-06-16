@@ -21,9 +21,7 @@ fn broken_links(c: &Testable, context: &Context) -> CheckFnResult {
         "network-check",
         "Skipping network check"
     );
-    let msg = family_proto(c).map_err(|e| {
-        CheckError::Error(format!("METADATA.pb is not a valid FamilyProto: {:?}", e))
-    })?;
+    let msg = family_proto(c)?;
     let mut unique_links: Vec<String> = vec![];
     let mut broken = vec![];
     for font_metadata in msg.fonts {

@@ -19,7 +19,7 @@ use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
 fn can_render_samples(c: &TestableCollection, context: &Context) -> CheckFnResult {
     let mdpb = c
         .get_file("METADATA.pb")
-        .ok_or_else(|| CheckError::skip("no-mdpb", "No METADATA.pb file found"))?;
+        .ok_or_else(|| FontspectorError::skip("no-mdpb", "No METADATA.pb file found"))?;
     let msg = family_proto(mdpb)?;
     let languages = msg.languages;
     if languages.is_empty() {

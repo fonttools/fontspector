@@ -31,7 +31,8 @@ fn table_of_results(
 )]
 fn shape_languages(t: &Testable, context: &Context) -> CheckFnResult {
     let f = testfont!(t);
-    let checker = Checker::new(&t.contents).map_err(|e| CheckError::Error(e.to_string()))?;
+    let checker =
+        Checker::new(&t.contents).map_err(|e| FontspectorError::General(e.to_string()))?;
     let languages = Languages::new();
     let codepoints = f.codepoints(Some(context));
     let mut warns = HashMap::new();
@@ -40,7 +41,10 @@ fn shape_languages(t: &Testable, context: &Context) -> CheckFnResult {
     for (glyphset, coverage) in get_glyphset_coverage(&codepoints).iter() {
         if coverage.fraction > 0.8 {
             any_glyphset_supported = true;
-            for language_code in languages_per_glyphset(glyphset)?.iter() {
+            for language_code in languages_per_glyphset(glyphset)
+                .map_err(|e| FontspectorError::General(e.to_string()))?
+                .iter()
+            {
                 if let Some(language) = languages.get_language(language_code) {
                     let reporter = checker.check(language);
                     let name = language.name();

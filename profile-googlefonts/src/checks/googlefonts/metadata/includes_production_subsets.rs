@@ -19,20 +19,19 @@ fn includes_production_subsets(c: &Testable, context: &Context) -> CheckFnResult
         "network-check",
         "Skipping network check"
     );
-    let msg = family_proto(c).map_err(|e| {
-        CheckError::Error(format!("METADATA.pb is not a valid FamilyProto: {:?}", e))
+    let msg = family_proto(c)?;
+    let production_metadata = production_metadata(context).map_err(|e| {
+        FontspectorError::General(format!("Failed to fetch production metadata: {:?}", e))
     })?;
-    let production_metadata = production_metadata(context)
-        .map_err(|e| CheckError::Error(format!("Failed to fetch production metadata: {:?}", e)))?;
     let prod_subsets = production_metadata
         .get("familyMetadataList")
         .ok_or_else(|| {
-            CheckError::Error(
+            FontspectorError::General(
                 "Failed to get familyMetadataList from production metadata".to_string(),
             )
         })?
         .as_array()
-        .ok_or_else(|| CheckError::Error("familyMetadataList is not an array".to_string()))?
+        .ok_or_else(|| FontspectorError::General("familyMetadataList is not an array".to_string()))?
         .iter()
         .find(|i| i.get("family").and_then(|f| f.as_str()) == Some(msg.name()))
         .and_then(|i| i.get("subsets"))

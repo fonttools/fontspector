@@ -1,7 +1,8 @@
 use crate::{
     constants::{OutlineType, RIBBI_STYLE_NAMES, STATIC_STYLE_NAMES},
+    error::FontspectorError,
     filetype::FileTypeConvert,
-    CheckError, Context, FileType, Testable,
+    Context, FileType, Testable,
 };
 use fontations::{
     read::TopLevelTable,
@@ -174,7 +175,7 @@ impl TestFont<'_> {
     }
 
     /// Return the OS/2 table FsSelection flags
-    pub fn get_os2_fsselection(&self) -> Result<SelectionFlags, CheckError> {
+    pub fn get_os2_fsselection(&self) -> Result<SelectionFlags, FontspectorError> {
         let os2 = self.font().os2()?;
         Ok(os2.fs_selection())
     }
@@ -289,7 +290,10 @@ impl TestFont<'_> {
                     &key,
                     get_codepoints,
                     |hashset| serde_json::to_value(hashset).unwrap(),
-                    |value| serde_json::from_value(value.clone()).map_err(|e| e.to_string()),
+                    |value| {
+                        serde_json::from_value(value.clone())
+                            .map_err(|e| FontspectorError::CacheSerialization(e.to_string()))
+                    },
                 )
                 .unwrap_or_default()
         } else {
@@ -335,7 +339,7 @@ impl TestFont<'_> {
         gid: GlyphId,
         pen: &mut impl OutlinePen,
         settings: I,
-    ) -> Result<(), CheckError>
+    ) -> Result<(), FontspectorError>
     where
         I: IntoIterator,
         I::Item: Into<VariationSetting>,
@@ -344,13 +348,11 @@ impl TestFont<'_> {
             .font()
             .outline_glyphs()
             .get(gid)
-            .ok_or_else(|| CheckError::skip("no-H", "No H glyph in font"))?;
+            .ok_or_else(|| FontspectorError::skip("no-H", "No H glyph in font"))?;
         let location = self.font().axes().location(settings);
         let settings = DrawSettings::unhinted(Size::unscaled(), &location);
 
-        glyph
-            .draw(settings, pen)
-            .map_err(|_| CheckError::Error("Failed to draw glyph".to_string()))?;
+        glyph.draw(settings, pen)?;
         Ok(())
     }
 
@@ -481,7 +483,7 @@ impl TestFont<'_> {
     }
 
     /// Returns the font's vertical metrics
-    pub fn vertical_metrics(&self) -> Result<VerticalMetrics, CheckError> {
+    pub fn vertical_metrics(&self) -> Result<VerticalMetrics, FontspectorError> {
         Ok(VerticalMetrics {
             upm: self.font().head()?.units_per_em(),
             os2_typo_ascender: self.font().os2()?.s_typo_ascender(),
@@ -496,7 +498,7 @@ impl TestFont<'_> {
     }
 
     /// True if the font's OS/2.fsSelection bit 7 (USE_TYPO_METRICS) is set
-    pub fn use_typo_metrics(&self) -> Result<bool, CheckError> {
+    pub fn use_typo_metrics(&self) -> Result<bool, FontspectorError> {
         Ok(self
             .font()
             .os2()?

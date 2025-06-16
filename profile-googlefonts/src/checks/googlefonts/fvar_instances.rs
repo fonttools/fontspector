@@ -32,8 +32,9 @@ fn fvar_instances(t: &Testable, _context: &Context) -> CheckFnResult {
     );
     skip!(f.has_axis("MORF"), "has-morf", "Font has a MORF axis");
     let expected_font_data = build_expected_font(&f, &[])?;
-    let expected_font = TestFont::new_from_data(&t.filename, &expected_font_data)
-        .map_err(|e| CheckError::Error(format!("Couldn't build expected font from data: {}", e)))?;
+    let expected_font = TestFont::new_from_data(&t.filename, &expected_font_data).map_err(|e| {
+        FontspectorError::General(format!("Couldn't build expected font from data: {}", e))
+    })?;
     let instances: IndexMap<String, _> = f.named_instances().collect();
     let expected_instances: IndexMap<String, _> = expected_font.named_instances().collect();
     let mut table = vec![];

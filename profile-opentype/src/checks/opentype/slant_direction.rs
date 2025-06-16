@@ -22,12 +22,12 @@ fn slant_direction(t: &Testable, _context: &Context) -> CheckFnResult {
     let (_a, slnt_min, _dflt, slnt_max) = f
         .axis_ranges()
         .find(|(a, _min, _dflt, _max)| a == "slnt")
-        .ok_or_else(|| CheckError::skip("no-slnt", "No 'slnt' axis found"))?;
+        .ok_or_else(|| FontspectorError::skip("no-slnt", "No 'slnt' axis found"))?;
     let h_id = f
         .font()
         .charmap()
         .map('H')
-        .ok_or_else(|| CheckError::skip("no-H", "No H glyph in font"))?;
+        .ok_or_else(|| FontspectorError::skip("no-H", "No H glyph in font"))?;
     // Get outline at slnt_max
     let mut max_pen = XDeltaPen::new();
     f.draw_glyph(h_id, &mut max_pen, vec![("slnt", slnt_max)])?;

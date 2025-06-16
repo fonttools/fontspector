@@ -33,12 +33,14 @@ fn cjk_vertical_metrics_regressions(t: &Testable, context: &Context) -> CheckFnR
     );
     let family_name = f.best_familyname().unwrap_or("New font".to_string());
     let remote = remote_styles(&family_name, context)
-        .map_err(|e| CheckError::Error(format!("Could not get remote style: {}", e)))?;
+        .map_err(|e| FontspectorError::General(format!("Could not get remote style: {}", e)))?;
     let remote_font = remote
         .iter()
         .flat_map(|r| TTF.from_testable(r))
         .find(|f| f.style() == Some("Regular"))
-        .ok_or_else(|| CheckError::Error("Could not find remote Regular style".to_string()))?;
+        .ok_or_else(|| {
+            FontspectorError::General("Could not find remote Regular style".to_string())
+        })?;
 
     let remote_metrics = remote_font.vertical_metrics()?;
     let local_metrics = f.vertical_metrics()?;

@@ -1,5 +1,5 @@
 use fontations::skrifa::raw::TableProvider;
-use fontspector_checkapi::{prelude::*, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, skip, FileTypeConvert};
 use hashbrown::{HashMap, HashSet};
 
 #[check(
@@ -20,12 +20,11 @@ use hashbrown::{HashMap, HashSet};
 )]
 fn tnum_horizontal_metrics(c: &TestableCollection, context: &Context) -> CheckFnResult {
     let fonts = TTF.from_collection(c);
-    if fonts.len() < 2 {
-        return Err(CheckError::Skip {
-            code: "no-siblings".to_string(),
-            message: "No sibling fonts found".to_string(),
-        });
-    }
+    skip!(
+        fonts.len() < 2,
+        "no-siblings",
+        "This check requires at least two sibling fonts to compare codepoint coverage."
+    );
     let mut tnum_widths: HashMap<u16, HashSet<String>> = HashMap::new();
     for font in fonts {
         let hmtx = font.font().hmtx()?;

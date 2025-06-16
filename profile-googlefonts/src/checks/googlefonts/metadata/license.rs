@@ -13,9 +13,7 @@ use fontspector_checkapi::prelude::*;
     title="METADATA.pb license is \"APACHE2\", \"UFL\" or \"OFL\"?"
 )]
 fn license(c: &Testable, _context: &Context) -> CheckFnResult {
-    let msg = family_proto(c).map_err(|e| {
-        CheckError::Error(format!("METADATA.pb is not a valid FamilyProto: {:?}", e))
-    })?;
+    let msg = family_proto(c)?;
     if msg.license() != "APACHE2" && msg.license() != "UFL" && msg.license() != "OFL" {
         Ok(Status::just_one_fail(
             "bad-license",

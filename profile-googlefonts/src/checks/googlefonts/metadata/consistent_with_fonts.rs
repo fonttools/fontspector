@@ -23,7 +23,7 @@ fn consistent_with_fonts(c: &TestableCollection, _context: &Context) -> CheckFnR
     let mut problems = vec![];
     let mdpb = c
         .get_file("METADATA.pb")
-        .ok_or_else(|| CheckError::skip("no-mdpb", "No METADATA.pb file found"))?;
+        .ok_or_else(|| FontspectorError::skip("no-mdpb", "No METADATA.pb file found"))?;
     let msg = family_proto(mdpb)?;
     let mut declared_files = msg
         .fonts
@@ -103,7 +103,9 @@ fn consistent_with_fonts(c: &TestableCollection, _context: &Context) -> CheckFnR
         } else {
             font.get_best_name(&[StringId::TYPOGRAPHIC_FAMILY_NAME, StringId::FAMILY_NAME])
         }
-        .ok_or_else(|| CheckError::Error(format!("No family name found for {}", proto.name())))?;
+        .ok_or_else(|| {
+            FontspectorError::General(format!("No family name found for {}", proto.name()))
+        })?;
         if !proto.full_name().contains(&family_name) {
             problems.push(Status::fail(
                 "mismatch",
@@ -146,7 +148,7 @@ fn consistent_with_fonts(c: &TestableCollection, _context: &Context) -> CheckFnR
         let post_script_name = font
             .get_best_name(&[StringId::POSTSCRIPT_NAME])
             .ok_or_else(|| {
-                CheckError::Error(format!("No post script name found for {}", proto.name()))
+                FontspectorError::General(format!("No post script name found for {}", proto.name()))
             })?;
         if proto.post_script_name() != post_script_name {
             problems.push(Status::fail(
@@ -161,7 +163,9 @@ fn consistent_with_fonts(c: &TestableCollection, _context: &Context) -> CheckFnR
         // googlefonts/metadata/valid_post_script_name_values (make sure postscript name is correct)
         let familyname = font
             .best_familyname()
-            .ok_or_else(|| CheckError::Error(format!("No family name found for {}", proto.name())))?
+            .ok_or_else(|| {
+                FontspectorError::General(format!("No family name found for {}", proto.name()))
+            })?
             .replace(" ", "");
         if !proto
             .post_script_name()

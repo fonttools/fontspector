@@ -69,7 +69,10 @@ fn varfont_duplexed_axis_reflow(t: &Testable, context: &Context) -> CheckFnResul
                 if !duplex_axis_is_affected.is_empty() {
                     // Find the index of the phantom points in this glyph.
                     let glyf_glyph = f.get_glyf_glyph(glyph)?.ok_or_else(|| {
-                        CheckError::Error(format!("Glyph {} not found in glyf table", glyph))
+                        FontspectorError::General(format!(
+                            "Glyph {} not found in glyf table",
+                            glyph
+                        ))
                     })?;
                     let point_count = match glyf_glyph {
                         Glyph::Simple(g) => g.points().count(),
@@ -131,7 +134,7 @@ fn varfont_duplexed_axis_reflow(t: &Testable, context: &Context) -> CheckFnResul
                 let axis_tent = region
                     .region_axes()
                     .get(*index)
-                    .ok_or_else(|| CheckError::Error("Something went wrong".to_string()))?;
+                    .ok_or_else(|| FontspectorError::General("Something went wrong".to_string()))?;
                 let effective = axis_tent.start_coord() != axis_tent.peak_coord()
                     || axis_tent.peak_coord() != axis_tent.end_coord();
                 if effective {

@@ -23,19 +23,20 @@ fn version_bump(f: &Testable, context: &Context) -> CheckFnResult {
         "Skipping network check"
     );
     skip!(
-        !is_listed_on_google_fonts(&font.best_familyname().unwrap_or_default(), context)
-            .map_err(CheckError::Error)?,
+        !is_listed_on_google_fonts(&font.best_familyname().unwrap_or_default(), context)?,
         "not-listed-on-google-fonts",
         "Skipping check because font is not listed on Google Fonts"
     );
-    let family_name = font.best_familyname().ok_or(CheckError::Error(
+    let family_name = font.best_familyname().ok_or(FontspectorError::General(
         "Could not determine family name".to_string(),
     ))?;
-    let remote_fonts = remote_styles(&family_name, context).map_err(CheckError::Error)?;
-    let a_remote_font = remote_fonts.first().ok_or(CheckError::Error(format!(
-        "Couldn't get remote font for {}",
-        family_name
-    )))?;
+    let remote_fonts = remote_styles(&family_name, context)?;
+    let a_remote_font = remote_fonts
+        .first()
+        .ok_or(FontspectorError::General(format!(
+            "Couldn't get remote font for {}",
+            family_name
+        )))?;
     let a_remote_font = testfont!(a_remote_font);
 
     let local_version = font.font().head()?.font_revision();

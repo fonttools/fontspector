@@ -10,7 +10,7 @@ fn dump_data_map(
     typ: &str,
     offset_data: FontData,
     problems: &mut Vec<Status>,
-) -> Result<(), CheckError> {
+) -> Result<(), FontspectorError> {
     match d.data(offset_data)? {
         ScriptLangTags(var_len_array) => {
             let tags = var_len_array

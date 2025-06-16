@@ -30,7 +30,7 @@ fn unwanted_aat_tables(t: &Testable, _context: &Context) -> CheckFnResult {
     for tag in UNWANTED_TABLES.iter() {
         if f.has_table(tag) {
             found.push(String::from_utf8(tag.to_vec()).map_err(|_| {
-                CheckError::Error(format!("Font tag '{:?}' wasn't UTF8?", tag.to_vec()))
+                FontspectorError::General(format!("Font tag '{:?}' wasn't UTF8?", tag.to_vec()))
             })?);
         }
     }

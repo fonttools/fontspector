@@ -20,11 +20,11 @@ fn glyf_unused_data(t: &Testable, _context: &Context) -> CheckFnResult {
     let glyf = ttf
         .font()
         .table_data(Tag::new(b"glyf"))
-        .ok_or(CheckError::skip("no-glyf", "No glyf table"))?;
+        .ok_or(FontspectorError::skip("no-glyf", "No glyf table"))?;
     let loca = ttf
         .font()
         .loca(None)
-        .map_err(|_| CheckError::Error("No loca table".to_string()))?;
+        .map_err(|_| FontspectorError::General("No loca table".to_string()))?;
     if let Some(last_index) = loca.get_raw(loca.len()) {
         Ok(match glyf.len().cmp(&(last_index as usize)) {
             Ordering::Greater => Status::just_one_fail(
@@ -37,6 +37,6 @@ fn glyf_unused_data(t: &Testable, _context: &Context) -> CheckFnResult {
             Ordering::Equal => Status::just_one_pass(),
         })
     } else {
-        Err(CheckError::Error("Invalid loca table".to_string()))
+        Err(FontspectorError::General("Invalid loca table".to_string()))
     }
 }

@@ -49,7 +49,7 @@ fn consistent_family_name(c: &TestableCollection, context: &Context) -> CheckFnR
                     .english_or_first()
             })
             .ok_or_else(|| {
-                CheckError::Error(format!(
+                FontspectorError::General(format!(
                     "Font {} is missing a Family Name entry",
                     font.filename.to_string_lossy()
                 ))

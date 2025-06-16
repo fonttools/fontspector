@@ -43,7 +43,7 @@ fn font_names(t: &Testable, _context: &Context) -> CheckFnResult {
 
     let expected_font_data = build_expected_font(&f, &[])?;
     let expected_font = TestFont::new_from_data(&t.filename, &expected_font_data)
-        .map_err(|e| CheckError::Error(format!("Couldn't build expected font from data: {}", e)))?;
+        .map_err(|e| FontspectorError::General(format!("Couldn't build expected font from data: {}", e)))?;
     let mut ok = true;
     let mut md_table = Builder::new();
     md_table.push_record(vec!["Name", "Current", "Expected"]);

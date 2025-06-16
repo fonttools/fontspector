@@ -27,13 +27,12 @@ fn postscript_vs_cff(t: &Testable, _context: &Context) -> CheckFnResult {
             "Unexpected number of font names in CFF table.",
         ));
     }
-    let cff_name = String::from_utf8_lossy(
-        font.font()
-            .cff()?
-            .names()
-            .get(0)
-            .map_err(|e| CheckError::Error(format!("Error reading CFF table: {}", e)))?,
-    );
+    let cff_name =
+        String::from_utf8_lossy(
+            font.font().cff()?.names().get(0).map_err(|e| {
+                FontspectorError::General(format!("Error reading CFF table: {}", e))
+            })?,
+        );
     let name = font.get_name_entry_strings(NameId::POSTSCRIPT_NAME).next();
     if let Some(name) = name {
         if cff_name != name {

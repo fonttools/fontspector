@@ -26,22 +26,29 @@ fn fontdata_namecheck(t: &Testable, context: &Context) -> CheckFnResult {
         .font()
         .localized_strings(NameId::FAMILY_NAME)
         .english_or_first()
-        .ok_or(CheckError::Error("Family name not found".to_string()))?
+        .ok_or(FontspectorError::General(
+            "Family name not found".to_string(),
+        ))?
         .to_string();
     let client = Client::builder()
         .user_agent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1)")
         .timeout(context.network_timeout.map(std::time::Duration::from_secs))
-        .build()?;
+        .build()
+        .map_err(|e| FontspectorError::Network(format!("Failed to create HTTP client: {}", e)))?;
     let response = client
         .post(NAMECHECK_API_URL)
         .query(&[("q", name.clone())])
         .send()
-        .map_err(|e| CheckError::Error(format!("Failed to access: {}. {}", NAMECHECK_URL, e)))?;
+        .map_err(|e| {
+            FontspectorError::Network(format!("Failed to access: {}. {}", NAMECHECK_URL, e))
+        })?;
     let data: serde_json::Value = response.text().map_or(
-        Err(CheckError::Error("Failed to parse response".to_string())),
+        Err(FontspectorError::Network(
+            "Failed to parse response".to_string(),
+        )),
         |s| {
             serde_json::from_str(&s)
-                .map_err(|e| CheckError::Error(format!("Failed to parse response: {}", e)))
+                .map_err(|e| FontspectorError::Network(format!("Failed to parse response: {}", e)))
         },
     )?;
     let confidence = data
@@ -52,7 +59,9 @@ fn fontdata_namecheck(t: &Testable, context: &Context) -> CheckFnResult {
         .and_then(|x| x.as_object())
         .and_then(|o| o.get("1.0"))
         .and_then(|v| v.as_f64())
-        .ok_or(CheckError::Error("Failed to find confidence".to_string()))?;
+        .ok_or(FontspectorError::Network(
+            "Failed to find confidence".to_string(),
+        ))?;
     Ok(if confidence > 0.0 {
         Status::just_one_info(
             "name-collision",

@@ -16,8 +16,8 @@ fn process_axis(
     value_name_id: StringId,
     f: &TestFont,
     axes: &[Tag],
-) -> Result<(), CheckError> {
-    let axis = axes.get(axis_index).ok_or(CheckError::Error(
+) -> Result<(), FontspectorError> {
+    let axis = axes.get(axis_index).ok_or(FontspectorError::General(
         "Axis not found in STAT table".to_string(),
     ))?;
     if *axis == Tag::new(b"MORF") {
@@ -28,7 +28,7 @@ fn process_axis(
         let name_entry =
             f.get_name_entry_strings(value_name_id)
                 .next()
-                .ok_or(CheckError::Error(
+                .ok_or(FontspectorError::General(
                     "Name reference in STAT table not found in name table".to_string(),
                 ))?;
         // Here "name_entry" has the user-friendly name of the current AxisValue
@@ -104,18 +104,18 @@ fn axisregistry(t: &Testable, _context: &Context) -> CheckFnResult {
                     AxisValue::Format4(table_ref) => {
                         let mut coords = vec![];
                         for record in table_ref.axis_values() {
-                            let axis =
-                                axes.get(record.axis_index() as usize)
-                                    .ok_or(CheckError::Error(
-                                        "Axis not found in STAT table".to_string(),
-                                    ))?;
+                            let axis = axes.get(record.axis_index() as usize).ok_or(
+                                FontspectorError::General(
+                                    "Axis not found in STAT table".to_string(),
+                                ),
+                            )?;
                             coords.push(format!("{}:{}", axis, record.value()));
                         }
                         let coords = coords.join(", ");
                         let name = f
                             .get_name_entry_strings(table_ref.value_name_id())
                             .next()
-                            .ok_or(CheckError::Error(
+                            .ok_or(FontspectorError::General(
                                 "Name reference in STAT table not found in name table".to_string(),
                             ))?;
                         format4_entries = true;

@@ -27,7 +27,7 @@ fn STAT_axis_record_for_each_axis(t: &Testable, context: &Context) -> CheckFnRes
     let stat_axis_tags: HashSet<_> = f
         .font()
         .stat()
-        .map_err(|_| CheckError::skip("no-stat", "No STAT table"))?
+        .map_err(|_| FontspectorError::skip("no-stat", "No STAT table"))?
         .design_axes()?
         .iter()
         .map(|axis_record| axis_record.axis_tag().to_string())

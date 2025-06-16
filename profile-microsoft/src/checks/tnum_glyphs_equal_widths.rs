@@ -40,8 +40,9 @@ fn tnum_glyphs_equal_widths(t: &Testable, context: &Context) -> CheckFnResult {
     let f = testfont!(t);
     let mut problems = vec![];
 
-    let mut face = Face::from_slice(&t.contents, 0)
-        .ok_or(CheckError::Error("Failed to load font file".to_string()))?;
+    let mut face = Face::from_slice(&t.contents, 0).ok_or(FontspectorError::General(
+        "Failed to load font file".to_string(),
+    ))?;
     let check_text = context
         .configuration
         .get("TEST_STR")

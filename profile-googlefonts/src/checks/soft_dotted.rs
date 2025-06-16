@@ -115,8 +115,9 @@ fn soft_dotted(t: &Testable, context: &Context) -> CheckFnResult {
         );
     }
 
-    let face = Face::from_slice(&t.contents, 0)
-        .ok_or(CheckError::Error("Failed to load font file".to_string()))?;
+    let face = Face::from_slice(&t.contents, 0).ok_or(FontspectorError::Shaping(
+        "Failed to load font file".to_string(),
+    ))?;
     let plan = rustybuzz::ShapePlan::new(
         &face,
         rustybuzz::Direction::LeftToRight,

@@ -43,9 +43,13 @@ fn license(c: &TestableCollection, _context: &Context) -> CheckFnResult {
         .get_file("OFL.txt")
         .or_else(|| c.get_file("UFL.txt"))
         .or_else(|| c.get_file("LICENSE.txt"))
-        .ok_or_else(|| CheckError::skip("license-file-missing", "A license file was not found."))?
+        .ok_or_else(|| {
+            FontspectorError::skip("license-file-missing", "A license file was not found.")
+        })?
         .basename()
-        .ok_or(CheckError::Error("This should never happen!".to_string()))?;
+        .ok_or(FontspectorError::General(
+            "This should never happen!".to_string(),
+        ))?;
 
     let placeholder = match license_filename.as_str() {
         "UFL.txt" => "Licensed under the Ubuntu Font Licence 1.0.",

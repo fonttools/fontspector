@@ -48,19 +48,20 @@ fn vertical_metrics_regressions(t: &Testable, context: &Context) -> CheckFnResul
         "Network access disabled"
     );
     skip!(
-        !is_listed_on_google_fonts(&f.best_familyname().unwrap_or_default(), context)
-            .map_err(CheckError::Error)?,
+        !is_listed_on_google_fonts(&f.best_familyname().unwrap_or_default(), context)?,
         "not-listed-on-google-fonts",
         "Skipping check because font is not listed on Google Fonts"
     );
     let family_name = f.best_familyname().unwrap_or("New font".to_string());
     let remote = remote_styles(&family_name, context)
-        .map_err(|e| CheckError::Error(format!("Could not get remote style: {}", e)))?;
+        .map_err(|e| FontspectorError::General(format!("Could not get remote style: {}", e)))?;
     let remote_font = remote
         .iter()
         .flat_map(|r| TTF.from_testable(r))
         .find(|f| f.style() == Some("Regular"))
-        .ok_or_else(|| CheckError::Error("Could not find remote Regular style".to_string()))?;
+        .ok_or_else(|| {
+            FontspectorError::General("Could not find remote Regular style".to_string())
+        })?;
 
     let gf_has_typo_metrics = remote_font.use_typo_metrics()?;
     let local_has_typo_metrics = f.use_typo_metrics()?;

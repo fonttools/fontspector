@@ -24,7 +24,7 @@ fn max_4_fonts_per_family_name(t: &TestableCollection, _context: &Context) -> Ch
             .get_name_entry_strings(NameId::FAMILY_NAME)
             .next()
             .ok_or_else(|| {
-                CheckError::Error(format!(
+                FontspectorError::General(format!(
                     "Font {} is missing a Family Name entry",
                     font.filename.to_string_lossy()
                 ))

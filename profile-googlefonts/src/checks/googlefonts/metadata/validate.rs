@@ -68,9 +68,7 @@ fn clean_url(url: &str) -> String {
     applies_to = "MDPB"
 )]
 fn validate(c: &Testable, _context: &Context) -> CheckFnResult {
-    let msg = family_proto(c).map_err(|e| {
-        CheckError::Error(format!("METADATA.pb is not a valid FamilyProto: {:?}", e))
-    })?;
+    let msg = family_proto(c)?;
     let mut problems = vec![];
     if let Some(designer) = msg.designer.as_ref() {
         if designer.is_empty() {

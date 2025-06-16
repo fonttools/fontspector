@@ -59,11 +59,11 @@ fn transformed_components(f: &Testable, context: &Context) -> CheckFnResult {
     let loca = font
         .font()
         .loca(None)
-        .map_err(|_| CheckError::skip("no-loca", "loca table not found"))?;
+        .map_err(|_| FontspectorError::skip("no-loca", "loca table not found"))?;
     let glyf = font
         .font()
         .glyf()
-        .map_err(|_| CheckError::skip("no-glyf", "glyf table not found"))?;
+        .map_err(|_| FontspectorError::skip("no-glyf", "glyf table not found"))?;
     let is_hinted = font.has_table(b"fpgm");
     let mut failures = vec![];
     for glyphid in font.all_glyphs() {

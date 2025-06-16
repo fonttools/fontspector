@@ -43,7 +43,7 @@ fn color_cpal_brightness(t: &Testable, context: &Context) -> CheckFnResult {
         .color_records_array()
         .transpose()?
         .ok_or_else(|| {
-            CheckError::skip(
+            FontspectorError::skip(
                 "no-color-records",
                 "Font does not contain any color records.",
             )
@@ -54,7 +54,7 @@ fn color_cpal_brightness(t: &Testable, context: &Context) -> CheckFnResult {
         .layer_records()
         .transpose()?
         .ok_or_else(|| {
-            CheckError::skip(
+            FontspectorError::skip(
                 "no-layer-records",
                 "Font does not contain any layer records.",
             )
@@ -65,7 +65,7 @@ fn color_cpal_brightness(t: &Testable, context: &Context) -> CheckFnResult {
         }
         let color = color
             .get(layer.palette_index() as usize)
-            .ok_or_else(|| CheckError::Error("invalid-palette-index".to_string()))?;
+            .ok_or_else(|| FontspectorError::General("invalid-palette-index".to_string()))?;
 
         let brightness = ((color.red as f32 * 299.0)
             + (color.green as f32 * 587.0)

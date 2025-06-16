@@ -5,7 +5,7 @@ use std::{
 
 use serde_json::{Map, Value};
 
-use crate::{Check, CheckId, Override, Profile};
+use crate::{Check, CheckId, FontspectorError, Override, Profile};
 
 #[derive(Debug, Clone, Default)]
 /// The context of a check
@@ -100,10 +100,10 @@ impl Context {
     pub fn cached_question<T>(
         &self,
         key: &str,
-        func: impl FnOnce() -> Result<T, String>,
+        func: impl FnOnce() -> Result<T, FontspectorError>,
         serialize: impl FnOnce(T) -> Value,
-        deserialize: impl FnOnce(&Value) -> Result<T, String>,
-    ) -> Result<T, String>
+        deserialize: impl FnOnce(&Value) -> Result<T, FontspectorError>,
+    ) -> Result<T, FontspectorError>
     where
         T: Clone,
     {

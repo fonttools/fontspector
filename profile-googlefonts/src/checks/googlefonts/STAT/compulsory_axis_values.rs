@@ -18,7 +18,9 @@ struct SimpleAxisValue {
     linked_value: Option<f32>,
 }
 
-fn stat_axis_values(f: &FontRef) -> Result<HashMap<(String, String), SimpleAxisValue>, CheckError> {
+fn stat_axis_values(
+    f: &FontRef,
+) -> Result<HashMap<(String, String), SimpleAxisValue>, FontspectorError> {
     let stat = f.stat()?;
     let mut res = HashMap::new();
     let axes = stat
@@ -32,7 +34,7 @@ fn stat_axis_values(f: &FontRef) -> Result<HashMap<(String, String), SimpleAxisV
             let name = f
                 .localized_strings(nameid)
                 .next()
-                .ok_or(CheckError::Error(
+                .ok_or(FontspectorError::General(
                     "Name reference in STAT table not found in name table".to_string(),
                 ))?
                 .chars()
@@ -41,7 +43,7 @@ fn stat_axis_values(f: &FontRef) -> Result<HashMap<(String, String), SimpleAxisV
                 AxisValue::Format1(av) => {
                     let axis_tag = axes
                         .get(av.axis_index() as usize)
-                        .ok_or(CheckError::Error(
+                        .ok_or(FontspectorError::General(
                             "Axis not found in STAT table".to_string(),
                         ))?
                         .to_string();
@@ -60,7 +62,7 @@ fn stat_axis_values(f: &FontRef) -> Result<HashMap<(String, String), SimpleAxisV
                 AxisValue::Format2(av) => {
                     let axis_tag = axes
                         .get(av.axis_index() as usize)
-                        .ok_or(CheckError::Error(
+                        .ok_or(FontspectorError::General(
                             "Axis not found in STAT table".to_string(),
                         ))?
                         .to_string();
@@ -79,7 +81,7 @@ fn stat_axis_values(f: &FontRef) -> Result<HashMap<(String, String), SimpleAxisV
                 AxisValue::Format3(av) => {
                     let axis_tag = axes
                         .get(av.axis_index() as usize)
-                        .ok_or(CheckError::Error(
+                        .ok_or(FontspectorError::General(
                             "Axis not found in STAT table".to_string(),
                         ))?
                         .to_string();

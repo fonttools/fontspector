@@ -25,11 +25,11 @@ fn linegaps(t: &Testable, _context: &Context) -> CheckFnResult {
     let os2 = f
         .font()
         .os2()
-        .map_err(|_| CheckError::Error("OS/2 table missing".to_string()))?;
+        .map_err(|_| FontspectorError::General("OS/2 table missing".to_string()))?;
     let hhea = f
         .font()
         .hhea()
-        .map_err(|_| CheckError::Error("hhea table missing".to_string()))?;
+        .map_err(|_| FontspectorError::General("hhea table missing".to_string()))?;
     let mut problems = vec![];
     if hhea.line_gap().to_i16() != 0 {
         problems.push(Status::warn("hhea", "hhea lineGap is not equal to 0."));

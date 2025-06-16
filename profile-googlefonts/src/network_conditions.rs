@@ -1,43 +1,57 @@
-use fontspector_checkapi::{Context, Testable};
+use fontspector_checkapi::{Context, FontspectorError, Testable};
 #[allow(unused_imports)]
 use serde_json::{json, Map, Value};
 
 #[cfg(not(target_family = "wasm"))]
-pub(crate) static PRODUCTION_METADATA: std::sync::LazyLock<Result<Map<String, Value>, String>> =
-    std::sync::LazyLock::new(|| {
-        reqwest::blocking::get("https://fonts.google.com/metadata/fonts")
-            .map_err(|e| format!("Failed to fetch metadata: {}", e))
-            .and_then(|response| {
-                response.text().map_or_else(
-                    |e| Err(format!("Failed to fetch metadata: {}", e)),
-                    |s| {
-                        serde_json::from_str(&s)
-                            .map_err(|e| format!("Failed to parse metadata: {}", e))
-                    },
-                )
-            })
-    });
+pub(crate) static PRODUCTION_METADATA: std::sync::LazyLock<
+    Result<Map<String, Value>, FontspectorError>,
+> = std::sync::LazyLock::new(|| {
+    reqwest::blocking::get("https://fonts.google.com/metadata/fonts")
+        .map_err(|e| FontspectorError::Network(format!("Failed to fetch metadata: {}", e)))
+        .and_then(|response| {
+            response.text().map_or_else(
+                |e| {
+                    Err(FontspectorError::Network(format!(
+                        "Failed to fetch metadata: {}",
+                        e
+                    )))
+                },
+                |s| {
+                    serde_json::from_str(&s)
+                        .map_err(|e| FontspectorError::CacheSerialization(e.to_string()))
+                },
+            )
+        })
+});
 
 #[allow(dead_code)]
-pub(crate) fn production_metadata(context: &Context) -> Result<Map<String, Value>, String> {
+pub(crate) fn production_metadata(
+    context: &Context,
+) -> Result<Map<String, Value>, FontspectorError> {
     if context.skip_network {
-        return Err("Network access disabled".to_string());
+        return Err(FontspectorError::NetworkAccessDisabled);
     }
     #[cfg(not(target_family = "wasm"))]
     {
-        PRODUCTION_METADATA.clone()
+        match PRODUCTION_METADATA.as_ref() {
+            Ok(metadata) => Ok(metadata.clone()),
+            Err(e) => Err(e.clone()),
+        }
     }
     #[cfg(target_family = "wasm")]
     {
-        Err("Network access disabled".to_string())
+        Err(FontspectorError::NetworkAccessDisabled)
     }
 }
 
 #[allow(dead_code)]
-pub(crate) fn is_listed_on_google_fonts(family: &str, context: &Context) -> Result<bool, String> {
+pub(crate) fn is_listed_on_google_fonts(
+    family: &str,
+    context: &Context,
+) -> Result<bool, FontspectorError> {
     // println!("Looking for family {}", family);
     if context.skip_network {
-        return Err("Network access disabled".to_string());
+        return Err(FontspectorError::NetworkAccessDisabled);
     }
     let key = format!("is_listed_on_google_fonts:{}", family);
     context.cached_question(
@@ -46,24 +60,35 @@ pub(crate) fn is_listed_on_google_fonts(family: &str, context: &Context) -> Resu
             let metadata = production_metadata(context)?;
             let family_metadata_list = metadata
                 .get("familyMetadataList")
-                .ok_or("Failed to find familyMetadataList in production metadata".to_string())?
+                .ok_or(FontspectorError::Network(
+                    "Failed to find familyMetadataList in production metadata".to_string(),
+                ))?
                 .as_array()
-                .ok_or("familyMetadataList is not an object".to_string())?;
+                .ok_or(FontspectorError::Network(
+                    "familyMetadataList is not an object".to_string(),
+                ))?;
             Ok(family_metadata_list.iter().any(|f| {
                 // println!("Looking at family {:?}", f.get("family"));
                 f.get("family").and_then(Value::as_str) == Some(family)
             }))
         },
         Value::Bool,
-        |v| v.as_bool().ok_or("Expected a boolean".to_string()),
+        |v| {
+            v.as_bool().ok_or(FontspectorError::CacheSerialization(
+                "Expected a boolean".to_string(),
+            ))
+        },
     )
 }
 
 #[allow(unused_variables)]
-pub(crate) fn remote_styles(family: &str, context: &Context) -> Result<Vec<Testable>, String> {
+pub(crate) fn remote_styles(
+    family: &str,
+    context: &Context,
+) -> Result<Vec<Testable>, FontspectorError> {
     #[cfg(target_family = "wasm")]
     {
-        Err("Network access disabled".to_string())
+        Err(FontspectorError::NetworkAccessDisabled)
     }
     #[cfg(not(target_family = "wasm"))]
     {
@@ -72,10 +97,10 @@ pub(crate) fn remote_styles(family: &str, context: &Context) -> Result<Vec<Testa
 }
 
 #[cfg(not(target_family = "wasm"))]
-fn remote_styles_impl(family: &str, context: &Context) -> Result<Vec<Testable>, String> {
+fn remote_styles_impl(family: &str, context: &Context) -> Result<Vec<Testable>, FontspectorError> {
     let key = format!("remote_styles:{}", family);
     if context.skip_network {
-        return Err("Network access disabled".to_string());
+        return Err(FontspectorError::NetworkAccessDisabled);
     }
     context.cached_question(
         &key,
@@ -91,10 +116,16 @@ fn remote_styles_impl(family: &str, context: &Context) -> Result<Vec<Testable>, 
                 .send()
                 .and_then(|response| response.text())
                 .map_or_else(
-                |e| Err(format!("Failed to fetch metadata: {}", e)),
+                |e| {
+                    Err(FontspectorError::Network(format!(
+                        "Failed to fetch metadata: {}",
+                        e
+                    )))
+                },
                 |s| {
-                    serde_json::from_str(&s[5..])
-                        .map_err(|e| format!("Failed to parse metadata: {}", e))
+                    serde_json::from_str(&s[5..]).map_err(|e| {
+                        FontspectorError::Network(format!("Failed to parse remote metadata: {}", e))
+                    })
                 },
             )?;
             let mut fonts = vec![];
@@ -104,30 +135,36 @@ fn remote_styles_impl(family: &str, context: &Context) -> Result<Vec<Testable>, 
                 .and_then(|x| x.as_object())
                 .and_then(|x| x.get("fileRefs"))
                 .and_then(|x| x.as_array())
-                .ok_or(format!(
+                .ok_or(FontspectorError::Network(format!(
                     "Failed to find fileRefs in manifest: {:?}",
                     manifest
-                ))?
+                )))?
             {
                 let url = file
                     .as_object()
                     .and_then(|x| x.get("url"))
                     .and_then(|x| x.as_str())
-                    .ok_or("Failed to find url in file".to_string())?;
+                    .ok_or(FontspectorError::Network(
+                        "Failed to find url in file".to_string(),
+                    ))?;
                 let filename = file
                     .as_object()
                     .and_then(|x| x.get("filename"))
                     .and_then(|x| x.as_str())
-                    .ok_or("Failed to filename url in file".to_string())?;
+                    .ok_or(FontspectorError::Network(
+                        "Failed to filename url in file".to_string(),
+                    ))?;
                 if filename.contains("static")
                     || !filename.ends_with("otf") && !filename.ends_with("ttf")
                 {
                     continue;
                 }
                 let contents = reqwest::blocking::get(url)
-                    .map_err(|e| format!("Failed to fetch font: {}", e))?
+                    .map_err(|e| FontspectorError::Network(format!("Failed to fetch font: {}", e)))?
                     .bytes()
-                    .map_err(|e| format!("Failed to fetch font: {}", e))?;
+                    .map_err(|e| {
+                        FontspectorError::Network(format!("Failed to fetch font: {}", e))
+                    })?;
                 let testable = Testable::new_with_contents(filename, contents.to_vec());
                 fonts.push(testable);
             }
@@ -148,18 +185,22 @@ fn remote_styles_impl(family: &str, context: &Context) -> Result<Vec<Testable>, 
         },
         |v| {
             v.as_array()
-                .ok_or("Expected an array".to_string())
+                .ok_or(FontspectorError::CacheSerialization(
+                    "Expected an array".to_string(),
+                ))
                 .and_then(|a| {
                     a.iter()
                         .map(|v| {
-                            let filename = v
-                                .get("filename")
-                                .and_then(Value::as_str)
-                                .ok_or("Expected a string".to_string())?;
-                            let contents = v
-                                .get("contents")
-                                .and_then(Value::as_str)
-                                .ok_or("Expected a string".to_string())?;
+                            let filename = v.get("filename").and_then(Value::as_str).ok_or(
+                                FontspectorError::CacheSerialization(
+                                    "Expected a string".to_string(),
+                                ),
+                            )?;
+                            let contents = v.get("contents").and_then(Value::as_str).ok_or(
+                                FontspectorError::CacheSerialization(
+                                    "Expected a string".to_string(),
+                                ),
+                            )?;
                             Ok(Testable::new_with_contents(
                                 filename,
                                 contents.as_bytes().to_vec(),
@@ -192,7 +233,7 @@ pub const DESIGNER_INFO_RAW_URL: &str =
 pub(crate) fn is_designer_listed(
     context: &Context,
     designer: &str,
-) -> Result<Option<String>, String> {
+) -> Result<Option<String>, FontspectorError> {
     let key = format!("is_designer_listed:{}", designer);
     let get_func = || {
         // We don't use get_url here because we don't want error_for_status
@@ -205,14 +246,24 @@ pub(crate) fn is_designer_listed(
         match response {
             Ok(r) => {
                 if r.status() == reqwest::StatusCode::OK {
-                    Some(r.text().map_err(|e| e.to_string())).transpose()
+                    Some(
+                        r.text()
+                            .map_err(|e| FontspectorError::Network(e.to_string())),
+                    )
+                    .transpose()
                 } else if r.status() == reqwest::StatusCode::NOT_FOUND {
                     Ok(None)
                 } else {
-                    Err(format!("Unexpected status code: {}", r.status()))
+                    Err(FontspectorError::Network(format!(
+                        "Unexpected status code: {}",
+                        r.status()
+                    )))
                 }
             }
-            Err(e) => Err(format!("Failed to fetch designer info: {}", e)),
+            Err(e) => Err(FontspectorError::Network(format!(
+                "Failed to fetch designer info: {}",
+                e
+            ))),
         }
     };
     context.cached_question(

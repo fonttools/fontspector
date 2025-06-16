@@ -34,7 +34,7 @@ fn css_weight_name(weight: u16) -> &'static str {
         _ => "bad value",
     }
 }
-fn vf_weight_expectation(font: &TestFont) -> Result<(u16, String), CheckError> {
+fn vf_weight_expectation(font: &TestFont) -> Result<(u16, String), FontspectorError> {
     if let Some((_, min, _, max)) = font.axis_ranges().find(|(r, _, _, _)| r == "wght") {
         if min <= 400.0 && max >= 400.0 {
             // if the wght range includes 400, use 400
@@ -61,7 +61,7 @@ fn vf_weight_expectation(font: &TestFont) -> Result<(u16, String), CheckError> {
     }
 }
 
-fn static_weight_expectation(font: &TestFont) -> Result<(u16, String), CheckError> {
+fn static_weight_expectation(font: &TestFont) -> Result<(u16, String), FontspectorError> {
     let weight = font.font().os2()?.us_weight_class();
     match weight {
         250 | 275 => {
@@ -98,7 +98,7 @@ fn weightclass(c: &TestableCollection, _context: &Context) -> CheckFnResult {
     let mut problems = vec![];
     let mdpb = c
         .get_file("METADATA.pb")
-        .ok_or_else(|| CheckError::skip("no-mdpb", "No METADATA.pb file found"))?;
+        .ok_or_else(|| FontspectorError::skip("no-mdpb", "No METADATA.pb file found"))?;
     let msg = family_proto(mdpb)?;
     let fonts_and_mdpb_weights = msg
         .fonts

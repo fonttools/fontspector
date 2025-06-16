@@ -22,7 +22,7 @@ fn axes(c: &TestableCollection, context: &Context) -> CheckFnResult {
     let mut problems = vec![];
     let mdpb = c
         .get_file("METADATA.pb")
-        .ok_or_else(|| CheckError::skip("no-mdpb", "No METADATA.pb file found"))?;
+        .ok_or_else(|| FontspectorError::skip("no-mdpb", "No METADATA.pb file found"))?;
     let msg = family_proto(mdpb)?;
     // Skip if no variable fonts
     let fonts = msg

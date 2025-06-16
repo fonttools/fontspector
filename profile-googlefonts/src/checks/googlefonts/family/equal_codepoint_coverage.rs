@@ -1,7 +1,7 @@
 use itertools::Itertools;
 use std::collections::HashSet;
 
-use fontspector_checkapi::{prelude::*, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, skip, FileTypeConvert};
 
 #[check(
     id = "googlefonts/family/equal_codepoint_coverage",
@@ -16,12 +16,11 @@ use fontspector_checkapi::{prelude::*, FileTypeConvert};
 )]
 fn equal_codepoint_coverage(c: &TestableCollection, context: &Context) -> CheckFnResult {
     let fonts = TTF.from_collection(c);
-    if fonts.len() < 2 {
-        return Err(CheckError::Skip {
-            code: "no-siblings".to_string(),
-            message: "No sibling fonts found".to_string(),
-        });
-    }
+    skip!(
+        fonts.len() < 2,
+        "no-siblings",
+        "This check requires at least two sibling fonts to compare codepoint coverage."
+    );
     let mut problems = vec![];
     let mut we_have_they_dont: HashSet<u32> = HashSet::new();
     let mut they_have_we_dont: HashSet<u32> = HashSet::new();

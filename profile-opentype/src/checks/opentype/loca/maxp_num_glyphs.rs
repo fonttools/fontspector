@@ -19,7 +19,7 @@ fn maxp_num_glyphs(t: &Testable, _context: &Context) -> CheckFnResult {
     let loca = font
         .font()
         .loca(None)
-        .map_err(|_| CheckError::skip("no-loca", "loca table not found"))?;
+        .map_err(|_| FontspectorError::skip("no-loca", "loca table not found"))?;
     if loca.len() != font.glyph_count {
         return Ok(Status::just_one_fail(
             "corrupt",

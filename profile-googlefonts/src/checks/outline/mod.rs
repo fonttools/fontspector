@@ -1,5 +1,5 @@
 use fontations::skrifa::MetadataProvider;
-use fontspector_checkapi::{pens::BezGlyph, CheckError, TestFont, DEFAULT_LOCATION};
+use fontspector_checkapi::{pens::BezGlyph, FontspectorError, TestFont, DEFAULT_LOCATION};
 use std::ops::Sub;
 
 mod alignment_miss;
@@ -26,7 +26,7 @@ where
 
 pub(crate) fn name_and_bezglyph<'a>(
     f: &'a TestFont,
-) -> impl Iterator<Item = (String, Result<BezGlyph, CheckError>)> + 'a {
+) -> impl Iterator<Item = (String, Result<BezGlyph, FontspectorError>)> + 'a {
     let reverse_char_map = f
         .font()
         .charmap()

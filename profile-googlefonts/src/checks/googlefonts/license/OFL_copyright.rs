@@ -37,11 +37,11 @@ use fontspector_checkapi::prelude::*;
 )]
 fn OFL_copyright(t: &Testable, _context: &Context) -> CheckFnResult {
     let license_contents = String::from_utf8(t.contents.clone())
-        .map_err(|e| CheckError::Error(format!("OFL.txt is not valid UTF-8: {:?}", e)))?
+        .map_err(|e| FontspectorError::General(format!("OFL.txt is not valid UTF-8: {:?}", e)))?
         .trim()
         .split("\n")
         .next()
-        .ok_or(CheckError::Error("OFL.txt is empty".to_string()))?
+        .ok_or(FontspectorError::General("OFL.txt is empty".to_string()))?
         .to_lowercase();
     if !EXPECTED_COPYRIGHT_PATTERN.is_match(&license_contents) {
         return Ok(Status::just_one_fail("bad-format",

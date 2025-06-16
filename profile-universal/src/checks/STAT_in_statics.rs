@@ -52,7 +52,7 @@ fn STAT_in_statics(t: &Testable, _context: &Context) -> CheckFnResult {
                 AxisValue::Format1(v) => {
                     let axis_tag = axes
                         .get(v.axis_index() as usize)
-                        .ok_or(CheckError::Error(
+                        .ok_or(FontspectorError::General(
                             "Bad axis index in avis value record".to_string(),
                         ))?
                         .axis_tag();
@@ -61,7 +61,7 @@ fn STAT_in_statics(t: &Testable, _context: &Context) -> CheckFnResult {
                 AxisValue::Format2(v) => {
                     let axis_tag = axes
                         .get(v.axis_index() as usize)
-                        .ok_or(CheckError::Error(
+                        .ok_or(FontspectorError::General(
                             "Bad axis index in avis value record".to_string(),
                         ))?
                         .axis_tag();
@@ -70,7 +70,7 @@ fn STAT_in_statics(t: &Testable, _context: &Context) -> CheckFnResult {
                 AxisValue::Format3(v) => {
                     let axis_tag = axes
                         .get(v.axis_index() as usize)
-                        .ok_or(CheckError::Error(
+                        .ok_or(FontspectorError::General(
                             "Bad axis index in avis value record".to_string(),
                         ))?
                         .axis_tag();
@@ -80,7 +80,7 @@ fn STAT_in_statics(t: &Testable, _context: &Context) -> CheckFnResult {
                     for axis_value in v.axis_values() {
                         let axis_tag = axes
                             .get(axis_value.axis_index() as usize)
-                            .ok_or(CheckError::Error(
+                            .ok_or(FontspectorError::General(
                                 "Bad axis index in avis value record".to_string(),
                             ))?
                             .axis_tag();

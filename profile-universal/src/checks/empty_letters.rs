@@ -92,7 +92,7 @@ fn empty_letters(t: &Testable, context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
-fn is_blank_glyph(f: &TestFont, gid: GlyphId) -> Result<bool, CheckError> {
+fn is_blank_glyph(f: &TestFont, gid: GlyphId) -> Result<bool, FontspectorError> {
     let mut pen = HasInkPen::default();
     f.draw_glyph(gid, &mut pen, DEFAULT_LOCATION)?;
     Ok(!pen.has_ink())

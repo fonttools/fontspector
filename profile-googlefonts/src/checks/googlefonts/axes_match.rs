@@ -20,7 +20,7 @@ use crate::{
 fn axes_match(c: &TestableCollection, context: &Context) -> CheckFnResult {
     let mdpb = c
         .get_file("METADATA.pb")
-        .ok_or_else(|| CheckError::skip("no-mdpb", "No METADATA.pb file found"))?;
+        .ok_or_else(|| FontspectorError::skip("no-mdpb", "No METADATA.pb file found"))?;
     let msg = family_proto(mdpb)?;
     let fonts = msg
         .fonts
@@ -33,7 +33,7 @@ fn axes_match(c: &TestableCollection, context: &Context) -> CheckFnResult {
     let mut problems: Vec<Status> = vec![];
     skip!(msg.axes.is_empty(), "not-variable", "Not a variable font");
 
-    let remote_styles = remote_styles(family, context).map_err(CheckError::Error)?;
+    let remote_styles = remote_styles(family, context)?;
     let mut missing_axes = HashSet::new();
 
     for t in fonts.iter() {
@@ -45,7 +45,7 @@ fn axes_match(c: &TestableCollection, context: &Context) -> CheckFnResult {
         );
         skip!(!f.is_variable_font(), "not-variable", "Not a variable font");
         skip!(
-            !is_listed_on_google_fonts(family, context).map_err(CheckError::Error)?,
+            !is_listed_on_google_fonts(family, context)?,
             "not-listed",
             "Not listed on Google Fonts"
         );
@@ -54,7 +54,7 @@ fn axes_match(c: &TestableCollection, context: &Context) -> CheckFnResult {
             .iter()
             .flat_map(|s| TTF.from_testable(s))
             .find(|remote_f| remote_f.best_subfamilyname() == our_subfamily_name)
-            .ok_or(CheckError::Error(format!(
+            .ok_or(FontspectorError::General(format!(
                 "No matching remote style for {}",
                 t.basename().unwrap_or("Regular".to_string())
             )))?;

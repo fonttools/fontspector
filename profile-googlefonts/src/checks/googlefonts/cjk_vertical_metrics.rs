@@ -11,7 +11,7 @@ use fontations::{
     },
     types::{BigEndian, GlyphId, Tag},
 };
-use fontspector_checkapi::GetSubstitutionMap;
+use fontspector_checkapi::{fixfont, GetSubstitutionMap};
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, TestFont};
 use hashbrown::{HashMap, HashSet};
 use tabled::builder::Builder;
@@ -83,16 +83,18 @@ impl CjkMetrics {
 }
 
 impl SimpleCjkBaseTable {
-    fn from_base(base_table: &Base) -> Result<Self, CheckError> {
+    fn from_base(base_table: &Base) -> Result<Self, FontspectorError> {
         let mut horizontal_collections = HashMap::new();
         let mut vertical_collections = HashMap::new();
 
-        let horiz_axis = base_table.horiz_axis().ok_or(CheckError::Error(
+        let horiz_axis = base_table.horiz_axis().ok_or(FontspectorError::General(
             "BASE table must have a horizontal axis".to_string(),
         ))??;
-        let taglist = horiz_axis.base_tag_list().ok_or(CheckError::Error(
-            "BASE table must have a horizontal tag list".to_string(),
-        ))??;
+        let taglist = horiz_axis
+            .base_tag_list()
+            .ok_or(FontspectorError::General(
+                "BASE table must have a horizontal tag list".to_string(),
+            ))??;
         let tags = taglist.baseline_tags();
         let script_list = horiz_axis.base_script_list()?;
         for base_script_record in script_list.base_script_records() {
@@ -102,10 +104,10 @@ impl SimpleCjkBaseTable {
             );
         }
 
-        let vert_axis = base_table.vert_axis().ok_or(CheckError::Error(
+        let vert_axis = base_table.vert_axis().ok_or(FontspectorError::General(
             "BASE table must have a vertical axis".to_string(),
         ))??;
-        let taglist = vert_axis.base_tag_list().ok_or(CheckError::Error(
+        let taglist = vert_axis.base_tag_list().ok_or(FontspectorError::General(
             "BASE table must have a vertical tag list".to_string(),
         ))??;
         let tags = taglist.baseline_tags();
@@ -165,7 +167,7 @@ impl SimpleCjkBaseTable {
         computed_bounds: &CjkMetrics,
         average_width: f32,
         upem: f32,
-    ) -> Result<(), CheckError> {
+    ) -> Result<(), FontspectorError> {
         let font_is_square = (average_width - upem).abs() / upem < 0.01;
         for (script_tag, axis) in &self.0 {
             let expected_default = if is_cjk(*script_tag) {
@@ -307,16 +309,16 @@ fn base_script_to_collection(
     tags: &[BigEndian<Tag>],
     script_list: &BaseScriptList,
     base_script_record: &BaseScriptRecord,
-) -> Result<(Tag, HashMap<Tag, i16>), CheckError> {
+) -> Result<(Tag, HashMap<Tag, i16>), FontspectorError> {
     let base_script = base_script_record.base_script(script_list.offset_data())?;
-    let values = base_script.base_values().ok_or(CheckError::Error(
+    let values = base_script.base_values().ok_or(FontspectorError::General(
         "BASE table must have base values".to_string(),
     ))??;
     let Some(default_baseline) = tags
         .get(values.default_baseline_index() as usize)
         .map(|be| be.get())
     else {
-        return Err(CheckError::Error(
+        return Err(FontspectorError::General(
             "BASE table must have a default baseline".to_string(),
         ));
     };
@@ -369,6 +371,7 @@ fn vertical_glyphs(f: &TestFont) -> Result<HashSet<GlyphId>, ReadError> {
 
     Ok(vert_glyphs)
 }
+
 fn is_cjk(script_tag: Tag) -> bool {
     script_tag == Tag::new(b"hani")
         || script_tag == Tag::new(b"jpan")
@@ -380,6 +383,59 @@ fn is_cjk(script_tag: Tag) -> bool {
         || script_tag == Tag::new(b"hant")
         || script_tag == Tag::new(b"kana")
         || script_tag == Tag::new(b"DFLT") // special case, CJK should be default
+}
+
+fn cjk_glyphs(f: &TestFont, context: Option<&Context>) -> Vec<GlyphId> {
+    let mut cjk_glyphs = f
+        .cjk_codepoints(context)
+        .filter(|cp| {
+            // We're going to be using this to find the ideographic bounding
+            // box, so we're only interesting in Han/Kanji. In some designs,
+            // kana, enclosed characters, etc. may be taller than the
+            // ideographic bounding box, so we exclude them.
+            (0x4E00..0x9FFF).contains(cp)
+            || (0x3400..0x4DBF).contains(cp) // CJK Unified Ideographs Extension A
+            || (0x20000..0x2A6DF).contains(cp) // CJK Unified Ideographs Extension B
+        })
+        .flat_map(|cp| f.font().charmap().map(cp))
+        .collect::<Vec<_>>();
+    if cjk_glyphs.is_empty() {
+        // Maybe just a Korean or Kana font?
+        cjk_glyphs = f
+            .cjk_codepoints(context)
+            .filter(|cp| {
+                // Korean Hangul syllables
+                (0xAC00..=0xD7AF).contains(cp)
+                || // Kana characters
+                (0x3040..=0x30FF).contains(cp)
+                || (0xFF00..=0xFFEF).contains(cp) // Full-width Kana
+            })
+            .flat_map(|cp| f.font().charmap().map(cp))
+            .collect();
+    }
+    cjk_glyphs
+}
+
+fn compute_bounds(f: &TestFont) -> Result<CjkMetrics, FontspectorError> {
+    let upem = f.font().head()?.units_per_em() as f32;
+    let glyph_metrics = f
+        .font()
+        .glyph_metrics(Size::unscaled(), LocationRef::default());
+    let hmtx = f.font().hmtx()?;
+    let relevant_glyphs = cjk_glyphs(f, None);
+    let average_width = relevant_glyphs
+        .iter()
+        .map(|&gid| hmtx.advance(gid).map(|x| x as f32).unwrap_or(upem)) // Promote to f32 to avoid overflow
+        .sum::<f32>()
+        / relevant_glyphs.len() as f32;
+    Ok(CjkMetrics::from_bounds(
+        &relevant_glyphs
+            .iter()
+            .filter_map(|&gid| glyph_metrics.bounds(gid))
+            .collect::<Vec<_>>(),
+        upem,
+        average_width,
+    ))
 }
 
 #[check(
@@ -398,12 +454,12 @@ fn is_cjk(script_tag: Tag) -> bool {
 fn cjk_vertical_metrics(t: &Testable, context: &Context) -> CheckFnResult {
     let f = testfont!(t);
     let mut problems = vec![];
-    let family_name = f
-        .best_familyname()
-        .ok_or(CheckError::Error("Font lacks a family name".to_string()))?;
+    let family_name = f.best_familyname().ok_or(FontspectorError::General(
+        "Font lacks a family name".to_string(),
+    ))?;
     if !context.skip_network {
         skip!(
-            is_listed_on_google_fonts(&family_name, context).map_err(CheckError::Error)?,
+            is_listed_on_google_fonts(&family_name, context)?,
             "already-onboarded",
             "Not checking vertical metrics for fonts already onboarded to Google Fonts"
         );
@@ -414,39 +470,9 @@ fn cjk_vertical_metrics(t: &Testable, context: &Context) -> CheckFnResult {
         "Not checking non-CJK fonts"
     );
     let metrics = f.vertical_metrics()?;
-    let glyph_metrics = f
-        .font()
-        .glyph_metrics(Size::unscaled(), LocationRef::default());
 
-    let mut cjk_glyphs = f
-        .cjk_codepoints(Some(context))
-        .filter(|cp| {
-            // We're going to be using this to find the ideographic bounding
-            // box, so we're only interesting in Han/Kanji. In some designs,
-            // kana, enclosed characters, etc. may be taller than the
-            // ideographic bounding box, so we exclude them.
-            (0x4E00..0x9FFF).contains(cp)
-            || (0x3400..0x4DBF).contains(cp) // CJK Unified Ideographs Extension A
-            || (0x20000..0x2A6DF).contains(cp) // CJK Unified Ideographs Extension B
-        })
-        .flat_map(|cp| f.font().charmap().map(cp))
-        .collect::<Vec<_>>();
-    if cjk_glyphs.is_empty() {
-        // Maybe just a Korean or Kana font?
-        cjk_glyphs = f
-            .cjk_codepoints(Some(context))
-            .filter(|cp| {
-                // Korean Hangul syllables
-                (0xAC00..=0xD7AF).contains(cp)
-                || // Kana characters
-                (0x3040..=0x30FF).contains(cp)
-                || (0xFF00..=0xFFEF).contains(cp) // Full-width Kana
-            })
-            .flat_map(|cp| f.font().charmap().map(cp))
-            .collect();
-    }
     skip!(
-        cjk_glyphs.is_empty(),
+        cjk_glyphs(&f, Some(context)).is_empty(),
         "no-cjk-glyphs",
         "No CJK glyphs found in the font"
     );
@@ -459,21 +485,7 @@ fn cjk_vertical_metrics(t: &Testable, context: &Context) -> CheckFnResult {
     };
     let actual_bounds = actual_base.as_ref().and_then(|b| b.get_any_metrics());
 
-    let upem = f.font().head()?.units_per_em() as f32;
-    let hmtx = f.font().hmtx()?;
-    let average_width = cjk_glyphs
-        .iter()
-        .map(|&gid| hmtx.advance(gid).map(|x| x as f32).unwrap_or(upem)) // Promote to f32 to avoid overflow
-        .sum::<f32>()
-        / cjk_glyphs.len() as f32;
-    let computed_bounds = CjkMetrics::from_bounds(
-        &cjk_glyphs
-            .iter()
-            .filter_map(|&gid| glyph_metrics.bounds(gid))
-            .collect::<Vec<_>>(),
-        upem,
-        average_width,
-    );
+    let computed_bounds = compute_bounds(&f)?;
 
     problems.push(Status::info(
         "computed-bounds",
@@ -496,6 +508,8 @@ fn cjk_vertical_metrics(t: &Testable, context: &Context) -> CheckFnResult {
             "OS/2 fsSelection bit 7 must be enabled",
         ));
     }
+
+    let upem = f.font().head()?.units_per_em() as f32;
 
     // OS/2.sTypoAscender should be between ideoEmBoxTop + (5%-10% * em-box)
     // i.e. ideoEmBoxTop + 0.075 * upem +/- 0.025 * upem
@@ -628,6 +642,8 @@ fn cjk_vertical_metrics(t: &Testable, context: &Context) -> CheckFnResult {
     }
 
     // A BASE table with correct icfb/icft/ideo/romn baselines should be present
+    #[allow(clippy::unwrap_used)] // we passed it in!
+    let average_width = computed_bounds.v_idtp.unwrap();
     if let Some(base) = actual_base {
         base.validate(&mut problems, &computed_bounds, average_width, upem)?
     } else {
@@ -730,3 +746,26 @@ fn comparison_base_table(
     table.with(tabled::settings::Style::markdown());
     table.to_string()
 }
+
+// fn fix_vertical_metrics(f: &mut Testable) -> FixFnResult {
+//     let f = fixfont!(f);
+//     // Check if the font has a BASE table
+//     if !f.has_table(b"BASE") {
+//         // Let's make one.
+//         let computed_metrics = compute_bounds(&f)?;
+//     }
+
+//     // If the font has a BASE table, we can fix it
+//     if let Some(base) = f.font().base().ok() {
+//         let simple_base = SimpleCjkBaseTable::from_base(&base)?;
+//         let computed_bounds = compute_bounds(&f)?;
+//         simple_base.validate(&mut problems, &computed_bounds, 0.0, 0.0)?;
+//     } else {
+//         problems.push(Status::fail(
+//             "missing-BASE-table",
+//             "A BASE table with correct icfb/icft/ideo/romn baselines should be present",
+//         ));
+//     }
+
+//     return_fix(problems);
+// }

@@ -24,9 +24,9 @@ fn GDEF_non_mark_chars(t: &Testable, context: &Context) -> CheckFnResult {
     let gdef = f
         .font()
         .gdef()
-        .map_err(|_| CheckError::skip("no-gdef", "GDEF table unreadable or not present"))?;
+        .map_err(|_| FontspectorError::skip("no-gdef", "GDEF table unreadable or not present"))?;
     let glyph_classdef = gdef.glyph_class_def().ok_or_else(|| {
-        CheckError::skip("no-glyph-class-def", "GDEF table has no GlyphClassDef")
+        FontspectorError::skip("no-glyph-class-def", "GDEF table has no GlyphClassDef")
     })??;
     let codepoints = f.codepoints(Some(context));
     let non_mark_gids = codepoints

@@ -17,7 +17,7 @@ fn is_hinted(font: &TestFont) -> bool {
     false
 }
 
-fn dehinted(font: &FontRef) -> Result<Vec<u8>, CheckError> {
+fn dehinted(font: &FontRef) -> Result<Vec<u8>, FontspectorError> {
     let mut new_font = FontBuilder::new();
     let glyf_table_hinted = any_glyphs_have_instructions(font)?;
     for table in font.table_directory.table_records() {

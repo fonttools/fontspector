@@ -39,7 +39,7 @@ fn rfn(t: &Testable, _context: &Context) -> CheckFnResult {
         .font()
         .localized_strings(NameId::FAMILY_NAME)
         .english_or_first()
-        .ok_or(CheckError::Error("No name ID 1".to_string()))?
+        .ok_or(FontspectorError::General("No name ID 1".to_string()))?
         .chars()
         .collect::<String>();
 

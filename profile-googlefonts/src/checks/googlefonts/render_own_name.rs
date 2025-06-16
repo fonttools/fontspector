@@ -17,7 +17,9 @@ fn render_own_name(t: &Testable, context: &Context) -> CheckFnResult {
         .font()
         .localized_strings(NameId::FAMILY_NAME)
         .english_or_first()
-        .ok_or(CheckError::Error("Family name not found".to_string()))?;
+        .ok_or(FontspectorError::General(
+            "Family name not found".to_string(),
+        ))?;
     let codepoints = f.codepoints(Some(context));
     if name.chars().any(|c| !codepoints.contains(&(c as u32))) {
         Ok(Status::just_one_fail(

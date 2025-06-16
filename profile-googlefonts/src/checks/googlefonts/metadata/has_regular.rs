@@ -16,7 +16,7 @@ use fontspector_checkapi::prelude::*;
 fn has_regular(c: &TestableCollection, _context: &Context) -> CheckFnResult {
     let mdpb = c
         .get_file("METADATA.pb")
-        .ok_or_else(|| CheckError::skip("no-mdpb", "No METADATA.pb file found"))?;
+        .ok_or_else(|| FontspectorError::skip("no-mdpb", "No METADATA.pb file found"))?;
     let msg = family_proto(mdpb)?;
     if msg
         .fonts

@@ -31,7 +31,7 @@ fn fsselection(f: &Testable, _context: &Context) -> CheckFnResult {
     let fs_flags = font.font().os2()?.fs_selection();
     let style = font
         .style()
-        .ok_or(CheckError::skip("no-style", "No style detected"))?;
+        .ok_or(FontspectorError::skip("no-style", "No style detected"))?;
     let bold_expected = style == "Bold" || style == "BoldItalic";
     let italic_expected = style.contains("Italic");
     let regular_expected = !bold_expected && !italic_expected;

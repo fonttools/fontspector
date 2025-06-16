@@ -58,7 +58,7 @@ fn xavgcharwidth(f: &Testable, _context: &Context) -> CheckFnResult {
             .filter(|&w| w > 0)
             .collect::<Vec<_>>();
         if advances.is_empty() {
-            return Err(CheckError::Error(
+            return Err(FontspectorError::General(
                 "No non-zero width glyphs in font for average character width calculation"
                     .to_string(),
             ));
@@ -73,7 +73,7 @@ fn xavgcharwidth(f: &Testable, _context: &Context) -> CheckFnResult {
             .map(|(c, _)| charmap.map(*c))
             .collect();
         if ids.iter().any(|id| id.is_none()) {
-            return Err(CheckError::Error(
+            return Err(FontspectorError::General(
                 "Missing glyph in font for average character width calculation".to_string(),
             ));
         }

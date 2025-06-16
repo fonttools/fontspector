@@ -167,7 +167,7 @@ fn interpolation_issues(t: &Testable, context: &Context) -> CheckFnResult {
     for gid in f.all_glyphs() {
         let glyphname = f.glyph_name_for_id_synthesise(gid);
         let mut default_glyph = interpolatable::Glyph::new_from_font(&font, gid, &[]).ok_or(
-            CheckError::Error(format!("Can't convert glyph {}", glyphname)),
+            FontspectorError::General(format!("Can't convert glyph {}", glyphname)),
         )?;
         default_glyph.master_name = "default".to_string();
         default_glyph.master_index = 0;
@@ -175,7 +175,7 @@ fn interpolation_issues(t: &Testable, context: &Context) -> CheckFnResult {
             for variation in variations {
                 let mut glyph =
                     interpolatable::Glyph::new_from_font(&font, gid, &variation).ok_or(
-                        CheckError::Error(format!("Can't convert glyph {}", glyphname)),
+                        FontspectorError::General(format!("Can't convert glyph {}", glyphname)),
                     )?;
                 glyph.master_name = variation
                     .iter()
@@ -185,10 +185,9 @@ fn interpolation_issues(t: &Testable, context: &Context) -> CheckFnResult {
                 if !locations.contains(&variation) {
                     locations.push(variation.clone());
                 }
-                glyph.master_index = locations
-                    .iter()
-                    .position(|x| x == &variation)
-                    .ok_or(CheckError::Error("Can't find master index".to_string()))?;
+                glyph.master_index = locations.iter().position(|x| x == &variation).ok_or(
+                    FontspectorError::General("Can't find master index".to_string()),
+                )?;
                 let problems = run_tests(&default_glyph, &glyph, None, None, Some(upem));
                 if !problems.is_empty() {
                     result.push(Status::warn(

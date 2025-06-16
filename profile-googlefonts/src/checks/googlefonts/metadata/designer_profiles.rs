@@ -62,7 +62,7 @@ fn normalize_designer_name(designer: &str) -> String {
 )]
 fn designer_profiles(c: &Testable, context: &Context) -> CheckFnResult {
     let msg = family_proto(c).map_err(|e| {
-        CheckError::Error(format!("METADATA.pb is not a valid FamilyProto: {:?}", e))
+        FontspectorError::General(format!("METADATA.pb is not a valid FamilyProto: {:?}", e))
     })?;
     skip!(
         context.skip_network,
@@ -83,11 +83,12 @@ fn designer_profiles(c: &Testable, context: &Context) -> CheckFnResult {
             );
             continue;
         }
-        let listed = is_designer_listed(context, &designer).map_err(CheckError::Error)?;
+        let listed = is_designer_listed(context, &designer)?;
         if let Some(profile) = listed {
-            let designer_profile =
-                protobuf::text_format::parse_from_str::<DesignerInfoProto>(&profile)
-                    .map_err(|e| CheckError::Error(format!("Error parsing info.pb: {}", e)))?;
+            let designer_profile = protobuf::text_format::parse_from_str::<DesignerInfoProto>(
+                &profile,
+            )
+            .map_err(|e| FontspectorError::General(format!("Error parsing info.pb: {}", e)))?;
             if normalize_designer_name(designer_profile.designer()) != designer {
                 problems.push(Status::warn(
                         "mismatch",
@@ -123,7 +124,7 @@ fn designer_profiles(c: &Testable, context: &Context) -> CheckFnResult {
                     designer_profile.avatar.file_name()
                 );
                 let response = reqwest::blocking::get(&avatar_url).map_err(|e| {
-                    CheckError::Error(format!(
+                    FontspectorError::General(format!(
                         "Error fetching avatar image from {}: {}",
                         avatar_url, e
                     ))

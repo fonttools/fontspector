@@ -18,9 +18,9 @@ fn GDEF_spacing_marks(f: &Testable, context: &Context) -> CheckFnResult {
     let gdef = font
         .font()
         .gdef()
-        .map_err(|_| CheckError::skip("no-gdef", "GDEF table unreadable or not present"))?;
+        .map_err(|_| FontspectorError::skip("no-gdef", "GDEF table unreadable or not present"))?;
     let glyph_classdef = gdef.glyph_class_def().ok_or_else(|| {
-        CheckError::skip("no-glyph-class-def", "GDEF table has no GlyphClassDef")
+        FontspectorError::skip("no-glyph-class-def", "GDEF table has no GlyphClassDef")
     })??;
     let nonspacing_mark_glyphs = bullet_list(
         context,

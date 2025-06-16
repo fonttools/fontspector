@@ -25,12 +25,12 @@ use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
 fn vertical_metrics(t: &Testable, context: &Context) -> CheckFnResult {
     let f = testfont!(t);
     let mut problems = vec![];
-    let family_name = f
-        .best_familyname()
-        .ok_or(CheckError::Error("Font lacks a family name".to_string()))?;
+    let family_name = f.best_familyname().ok_or(FontspectorError::General(
+        "Font lacks a family name".to_string(),
+    ))?;
     if !context.skip_network {
         skip!(
-            is_listed_on_google_fonts(&family_name, context).map_err(CheckError::Error)?,
+            is_listed_on_google_fonts(&family_name, context)?,
             "already-onboarded",
             "Not checking vertical metrics for fonts already onboarded to Google Fonts"
         );

@@ -14,11 +14,11 @@ fn weight_class_fvar(t: &Testable, _context: &Context) -> CheckFnResult {
         .axis_ranges()
         .find(|(tag, _, _, _)| tag == "wght")
         .map(|(_, _, default, _)| default)
-        .ok_or(CheckError::skip("no-wght", "No 'wght' axis"))?;
+        .ok_or(FontspectorError::skip("no-wght", "No 'wght' axis"))?;
     let os2_value = f
         .font()
         .os2()
-        .map_err(|_| CheckError::skip("no-os2", "No OS/2 table"))?
+        .map_err(|_| FontspectorError::skip("no-os2", "No OS/2 table"))?
         .us_weight_class();
     if os2_value != fvar_value as u16 {
         return Ok(Status::just_one_fail(
