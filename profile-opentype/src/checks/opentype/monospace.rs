@@ -54,11 +54,14 @@ use unicode_properties::{GeneralCategory, UnicodeGeneralCategory};
 )]
 fn monospace(t: &Testable, context: &Context) -> CheckFnResult {
     let font = testfont!(t);
-    for required in [b"glyf", b"hhea", b"hmtx", b"OS/2", b"post"] {
+    for required in [b"hhea", b"hmtx", b"OS/2", b"post"] {
         if !font.has_table(required) {
             return Ok(Status::just_one_fail(
                 "lacks-table",
-                &format!("Font is missing a required table: {:?}", required),
+                &format!(
+                    "Font is missing a required table: {}",
+                    std::str::from_utf8(required).unwrap_or("<invalid>")
+                ),
             ));
         }
     }
