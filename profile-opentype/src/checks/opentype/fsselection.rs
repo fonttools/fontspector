@@ -95,6 +95,6 @@ fn fix_fsselection(t: &mut Testable) -> FixFnResult {
         os2.fs_selection |= SelectionFlags::REGULAR;
     }
 
-    t.set(f.rebuild_with_new_tables(&[os2])?);
+    t.set(f.rebuild_with_new_table(&os2)?);
     Ok(true)
 }

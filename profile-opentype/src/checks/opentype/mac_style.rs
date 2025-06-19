@@ -69,6 +69,6 @@ fn fix_mac_style(f: &mut Testable) -> FixFnResult {
         bits.remove(MacStyle::ITALIC);
     }
     head.mac_style = bits;
-    f.set(font.rebuild_with_new_tables(&[head])?);
+    f.set(font.rebuild_with_new_table(&head)?);
     Ok(true)
 }

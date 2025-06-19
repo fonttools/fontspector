@@ -510,14 +510,12 @@ impl TestFont<'_> {
     ///
     /// This will create a font with the tables specified, and then copy all other
     /// tables from the original font.
-    pub fn rebuild_with_new_tables<T: FontWrite + Validate + TopLevelTable>(
+    pub fn rebuild_with_new_table<T: FontWrite + Validate + TopLevelTable>(
         &self,
-        tables: &[T],
+        table: &T,
     ) -> Result<Vec<u8>, FontspectorError> {
         let mut new_font = fontations::write::FontBuilder::new();
-        for table in tables {
-            new_font.add_table(table)?;
-        }
+        new_font.add_table(table)?;
         new_font.copy_missing_tables(self.font());
         Ok(new_font.build())
     }

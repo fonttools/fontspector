@@ -88,6 +88,6 @@ fn fix_caret_slope(t: &mut Testable) -> FixFnResult {
     hhea.caret_slope_rise = upem as i16;
     hhea.caret_slope_run =
         (-post.italic_angle().to_f32().to_radians().tan() * upem as f32).round() as i16;
-    t.set(f.rebuild_with_new_tables(&[hhea])?);
+    t.set(f.rebuild_with_new_table(&hhea)?);
     Ok(true)
 }

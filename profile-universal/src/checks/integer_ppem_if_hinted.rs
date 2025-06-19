@@ -38,6 +38,6 @@ fn fix_integer_ppem_if_hinted(t: &mut Testable) -> FixFnResult {
     let f = testfont!(t);
     let mut head: fontations::write::tables::head::Head = f.font().head()?.to_owned_table();
     head.flags |= 0b1000;
-    t.set(f.rebuild_with_new_tables(&[head])?);
+    t.set(f.rebuild_with_new_table(&head)?);
     Ok(true)
 }

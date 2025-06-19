@@ -64,6 +64,6 @@ fn fix_fstype(t: &mut Testable) -> FixFnResult {
     let f = testfont!(t);
     let mut os2: fontations::write::tables::os2::Os2 = f.font().os2()?.to_owned_table();
     os2.fs_type = 0;
-    t.set(f.rebuild_with_new_tables(&[os2])?);
+    t.set(f.rebuild_with_new_table(&os2)?);
     Ok(true)
 }

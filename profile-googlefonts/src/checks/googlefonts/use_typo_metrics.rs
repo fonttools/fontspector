@@ -53,6 +53,6 @@ fn fix_use_typo_metrics(t: &mut Testable) -> FixFnResult {
     }
     let mut os2: fontations::write::tables::os2::Os2 = f.font().os2()?.to_owned_table();
     os2.fs_selection |= SelectionFlags::USE_TYPO_METRICS;
-    t.set(f.rebuild_with_new_tables(&[os2])?);
+    t.set(f.rebuild_with_new_table(&os2)?);
     Ok(true)
 }
