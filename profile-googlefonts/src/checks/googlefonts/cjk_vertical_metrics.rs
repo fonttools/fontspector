@@ -10,6 +10,13 @@ use fontations::{
         MetadataProvider,
     },
     types::{BigEndian, GlyphId, Tag},
+    write::{
+        from_obj::ToOwnedTable,
+        tables::base::{self as write_base, BaseScript},
+        tables::hhea as write_hhea,
+        tables::os2 as write_os2,
+        FontBuilder,
+    },
 };
 use fontspector_checkapi::{
     prelude::*, skip, testfont, FileTypeConvert, GetSubstitutionMap, TestFont,
@@ -156,6 +163,34 @@ impl SimpleCjkBaseTable {
         Ok(table)
     }
 
+    fn from_cjk_metrics(
+        cjk_metrics: &CjkMetrics,
+        scripts_in_font: &[Tag],
+    ) -> Result<Self, FontspectorError> {
+        let mut table = SimpleCjkBaseTable(HashMap::new());
+        table.0.insert(
+            Tag::new(b"DFLT"),
+            SimpleAxis {
+                default_baseline: Tag::new(b"ideo"),
+                metrics: cjk_metrics.clone(),
+            },
+        );
+        for script_tag in scripts_in_font {
+            table.0.insert(
+                *script_tag,
+                SimpleAxis {
+                    default_baseline: if is_cjk(*script_tag) {
+                        Tag::new(b"ideo")
+                    } else {
+                        Tag::new(b"romn")
+                    },
+                    metrics: cjk_metrics.clone(),
+                },
+            );
+        }
+        Ok(table)
+    }
+
     fn get_any_metrics(&self) -> Option<CjkMetrics> {
         // We return the first script's metrics, as they should be the same for all scripts
         self.0.values().next().map(|axis| axis.metrics.clone())
@@ -270,6 +305,94 @@ impl SimpleCjkBaseTable {
             }
         }
         Ok(())
+    }
+
+    fn to_base(&self, with_idtp: bool) -> write_base::Base {
+        let mut horiz_records = vec![];
+        let mut vert_records = vec![];
+        let mut tags = write_base::BaseTagList::new(vec![
+            Tag::new(b"icfb"),
+            Tag::new(b"icft"),
+            Tag::new(b"ideo"),
+            Tag::new(b"romn"),
+        ]);
+        if with_idtp {
+            tags.baseline_tags.push(Tag::new(b"idtp"));
+        }
+
+        for (script_tag, axis) in &self.0 {
+            let default_index = if is_cjk(*script_tag) || script_tag == &Tag::new(b"DFLT") {
+                2
+            } else {
+                3
+            };
+            let mut h_values = vec![
+                axis.metrics.h_icfb,
+                axis.metrics.h_icft,
+                axis.metrics.h_ideo,
+                axis.metrics.h_romn,
+            ];
+            if with_idtp {
+                h_values.push(axis.metrics.h_idtp);
+            }
+            let mut v_values = vec![
+                axis.metrics.v_icfb,
+                axis.metrics.v_icft,
+                axis.metrics.v_ideo,
+                axis.metrics.v_romn,
+            ];
+            if with_idtp {
+                v_values.push(axis.metrics.v_idtp);
+            }
+
+            horiz_records.push(write_base::BaseScriptRecord::new(
+                *script_tag,
+                BaseScript::new(
+                    Some(write_base::BaseValues::new(
+                        default_index,
+                        h_values
+                            .iter()
+                            .map(|&v| {
+                                write_base::BaseCoord::Format1(write_base::BaseCoordFormat1::new(
+                                    v.unwrap_or(0.0) as i16,
+                                ))
+                            })
+                            .collect::<Vec<_>>(),
+                    )),
+                    None,
+                    vec![],
+                ),
+            ));
+            vert_records.push(write_base::BaseScriptRecord::new(
+                *script_tag,
+                BaseScript::new(
+                    Some(write_base::BaseValues::new(
+                        default_index,
+                        v_values
+                            .iter()
+                            .map(|&v| {
+                                write_base::BaseCoord::Format1(write_base::BaseCoordFormat1::new(
+                                    v.unwrap_or(0.0) as i16,
+                                ))
+                            })
+                            .collect::<Vec<_>>(),
+                    )),
+                    None,
+                    vec![],
+                ),
+            ));
+        }
+
+        write_base::Base::new(
+            Some(write_base::Axis::new(
+                Some(tags.clone()),
+                write_base::BaseScriptList::new(horiz_records),
+            )),
+            Some(write_base::Axis::new(
+                Some(tags.clone()),
+                write_base::BaseScriptList::new(vert_records),
+            )),
+        )
     }
 }
 
@@ -450,7 +573,8 @@ fn compute_bounds(f: &TestFont) -> Result<CjkMetrics, FontspectorError> {
     
     ",
     proposal = "https://github.com/fonttools/fontbakery/pull/2797",
-    title = "Check font follows the Google Fonts CJK vertical metric schema"
+    title = "Check font follows the Google Fonts CJK vertical metric schema",
+    hotfix = fix_vertical_metrics
 )]
 fn cjk_vertical_metrics(t: &Testable, context: &Context) -> CheckFnResult {
     let f = testfont!(t);
@@ -748,25 +872,80 @@ fn comparison_base_table(
     table.to_string()
 }
 
-// fn fix_vertical_metrics(f: &mut Testable) -> FixFnResult {
-//     let f = fixfont!(f);
-//     // Check if the font has a BASE table
-//     if !f.has_table(b"BASE") {
-//         // Let's make one.
-//         let computed_metrics = compute_bounds(&f)?;
-//     }
+fn fix_vertical_metrics(t: &mut Testable) -> FixFnResult {
+    let mut f = testfont!(t);
+    // Check if the font has a BASE table
+    if !f.has_table(b"BASE") {
+        // Let's make one.
+        let computed_metrics = compute_bounds(&f)?;
+        let simple_base = SimpleCjkBaseTable::from_cjk_metrics(
+            &computed_metrics,
+            &[
+                Tag::new(b"DFLT"),
+                Tag::new(b"hani"),
+                Tag::new(b"kana"),
+                Tag::new(b"latn"),
+                Tag::new(b"cyrl"),
+                Tag::new(b"grek"),
+            ],
+        )?;
+        #[allow(clippy::unwrap_used)] // we passed it in!
+        let average_width = computed_metrics.v_idtp.unwrap();
+        let upem = f.font().head()?.units_per_em() as f32;
+        let font_is_square = (average_width - upem).abs() / upem < 0.01;
 
-//     // If the font has a BASE table, we can fix it
-//     if let Some(base) = f.font().base().ok() {
-//         let simple_base = SimpleCjkBaseTable::from_base(&base)?;
-//         let computed_bounds = compute_bounds(&f)?;
-//         simple_base.validate(&mut problems, &computed_bounds, 0.0, 0.0)?;
-//     } else {
-//         problems.push(Status::fail(
-//             "missing-BASE-table",
-//             "A BASE table with correct icfb/icft/ideo/romn baselines should be present",
-//         ));
-//     }
+        let base: write_base::Base = simple_base.to_base(!font_is_square);
+        let mut new_font = FontBuilder::new();
+        new_font.add_table(&base)?;
+        new_font.copy_missing_tables(f.font());
+        let new_bytes = new_font.build();
+        t.set(new_bytes);
+        f = testfont!(t);
+    }
 
-//     return_fix(problems);
-// }
+    // Now assuming that the BASE table is correct, we can fix the vertical metrics
+    let base = f.font().base()?;
+    let simple_base = SimpleCjkBaseTable::from_base(&base)?;
+    let actual_bounds = simple_base
+        .get_any_metrics()
+        .ok_or(FontspectorError::General(
+            "BASE table does not contain any metrics".to_string(),
+        ))?;
+
+    // OS/2.fsSelection bit 7 (Use_Typo_Metrics) should be set
+    let mut os2: write_os2::Os2 = f.font().os2()?.to_owned_table();
+    os2.fs_selection |= SelectionFlags::USE_TYPO_METRICS;
+
+    let metrics = f.vertical_metrics()?;
+    let upem = f.font().head()?.units_per_em() as f32;
+    let expected_os2_ascender = actual_bounds.h_idtp.unwrap_or(0.0) + 0.075 * upem;
+    let expected_os2_descender = actual_bounds.h_ideo.unwrap_or(0.0) - 0.075 * upem;
+
+    if !close_enough(
+        metrics.os2_typo_ascender,
+        0.025 * upem,
+        expected_os2_ascender,
+    ) {
+        os2.s_typo_ascender = expected_os2_ascender as i16;
+    }
+    if !close_enough(
+        metrics.os2_typo_descender,
+        0.025 * upem,
+        expected_os2_descender,
+    ) {
+        os2.s_typo_descender = expected_os2_descender as i16;
+    }
+    os2.s_typo_line_gap = 0;
+
+    let mut hhea: write_hhea::Hhea = f.font().hhea()?.to_owned_table();
+    hhea.line_gap = 0.into();
+    hhea.ascender = os2.s_typo_ascender.into();
+    hhea.descender = os2.s_typo_descender.abs().into();
+    let mut new_font = fontations::write::FontBuilder::new();
+    new_font.add_table(&hhea)?;
+    new_font.add_table(&os2)?;
+    new_font.copy_missing_tables(f.font());
+    t.set(new_font.build());
+
+    Ok(true)
+}
