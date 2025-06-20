@@ -13,9 +13,8 @@ use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
 )]
 fn vendor_id(f: &Testable, context: &Context) -> CheckFnResult {
     let font = testfont!(f);
-    let expected_vendor_id = context
-        .configuration
-        .get("vendor_id")
+    let config = context.local_config("opentype/vendor_id");
+    let expected_vendor_id = config.get("vendor_id")
         .ok_or(FontspectorError::skip(
             "no-vendor-id",
             "Add the `vendor_id` key to a `fontspector.toml` file on your font project directory to enable this check.\nYou'll also need to use the `--configuration` flag when invoking fontspector",

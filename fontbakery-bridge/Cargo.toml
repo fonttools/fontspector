@@ -26,6 +26,7 @@ log = { workspace = true }
 profile-universal = { path = "../profile-universal", package = "fontspector-profile-universal" }
 profile-opentype = { path = "../profile-opentype", package = "fontspector-profile-opentype" }
 profile-googlefonts = { path = "../profile-googlefonts", package = "fontspector-profile-googlefonts" }
+profile-fontwerk = { path = "../profile-fontwerk", package = "fontspector-profile-fontwerk" }
 
 [target.'cfg(not(target_family = "wasm"))'.dependencies]
 # Plugin architecture

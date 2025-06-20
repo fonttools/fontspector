@@ -1288,6 +1288,7 @@ dependencies = [
  "env_logger",
  "fontspector-checkapi",
  "fontspector-fontbakery-bridge",
+ "fontspector-profile-fontwerk",
  "fontspector-profile-googlefonts",
  "fontspector-profile-iso15008",
  "fontspector-profile-opentype",
@@ -1347,6 +1348,7 @@ name = "fontspector-fontbakery-bridge"
 version = "1.0.0"
 dependencies = [
  "fontspector-checkapi",
+ "fontspector-profile-fontwerk",
  "fontspector-profile-googlefonts",
  "fontspector-profile-opentype",
  "fontspector-profile-universal",
@@ -1374,6 +1376,17 @@ dependencies = [
  "norad",
  "pluginator",
  "quick-xml 0.37.5",
+ "serde_json",
+]
+
+[[package]]
+name = "fontspector-profile-fontwerk"
+version = "1.0.0"
+dependencies = [
+ "fontations",
+ "fontspector-checkapi",
+ "itertools 0.13.0",
+ "pluginator",
  "serde_json",
 ]
 
@@ -1486,6 +1499,7 @@ name = "fontspector-py"
 version = "0.1.0"
 dependencies = [
  "fontspector-checkapi",
+ "fontspector-profile-fontwerk",
  "fontspector-profile-googlefonts",
  "fontspector-profile-iso15008",
  "fontspector-profile-opentype",
@@ -1502,6 +1516,7 @@ dependencies = [
  "console_error_panic_hook",
  "fontspector-checkapi",
  "fontspector-profile-adobe",
+ "fontspector-profile-fontwerk",
  "fontspector-profile-googlefonts",
  "fontspector-profile-iso15008",
  "fontspector-profile-microsoft",

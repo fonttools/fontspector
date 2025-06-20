@@ -15,6 +15,7 @@ profile-opentype = { path = "../profile-opentype", package = "fontspector-profil
 profile-universal = { path = "../profile-universal", package = "fontspector-profile-universal" }
 profile-googlefonts = { path = "../profile-googlefonts", package = "fontspector-profile-googlefonts" }
 profile-iso15008 = { path = "../profile-iso15008", package = "fontspector-profile-iso15008" }
+profile-fontwerk = { path = "../profile-fontwerk", package = "fontspector-profile-fontwerk" }
 
 serde_json = { workspace = true } # For configuration
 pyo3 = { workspace = true }

@@ -249,7 +249,7 @@ def test_check_vendor_id(check):
     # If there is no configured vendor_id value, SKIP the check
     assert_SKIP(check(ttFont))
 
-    config = {"vendor_id": "STC "}
+    config = {"opentype/vendor_id": {"vendor_id": "STC "}}
     assert_PASS(check(ttFont, config=config))
 
     ttFont["OS/2"].achVendID = "TEST"
