@@ -49,7 +49,8 @@ set to optimize rendering?"
 )]
 fn gasp(t: &Testable, _context: &Context) -> CheckFnResult {
     let f = testfont!(t);
-    skip!(f.has_table(b"CFF ") || f.has_table(b"CFF2"),
+    skip!(
+        f.has_table(b"CFF ") || f.has_table(b"CFF2"),
         "not-ttf",
         "Skip gasp table test, because CFF font."
     );
