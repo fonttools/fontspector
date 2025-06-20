@@ -1,5 +1,5 @@
 [package]
-name = "fontspector-profile-microsoft"
+name = "profile-microsoft"
 version = "0.1.0"
 edition = "2021"
 

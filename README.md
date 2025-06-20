@@ -79,7 +79,7 @@ To do this:
 
 ```
 npm install
-rpm run build-microsoft # build-adobe, build-test...
+npm run build-microsoft # build-adobe, build-test...
 ```
 
 This will produce a file called `microsoft.fontspectorplugin`; to use this, run

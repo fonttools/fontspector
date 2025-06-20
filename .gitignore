@@ -3,3 +3,6 @@ foo*
 python
 docs
 flamegraph.svg
+node_modules/
+*.fontspectorplugin
+package-lock.json
