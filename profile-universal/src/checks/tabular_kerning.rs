@@ -101,6 +101,7 @@ fn tabular_kerning(t: &Testable, _context: &Context) -> CheckFnResult {
             let substitutions = lookup.subtables()?.substitutions()?;
             for (lhs, rhs) in substitutions.iter() {
                 for gid in rhs {
+                    #[allow(clippy::indexing_slicing)] // We check the length before slicing
                     if lhs.len() == 1 && numeral_glyphs.contains::<GlyphId>(&lhs[0].into()) {
                         tabular_numerals.remove::<GlyphId>(&(lhs[0].into()));
                         tabular_numerals.insert(GlyphId::from(*gid));

@@ -100,7 +100,11 @@ impl CheckTester {
             directory: "".to_string(),
         };
         let newargs = if matches!(check.implementation, CheckImplementation::CheckOne(_)) {
-            TestableType::Single(&collection.testables[0])
+            let first = &collection
+                .testables
+                .first()
+                .ok_or_else(|| PyValueError::new_err("No testables found in the collection"))?;
+            TestableType::Single(first)
         } else {
             TestableType::Collection(&collection)
         };

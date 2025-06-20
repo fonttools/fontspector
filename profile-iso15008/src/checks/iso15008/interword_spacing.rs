@@ -43,6 +43,7 @@ fn interword_spacing(t: &Testable, _context: &Context) -> CheckFnResult {
     }
 
     let l_advance = f.font().hmtx()?.advance(l_id).unwrap_or(0);
+    #[allow(clippy::indexing_slicing)] // We checked the length
     let l_rsb = l_advance as f64 - l_intersections[1];
 
     let Some(m_id) = f.font().charmap().map('m') else {

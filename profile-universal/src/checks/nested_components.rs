@@ -48,8 +48,8 @@ fn nested_components(f: &Testable, context: &Context) -> CheckFnResult {
             }
         })
         .collect();
-    for glyphid in composite_glyphs.keys() {
-        for component in composite_glyphs[glyphid].components() {
+    for (glyphid, composite) in composite_glyphs.iter() {
+        for component in composite.components() {
             if composite_glyphs.contains_key(&component.glyph.into()) {
                 failures.push(font.glyph_name_for_id_synthesise(*glyphid));
                 break;
@@ -94,6 +94,7 @@ fn decompose_nested_components(t: &mut Testable) -> FixFnResult {
     depths.retain(|_, depth| *depth > 1);
     // Sort by depth, descending
     let mut sorted_glyphs: Vec<GlyphId> = depths.keys().copied().collect();
+    #[allow(clippy::indexing_slicing)] // We know the key is present!
     sorted_glyphs.sort_by_key(|&glyph| depths[&glyph]);
     sorted_glyphs.reverse();
 

@@ -78,6 +78,7 @@ fn family_vertical_metrics(c: &TestableCollection, context: &Context) -> CheckFn
     }
 
     for (key, values) in metrics.iter() {
+        #[allow(clippy::indexing_slicing)] // if we're inside an all, then values is not empty
         let all_the_same = values.iter().all(|a| a == &values[0]);
         if !all_the_same {
             problems.push(Status::fail(

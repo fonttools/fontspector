@@ -46,6 +46,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         for row in table.select(&row_selector) {
             let columns: Vec<_> = row.select(&column_selector).collect();
             if columns.len() == 3 {
+                #[allow(clippy::indexing_slicing)] // We just checked the length
                 let tag_text = columns[1]
                     .text()
                     .collect::<Vec<_>>()
@@ -81,6 +82,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         for row in table.select(&row_selector) {
             let columns: Vec<_> = row.select(&column_selector).collect();
             if columns.len() == 3 {
+                #[allow(clippy::indexing_slicing)] // We just checked the length
                 let tag_text = columns[1]
                     .text()
                     .collect::<Vec<_>>()

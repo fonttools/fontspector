@@ -35,7 +35,7 @@ fn panose_familytype(c: &TestableCollection, _context: &Context) -> CheckFnResul
     let panose_values = ok
         .iter()
         .map(|f| {
-            #[allow(clippy::unwrap_used)]
+            #[allow(clippy::unwrap_used, clippy::indexing_slicing)] // Surely we can index a PANOSE.
             let panose_first = f.font().os2().unwrap().panose_10()[0];
             let panose_name = match panose_first {
                 2 => "Latin Text".to_string(),

@@ -160,6 +160,7 @@ fn compulsory_axis_values(t: &Testable, _context: &Context) -> CheckFnResult {
             ]
         })
         .collect();
+    #[allow(clippy::indexing_slicing)] // if we're inside any, then rows is not empty
     let missing_italic_av = !rows.iter().any(|r| r[0].contains("Italic"));
     let mut table = Builder::new();
     table.push_record(vec![

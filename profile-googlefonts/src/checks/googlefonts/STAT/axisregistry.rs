@@ -40,7 +40,17 @@ fn process_axis(
             .iter()
             .map(|f| (normalize_name(f.name()), f.value()))
             .collect::<HashMap<_, _>>();
-        if !expected_names_values.contains_key(&name) {
+        if let Some(&expected_value) = expected_names_values.get(&name) {
+            if axis_value != expected_value {
+                problems.push(Status::fail(
+                    "bad-coordinate",
+                    &format!(
+                        "Axis Value for '{}':'{}' is expected to be '{}' but this font has '{}'.",
+                        axis, name_entry, expected_value, axis_value
+                    ),
+                ));
+            }
+        } else {
             let expected_names = expected_names_values
                 .keys()
                 .map(|k| k.to_string())
@@ -55,14 +65,6 @@ fn process_axis(
                 expected_names
             ),
         ));
-        } else if axis_value != expected_names_values[&name] {
-            problems.push(Status::fail(
-                "bad-coordinate",
-                &format!(
-                    "Axis Value for '{}':'{}' is expected to be '{}' but this font has '{}'.",
-                    axis, name_entry, expected_names_values[&name], axis_value
-                ),
-            ));
         }
     }
     Ok(())

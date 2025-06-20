@@ -33,6 +33,7 @@ fn escaped_strings(c: &TestableCollection, _context: &Context) -> CheckFnResult 
         for quote_char in ["'", "\""] {
             let segments = line_string.split(quote_char).collect::<Vec<&str>>();
             if segments.len() >= 3 {
+                #[allow(clippy::indexing_slicing)] // we just checked it's in bounds
                 let a_string = segments[1];
                 if a_string.contains("\\") {
                     problems.push(Status::fail(

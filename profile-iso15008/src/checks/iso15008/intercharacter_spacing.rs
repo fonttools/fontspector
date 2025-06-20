@@ -62,8 +62,11 @@ fn intercharacter_spacing(t: &Testable, _context: &Context) -> CheckFnResult {
             "Could not find l intersections",
         ));
     }
+    #[allow(clippy::indexing_slicing)]
+    // We know l_intersections has at least two elements, so this is safe.
     let l_lsb = l_intersections[0];
     let l_advance = f.font().hmtx()?.advance(l_id).unwrap_or(0) as f64;
+    #[allow(clippy::indexing_slicing)]
     let l_rsb = l_advance - (l_intersections[1] - l_intersections[0]);
     let Some(kern) = pair_kerning(contents, 'l', 'l') else {
         return Ok(Status::just_one_fail(

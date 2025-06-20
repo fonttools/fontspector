@@ -80,6 +80,8 @@ fn fvar_instances(t: &Testable, _context: &Context) -> CheckFnResult {
     let same_names = current_names
         .intersection(&expected_names)
         .collect::<Vec<_>>();
+    // same_names are the names that are in both current and expected instances, so these are safe to index
+    #[allow(clippy::indexing_slicing)]
     let wght_wrong = expected_instances.values().all(|i| i.contains_key("wght"))
         && same_names
             .iter()
@@ -92,6 +94,7 @@ fn fvar_instances(t: &Testable, _context: &Context) -> CheckFnResult {
         ]
     }));
     md_table.insert_record(0, vec!["Name", "current", "expected"]);
+    #[allow(clippy::indexing_slicing)]
     if wght_wrong || !missing_names.is_empty() || !new_names.is_empty() {
         let mut hints = vec![];
         if !missing_names.is_empty() {

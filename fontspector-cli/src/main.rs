@@ -326,7 +326,11 @@ fn group_inputs(args: &Args) -> Vec<TestableCollection> {
         .into_iter()
         .map(|(directory, group)| {
             TestableCollection::from_filenames(&group, directory.to_str()).unwrap_or_else(|e| {
-                log::error!("Could not load files from {:?}: {:}", group[0].parent(), e);
+                log::error!(
+                    "Could not load files from {:?}: {:}",
+                    group.first().map(|p| p.parent()),
+                    e
+                );
                 std::process::exit(1)
             })
         })

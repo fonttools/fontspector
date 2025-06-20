@@ -43,11 +43,15 @@ fn direction(t: &Testable, context: &Context) -> CheckFnResult {
                     continue;
                 }
                 if my_bounds.contains_rect(*their_bounds) {
+                    #[allow(clippy::indexing_slicing)]
+                    // is_within is initialized with the same length as bounds
                     is_within[j].push(i);
                 }
             }
         }
         for (i, path) in pen.iter().enumerate() {
+            #[allow(clippy::indexing_slicing)]
+            // is_within is initialized with the same length as bounds
             if is_within[i].is_empty() && path.area() > 0.0 {
                 all_warnings.push(format!("{} has a counter-clockwise outer contour", name));
             }

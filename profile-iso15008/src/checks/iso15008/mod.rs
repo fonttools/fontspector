@@ -24,6 +24,7 @@ fn find_stem_width(f: &TestFont) -> Option<f64> {
     if intersections.len() != 2 {
         return None;
     }
+    #[allow(clippy::indexing_slicing)]
     Some(intersections[1] - intersections[0])
 }
 

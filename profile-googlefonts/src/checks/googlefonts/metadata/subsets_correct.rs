@@ -131,7 +131,8 @@ fn subsets_correct(c: &TestableCollection, context: &Context) -> CheckFnResult {
     }
 
     // Calculate actual subset for representative font
-    let first_font = fonts[0]; // we know it's not empty
+    #[allow(clippy::indexing_slicing)] // we know it's not empty
+    let first_font = fonts[0];
     let ttf = testfont!(first_font);
     let codepoints = ttf.codepoints(Some(context));
     let supported_percentage: HashMap<String, f32> = google_subsets

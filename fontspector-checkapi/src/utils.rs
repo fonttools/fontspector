@@ -57,6 +57,7 @@ where
     U: Display,
     V: Display,
 {
+    #[allow(clippy::indexing_slicing)] // If we are inside .all, then there must be a first element
     let ok = values.iter().all(|(a, _, _)| a == &values[0].0);
     if ok {
         Ok(Status::just_one_pass())

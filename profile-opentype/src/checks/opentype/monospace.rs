@@ -93,6 +93,7 @@ fn monospace(t: &Testable, context: &Context) -> CheckFnResult {
             ));
         }
         if !panose_is_monospaced(panose) {
+            #[allow(clippy::indexing_slicing)] // I mean I think so.
             let family_type = panose[0];
             let advise = panose_expected(family_type);
             problems.push(Status::fail(
@@ -143,6 +144,7 @@ fn monospace(t: &Testable, context: &Context) -> CheckFnResult {
                 &format!("On non-monospaced fonts, the value of post.isFixedPitch must be set to a zero value (meaning 'not monospaced'), but got {post_isfixedpitch} instead.")
             ));
         }
+        #[allow(clippy::indexing_slicing)] // Surely we can index a PANOSE.
         if panose[3] == 9 {
             // Proportion=Monospaced
             problems.push(Status::fail(
@@ -155,6 +157,7 @@ fn monospace(t: &Testable, context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
+#[allow(clippy::indexing_slicing)] // Crossing my fingers here.
 fn panose_is_monospaced(panose: &[u8]) -> bool {
     (panose[0] == 2 && panose[3] == 9)
         || (panose[0] == 3 && panose[3] == 3)

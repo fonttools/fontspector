@@ -35,6 +35,7 @@ fn python_checkrunner_impl(
                 "Expected exactly one mandatory argument".to_string(),
             ));
         }
+        #[allow(clippy::indexing_slicing)] // We just checked that args has at least one element
         let arg = if args[0] == "font" {
             // Convert the Testable to a Python Font object
             let testable = PyModule::import(py, "fontbakery.testable")?;
@@ -148,6 +149,7 @@ pub fn register_python_checks(
                 let id: String = obj.getattr("id")?.extract()?;
                 // Check the mandatory arguments
                 let args = obj.getattr("mandatoryArgs")?.extract::<Vec<String>>()?;
+                #[allow(clippy::indexing_slicing)] // In the right hand branch, args has length one
                 if args.len() != 1 || !(args[0] == "font" || args[0] == "ttFont") {
                     log::warn!(
                         "Can't load check {}; unable to support arguments: {}",
@@ -318,5 +320,4 @@ impl fontspector_checkapi::Plugin for FontbakeryBridge {
 }
 
 #[cfg(not(target_family = "wasm"))]
-#[allow(missing_docs)]
 pluginator::plugin_implementation!(fontspector_checkapi::Plugin, FontbakeryBridge);
