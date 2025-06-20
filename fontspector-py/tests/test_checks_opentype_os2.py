@@ -221,6 +221,19 @@ def test_check_family_bold_italic_unique_for_nameid1(check):
     # we should get a failure due to two fonts with both bold & italic set
     message = assert_results_contain(check(ttFonts), FAIL, "unique-fsselection")
 
+    base_path = portable_path("data/test/cabin")
+    font_names = [
+        "Cabin-Regular.ttf",
+        "Cabin-Bold.ttf",
+        "Cabin-Italic.ttf",
+        "Cabin-BoldItalic.ttf",
+        "CabinCondensed-Regular.ttf",
+        "CabinCondensed-Bold.ttf",
+    ]
+    font_paths = [os.path.join(base_path, n) for n in font_names]
+    ttFonts = [TTFont(x) for x in font_paths]
+    assert_PASS(check(ttFonts))
+
 
 @check_id("opentype/code_pages")
 def test_check_code_pages(check):
