@@ -20,3 +20,6 @@ pluginator = { workspace = true }
 
 # For tnum shaping
 rustybuzz = "0.20.1"
+
+[lints]
+workspace = true

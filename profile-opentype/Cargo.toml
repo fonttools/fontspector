@@ -20,3 +20,6 @@ fontations = { workspace = true }
 itertools = { workspace = true }
 unicode-properties = { workspace = true }
 kurbo = { workspace = true } # For italic angle check
+
+[lints]
+workspace = true

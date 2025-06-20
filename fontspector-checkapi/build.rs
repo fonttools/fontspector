@@ -1,3 +1,7 @@
+//!  Build script for fetching OpenType script and language tags.
+//!  This script fetches the tags from the Microsoft documentation,
+//!  parses the HTML to extract the tags, and writes them to Rust source files.
+//!  The generated files are then included in the crate for use in the API.
 use scraper::{Html, Selector};
 use std::env;
 use std::fs::File;
@@ -5,6 +9,7 @@ use std::io::Write;
 use std::path::PathBuf;
 use std::sync::LazyLock;
 
+#[allow(clippy::unwrap_used)] // it's a constant!
 static TAG_RE: LazyLock<regex::Regex> =
     LazyLock::new(|| regex::Regex::new(r"'([A-Za-z0-9\s]{4})'").unwrap());
 const SCRIPT_TAGS_URL: &str =
@@ -13,6 +18,8 @@ const LANG_TAGS_URL: &str =
     "https://learn.microsoft.com/en-gb/typography/opentype/spec/languagetags";
 
 fn out_dir_path(name: &str) -> PathBuf {
+    #[allow(clippy::unwrap_used)]
+    // we're a build script, if this isn't set something is badly wrong
     let out_dir = env::var_os("OUT_DIR").unwrap();
     PathBuf::from(out_dir).join(name)
 }
@@ -26,8 +33,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         )
     })?;
     let script_html = Html::parse_document(script_response.as_str()?);
+    #[allow(clippy::unwrap_used)] // it's a constant!
     let table_selector = Selector::parse("table").unwrap();
+    #[allow(clippy::unwrap_used)] // it's a constant!
     let row_selector = Selector::parse("tr").unwrap();
+    #[allow(clippy::unwrap_used)] // it's a constant!
     let column_selector = Selector::parse("td").unwrap();
 
     let mut script_tags = vec![];

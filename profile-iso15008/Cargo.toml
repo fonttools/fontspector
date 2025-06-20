@@ -16,3 +16,6 @@ fontations = { workspace = true }
 kurbo = { workspace = true }
 itertools = { workspace = true }
 rustybuzz = { workspace = true }
+
+[lints]
+workspace = true

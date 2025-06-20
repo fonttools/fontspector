@@ -1,8 +1,9 @@
-#![deny(clippy::unwrap_used, clippy::expect_used)]
+//! Adobe Fonts Profile for Fontspector Checks
 mod checks;
 
 use fontspector_checkapi::{Override, ProfileBuilder, Registry, StatusCode};
 
+///  This is the main plugin struct for the Adobe Fonts profile.
 pub struct Adobe;
 impl fontspector_checkapi::Plugin for Adobe {
     fn register(&self, cr: &mut Registry) -> Result<(), String> {

@@ -19,3 +19,6 @@ profile-iso15008 = { path = "../profile-iso15008", package = "fontspector-profil
 serde_json = { workspace = true } # For configuration
 pyo3 = { workspace = true }
 pythonize = { workspace = true }
+
+[lints]
+workspace = true

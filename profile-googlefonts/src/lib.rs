@@ -1,7 +1,7 @@
-#![deny(clippy::unwrap_used, clippy::expect_used)]
+//! The google fonts profile for Fontspector
 mod checks;
 
-pub mod constants;
+pub(crate) mod constants;
 use fontspector_checkapi::{prelude::*, ProfileBuilder, Registry};
 
 mod network_conditions;
@@ -29,6 +29,7 @@ pub(crate) fn seems_like_gf_repo(c: &TestableCollection) -> bool {
     })
 }
 
+/// The main plugin struct for the Google Fonts profile.
 pub struct GoogleFonts;
 impl fontspector_checkapi::Plugin for GoogleFonts {
     fn register(&self, cr: &mut Registry) -> Result<(), String> {

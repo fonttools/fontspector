@@ -1,4 +1,3 @@
-#![deny(clippy::unwrap_used, clippy::expect_used)]
 use std::{collections::HashMap, env, path::Path, vec};
 // Provide an environment where we can run fontbakery tests
 // as-is, but have them call a Rust implementation underneath

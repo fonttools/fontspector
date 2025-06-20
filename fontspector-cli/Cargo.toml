@@ -60,3 +60,6 @@ chrono = "0.4"
 # HTML reporter
 markdown = "1.0.0-alpha.23"
 indexmap = { workspace = true }
+
+[lints]
+workspace = true

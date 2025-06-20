@@ -2,6 +2,7 @@ use std::sync::LazyLock;
 
 use regex::Regex;
 
+/// The Open Font License body text, used in the `googlefonts/license/OFL_body_text` check.
 pub const OFL_BODY_TEXT: &str =
     "\nThis Font Software is licensed under the SIL Open Font License, Version 1.1.\n\
 This license is copied below, and is also available with a FAQ at:\n\
@@ -95,6 +96,7 @@ DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING\n\
 FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM\n\
 OTHER DEALINGS IN THE FONT SOFTWARE.";
 
+/// The most recent release of ttfautohint. Keep me up to date!
 pub const LATEST_TTFAUTOHINT_VERSION: &str = "1.8.4";
 
 // example string:

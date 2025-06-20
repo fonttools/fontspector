@@ -1,3 +1,7 @@
+//! Bundle the templates into a zip file and generate a Rust source file for
+//! inclusion in the crate.
+//!
+//! Also includes version information from shadow-rs.
 use std::{
     env,
     fs::File,
@@ -11,7 +15,7 @@ use walkdir::WalkDir;
 use zip::{write::SimpleFileOptions, ZipWriter};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    ShadowBuilder::builder().build().unwrap();
+    ShadowBuilder::builder().build()?;
 
     let walkdir = WalkDir::new("../templates");
     let it = walkdir.into_iter();
@@ -21,6 +25,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut buffer = Vec::new();
     for entry in it.flatten() {
         let path = entry.path();
+        #[allow(clippy::unwrap_used)] // We put .. in there ourselves.
         let name = path.strip_prefix("..").unwrap();
         let path_as_string = name
             .to_str()
@@ -43,8 +48,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
     zip.finish()?;
+    #[allow(clippy::unwrap_used)] // We're a build script, we expect OUT_DIR to be set.
     let path = Path::new(&env::var("OUT_DIR").unwrap()).join("templates.rs");
-    let mut file = BufWriter::new(File::create(path).unwrap());
+    let mut file = BufWriter::new(File::create(path)?);
     let output = quote! {
         const TEMPLATES_ZIP: &[u8] = &[#(#buf),*];
     };

@@ -2,9 +2,7 @@
 name = "fontspector-fontbakery-bridge"
 version = "1.0.0"
 edition = "2021"
-authors = [
-    "Simon Cozens <simon@simon-cozens.org>",
-]
+authors = ["Simon Cozens <simon@simon-cozens.org>"]
 description = "Fontspector adaptor to use FontBakery checks"
 repository = "https://github.com/fonttools/fontspector"
 homepage = "https://fonttools.github.io/fontspector/"
@@ -25,10 +23,13 @@ log = { workspace = true }
 
 # Needed for tests
 [dev-dependencies]
-profile-universal = { path = "../profile-universal", package="fontspector-profile-universal" }
-profile-opentype = { path = "../profile-opentype", package="fontspector-profile-opentype" }
-profile-googlefonts = { path = "../profile-googlefonts", package="fontspector-profile-googlefonts" }
+profile-universal = { path = "../profile-universal", package = "fontspector-profile-universal" }
+profile-opentype = { path = "../profile-opentype", package = "fontspector-profile-opentype" }
+profile-googlefonts = { path = "../profile-googlefonts", package = "fontspector-profile-googlefonts" }
 
 [target.'cfg(not(target_family = "wasm"))'.dependencies]
 # Plugin architecture
 pluginator = { workspace = true }
+
+[lints]
+workspace = true

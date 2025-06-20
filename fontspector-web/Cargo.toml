@@ -19,3 +19,6 @@ profile-microsoft = { path = "../profile-microsoft", package = "fontspector-prof
 [lib]
 crate-type = ["cdylib", "rlib"]
 path = "src/lib.rs"
+
+[lints]
+workspace = true

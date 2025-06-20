@@ -1,4 +1,3 @@
-#![deny(clippy::unwrap_used, clippy::expect_used)]
 use fontspector_checkapi::prelude::*;
 use serde_json::json;
 

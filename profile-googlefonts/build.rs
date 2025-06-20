@@ -1,3 +1,4 @@
+//! Generates Rust code from Protocol Buffers definitions.
 fn main() {
     protobuf_codegen::Codegen::new()
         .pure()

@@ -1,4 +1,3 @@
-#![deny(clippy::unwrap_used, clippy::expect_used)]
 pub mod checks;
 
 use fontspector_checkapi::{ProfileBuilder, Registry};

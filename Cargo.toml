@@ -47,3 +47,7 @@ tabled = "0.20.0"
 kurbo = "0.11"                                     # For italic angle check
 
 regex = "1.10.6"
+
+[workspace.lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"

@@ -1,4 +1,3 @@
-#![deny(clippy::unwrap_used, clippy::expect_used)]
 //! Quality control for OpenType fonts
 
 mod args;

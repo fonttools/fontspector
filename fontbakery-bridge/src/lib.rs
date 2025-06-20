@@ -1,9 +1,9 @@
-// This is kind of dead for now since we have implemented all the fontbakery checks
-// that it used to cover. In the future, we'll bring it back as a way to run
-// arbitrary fontbakery checks inside of Rust.
+//!  Fontbakery Bridge
+//!
+//!  This module provides a bridge to run Fontbakery checks from Rust.
+//!  It allows running Python checks that take a single Font or TTFont object as an argument.
 #![allow(dead_code)]
 #![allow(non_upper_case_globals)]
-#![deny(clippy::unwrap_used, clippy::expect_used)]
 
 use std::ffi::CString;
 
@@ -14,6 +14,7 @@ use pyo3::{
     types::{PyList, PyTuple},
 };
 use serde_json::json;
+/// The profile implementation for the Fontbakery Bridge.
 pub struct FontbakeryBridge;
 
 // We isolate the Python part to avoid type/result madness.
@@ -116,6 +117,7 @@ fn python_checkrunner(c: &Testable, context: &Context) -> CheckFnResult {
         .unwrap_or_else(|e| Err(FontspectorError::Python(format!("Python error: {}", e))))
 }
 
+/// This function registers all checks from a Python module with the given name
 pub fn register_python_checks(
     modulename: &str,
     source: &str,
@@ -316,4 +318,5 @@ impl fontspector_checkapi::Plugin for FontbakeryBridge {
 }
 
 #[cfg(not(target_family = "wasm"))]
+#[allow(missing_docs)]
 pluginator::plugin_implementation!(fontspector_checkapi::Plugin, FontbakeryBridge);

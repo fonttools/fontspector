@@ -1,4 +1,3 @@
-#![deny(clippy::unwrap_used, clippy::expect_used)]
 #![deny(missing_docs, clippy::missing_docs_in_private_items)]
 
 //! # fontspector-checkapi
