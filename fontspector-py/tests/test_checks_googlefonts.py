@@ -3719,3 +3719,13 @@ def test_check_render_own_name(check):
 
     ttFont = TEST_FILE("noto_sans_tamil_supplement/NotoSansTamilSupplement-Regular.ttf")
     assert_results_contain(check(ttFont), FAIL, "render-own-name")
+
+
+@check_id("googlefonts/gasp")
+def test_check_gasp(check):
+    """Check TFF has gasp table."""
+    ttFont = TTFont(TEST_FILE("montserrat/Montserrat-Black.ttf"))
+    assert_PASS(check(ttFont))
+
+    cffFont = TTFont(TEST_FILE("source-sans-pro/OTF/SourceSansPro-Black.otf"))
+    msg = assert_results_contain(check(ttFont), SKIP, "not-ttf")
