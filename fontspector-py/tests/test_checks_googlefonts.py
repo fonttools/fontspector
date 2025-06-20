@@ -3728,4 +3728,4 @@ def test_check_gasp(check):
     assert_PASS(check(ttFont))
 
     cffFont = TTFont(TEST_FILE("source-sans-pro/OTF/SourceSansPro-Black.otf"))
-    msg = assert_results_contain(check(ttFont), SKIP, "not-ttf")
+    msg = assert_results_contain(check(cffFont), SKIP, "not-ttf")
