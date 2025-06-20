@@ -3,7 +3,7 @@ use fontations::{
     types::Tag,
     write::FontBuilder,
 };
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
 use tabled::builder::Builder;
 
 const NON_HINTING_MESSAGE: &str =  "If you are dealing with an unhinted font, it can be fixed by running the fonts through the command 'gftools fix-nonhinting'\nGFTools is available at https://pypi.org/project/gftools/";
@@ -49,6 +49,10 @@ set to optimize rendering?"
 )]
 fn gasp(t: &Testable, _context: &Context) -> CheckFnResult {
     let f = testfont!(t);
+    skip!(f.has_table(b"CFF ") || f.has_table(b"CFF2"),
+        "not-ttf",
+        "Skip gasp table test, because CFF font."
+    );
     let mut problems = vec![];
     if !f.has_table(b"gasp") {
         return Ok(Status::just_one_fail(
