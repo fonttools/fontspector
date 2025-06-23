@@ -55,8 +55,9 @@ fn italic_angle(t: &Testable, context: &Context) -> CheckFnResult {
     };
     let bad_gids: Vec<_> = gids
         .clone()
-        .filter(|gid| metrics.bounds(*gid) == Some(empty))
+        .filter(|gid| metrics.bounds(*gid).is_none())
         .collect();
+
     for gid in gids {
         if let Some(bounds) = metrics.bounds(gid) {
             if bounds == empty {
