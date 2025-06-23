@@ -24,7 +24,7 @@ default-members = ["fontspector-cli"]
 pluginator = "1.0.1"
 
 # Font-related deps
-fontations = "0.1.0"
+fontations = "0.2.0"
 unicode-properties = "0.1.3"
 unicode_names2 = "1.3.0"
 rustybuzz = "0.20.1"
