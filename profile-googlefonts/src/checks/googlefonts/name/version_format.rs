@@ -24,10 +24,7 @@ static VALID_VERSION_RE: LazyLock<Regex> =
 fn version_format(t: &Testable, _context: &Context) -> CheckFnResult {
     let font = testfont!(t);
     let mut problems = vec![];
-    let mut num_entries: u8 = 0;
     for version_string in font.get_name_entry_strings(NameId::VERSION_STRING) {
-        num_entries += 1;
-
         let matches = VALID_VERSION_RE.captures(&version_string);
         if matches.is_none() {
             problems.push(Status::fail(
@@ -43,13 +40,7 @@ Current version string is: \"{}\"",
             ));
         }
     }
-
-    if num_entries == 0 {
-        return Ok(Status::just_one_fail(
-            "no-version-string",
-            "Font lacks a VERSION_STRING (nameID=5) entry",
-        ));
-    }
+    // If no version strings were found, mandatory_entries will catch it.
 
     return_result(problems)
 }

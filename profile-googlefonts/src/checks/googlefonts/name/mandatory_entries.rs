@@ -23,6 +23,7 @@ fn mandatory_entries(t: &Testable, _context: &Context) -> CheckFnResult {
         StringId::FULL_NAME,
         StringId::POSTSCRIPT_NAME,
         StringId::DESIGNER,
+        StringId::VERSION_STRING,
     ];
     if let Some(style) = f.style() {
         if !RIBBI_STYLE_NAMES.contains(&style) {
