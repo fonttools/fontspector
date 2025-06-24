@@ -972,17 +972,6 @@ def test_check_name_version_format(check):
         "with bad version format in name table...",
     )
 
-    # and finally we remove all version-string entries:
-    for i, name in enumerate(ttFont["name"].names):
-        if name.nameID == NameID.VERSION_STRING:
-            del ttFont["name"].names[i]
-    assert_results_contain(
-        check(ttFont),
-        FAIL,
-        "no-version-string",
-        "with font lacking version string entries in name table...",
-    )
-
 
 @pytest.mark.parametrize(
     "expected_status,expected_keyword,reason,font",
@@ -2266,6 +2255,7 @@ def test_check_name_mandatory_entries(check):
         NameID.FONT_SUBFAMILY_NAME,
         NameID.FULL_FONT_NAME,
         NameID.POSTSCRIPT_NAME,
+        NameID.VERSION_STRING,
     ]
 
     # then we "remove" each mandatory entry one by one:
@@ -2297,6 +2287,7 @@ def test_check_name_mandatory_entries(check):
         NameID.POSTSCRIPT_NAME,
         NameID.TYPOGRAPHIC_FAMILY_NAME,
         NameID.TYPOGRAPHIC_SUBFAMILY_NAME,
+        NameID.VERSION_STRING,
     ]
 
     # then we (again) "remove" each mandatory entry one by one:
