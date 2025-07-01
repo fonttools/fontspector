@@ -1178,18 +1178,23 @@ def test_check_metadata_subsets_order(check):
         )
 
 
-@check_id("googlefonts/metadata/includes_production_subsets")
+@check_id("googlefonts/metadata/subsets_correct")
 def test_check_metadata_includes_production_subsets(check, tmp_path):
     """Check METADATA.pb has production subsets."""
 
     mdpb = TEST_FILE("cabinvf/METADATA.pb")
-    assert_PASS(check(mdpb), "with a good METADATA.pb for this family...")
+    fonts = [
+        TEST_FILE("cabinvf/Cabin[wdth,wght].ttf"),
+        TEST_FILE("cabinvf/Cabin-Italic[wdth,wght].ttf"),
+    ]
+
+    assert_PASS(check([mdpb] + fonts), "with a good METADATA.pb for this family...")
 
     md = read_mdpb(mdpb)
     # Then we induce the problem by removing a subset:
     md.subsets.pop()
     assert_results_contain(
-        check(fake_mdpb(tmp_path, md)),
+        check([fake_mdpb(tmp_path, md)] + fonts),
         FAIL,
         "missing-subsets",
         "with a bad METADATA.pb (last subset has been removed)...",
