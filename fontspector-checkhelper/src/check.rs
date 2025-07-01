@@ -74,7 +74,13 @@ fn dedent_and_unwrap_rationale(rationale: &str) -> String {
         new_rationale.push('\n');
     }
     new_rationale.pop(); // Remove the last newline
-    new_rationale
+
+    // Unwrap (badly)
+    new_rationale = new_rationale.replace("\n\n", "\u{2029}");
+    new_rationale = new_rationale.replace("\n", " ");
+    new_rationale = new_rationale.replace("\u{2029}", "\n\n");
+
+    new_rationale.trim().to_string()
 }
 
 /// The parameters for the `#[check(...)]` macro.
