@@ -128,7 +128,7 @@ fn consistent_with_fonts(c: &TestableCollection, _context: &Context) -> CheckFnR
                 ));
             }
         }
-        if font.is_ribbi() {
+        if font.is_ribbi() && !font.is_variable_font() {
             for family_name in font.get_name_entry_strings(StringId::FAMILY_NAME) {
                 if proto.name() != family_name {
                     problems.push(Status::fail(
