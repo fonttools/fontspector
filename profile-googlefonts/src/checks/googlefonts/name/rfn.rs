@@ -69,7 +69,7 @@ fn rfn(t: &Testable, _context: &Context) -> CheckFnResult {
                         "Name table entry contains \"Reserved Font Name\":\n\
                               \t\"{name_string}\"\n\
                               \n\
-                              This is bad except in a few specific rare cases.",
+                              This is bad except in a few specific rare cases."
                     ),
                 ));
             } else {

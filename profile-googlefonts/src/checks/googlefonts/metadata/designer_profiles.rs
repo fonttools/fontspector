@@ -112,7 +112,7 @@ fn designer_profiles(c: &Testable, context: &Context) -> CheckFnResult {
                 problems.push(Status::warn(
                     "missing-avatar",
                     &format!(
-                        "Designer {designer} still does not have an avatar image. Please provide one.",
+                        "Designer {designer} still does not have an avatar image. Please provide one."
                     ),
                 ));
             } else {
@@ -140,7 +140,7 @@ fn designer_profiles(c: &Testable, context: &Context) -> CheckFnResult {
             problems.push(Status::warn(
                     "profile-not-found",
                     &format!(
-                        "It seems that {designer} is still not listed on the designers catalog. Please submit a photo and a link to a webpage where people can learn more about the work of this designer/typefoundry.",
+                        "It seems that {designer} is still not listed on the designers catalog. Please submit a photo and a link to a webpage where people can learn more about the work of this designer/typefoundry."
                     ),
                 ),
             );

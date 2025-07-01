@@ -150,7 +150,7 @@ impl Reporter for JinjaTemplatedReporter {
                     return Ok(true);
                 }
                 let value = value.as_str().ok_or(tera::Error::msg(format!(
-                    "'omitted' tester requires a string value, not {value:?}",
+                    "'omitted' tester requires a string value, not {value:?}"
                 )))?;
                 let Some(status) = StatusCode::from_string(value) else {
                     return Err(tera::Error::msg(format!(

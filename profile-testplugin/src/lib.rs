@@ -15,7 +15,7 @@ fn say_hello(_c: &Testable, context: &Context) -> CheckFnResult {
         .cache
         .write()?
         .insert("Hello".to_string(), json!("World"));
-    println!("My context was: {:?}", context);
+    println!("My context was: {context:?}");
     return_result(vec![])
 }
 
@@ -63,7 +63,7 @@ fn check_metadata(_c: &Testable, context: &Context) -> CheckFnResult {
     applies_to = "TTF"
 )]
 fn check_cache(_c: &Testable, context: &Context) -> CheckFnResult {
-    println!("My context was: {:?}", context);
+    println!("My context was: {context:?}");
     if context.cache.read()?.contains_key("Hello") {
         Ok(Status::just_one_pass())
     } else {

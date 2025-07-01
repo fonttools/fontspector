@@ -35,6 +35,9 @@ fn colored_status(c: StatusCode, s: Option<&str>) -> ColoredString {
 impl Reporter for TerminalReporter {
     fn report(&self, results: &RunResults, args: &Args, _registry: &Registry) {
         let skin = MadSkin::default();
+        let mut rationale_skin = skin.clone();
+        rationale_skin.paragraph.left_margin = 3;
+        rationale_skin.paragraph.right_margin = 3;
 
         let organised_results = results.organize();
         for (filename, sectionresults) in organised_results
@@ -83,16 +86,16 @@ impl Reporter for TerminalReporter {
                     let _ = writeln!(std::io::stdout(), ">> {:}", result.check_id);
                     if args.verbose > 0 {
                         let _ = writeln!(std::io::stdout(), "   {:}", result.check_name);
-                        let _ = writeln!(
+                        let _ = write!(
                             std::io::stdout(),
-                            "\nRationale:\n{}",
-                            skin.term_text(&result.check_rationale)
+                            "\nRationale:\n{}\n",
+                            rationale_skin.term_text(result.check_rationale.trim())
                         );
                     }
                     for subresult in subresults {
                         let _ = writeln!(
                             std::io::stdout(),
-                            "{}\n",
+                            "{}",
                             skin.term_text(&subresult.to_string())
                         );
                     }
@@ -104,7 +107,7 @@ impl Reporter for TerminalReporter {
                             termimad::print_inline("  Hotfix applied.\n")
                         }
                         Some(FixResult::FixError(e)) => {
-                            termimad::print_inline(&format!("  Hotfix failed: {e}\n"))
+                            termimad::print_inline(&format!("  Hotfix failed: {e:}\n"))
                         }
                         _ => {}
                     }
@@ -116,11 +119,10 @@ impl Reporter for TerminalReporter {
                             termimad::print_inline("  Source fix applied.\n")
                         }
                         Some(FixResult::FixError(e)) => {
-                            termimad::print_inline(&format!("  Source fix failed: {e}\n"))
+                            termimad::print_inline(&format!("  Source fix failed: {e:}\n"))
                         }
                         _ => {}
                     }
-                    let _ = writeln!(std::io::stdout(), "\n");
                 }
             }
         }

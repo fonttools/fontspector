@@ -102,7 +102,7 @@ fn family_name_compliance(t: &Testable, _context: &Context) -> CheckFnResult {
     if !family_name.starts_with(|c: char| c.is_ascii_uppercase()) {
         problems.push(Status::fail(
             "starts-with-not-uppercase",
-            &format!("\"{family_name}\" doesn't start with an uppercase letter.",),
+            &format!("\"{family_name}\" doesn't start with an uppercase letter.")
         ));
     }
     return_result(problems)

@@ -65,9 +65,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     // Fetch and parse language tags
-    let lang_response = minreq::get(LANG_TAGS_URL).send().map_err(|e| {
-        format!("Failed to fetch OpenType language tags from {LANG_TAGS_URL}: {e}",)
-    })?;
+    let lang_response = minreq::get(LANG_TAGS_URL)
+        .send()
+        .map_err(|e| format!("Failed to fetch OpenType language tags from {LANG_TAGS_URL}: {e}"))?;
     let lang_html = Html::parse_document(lang_response.as_str()?);
 
     let mut language_tags = vec![];

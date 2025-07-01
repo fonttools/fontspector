@@ -55,7 +55,7 @@ fn vendor_id(t: &Testable, _context: &Context) -> CheckFnResult {
         problems.push(Status::warn(
             "bad",
             &format!(
-                "OS/2 VendorID is '{font_vendor_id}', a font editor default.\n{SUGGEST_MICROSOFT_VENDORLIST_WEBSITE}",
+                "OS/2 VendorID is '{font_vendor_id}', a font editor default.\n{SUGGEST_MICROSOFT_VENDORLIST_WEBSITE}"
             ),
         ));
     } else if !VENDOR_IDS.contains(&font_vendor_id.as_str()) {

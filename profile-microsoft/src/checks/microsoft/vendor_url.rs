@@ -24,7 +24,7 @@ fn vendor_url(t: &Testable, _context: &Context) -> CheckFnResult {
         if !VENDOR_PATTERN.is_match(&url) {
             Ok(Status::just_one_fail(
                 "vendor_url",
-                &format!("vendor URL does not point at microsoft.com: {}", url),
+                &format!("vendor URL does not point at microsoft.com: {url}"),
             ))
         } else {
             Ok(Status::just_one_pass())
