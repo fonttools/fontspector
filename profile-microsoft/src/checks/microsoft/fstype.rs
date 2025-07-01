@@ -26,10 +26,7 @@ fn fstype(t: &Testable, _context: &Context) -> CheckFnResult {
     } else {
         Status::just_one_fail(
             "fstype",
-            &format!(
-                "OS/2 fsType must be set to 8, found {} instead.",
-                fstype_val
-            ),
+            &format!("OS/2 fsType must be set to 8, found {fstype_val} instead."),
         )
     })
 }

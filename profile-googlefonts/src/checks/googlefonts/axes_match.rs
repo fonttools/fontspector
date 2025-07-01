@@ -77,8 +77,7 @@ fn axes_match(c: &TestableCollection, context: &Context) -> CheckFnResult {
                     problems.push(Status::fail(
                         "axis-min-out-of-range",
                         &format!(
-                            "Axis '{}' min value is out of range. Expected '{}', got '{}'.",
-                            axis, remote_axis_min, axis_min
+                            "Axis '{axis}' min value is out of range. Expected '{remote_axis_min}', got '{axis_min}'."
                         ),
                     ));
                 }
@@ -86,8 +85,7 @@ fn axes_match(c: &TestableCollection, context: &Context) -> CheckFnResult {
                     problems.push(Status::fail(
                         "axis-max-out-of-range",
                         &format!(
-                            "Axis '{}' max value is out of range. Expected '{}', got '{}'.",
-                            axis, remote_axis_max, axis_max
+                            "Axis '{axis}' max value is out of range. Expected '{remote_axis_max}', got '{axis_max}'."
                         ),
                     ));
                 }

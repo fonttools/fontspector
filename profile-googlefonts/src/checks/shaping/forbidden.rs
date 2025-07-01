@@ -39,10 +39,7 @@ fn forbidden(t: &Testable, context: &Context) -> CheckFnResult {
         if !report.is_empty() {
             problems.push(Status::fail(
                 "shaping-forbidden",
-                &format!(
-                    "{}: Forbidden glyphs found while shaping:\n\n{}",
-                    filename, report
-                ),
+                &format!("{filename}: Forbidden glyphs found while shaping:\n\n{report}"),
             ))
         }
         // Add a diff table

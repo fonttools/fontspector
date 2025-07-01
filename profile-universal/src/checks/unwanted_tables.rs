@@ -36,7 +36,7 @@ fn unwanted_tables(t: &Testable, _context: &Context) -> CheckFnResult {
     let mut reasons = vec![];
     for (table, reason) in UNWANTED_TABLES.iter() {
         if f.font().table_data(*table).is_some() {
-            reasons.push(format!("Table: `{}` Reason: {}\n", table, reason));
+            reasons.push(format!("Table: `{table}` Reason: {reason}\n"));
         }
     }
     Ok(if !reasons.is_empty() {

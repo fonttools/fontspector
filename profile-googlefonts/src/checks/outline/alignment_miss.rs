@@ -114,7 +114,7 @@ fn alignment_miss(t: &Testable, context: &Context) -> CheckFnResult {
             .mappings()
             .find(|(_cp, gid)| *gid == glyph)
         {
-            name = format!("{} (U+{:04X})", name, cp);
+            name = format!("{name} (U+{cp:04X})");
         }
         let mut pen = AlignmentMissPen {
             is_uppercase: name.len() > 1 || name.to_uppercase() == name,

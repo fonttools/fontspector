@@ -375,8 +375,7 @@ mod tests {
         for script in USE_SCRIPT_TAGS {
             assert!(
                 VALID_SCRIPT_TAGS.contains(&script),
-                "Invalid script tag: {}",
-                script
+                "Invalid script tag: {script}"
             );
         }
     }

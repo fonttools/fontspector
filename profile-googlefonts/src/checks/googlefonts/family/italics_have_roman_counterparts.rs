@@ -34,7 +34,7 @@ fn italics_have_roman_counterparts(c: &TestableCollection, context: &Context) ->
         if !italic.contains("-") {
             problems.push(Status::warn(
                 "bad-filename",
-                &format!("Filename seems to be incorrect: '{}'", italic),
+                &format!("Filename seems to be incorrect: '{italic}'"),
             ));
             continue;
         }
@@ -43,7 +43,7 @@ fn italics_have_roman_counterparts(c: &TestableCollection, context: &Context) ->
         let Some(style_from_filename) = after_hyphen.split(".").next() else {
             problems.push(Status::warn(
                 "bad-filename",
-                &format!("Filename seems to be incorrect: '{}'", italic),
+                &format!("Filename seems to be incorrect: '{italic}'"),
             ));
             continue;
         };

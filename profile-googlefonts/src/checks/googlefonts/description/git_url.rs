@@ -40,7 +40,7 @@ fn git_url(desc: &Testable, _context: &Context) -> CheckFnResult {
         for url in git_urls {
             problems.push(Status::info(
                 "url-found",
-                &format!("Found a git repo URL: {}", url),
+                &format!("Found a git repo URL: {url}"),
             ));
         }
     }

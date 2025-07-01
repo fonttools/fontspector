@@ -34,8 +34,7 @@ fn reserved_font_name(c: &TestableCollection, _context: &Context) -> CheckFnResu
         if copyright.contains("Reserved Font Name") {
             problems.push(Status::warn(
                 "rfn",
-                &format!("METADATA.pb: copyright field (\"{}\") contains \"Reserved Font Name\". This is an error except in a few specific rare cases.",
-                copyright),
+                &format!("METADATA.pb: copyright field (\"{copyright}\") contains \"Reserved Font Name\". This is an error except in a few specific rare cases."),
             ));
         }
     }

@@ -44,7 +44,7 @@ fn equal_codepoint_coverage(c: &TestableCollection, context: &Context) -> CheckF
                 name_of_first,
                 we_have_they_dont
                     .iter()
-                    .map(|i| format!("U+{:04X}", i))
+                    .map(|i| format!("U+{i:04X}"))
                     .join(", ")
             ),
         ))
@@ -57,7 +57,7 @@ fn equal_codepoint_coverage(c: &TestableCollection, context: &Context) -> CheckF
                 name_of_first,
                 they_have_we_dont
                     .iter()
-                    .map(|i| format!("U+{:04X}", i))
+                    .map(|i| format!("U+{i:04X}"))
                     .join(", ")
             ),
         ))

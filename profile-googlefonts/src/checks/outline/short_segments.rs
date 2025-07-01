@@ -54,7 +54,7 @@ fn short_segments(t: &Testable, context: &Context) -> CheckFnResult {
             let mut prev_was_line = matches!(segments.last().unwrap(), kurbo::PathSeg::Line(_));
             for seg in segments.iter() {
                 if segment_is_short(seg, outline_length, prev_was_line) {
-                    all_warnings.push(format!("{} contains a short segment {:?}", name, seg));
+                    all_warnings.push(format!("{name} contains a short segment {seg:?}"));
                 }
                 prev_was_line = matches!(seg, kurbo::PathSeg::Line(_));
             }

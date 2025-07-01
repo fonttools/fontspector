@@ -34,8 +34,7 @@ fn version_format(t: &Testable, _context: &Context) -> CheckFnResult {
 
 The \"Version\" prefix is a recommendation given by the OpenType spec.
 
-Current version string is: \"{}\"",
-                    version_string,
+Current version string is: \"{version_string}\"",
                 ),
             ));
         }

@@ -115,7 +115,7 @@ fn python_checkrunner(c: &Testable, context: &Context) -> CheckFnResult {
             FontspectorError::Python("function in metadata was not a string!".to_string())
         })?;
     python_checkrunner_impl(module, function, c)
-        .unwrap_or_else(|e| Err(FontspectorError::Python(format!("Python error: {}", e))))
+        .unwrap_or_else(|e| Err(FontspectorError::Python(format!("Python error: {e}"))))
 }
 
 /// This function registers all checks from a Python module with the given name
@@ -133,16 +133,16 @@ pub fn register_python_checks(
             py,
             &CString::new(full_source)
                 .map_err(|_| PyValueError::new_err("Failed to create CString from source"))?,
-            &CString::new(format!("{}.py", modulename))
+            &CString::new(format!("{modulename}.py"))
                 .map_err(|_| PyValueError::new_err("Failed to create CString from module name"))?,
             &CString::new(modulename)
                 .map_err(|_| PyValueError::new_err("Failed to create CString from module name"))?,
         )?;
-        log::debug!("Loaded module {}", modulename);
+        log::debug!("Loaded module {modulename}");
         // Find all functions in the module which are checks
         let checktype = callable.getattr("FontBakeryCheck")?;
         for name in module.dir()?.iter() {
-            log::debug!("Looking at module attribute {}", name);
+            log::debug!("Looking at module attribute {name}");
             let name_str: String = name.extract()?;
             let obj = module.getattr(name.downcast()?)?;
             if let Ok(true) = obj.is_instance(&checktype) {
@@ -186,7 +186,7 @@ pub fn register_python_checks(
                     .collect::<Vec<&'static str>>()
                     .leak();
 
-                log::info!("Registered check: {}", id);
+                log::info!("Registered check: {id}");
                 let metadata = json!({
                     "module": modulename,
                     "function": name_str,
@@ -207,7 +207,7 @@ pub fn register_python_checks(
         }
         Ok(())
     })
-    .map_err(|e: PyErr| format!("Error loading checks: {}", e))
+    .map_err(|e: PyErr| format!("Error loading checks: {e}"))
 }
 
 impl fontspector_checkapi::Plugin for FontbakeryBridge {
@@ -244,7 +244,7 @@ impl fontspector_checkapi::Plugin for FontbakeryBridge {
             )?;
             Ok(())
         });
-        ok.map_err(|e| format!("Error loading FB modules: {}", e))?;
+        ok.map_err(|e| format!("Error loading FB modules: {e}"))?;
 
         // register_python_checks(
         //     "fontbakery.checks.opentype.kern",

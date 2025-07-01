@@ -34,8 +34,7 @@ fn version_bump(f: &Testable, context: &Context) -> CheckFnResult {
     let a_remote_font = remote_fonts
         .first()
         .ok_or(FontspectorError::General(format!(
-            "Couldn't get remote font for {}",
-            family_name
+            "Couldn't get remote font for {family_name}"
         )))?;
     let a_remote_font = testfont!(a_remote_font);
 

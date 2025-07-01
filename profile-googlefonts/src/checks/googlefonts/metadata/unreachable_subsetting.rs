@@ -81,8 +81,8 @@ fn unreachable_subsetting(c: &TestableCollection, context: &Context) -> CheckFnR
                 .and_then(unicode_names2::name)
                 .map(|x| x.to_string())
                 .unwrap_or_else(|| "".to_string());
-            let name = format!("U+{:04X} {}", codepoint, name);
-            bullets.push(format!("{}: {}", name, message));
+            let name = format!("U+{codepoint:04X} {name}");
+            bullets.push(format!("{name}: {message}"));
         }
         problems.push(Status::warn(
             "unreachable-subsetting",

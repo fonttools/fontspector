@@ -46,7 +46,7 @@ fn glyph_coverage(c: &TestableCollection, context: &Context) -> CheckFnResult {
             let missing = coverage
                 .missing
                 .iter()
-                .map(|c| format!("0x{:04X}", c,))
+                .map(|c| format!("0x{c:04X}",))
                 .collect::<Vec<String>>();
             problems.push(Status::fail(
                 "missing-codepoints",

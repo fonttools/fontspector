@@ -29,16 +29,14 @@ fn urls(desc: &Testable, _context: &Context) -> CheckFnResult {
                 problems.push(Status::fail(
                     "empty-link-text",
                     &format!(
-                        "The following anchor in the DESCRIPTION file has empty text content:\n\n{}",
-                        attr
+                        "The following anchor in the DESCRIPTION file has empty text content:\n\n{attr}"
                     ),
                 ));
             } else if text.starts_with("http://") || text.starts_with("https://") {
                 problems.push(Status::fail(
                     "prefix-found",
                     &format!(
-                        "Please remove the \"http(s)://\" prefix from the text content of the following anchor:\n\n{}",
-                        attr
+                        "Please remove the \"http(s)://\" prefix from the text content of the following anchor:\n\n{attr}"
                     ),
                 ));
             }

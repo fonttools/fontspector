@@ -60,7 +60,7 @@ fn tnum_horizontal_metrics(c: &TestableCollection, context: &Context) -> CheckFn
                         format!(
                             "Width: {} - Glyphs: {}",
                             width,
-                            glyphs.iter().map(|s| format!("'{}'", s)).collect::<Vec<_>>().join(", ")
+                            glyphs.iter().map(|s| format!("'{s}'")).collect::<Vec<_>>().join(", ")
                         )
                     })
                 )

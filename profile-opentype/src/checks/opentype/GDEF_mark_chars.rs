@@ -34,15 +34,14 @@ fn GDEF_mark_chars(f: &Testable, context: &Context) -> CheckFnResult {
             })
             .map(|(u, gid)| {
                 let name = font.glyph_name_for_id_synthesise(gid);
-                format!("U+{:04X} ({})", u, name)
+                format!("U+{u:04X} ({name})")
             }),
     );
     if !mark_chars_not_in_gdef_mark.is_empty() {
         return Ok(Status::just_one_warn(
             "mark-chars",
             &format!(
-                "The following mark characters should be in the GDEF mark glyph class:\n{}",
-                mark_chars_not_in_gdef_mark
+                "The following mark characters should be in the GDEF mark glyph class:\n{mark_chars_not_in_gdef_mark}"
             ),
         ));
     }

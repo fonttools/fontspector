@@ -26,7 +26,7 @@ fn family_axis_ranges(c: &TestableCollection, context: &Context) -> CheckFnResul
                 .unwrap_or("Unknown file".to_string());
             let comparable = f
                 .axis_ranges()
-                .map(|(ax, min, def, max)| format!("{}={:.2}:{:.2}:{:.2}", ax, min, def, max))
+                .map(|(ax, min, def, max)| format!("{ax}={min:.2}:{def:.2}:{max:.2}"))
                 .collect::<Vec<String>>()
                 .join(", ");
             (comparable.clone(), comparable, label)

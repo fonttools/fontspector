@@ -34,13 +34,13 @@ fn fontdata_namecheck(t: &Testable, context: &Context) -> CheckFnResult {
         .user_agent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1)")
         .timeout(context.network_timeout.map(std::time::Duration::from_secs))
         .build()
-        .map_err(|e| FontspectorError::Network(format!("Failed to create HTTP client: {}", e)))?;
+        .map_err(|e| FontspectorError::Network(format!("Failed to create HTTP client: {e}")))?;
     let response = client
         .post(NAMECHECK_API_URL)
         .query(&[("q", name.clone())])
         .send()
         .map_err(|e| {
-            FontspectorError::Network(format!("Failed to access: {}. {}", NAMECHECK_URL, e))
+            FontspectorError::Network(format!("Failed to access: {NAMECHECK_URL}. {e}"))
         })?;
     let data: serde_json::Value = response.text().map_or(
         Err(FontspectorError::Network(
@@ -48,7 +48,7 @@ fn fontdata_namecheck(t: &Testable, context: &Context) -> CheckFnResult {
         )),
         |s| {
             serde_json::from_str(&s)
-                .map_err(|e| FontspectorError::Network(format!("Failed to parse response: {}", e)))
+                .map_err(|e| FontspectorError::Network(format!("Failed to parse response: {e}")))
         },
     )?;
     let confidence = data
@@ -66,9 +66,8 @@ fn fontdata_namecheck(t: &Testable, context: &Context) -> CheckFnResult {
         Status::just_one_info(
             "name-collision",
             &format!(
-                r#"The family name "{}" seems to be already in use.
-Please visit {} for more info."#,
-                name, NAMECHECK_URL
+                r#"The family name "{name}" seems to be already in use.
+Please visit {NAMECHECK_URL} for more info."#
             ),
         )
     } else {

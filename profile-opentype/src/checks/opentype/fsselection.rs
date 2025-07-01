@@ -47,10 +47,7 @@ fn fsselection(f: &Testable, _context: &Context) -> CheckFnResult {
         if flag != expected {
             problems.push(Status::fail(
                 &format!("bad-{}", label.to_uppercase()),
-                &format!(
-                    "fsSelection {} flag {} does not match font style {}",
-                    label, flag, style
-                ),
+                &format!("fsSelection {label} flag {flag} does not match font style {style}"),
             ));
         }
     }
@@ -65,10 +62,7 @@ fn fsselection(f: &Testable, _context: &Context) -> CheckFnResult {
         if flag != expected {
             problems.push(Status::fail(
                 &format!("fsselection-macstyle-{}", label.to_lowercase()),
-                &format!(
-                    "fsSelection {} flag {} does not match macStyle {} flag",
-                    label, flag, expected
-                ),
+                &format!("fsSelection {label} flag {flag} does not match macStyle {expected} flag"),
             ));
         }
     }

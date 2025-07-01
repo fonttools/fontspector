@@ -64,20 +64,17 @@ fn valid_default_instance_nameids(t: &Testable, _context: &Context) -> CheckFnRe
             .unwrap_or("None".to_string());
         if !name17.is_empty() && subfamily_name != font_subfamily_name {
             problems.push(Status::fail("invalid-default-instance-subfamily-name", &format!(
-                "{} instance has the same coordinates as the default instance; its subfamily name should be {}.\n\nNote: It is alternatively possible that Name ID 17 is incorrect, and should be set to the default instance subfamily name, {}, rather than '{}'. If the default instance is {}, NameID 17 is probably the problem.",
-                subfamily_name, font_subfamily_name, font_subfamily_name, name17, subfamily_name
+                "{subfamily_name} instance has the same coordinates as the default instance; its subfamily name should be {font_subfamily_name}.\n\nNote: It is alternatively possible that Name ID 17 is incorrect, and should be set to the default instance subfamily name, {font_subfamily_name}, rather than '{name17}'. If the default instance is {subfamily_name}, NameID 17 is probably the problem."
             )))
         }
         if name17.is_empty() && subfamily_name != font_subfamily_name {
             problems.push(Status::fail("invalid-default-instance-subfamily-name", &format!(
-                "{} instance has the same coordinates as the default instance; its subfamily name should be {}.\n\nNote: If the default instance really is meant to be called {}, the problem may be that the font lacks NameID 17, which should probably be present and set to {}.",
-                subfamily_name, font_subfamily_name, subfamily_name, subfamily_name
+                "{subfamily_name} instance has the same coordinates as the default instance; its subfamily name should be {font_subfamily_name}.\n\nNote: If the default instance really is meant to be called {subfamily_name}, the problem may be that the font lacks NameID 17, which should probably be present and set to {subfamily_name}."
             )))
         }
         if has_a_postscriptname && postscript_name != name6 {
             problems.push(Status::fail("invalid-default-instance-postscript-name", &format!(
-                "{} instance has the same coordinates as the default instance; its postscript name should be {} instead of {}.",
-                subfamily_name, name6, postscript_name
+                "{subfamily_name} instance has the same coordinates as the default instance; its postscript name should be {name6} instead of {postscript_name}."
             )));
         }
     }

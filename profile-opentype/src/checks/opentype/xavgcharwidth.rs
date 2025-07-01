@@ -94,14 +94,12 @@ fn xavgcharwidth(f: &Testable, _context: &Context) -> CheckFnResult {
         0 => Status::just_one_pass(),
         1..=10 => Status::just_one_info(
             "xAvgCharWidth-close",
-            &format!("OS/2 xAvgCharWidth is {} but it should be {} which corresponds to {}. These are similar values, which may be a symptom of the slightly different calculation of the xAvgCharWidth value in font editors. There's further discussion on this at https://github.com/fonttools/fontbakery/issues/1622",
-                actual, expected, rule
+            &format!("OS/2 xAvgCharWidth is {actual} but it should be {expected} which corresponds to {rule}. These are similar values, which may be a symptom of the slightly different calculation of the xAvgCharWidth value in font editors. There's further discussion on this at https://github.com/fonttools/fontbakery/issues/1622"
             )
         ),
         _ => Status::just_one_warn(
             "xAvgCharWidth-wrong",
-            &format!("OS/2 xAvgCharWidth is {} but it should be {} which corresponds to {}. This may indicate a problem with the font editor or the font compiler.",
-                actual, expected, rule
+            &format!("OS/2 xAvgCharWidth is {actual} but it should be {expected} which corresponds to {rule}. This may indicate a problem with the font editor or the font compiler."
             )
         )
     })

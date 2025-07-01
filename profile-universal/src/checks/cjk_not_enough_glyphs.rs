@@ -57,7 +57,7 @@ fn cjk_not_enough_glyphs(f: &Testable, context: &Context) -> CheckFnResult {
         let num_cjk_glyphs = if cjk_glyph_count == 1 {
             "There is only one CJK glyph"
         } else {
-            &format!("There are only {} CJK glyphs", cjk_glyph_count)
+            &format!("There are only {cjk_glyph_count} CJK glyphs")
         };
         Status::just_one_warn(
             "cjk-not-enough-glyphs",

@@ -54,7 +54,7 @@ fn vertical_metrics_regressions(t: &Testable, context: &Context) -> CheckFnResul
     );
     let family_name = f.best_familyname().unwrap_or("New font".to_string());
     let remote = remote_styles(&family_name, context)
-        .map_err(|e| FontspectorError::General(format!("Could not get remote style: {}", e)))?;
+        .map_err(|e| FontspectorError::General(format!("Could not get remote style: {e}")))?;
     let remote_font = remote
         .iter()
         .flat_map(|r| TTF.from_testable(r))

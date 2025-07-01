@@ -32,13 +32,13 @@ fn cjk_chws_feature(f: &Testable, context: &Context) -> CheckFnResult {
     if !tags.contains(&Tag::new(b"chws")) {
         problems.push(Status::warn(
             "missing-chws-feature",
-            &format!("chws {}", message),
+            &format!("chws {message}"),
         ));
     }
     if !tags.contains(&Tag::new(b"vchw")) {
         problems.push(Status::warn(
             "missing-vchw-feature",
-            &format!("vchw {}", message),
+            &format!("vchw {message}"),
         ));
     }
     return_result(problems)

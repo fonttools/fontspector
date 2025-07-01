@@ -73,11 +73,11 @@ impl Reporter for TerminalReporter {
                     }
 
                     if !fileheading_done {
-                        let _ = writeln!(std::io::stdout(), "Testing: {:}", filename);
+                        let _ = writeln!(std::io::stdout(), "Testing: {filename}");
                         fileheading_done = true;
                     }
                     if !sectionheading_done {
-                        let _ = writeln!(std::io::stdout(), "  Section: {:}\n", sectionname);
+                        let _ = writeln!(std::io::stdout(), "  Section: {sectionname}\n");
                         sectionheading_done = true;
                     }
                     let _ = writeln!(std::io::stdout(), ">> {:}", result.check_id);
@@ -104,7 +104,7 @@ impl Reporter for TerminalReporter {
                             termimad::print_inline("  Hotfix applied.\n")
                         }
                         Some(FixResult::FixError(e)) => {
-                            termimad::print_inline(&format!("  Hotfix failed: {:}\n", e))
+                            termimad::print_inline(&format!("  Hotfix failed: {e}\n"))
                         }
                         _ => {}
                     }
@@ -116,7 +116,7 @@ impl Reporter for TerminalReporter {
                             termimad::print_inline("  Source fix applied.\n")
                         }
                         Some(FixResult::FixError(e)) => {
-                            termimad::print_inline(&format!("  Source fix failed: {:}\n", e))
+                            termimad::print_inline(&format!("  Source fix failed: {e}\n"))
                         }
                         _ => {}
                     }

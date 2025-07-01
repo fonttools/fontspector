@@ -42,10 +42,7 @@ fn regression(t: &Testable, context: &Context) -> CheckFnResult {
         if !report.is_empty() {
             problems.push(Status::fail(
                 "shaping-regression",
-                &format!(
-                    "{}: Expected and actual shaping not matching\n\n{}",
-                    filename, report
-                ),
+                &format!("{filename}: Expected and actual shaping not matching\n\n{report}"),
             ))
         }
         // draw as svg
@@ -77,7 +74,7 @@ impl ShapingCheck for RegressionTest {
         let serialized = serialize_appropriately(buffer, face, test);
         #[allow(clippy::unwrap_used)] // the .applies filter ensures there's an expectation
         let expected = test.expectation.as_ref().unwrap();
-        println!("Expected: {}\nGot     : {}\n", expected, serialized);
+        println!("Expected: {expected}\nGot     : {serialized}\n");
         if &serialized == expected {
             return None;
         }
@@ -89,10 +86,7 @@ impl ShapingCheck for RegressionTest {
                 similar::ChangeTag::Insert => "",
             })
             .join("");
-        let report = format!(
-            "Expected: {}\nGot     : {}\nDiff    : {}\n",
-            expected, serialized, diff
-        );
+        let report = format!("Expected: {expected}\nGot     : {serialized}\nDiff    : {diff}\n");
         Some(report)
     }
 

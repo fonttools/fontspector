@@ -45,8 +45,7 @@ fn process_axis(
                 problems.push(Status::fail(
                     "bad-coordinate",
                     &format!(
-                        "Axis Value for '{}':'{}' is expected to be '{}' but this font has '{}'.",
-                        axis, name_entry, expected_value, axis_value
+                        "Axis Value for '{axis}':'{name_entry}' is expected to be '{expected_value}' but this font has '{axis_value}'."
                     ),
                 ));
             }
@@ -59,10 +58,7 @@ fn process_axis(
             problems.push(Status::fail(
             "invalid-name",
             &format!(
-                "On the font variation axis '{}', the name '{}' is not among the expected ones ({}) according to the Google Fonts Axis Registry.",
-                axis,
-                name_entry,
-                expected_names
+                "On the font variation axis '{axis}', the name '{name_entry}' is not among the expected ones ({expected_names}) according to the Google Fonts Axis Registry."
             ),
         ));
         }
@@ -121,10 +117,7 @@ fn axisregistry(t: &Testable, _context: &Context) -> CheckFnResult {
                                 "Name reference in STAT table not found in name table".to_string(),
                             ))?;
                         format4_entries = true;
-                        problems.push(Status::info(
-                            "format-4",
-                            &format!("'{}' at ({})", name, coords),
-                        ));
+                        problems.push(Status::info("format-4", &format!("'{name}' at ({coords})")));
                     }
                     AxisValue::Format1(table_ref) => {
                         process_axis(

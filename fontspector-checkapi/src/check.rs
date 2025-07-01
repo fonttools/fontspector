@@ -126,7 +126,7 @@ impl<'a> Check<'a> {
         let subresults = match fn_result {
             Ok(results) => results.collect::<Vec<_>>(),
             Err(FontspectorError::Skip { code, message }) => vec![Status::skip(code, message)],
-            Err(e) => vec![Status::error(None, &format!("Error: {}", e))],
+            Err(e) => vec![Status::error(None, &format!("Error: {e}"))],
         };
         let mut res = if subresults.is_empty() {
             vec![Status::pass()]

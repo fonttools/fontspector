@@ -14,7 +14,7 @@ impl DuckDbReporter {
     pub fn new(filename: &str) -> Self {
         let create_tables = !Path::new(&filename).exists();
         let db = Connection::open(filename).unwrap_or_else(|e| {
-            println!("Could not open database file {}: {:?}", filename, e);
+            println!("Could not open database file {filename}: {e:?}");
             std::process::exit(1);
         });
         if create_tables {
@@ -26,7 +26,7 @@ impl DuckDbReporter {
 
     fn create_tables(db: &Connection) -> Result<(), duckdb::Error> {
         let create_enum = "CREATE TYPE status as ENUM (".to_string()
-            + &StatusCode::all().map(|s| format!("'{}'", s)).join(", ")
+            + &StatusCode::all().map(|s| format!("'{s}'")).join(", ")
             + ")";
         db.execute(&create_enum, params![])?;
         db.execute(
@@ -71,7 +71,7 @@ impl Reporter for DuckDbReporter {
                 )
             };
             let mut app = self.db.appender("results").unwrap_or_else(|e| {
-                println!("Error creating appender: {}", e);
+                println!("Error creating appender: {e}");
                 std::process::exit(1);
             });
             for (section, results) in sectionresults.iter() {
@@ -94,7 +94,7 @@ impl Reporter for DuckDbReporter {
                             .map(|r| r.code.as_deref().unwrap_or_default())
                             .join(" ")
                     ]) {
-                        println!("Error inserting into database: {}", e);
+                        println!("Error inserting into database: {e}");
                         std::process::exit(1);
                     }
                 }

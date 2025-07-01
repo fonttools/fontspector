@@ -22,8 +22,7 @@ fn axis_ranges_correct(t: &Testable, _context: &Context) -> CheckFnResult {
                 problems.push(Status::fail(
                     "wght-out-of-range",
                     &format!(
-                        "Instance {} has wght coordinate of {}, expected between 1 and 1000",
-                        name, wght
+                        "Instance {name} has wght coordinate of {wght}, expected between 1 and 1000"
                     ),
                 ));
             }
@@ -32,18 +31,14 @@ fn axis_ranges_correct(t: &Testable, _context: &Context) -> CheckFnResult {
             if *wdth < 1.0 {
                 problems.push(Status::fail(
                     "wdth-out-of-range",
-                    &format!(
-                        "Instance {} has wdth coordinate of {}, expected at least 1",
-                        name, wdth
-                    ),
+                    &format!("Instance {name} has wdth coordinate of {wdth}, expected at least 1"),
                 ));
             }
             if *wdth > 1000.0 {
                 problems.push(Status::warn(
                     "wdth-greater-than-1000",
                     &format!(
-                        "Instance {} has wdth coordinate of {}, which is valid but unusual",
-                        name, wdth
+                        "Instance {name} has wdth coordinate of {wdth}, which is valid but unusual"
                     ),
                 ));
             }

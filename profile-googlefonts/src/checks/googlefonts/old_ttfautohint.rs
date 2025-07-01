@@ -30,9 +30,7 @@ fn old_ttfautohint(t: &Testable, _context: &Context) -> CheckFnResult {
                 problems.push(Status::warn(
                     "old-ttfa",
                     &format!(
-                        "ttfautohint used in font = {}; latest = {}; Need to re-run with the newer version!",
-                        ttfa_version,
-                        LATEST_TTFAUTOHINT_VERSION
+                        "ttfautohint used in font = {ttfa_version}; latest = {LATEST_TTFAUTOHINT_VERSION}; Need to re-run with the newer version!"
                     ),
                 ));
             }
@@ -40,9 +38,7 @@ fn old_ttfautohint(t: &Testable, _context: &Context) -> CheckFnResult {
             problems.push(Status::fail(
                 "parse-error",
                 &format!(
-                    "Failed to parse ttfautohint version values: latest = '{}'; used_in_font = '{}'",
-                    LATEST_TTFAUTOHINT_VERSION,
-                    ttfa_version
+                    "Failed to parse ttfautohint version values: latest = '{LATEST_TTFAUTOHINT_VERSION}'; used_in_font = '{ttfa_version}'"
                 ),
             ));
         }

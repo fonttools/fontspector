@@ -58,15 +58,14 @@ fn gasp(t: &Testable, _context: &Context) -> CheckFnResult {
     if !f.has_table(b"gasp") {
         return Ok(Status::just_one_fail(
             "lacks-gasp",
-            &format!("Font is missing the 'gasp' table. Try exporting the font with autohinting enabled.\n{}"
-                , NON_HINTING_MESSAGE)
+            &format!("Font is missing the 'gasp' table. Try exporting the font with autohinting enabled.\n{NON_HINTING_MESSAGE}")
         ));
     }
     let gasp_table = f.font().gasp()?;
     if gasp_table.gasp_ranges().is_empty() {
         return Ok(Status::just_one_fail(
             "empty",
-            &format!("The 'gasp' table has no values.\n{}", NON_HINTING_MESSAGE),
+            &format!("The 'gasp' table has no values.\n{NON_HINTING_MESSAGE}"),
         ));
     }
     if !gasp_table

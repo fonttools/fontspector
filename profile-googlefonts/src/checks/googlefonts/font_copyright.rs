@@ -73,7 +73,7 @@ fn font_copyright(c: &TestableCollection, context: &Context) -> CheckFnResult {
         // let filename = font.filename.as_os_str().to_str().unwrap_or_default();
         let mut copyrights = vec![];
         font.get_name_entry_strings(StringId::COPYRIGHT_NOTICE)
-            .for_each(|x| copyrights.push((format!("{}: Name Table entry", basename), x)));
+            .for_each(|x| copyrights.push((format!("{basename}: Name Table entry"), x)));
         if let Some(md_copyright) = mdpb_copyrights.get(basename) {
             copyrights.push(("METADATA.pb".to_string(), md_copyright.to_string()));
         }
@@ -84,8 +84,7 @@ fn font_copyright(c: &TestableCollection, context: &Context) -> CheckFnResult {
                 problems.push(Status::fail(
                 "bad-notice-format",
                 &format!(
-                  "{}: Copyright notices should match a pattern similar to:\n\n\"Copyright 2020 The Familyname Project Authors (git url)\"\n\nBut instead we have got:\n\n\"{}\"",
-                  source, string
+                  "{source}: Copyright notices should match a pattern similar to:\n\n\"Copyright 2020 The Familyname Project Authors (git url)\"\n\nBut instead we have got:\n\n\"{string}\""
                 )
               )
             );
@@ -109,7 +108,7 @@ fn font_copyright(c: &TestableCollection, context: &Context) -> CheckFnResult {
                 &format!("Copyright notices differ between name table entries and METADATA.pb. The following entries were found:\n{}",
                 bullet_list(
                   context,
-                  copyright_sources.iter().map(|(a, b)| format!("{}: {:?}", a, b))
+                  copyright_sources.iter().map(|(a, b)| format!("{a}: {b:?}"))
               )
             )
           ))

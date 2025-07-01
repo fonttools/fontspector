@@ -76,8 +76,7 @@ fn math_signs_width(f: &Testable, _context: &Context) -> CheckFnResult {
             .join("\n");
         return Ok(Status::just_one_warn(
             "width-outliers",
-            &format!("The most common width is {} among a set of {}  math glyphs.\nThe following math glyphs have a different width, though:\n{}"
-            , width, num_glyphs, summary)
+            &format!("The most common width is {width} among a set of {num_glyphs}  math glyphs.\nThe following math glyphs have a different width, though:\n{summary}")
         ));
     }
     // No most common

@@ -86,7 +86,7 @@ fn empty_letters(t: &Testable, context: &Context) -> CheckFnResult {
     if num_blank_hangul > 0 {
         problems.push(Status::warn(
             "empty-hangul-letter",
-            &format!("Found {} empty hangul glyph(s).", num_blank_hangul),
+            &format!("Found {num_blank_hangul} empty hangul glyph(s)."),
         ));
     }
     return_result(problems)

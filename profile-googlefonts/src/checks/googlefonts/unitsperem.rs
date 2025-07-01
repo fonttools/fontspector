@@ -20,13 +20,11 @@ fn unitsperem(t: &Testable, _context: &Context) -> CheckFnResult {
     let upm = testfont!(t).font().head()?.units_per_em();
     Ok(if upm > 4000 {
         Status::just_one_fail("large-value", &format!(
-                "Font em size (unitsPerEm) is {} which may be too large (causing filesize bloat), unless you are sure that the detail level in this font requires that much precision.",
-                upm
+                "Font em size (unitsPerEm) is {upm} which may be too large (causing filesize bloat), unless you are sure that the detail level in this font requires that much precision."
             ))
     } else if upm < 16 {
         Status::just_one_fail("bad-value", &format!(
-                "Font em size (unitsPerEm) is {}. If possible, please consider using 1000. Good values for unitsPerEm, though, are typically these: {:?}.",
-                upm, RECOMMENDED
+                "Font em size (unitsPerEm) is {upm}. If possible, please consider using 1000. Good values for unitsPerEm, though, are typically these: {RECOMMENDED:?}."
             ))
     } else {
         Status::just_one_pass()

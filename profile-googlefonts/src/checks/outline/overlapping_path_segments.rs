@@ -44,8 +44,7 @@ fn overlapping_path_segments(t: &Testable, context: &Context) -> CheckFnResult {
                 ];
                 if seen.contains(&normal) || seen.contains(&flipped) {
                     all_warnings.push(format!(
-                        "{}: {:?} has the same coordinates as a previous segment.",
-                        name, seg
+                        "{name}: {seg:?} has the same coordinates as a previous segment."
                     ));
                 }
                 seen.insert(normal);

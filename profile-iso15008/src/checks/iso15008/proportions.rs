@@ -43,8 +43,7 @@ fn proportions(t: &Testable, _context: &Context) -> CheckFnResult {
         return Ok(Status::just_one_fail(
             "invalid-proportion",
             &format!(
-                "The proportion of H width to H height ({}) does not conform to the expected range of 0.65-0.80",
-                proportion
+                "The proportion of H width to H height ({proportion}) does not conform to the expected range of 0.65-0.80"
             ),
         ));
     }

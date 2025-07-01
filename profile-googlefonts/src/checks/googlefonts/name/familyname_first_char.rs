@@ -19,7 +19,7 @@ fn familyname_first_char(t: &Testable, _context: &Context) -> CheckFnResult {
         if "0123456789".chars().any(|c| family_name.starts_with(c)) {
             problems.push(Status::fail(
                 "begins-with-digit",
-                &format!("Font family name '{}' begins with a digit!", family_name),
+                &format!("Font family name '{family_name}' begins with a digit!"),
             ));
         }
     }

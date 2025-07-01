@@ -76,14 +76,12 @@ fn primary_script(c: &TestableCollection, context: &Context) -> CheckFnResult {
         }
         if metadata_primary_script.is_empty() {
             let mut message = format!(
-                "METADATA.pb: primary_script field should be '{}' but is missing.",
-                guessed_primary_script
+                "METADATA.pb: primary_script field should be '{guessed_primary_script}' but is missing."
             );
             if let Some(sibling_scripts) = siblings(&guessed_primary_script) {
                 let sibling_scripts = sibling_scripts.join(", ");
                 message += &format!(
-                    "\nMake sure that '{}' is actually the correct one (out of {}).",
-                    guessed_primary_script, sibling_scripts
+                    "\nMake sure that '{guessed_primary_script}' is actually the correct one (out of {sibling_scripts})."
                 );
             }
             problems.push(Status::warn("missing-primary-script", &message));
@@ -93,8 +91,7 @@ fn primary_script(c: &TestableCollection, context: &Context) -> CheckFnResult {
             problems.push(Status::warn(
                 "wrong-primary-script",
                 &format!(
-                    "METADATA.pb: primary_script is '{}' but should be '{}'.",
-                    metadata_primary_script, guessed_primary_script
+                    "METADATA.pb: primary_script is '{metadata_primary_script}' but should be '{guessed_primary_script}'."
                 ),
             ));
         }

@@ -37,17 +37,14 @@ fn foundry_defined_tag_name(t: &Testable, _context: &Context) -> CheckFnResult {
         {
             problems.push(Status::fail(
                 "invalid-foundry-defined-tag-first-letter",
-                &format!(
-                    "Foundry-defined axis tag {} must begin with an uppercase letter",
-                    tag
-                ),
+                &format!("Foundry-defined axis tag {tag} must begin with an uppercase letter"),
             ))
         } else if !tag
             .chars()
             .all(|c| c.is_ascii_uppercase() || c.is_ascii_digit())
         {
             problems.push(Status::fail("invalid-foundry-defined-tag-chars",
-                &format!("Foundry-defined axis tag {} must begin with an uppercase letter and contain only uppercase letters or digits.", tag)
+                &format!("Foundry-defined axis tag {tag} must begin with an uppercase letter and contain only uppercase letters or digits.")
             ));
         }
     }

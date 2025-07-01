@@ -142,7 +142,7 @@ fn valid_glyphnames(f: &Testable, _context: &Context) -> CheckFnResult {
         Some(other) => {
             problems.push(Status::fail(
                 "non-compliant-00A0",
-                &format!("Glyph 0x00A0 is called {}; must be named 'uni00A0'.", other),
+                &format!("Glyph 0x00A0 is called {other}; must be named 'uni00A0'."),
             ));
         }
     }
@@ -162,7 +162,7 @@ fn valid_glyphnames(f: &Testable, _context: &Context) -> CheckFnResult {
         Some(other) => {
             problems.push(Status::fail(
                 "non-compliant-0020",
-                &format!("Glyph 0x0020 is called {}; must be named 'space'.", other),
+                &format!("Glyph 0x0020 is called {other}; must be named 'space'."),
             ));
         }
     }
