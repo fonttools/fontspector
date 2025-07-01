@@ -56,7 +56,10 @@ fn consistent_repo_urls(c: &TestableCollection, context: &Context) -> CheckFnRes
         let license_contents = String::from_utf8(ofl.contents.clone())?;
         let first_line = license_contents.lines().next().unwrap_or_default();
         if first_line.contains("http") {
-            let link = clean_url(first_line.split("http").nth(1).unwrap_or_default());
+            let link = clean_url(&format!(
+                "http{}",
+                first_line.split("http").nth(1).unwrap_or_default()
+            ));
             if link != repo_url {
                 bad_urls.push(("OFL text", link));
             }
