@@ -10,7 +10,7 @@ crate-type = ["cdylib"]
 fontspector-checkapi = { path = "../fontspector-checkapi" }
 norad = "0.16.0"
 serde_json = { workspace = true }
-quick-xml = { version = "0.37.0", features = ["serialize"] }
+quick-xml = { version = "0.38.0", features = ["serialize"] }
 
 [target.'cfg(not(target_family = "wasm"))'.dependencies]
 # Plugin architecture
