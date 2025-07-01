@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use crate::checks::googlefonts::metadata::family_proto;
+use crate::{checks::googlefonts::metadata::family_proto, network_conditions::production_metadata};
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
 use google_fonts_subsets::{LATIN, SUBSETS};
 
@@ -76,8 +76,52 @@ fn subsets_correct(c: &TestableCollection, context: &Context) -> CheckFnResult {
     if fonts.is_empty() {
         skip!("no-fonts", "No font files found in METADATA.pb");
     }
-    let subsets = msg.subsets;
+    let local_subsets = msg.subsets.clone();
     let mut problems = vec![];
+
+    // Check production subsets first, since we can't remove them.
+    let mut production_subsets: Vec<String> = vec![];
+    if !context.skip_network {
+        let production_metadata = production_metadata(context).map_err(|e| {
+            FontspectorError::General(format!("Failed to fetch production metadata: {e:?}"))
+        })?;
+        if let Some(subsets_array) = production_metadata
+            .get("familyMetadataList")
+            .ok_or_else(|| {
+                FontspectorError::General(
+                    "Failed to get familyMetadataList from production metadata".to_string(),
+                )
+            })?
+            .as_array()
+            .ok_or_else(|| {
+                FontspectorError::General("familyMetadataList is not an array".to_string())
+            })?
+            .iter()
+            .find(|i| i.get("family").and_then(|f| f.as_str()) == Some(msg.name()))
+            .and_then(|i| i.get("subsets"))
+            .and_then(|s| s.as_array())
+        {
+            production_subsets.extend(
+                subsets_array
+                    .iter()
+                    .flat_map(|i| i.as_str().map(|x| x.to_string())),
+            );
+        };
+        let missing_subsets = production_subsets
+            .iter()
+            .filter(|s| !local_subsets.contains(&s.to_string()))
+            .map(|s| s.to_string())
+            .collect::<Vec<String>>();
+        if !missing_subsets.is_empty() {
+            problems.push(Status::fail(
+                "missing-subsets",
+                &format!(
+                    "The following subsets are missing: {}",
+                    missing_subsets.join(", ")
+                ),
+            ))
+        }
+    }
 
     // Let's get our SUBSETS constant into a useful format.
     let google_subsets: HashMap<String, HashSet<u32>> = SUBSETS
@@ -96,17 +140,17 @@ fn subsets_correct(c: &TestableCollection, context: &Context) -> CheckFnResult {
     // Old menu_and_latin check
     let latin = "latin".to_string();
     let menu = "menu".to_string();
-    if !subsets.contains(&latin) && !subsets.contains(&menu) {
+    if !local_subsets.contains(&latin) && !local_subsets.contains(&menu) {
         problems.push(Status::fail(
             "missing",
             "Subsets \"menu\" and \"latin\" are mandatory, but but METADATA.pb is missing both",
         ));
-    } else if !subsets.contains(&latin) {
+    } else if !local_subsets.contains(&latin) {
         problems.push(Status::fail(
             "missing",
             "Subsets \"menu\" and \"latin\" are mandatory, but but METADATA.pb is missing latin",
         ));
-    } else if !subsets.contains(&menu) {
+    } else if !local_subsets.contains(&menu) {
         problems.push(Status::fail(
             "missing",
             "Subsets \"menu\" and \"latin\" are mandatory, but but METADATA.pb is missing menu",
@@ -114,14 +158,16 @@ fn subsets_correct(c: &TestableCollection, context: &Context) -> CheckFnResult {
     }
 
     // Old subsets_order check
-    let mut sorted_subsets = subsets.clone();
+    let mut sorted_subsets = local_subsets.clone();
     sorted_subsets.sort();
-    if subsets != sorted_subsets {
+    if local_subsets != sorted_subsets {
         problems.push(Status::fail("not-sorted", "Subsets are not in order"))
     }
 
     // Old single_cjk_subset check
-    let cjk_subsets = subsets.iter().filter(|s| CJK_SUBSETS.contains(&s.as_str()));
+    let cjk_subsets = local_subsets
+        .iter()
+        .filter(|s| CJK_SUBSETS.contains(&s.as_str()));
     if cjk_subsets.count() > 1 {
         problems.push(Status::error(
             Some("multiple-cjk-subsets"),
@@ -140,7 +186,7 @@ fn subsets_correct(c: &TestableCollection, context: &Context) -> CheckFnResult {
         .map(|(k, v)| (k.to_string(), support_percentage(k, v, &codepoints)))
         .collect();
     for (name, percentage) in supported_percentage.into_iter() {
-        if percentage >= coverage_required(&name) && !subsets.contains(&name) {
+        if percentage >= coverage_required(&name) && !local_subsets.contains(&name) {
             problems.push(Status::warn(
                     "missing-subset",
                     &format!(
@@ -149,8 +195,15 @@ fn subsets_correct(c: &TestableCollection, context: &Context) -> CheckFnResult {
                     ),
                 ));
         }
-        if percentage < coverage_required(&name) && subsets.contains(&name) {
-            if percentage == 0.0 {
+        if percentage < coverage_required(&name) && local_subsets.contains(&name) {
+            if production_subsets.contains(&name) {
+                problems.push(Status::info(
+                    "unsupported-production-subset",
+                    &format!(
+                        "The subset '{name}' is listed in production metadata, but only {percentage:.2}% of its glyphs are supported by this font file. We can't remove it, however, since that would cause a regression in production.",
+                    ))
+                )
+            } else if percentage == 0.0 {
                 problems.push(Status::fail(
                     "unsupported-subset",
                     &format!(
@@ -180,7 +233,7 @@ fn subsets_correct(c: &TestableCollection, context: &Context) -> CheckFnResult {
         //     ));
         // }
     }
-    for subset in subsets.iter() {
+    for subset in local_subsets.iter() {
         if !google_subsets.contains_key(subset) && subset != "menu" {
             problems.push(Status::fail(
                 "unknown-subset",

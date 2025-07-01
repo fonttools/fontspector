@@ -194,7 +194,7 @@ impl fontspector_checkapi::Plugin for GoogleFonts {
             .add_and_register_check(checks::googlefonts::vertical_metrics)
             .add_and_register_check(checks::googlefonts::vertical_metrics_regressions)
             .add_and_register_check(checks::googlefonts::cjk_vertical_metrics_regressions)
-            .add_and_register_check(checks::googlefonts::metadata::includes_production_subsets)
+            // includes_production_subsets merged into metadata/subsets_correct
             .add_and_register_check(checks::googlefonts::weightclass)
             // Pending review
             .exclude_check("cmap/format_12")
