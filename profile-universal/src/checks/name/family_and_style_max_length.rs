@@ -68,7 +68,7 @@ fn family_and_style_max_length(t: &Testable, _context: &Context) -> CheckFnResul
                 for (key, string) in family_names.iter() {
                     // Use typo if present, nameid=1 otherwise
                     let family_name = typo_family_names.get(key).unwrap_or(string);
-                    let full_instance_name = format!("{} {}", family_name, instance_name);
+                    let full_instance_name = format!("{family_name} {instance_name}");
                     if full_instance_name.len() > 32 {
                         problems.push(Status::fail(
                         "instance-too-long",

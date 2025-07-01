@@ -34,7 +34,7 @@ fn STAT_table_axis_order(t: &Testable, _context: &Context) -> CheckFnResult {
             if pos != index {
                 return Ok(Status::just_one_fail(
                     "axisOrder",
-                    &format!("STAT table axisOrder for {} is not valid", axis),
+                    &format!("STAT table axisOrder for {axis} is not valid"),
                 ));
             }
             index += 1;

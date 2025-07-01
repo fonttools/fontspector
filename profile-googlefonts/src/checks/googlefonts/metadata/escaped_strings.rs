@@ -39,8 +39,7 @@ fn escaped_strings(c: &TestableCollection, _context: &Context) -> CheckFnResult 
                     problems.push(Status::fail(
                         "escaped-strings",
                         format!(
-                            "Found escaped chars at '{}'. Please use an unicode string instead.",
-                            a_string
+                            "Found escaped chars at '{a_string}'. Please use an unicode string instead."
                         )
                         .as_str(),
                     ));

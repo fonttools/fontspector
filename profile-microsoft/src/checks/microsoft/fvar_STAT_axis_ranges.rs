@@ -44,7 +44,7 @@ fn fvar_STAT_axis_ranges(t: &Testable, _context: &Context) -> CheckFnResult {
             let stat_coord_set = stat_axis_value_record
                 .axis_values()
                 .iter()
-                .map(|av| {
+                .filter_map(|av| {
                     let axis_index = av.axis_index();
                     if axis_index >= stat_axis_tags.len() as u16 {
                         problems.push(Status::fail(
@@ -55,10 +55,11 @@ fn fvar_STAT_axis_ranges(t: &Testable, _context: &Context) -> CheckFnResult {
                                 stat_axis_tags.len()
                             ),
                         ));
+                        return None;
                     }
-                    // We already checked it was in bounds
+                    #[allow(clippy::indexing_slicing)] // We know it's in bounds
                     let stat_axis = &stat_axis_tags[axis_index as usize];
-                    (stat_axis.to_string(), av.value().to_f32())
+                    Some((stat_axis.to_string(), av.value().to_f32()))
                 })
                 .collect::<BTreeMap<_, _>>();
             if coordinates == stat_coord_set {
@@ -87,6 +88,7 @@ fn fvar_STAT_axis_ranges(t: &Testable, _context: &Context) -> CheckFnResult {
                                 ),
                             ));
                         } else {
+                            #[allow(clippy::indexing_slicing)] // We know it's in bounds
                             let stat_axis = &stat_axis_tags[av1.axis_index() as usize];
                             if instance_axis == stat_axis && instance_value == av1.value().to_f32()
                             {
@@ -94,8 +96,7 @@ fn fvar_STAT_axis_ranges(t: &Testable, _context: &Context) -> CheckFnResult {
                                     problems.push(Status::fail(
                                         "axis-value-non-unique",
                                         &format!(
-                                            "axis value {} (format 1) for axis {} is not unique",
-                                            instance_value, instance_axis
+                                            "axis value {instance_value} (format 1) for axis {instance_axis} is not unique"
                                         ),
                                     ));
                                 }
@@ -115,6 +116,7 @@ fn fvar_STAT_axis_ranges(t: &Testable, _context: &Context) -> CheckFnResult {
                                 ),
                             ));
                         } else {
+                            #[allow(clippy::indexing_slicing)] // We know it's in bounds
                             let stat_axis = &stat_axis_tags[av3.axis_index() as usize];
                             if instance_axis == stat_axis && instance_value == av3.value().to_f32()
                             {
@@ -122,8 +124,7 @@ fn fvar_STAT_axis_ranges(t: &Testable, _context: &Context) -> CheckFnResult {
                                     problems.push(Status::fail(
                                         "non-unique",
                                         &format!(
-                                            "axis value {} (format 3) for axis {} is not unique",
-                                            instance_value, instance_axis
+                                            "axis value {instance_value} (format 3) for axis {instance_axis} is not unique"
                                         ),
                                     ));
                                 }
@@ -142,6 +143,7 @@ fn fvar_STAT_axis_ranges(t: &Testable, _context: &Context) -> CheckFnResult {
                                 ),
                             ));
                         } else {
+                            #[allow(clippy::indexing_slicing)] // We know it's in bounds
                             let stat_axis = &stat_axis_tags[av2.axis_index() as usize];
                             if instance_axis == stat_axis
                                 && instance_value == av2.nominal_value().to_f32()
@@ -150,8 +152,7 @@ fn fvar_STAT_axis_ranges(t: &Testable, _context: &Context) -> CheckFnResult {
                                     problems.push(Status::fail(
                                         "non-unique",
                                         &format!(
-                                            "axis value {} (format 2) for axis {} is not unique",
-                                            instance_value, instance_axis
+                                            "axis value {instance_value} (format 2) for axis {instance_axis} is not unique"
                                         ),
                                     ));
                                 }
@@ -166,8 +167,7 @@ fn fvar_STAT_axis_ranges(t: &Testable, _context: &Context) -> CheckFnResult {
                 problems.push(Status::fail(
                     "axis-value-not-found",
                     &format!(
-                        "axis value {} for axis {} not found in STAT table",
-                        instance_value, instance_axis
+                        "axis value {instance_value} for axis {instance_axis} not found in STAT table"
                     ),
                 ));
             }

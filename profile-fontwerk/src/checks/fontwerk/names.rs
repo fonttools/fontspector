@@ -28,27 +28,24 @@ fn name_entries(f: &Testable, context: &Context) -> CheckFnResult {
             let string_id = if let Some(str_id) = get_string_id_from_string(key) {
                 str_id
             } else {
-                bad_names.push(format!("Unknown name table entry: {}", key,));
+                bad_names.push(format!("Unknown name table entry: {key}",));
                 continue;
             };
 
             let name_table_entries: Vec<_> = font.get_name_entry_strings(string_id).collect();
             if name_table_entries.is_empty() {
-                bad_names.push(format!("No {} entry found", key));
+                bad_names.push(format!("No {key} entry found"));
                 continue;
             }
             for entry in name_table_entries {
                 let value_str = if let Some(v_str) = value.as_str() {
                     v_str
                 } else {
-                    bad_names.push(format!("Value for '{}' is not a string.", key));
+                    bad_names.push(format!("Value for '{key}' is not a string."));
                     continue;
                 };
                 if entry != value_str {
-                    bad_names.push(format!(
-                        "{} is '{}' but should be '{}'.",
-                        key, entry, value_str
-                    ));
+                    bad_names.push(format!("{key} is '{entry}' but should be '{value_str}'."));
                 }
             }
         }

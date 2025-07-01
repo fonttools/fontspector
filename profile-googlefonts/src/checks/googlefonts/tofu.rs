@@ -15,12 +15,8 @@ struct OurLang<'a> {
     samples: Vec<(&'a str, String)>,
 }
 
-static OUR_LANGS: LazyLock<Vec<OurLang>> = LazyLock::new(|| {
-    LANGUAGES
-        .iter()
-        .map(|(_name, lang)| OurLang::new(lang))
-        .collect()
-});
+static OUR_LANGS: LazyLock<Vec<OurLang>> =
+    LazyLock::new(|| LANGUAGES.values().map(|lang| OurLang::new(lang)).collect());
 
 fn parse_chars(chars: &str) -> HashSet<char> {
     chars

@@ -67,10 +67,9 @@ fn rfn(t: &Testable, _context: &Context) -> CheckFnResult {
                     "rfn",
                     &format!(
                         "Name table entry contains \"Reserved Font Name\":\n\
-                              \t\"{}\"\n\
+                              \t\"{name_string}\"\n\
                               \n\
-                              This is bad except in a few specific rare cases.",
-                        name_string
+                              This is bad except in a few specific rare cases."
                     ),
                 ));
             } else {
@@ -78,10 +77,9 @@ fn rfn(t: &Testable, _context: &Context) -> CheckFnResult {
                     "legacy-familyname",
                     &format!(
                         "Name table entry contains \"Reserved Font Name\" for a \
-                              family name ({}) that differs \
-                              from the currently used family name ({}), \
-                              which is fine.",
-                        rfn_string, familyname
+                              family name ({rfn_string}) that differs \
+                              from the currently used family name ({familyname}), \
+                              which is fine."
                     ),
                 ));
             }

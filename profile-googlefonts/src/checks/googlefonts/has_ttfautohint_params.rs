@@ -26,7 +26,7 @@ fn has_ttfautohint_params(t: &Testable, _context: &Context) -> CheckFnResult {
             if !params.is_empty() {
                 problems.push(Status::info(
                     "ok",
-                    &format!("Font has ttfautohint params ({})", params),
+                    &format!("Font has ttfautohint params ({params})"),
                 ));
                 passed = true;
             }

@@ -25,8 +25,8 @@ fn whitespace_glyphs(t: &Testable, _context: &Context) -> CheckFnResult {
     for c in [0x20u32, 0x0A0] {
         if charmap.map(c).is_none() {
             problems.push(Status::fail(
-                &format!("missing-whitespace-glyph-0x{:04X}", c),
-                &format!("Whitespace glyph missing for codepoint 0x{:04X}", c),
+                &format!("missing-whitespace-glyph-0x{c:04X}"),
+                &format!("Whitespace glyph missing for codepoint 0x{c:04X}"),
             ))
         }
     }

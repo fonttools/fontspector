@@ -9,7 +9,7 @@ use freetype;
 )]
 fn freetype_rasterizer(f: &Testable, _context: &Context) -> CheckFnResult {
     let library = freetype::Library::init().map_err(|e| {
-        FontspectorError::General(format!("Failed to initialize FreeType library: {:?}", e))
+        FontspectorError::General(format!("Failed to initialize FreeType library: {e:?}"))
     })?;
     match library.new_memory_face(f.contents.clone(), 0) {
         Ok(face) => {

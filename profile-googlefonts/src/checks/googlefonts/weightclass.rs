@@ -39,8 +39,7 @@ fn weightclass(t: &Testable, _context: &Context) -> CheckFnResult {
             problems.push(Status::fail(
                 "bad-value",
                 &format!(
-                    "Best SubFamily name is '{}'. Expected OS/2 usWeightClass is {}, got {}.",
-                    style_name, expected_value, value
+                    "Best SubFamily name is '{style_name}'. Expected OS/2 usWeightClass is {expected_value}, got {value}."
                 ),
             ))
         }
@@ -49,8 +48,7 @@ fn weightclass(t: &Testable, _context: &Context) -> CheckFnResult {
             problems.push(Status::fail(
                 "bad-value",
                 &format!(
-                    "Best SubFamily name is '{}'. Expected OS/2 usWeightClass is {}, got {}.",
-                    style_name, expected_value, value
+                    "Best SubFamily name is '{style_name}'. Expected OS/2 usWeightClass is {expected_value}, got {value}."
                 ),
             ))
         }
@@ -68,8 +66,7 @@ fn weightclass(t: &Testable, _context: &Context) -> CheckFnResult {
             problems.push(Status::fail(
                 "bad-value",
                 &format!(
-                    "Best SubFamily name is '{}'. Expected OS/2 usWeightClass is {}, got {}.",
-                    style_name, expected_value, value
+                    "Best SubFamily name is '{style_name}'. Expected OS/2 usWeightClass is {expected_value}, got {value}."
                 ),
             ))
         }
@@ -86,8 +83,7 @@ fn weightclass(t: &Testable, _context: &Context) -> CheckFnResult {
         problems.push(Status::fail(
             "bad-value",
             &format!(
-                "Best SubFamily name is '{}'. Expected OS/2 usWeightClass is {}, got {}.",
-                style_name, expected_value, value
+                "Best SubFamily name is '{style_name}'. Expected OS/2 usWeightClass is {expected_value}, got {value}."
             ),
         ))
     }

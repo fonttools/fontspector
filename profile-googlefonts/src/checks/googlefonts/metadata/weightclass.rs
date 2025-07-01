@@ -51,8 +51,7 @@ fn vf_weight_expectation(font: &TestFont) -> Result<(u16, String), FontspectorEr
                 max as u16
             };
             let should_be = format!(
-            "{} because it is the closest value to 400 on the 'wght' axis of this variable font",
-            font_weight
+            "{font_weight} because it is the closest value to 400 on the 'wght' axis of this variable font"
         );
             Ok((font_weight, should_be))
         }

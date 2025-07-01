@@ -42,18 +42,18 @@ fn broken_links(desc: &Testable, context: &Context) -> CheckFnResult {
             if href.contains('@') && href.split('@').nth(1).unwrap().contains('.') {
                 problems.push(Status::fail(
                     "email",
-                    &format!("Found an email address: {}", href),
+                    &format!("Found an email address: {href}"),
                 ));
             }
             continue;
         }
         if let Err(error) = get_url(context, href) {
             if error.is_timeout() {
-                problems.push(Status::warn("timeout", &format!("Timedout while attempting to access: '{}'. Please verify if that's a broken link.", href)));
+                problems.push(Status::warn("timeout", &format!("Timedout while attempting to access: '{href}'. Please verify if that's a broken link.")));
             } else if let Some(status) = error.status() {
-                broken.insert(format!("{} (status code: {})", href, status));
+                broken.insert(format!("{href} (status code: {status})"));
             } else {
-                broken.insert(format!("{} (error: {})", href, error));
+                broken.insert(format!("{href} (error: {error})"));
             }
         }
     }

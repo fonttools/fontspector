@@ -48,7 +48,7 @@ fn shape_languages(t: &Testable, context: &Context) -> CheckFnResult {
                 if let Some(language) = languages.get_language(language_code) {
                     let reporter = checker.check(language);
                     let name = language.name();
-                    let language_string = format!("{} ({})", language_code, name);
+                    let language_string = format!("{language_code} ({name})");
                     for result in reporter.iter() {
                         let message = result.to_string();
                         if result.status == ResultCode::Warn {

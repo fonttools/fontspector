@@ -34,7 +34,7 @@ fn italic_names(t: &Testable, _context: &Context) -> CheckFnResult {
         if subfamily_name != "Italic" && subfamily_name != "Bold Italic" {
             problems.push(Status::fail(
                 "bad-subfamilyname",
-                &format!("Name ID 2 (Subfamily Name) does not conform to specs. Only R/I/B/BI are allowed, found {}", subfamily_name)
+                &format!("Name ID 2 (Subfamily Name) does not conform to specs. Only R/I/B/BI are allowed, found {subfamily_name}")
             ));
         }
     }

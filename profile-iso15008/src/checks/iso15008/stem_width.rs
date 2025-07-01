@@ -33,8 +33,7 @@ fn stem_width(t: &Testable, _context: &Context) -> CheckFnResult {
         return Ok(Status::just_one_fail(
             "invalid-proportion",
             &format!(
-                "The proportion of stem width to ascender ({}) does not conform to the expected range of 0.10-0.20",
-                proportion
+                "The proportion of stem width to ascender ({proportion}) does not conform to the expected range of 0.10-0.20"
             ),
         ));
     }

@@ -7,13 +7,12 @@ pub(crate) static PRODUCTION_METADATA: std::sync::LazyLock<
     Result<Map<String, Value>, FontspectorError>,
 > = std::sync::LazyLock::new(|| {
     reqwest::blocking::get("https://fonts.google.com/metadata/fonts")
-        .map_err(|e| FontspectorError::Network(format!("Failed to fetch metadata: {}", e)))
+        .map_err(|e| FontspectorError::Network(format!("Failed to fetch metadata: {e}")))
         .and_then(|response| {
             response.text().map_or_else(
                 |e| {
                     Err(FontspectorError::Network(format!(
-                        "Failed to fetch metadata: {}",
-                        e
+                        "Failed to fetch metadata: {e}"
                     )))
                 },
                 |s| {
@@ -53,7 +52,7 @@ pub(crate) fn is_listed_on_google_fonts(
     if context.skip_network {
         return Err(FontspectorError::NetworkAccessDisabled);
     }
-    let key = format!("is_listed_on_google_fonts:{}", family);
+    let key = format!("is_listed_on_google_fonts:{family}");
     context.cached_question(
         &key,
         || {
@@ -98,7 +97,7 @@ pub(crate) fn remote_styles(
 
 #[cfg(not(target_family = "wasm"))]
 fn remote_styles_impl(family: &str, context: &Context) -> Result<Vec<Testable>, FontspectorError> {
-    let key = format!("remote_styles:{}", family);
+    let key = format!("remote_styles:{family}");
     if context.skip_network {
         return Err(FontspectorError::NetworkAccessDisabled);
     }
@@ -118,13 +117,12 @@ fn remote_styles_impl(family: &str, context: &Context) -> Result<Vec<Testable>, 
                 .map_or_else(
                 |e| {
                     Err(FontspectorError::Network(format!(
-                        "Failed to fetch metadata: {}",
-                        e
+                        "Failed to fetch metadata: {e}"
                     )))
                 },
                 |s| {
                     serde_json::from_str(&s[5..]).map_err(|e| {
-                        FontspectorError::Network(format!("Failed to parse remote metadata: {}", e))
+                        FontspectorError::Network(format!("Failed to parse remote metadata: {e}"))
                     })
                 },
             )?;
@@ -136,8 +134,7 @@ fn remote_styles_impl(family: &str, context: &Context) -> Result<Vec<Testable>, 
                 .and_then(|x| x.get("fileRefs"))
                 .and_then(|x| x.as_array())
                 .ok_or(FontspectorError::Network(format!(
-                    "Failed to find fileRefs in manifest: {:?}",
-                    manifest
+                    "Failed to find fileRefs in manifest: {manifest:?}"
                 )))?
             {
                 let url = file
@@ -160,11 +157,9 @@ fn remote_styles_impl(family: &str, context: &Context) -> Result<Vec<Testable>, 
                     continue;
                 }
                 let contents = reqwest::blocking::get(url)
-                    .map_err(|e| FontspectorError::Network(format!("Failed to fetch font: {}", e)))?
+                    .map_err(|e| FontspectorError::Network(format!("Failed to fetch font: {e}")))?
                     .bytes()
-                    .map_err(|e| {
-                        FontspectorError::Network(format!("Failed to fetch font: {}", e))
-                    })?;
+                    .map_err(|e| FontspectorError::Network(format!("Failed to fetch font: {e}")))?;
                 let testable = Testable::new_with_contents(filename, contents.to_vec());
                 fonts.push(testable);
             }
@@ -218,7 +213,7 @@ pub(crate) fn get_url(
     url: &str,
 ) -> Result<reqwest::blocking::Response, reqwest::Error> {
     let mut request = reqwest::blocking::Client::new().head(url);
-    log::debug!("Checking URL: {}", url);
+    log::debug!("Checking URL: {url}");
     if let Some(timeout) = context.network_timeout {
         request = request.timeout(std::time::Duration::new(timeout, 0));
     }
@@ -234,10 +229,10 @@ pub(crate) fn is_designer_listed(
     context: &Context,
     designer: &str,
 ) -> Result<Option<String>, FontspectorError> {
-    let key = format!("is_designer_listed:{}", designer);
+    let key = format!("is_designer_listed:{designer}");
     let get_func = || {
         // We don't use get_url here because we don't want error_for_status
-        let url = format!("{}/{}/info.pb", DESIGNER_INFO_RAW_URL, designer);
+        let url = format!("{DESIGNER_INFO_RAW_URL}/{designer}/info.pb");
         let mut request = reqwest::blocking::Client::new().get(&url);
         if let Some(timeout) = context.network_timeout {
             request = request.timeout(std::time::Duration::new(timeout, 0));
@@ -261,8 +256,7 @@ pub(crate) fn is_designer_listed(
                 }
             }
             Err(e) => Err(FontspectorError::Network(format!(
-                "Failed to fetch designer info: {}",
-                e
+                "Failed to fetch designer info: {e}"
             ))),
         }
     };

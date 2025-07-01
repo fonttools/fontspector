@@ -95,9 +95,7 @@ fn STAT_in_statics(t: &Testable, _context: &Context) -> CheckFnResult {
         .filter(|&(_axis, count)| { count > 1 })
         .map(|(axis, count)| { Status::fail(
                 "multiple-STAT-entries",
-                &format!("The STAT table has more than a single entry for the '{}' axis ({}) on this static font which will causes problems on Windows.",
-                axis,
-                count)
+                &format!("The STAT table has more than a single entry for the '{axis}' axis ({count}) on this static font which will causes problems on Windows.")
             )}).collect();
     return_result(problems)
 }

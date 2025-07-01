@@ -167,16 +167,16 @@ fn interpolation_issues(t: &Testable, context: &Context) -> CheckFnResult {
     for gid in f.all_glyphs() {
         let glyphname = f.glyph_name_for_id_synthesise(gid);
         let mut default_glyph = interpolatable::Glyph::new_from_font(&font, gid, &[]).ok_or(
-            FontspectorError::General(format!("Can't convert glyph {}", glyphname)),
+            FontspectorError::General(format!("Can't convert glyph {glyphname}")),
         )?;
         default_glyph.master_name = "default".to_string();
         default_glyph.master_index = 0;
         if let Ok(variations) = glyph_variations(&font, gid) {
             for variation in variations {
-                let mut glyph =
-                    interpolatable::Glyph::new_from_font(&font, gid, &variation).ok_or(
-                        FontspectorError::General(format!("Can't convert glyph {}", glyphname)),
-                    )?;
+                let mut glyph = interpolatable::Glyph::new_from_font(&font, gid, &variation)
+                    .ok_or(FontspectorError::General(format!(
+                        "Can't convert glyph {glyphname}"
+                    )))?;
                 glyph.master_name = variation
                     .iter()
                     .map(|v| format!("{}={}", v.selector, v.value))

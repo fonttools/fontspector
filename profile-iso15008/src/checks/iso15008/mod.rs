@@ -67,7 +67,7 @@ fn pair_kerning(contents: &[u8], left: char, right: char) -> Option<i32> {
     // );
     // let kern = f.font().kern()?.pair(left_id, right_id).unwrap_or(0);
     let mut buffer = UnicodeBuffer::new();
-    buffer.push_str(&format!("{}{}", left, right));
+    buffer.push_str(&format!("{left}{right}"));
     #[allow(clippy::unwrap_used)] // Static
     let buffer_with = rustybuzz::shape(
         &face,
@@ -75,7 +75,7 @@ fn pair_kerning(contents: &[u8], left: char, right: char) -> Option<i32> {
         buffer,
     );
     let mut buffer = UnicodeBuffer::new();
-    buffer.push_str(&format!("{}{}", left, right));
+    buffer.push_str(&format!("{left}{right}"));
     #[allow(clippy::unwrap_used)] // Static
     let buffer_without = rustybuzz::shape(
         &face,

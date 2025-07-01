@@ -42,7 +42,7 @@ fn panose_familytype(c: &TestableCollection, _context: &Context) -> CheckFnResul
                 3 => "Latin Script".to_string(),
                 4 => "Latin Decorative".to_string(),
                 5 => "Latin Symbol".to_string(),
-                _ => format!("Unknown ({})", panose_first),
+                _ => format!("Unknown ({panose_first})"),
             };
 
             #[allow(clippy::unwrap_used)]

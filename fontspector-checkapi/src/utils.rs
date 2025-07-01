@@ -11,15 +11,15 @@ where
     let mut items = items.into_iter();
     let first_nine = items.by_ref().take(9);
     let mut list = first_nine
-        .map(|item| format!("* {}", item))
+        .map(|item| format!("* {item}"))
         .collect::<Vec<_>>();
 
     if context.full_lists {
-        list.extend(items.map(|item| format!("* {}", item)));
+        list.extend(items.map(|item| format!("* {item}")));
     } else {
         let remainder = items.count();
         if remainder > 0 {
-            list.push(format!("... and {} others", remainder));
+            list.push(format!("... and {remainder} others"));
         }
     }
     list.join("\n")
@@ -65,10 +65,7 @@ where
         let message = format!(
             "{}\n\nThe following values were found:\n\n{}",
             message_start,
-            bullet_list(
-                _context,
-                values.iter().map(|(_, a, b)| format!("{}: {}", a, b))
-            )
+            bullet_list(_context, values.iter().map(|(_, a, b)| format!("{a}: {b}")))
         );
         if StatusCode::Fail == severity {
             Ok(Status::just_one_fail(code, &message))

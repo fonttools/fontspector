@@ -30,10 +30,7 @@ fn canonical_filename(t: &Testable, _context: &Context) -> CheckFnResult {
     Ok(if current_filename != expected_filename {
         Status::just_one_fail(
             "bad-filename",
-            &format!(
-                "Expected \"{}\". Got \"{}\".",
-                expected_filename, current_filename
-            ),
+            &format!("Expected \"{expected_filename}\". Got \"{current_filename}\"."),
         )
     } else {
         Status::just_one_pass()

@@ -137,7 +137,7 @@ fn soft_dotted(t: &Testable, context: &Context) -> CheckFnResult {
             for above in mark_above_chars.iter().copied() {
                 let (text, unchanged) = if non_above != '\0' {
                     (
-                        format!("{}{}{}", soft, non_above, above),
+                        format!("{soft}{non_above}{above}"),
                         format!(
                             "{}|{}|{}",
                             f.font().charmap().map(soft).unwrap_or_default().to_u32(),
@@ -151,7 +151,7 @@ fn soft_dotted(t: &Testable, context: &Context) -> CheckFnResult {
                     )
                 } else {
                     (
-                        format!("{}{}", soft, above),
+                        format!("{soft}{above}"),
                         format!(
                             "{}|{}",
                             f.font().charmap().map(soft).unwrap_or_default().to_u32(),

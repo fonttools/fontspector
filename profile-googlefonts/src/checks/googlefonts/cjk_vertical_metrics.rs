@@ -407,7 +407,7 @@ fn validate_metric(
     if let Some(value) = actual_value {
         if !close_enough(value, 0.05 * upem, expected_value) {
             problems.push(Status::fail(
-                &format!("bad-{}", tag_name),
+                &format!("bad-{tag_name}"),
                 &format!(
                     "{} for script {} is {:.0}; it should be {:.0} within 5% of upem",
                     tag_name.replace('-', " "),
@@ -419,7 +419,7 @@ fn validate_metric(
         }
     } else {
         problems.push(Status::fail(
-            &format!("missing-{}", tag_name),
+            &format!("missing-{tag_name}"),
             &format!(
                 "{} for script {} should be present",
                 tag_name.replace('-', " "),

@@ -21,10 +21,7 @@ fn stylisticset_description(f: &Testable, _context: &Context) -> CheckFnResult {
             warned.insert(tag.clone());
             problems.push(Status::warn(
                 "missing-description",
-                &format!(
-                    "The stylistic set {} lacks a description string in the name table",
-                    tag
-                ),
+                &format!("The stylistic set {tag} lacks a description string in the name table"),
             ));
         }
     }

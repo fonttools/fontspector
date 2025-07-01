@@ -31,8 +31,7 @@ fn vendor_id(f: &Testable, context: &Context) -> CheckFnResult {
         Ok(Status::just_one_fail(
             "bad-vendor-id",
             &format!(
-                "OS/2 achVendID value '{}' does not match configuration value '{}'",
-                os2_vendor_id, expected_vendor_id
+                "OS/2 achVendID value '{os2_vendor_id}' does not match configuration value '{expected_vendor_id}'"
             ),
         ))
     }

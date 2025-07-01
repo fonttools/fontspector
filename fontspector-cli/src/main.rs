@@ -77,7 +77,7 @@ fn main() {
     ));
 
     let any_reports_to_stdout = reporters::any_stdout(&args).unwrap_or_else(|e| {
-        print!("{}", e);
+        print!("{e}");
         std::process::exit(1);
     });
 
@@ -97,7 +97,7 @@ fn main() {
 
     for plugin_path in args.plugins.iter() {
         if let Err(err) = registry.load_plugin(plugin_path) {
-            log::error!("Could not load plugin {:}: {:}", plugin_path, err);
+            log::error!("Could not load plugin {plugin_path:}: {err:}");
         }
     }
 
@@ -278,7 +278,7 @@ fn list_checks(args: &Args, registry: &Registry<'static>, profile: &fontspector_
         );
     } else {
         for (section, checks) in checks_per_section.iter() {
-            termimad::print_text(&format!("\n# {:}\n\n", section));
+            termimad::print_text(&format!("\n# {section:}\n\n"));
             let mut table = "|Check ID|Title|\n|---|---|\n".to_string();
             for check in checks {
                 #[allow(clippy::unwrap_used)] // We know these keys are present, we made them
@@ -365,12 +365,12 @@ fn try_fixing_stuff(results: &mut RunResults, args: &Args, registry: &Registry) 
 
     for (file, fixes) in fix_binaries.into_iter() {
         let mut testable = Testable::new(&file).unwrap_or_else(|e| {
-            log::error!("Could not load files from {:?}: {:}", file, e);
+            log::error!("Could not load files from {file:?}: {e:}");
             std::process::exit(1)
         });
         let mut modified = false;
         for (id, fix, result) in fixes.into_iter() {
-            log::info!("Trying to fix {} with {}", file, id);
+            log::info!("Trying to fix {file} with {id}");
             result.hotfix_result = match fix(&mut testable) {
                 Ok(hotfix_behaviour) => {
                     modified |= hotfix_behaviour;
@@ -382,7 +382,7 @@ fn try_fixing_stuff(results: &mut RunResults, args: &Args, registry: &Registry) 
         if modified {
             // save it
             testable.save().unwrap_or_else(|e| {
-                log::error!("Could not save file {:?}: {:}", file, e);
+                log::error!("Could not save file {file:?}: {e:}");
                 std::process::exit(1)
             });
         }

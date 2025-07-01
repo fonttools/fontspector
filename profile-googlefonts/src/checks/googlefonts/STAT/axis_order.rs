@@ -59,20 +59,19 @@ fn axis_order(c: &TestableCollection, _context: &Context) -> CheckFnResult {
     if !summary.is_empty() {
         let report = summary
             .iter()
-            .map(|(key, count)| format!("{}: {}", key, count))
+            .map(|(key, count)| format!("{key}: {count}"))
             .collect::<Vec<_>>()
             .join("\n\t");
         results.push(Status::info(
             "summary",
             &format!(
-                "{} of the fonts lack a STAT table.\n\n\tAnd these are the most common STAT axis orderings:\n\t{}",
-                percentage, report
+                "{percentage} of the fonts lack a STAT table.\n\n\tAnd these are the most common STAT axis orderings:\n\t{report}"
             ),
         ));
     } else {
         results.push(Status::info(
             "summary",
-            &format!("{} of the fonts lack a STAT table.", percentage),
+            &format!("{percentage} of the fonts lack a STAT table."),
         ));
     }
     return_result(results)

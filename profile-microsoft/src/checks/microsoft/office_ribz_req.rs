@@ -26,7 +26,7 @@ fn office_ribz_req(t: &Testable, _context: &Context) -> CheckFnResult {
     };
     Ok(
         if !["Regular", "Italic", "Bold", "Bold Italic"].contains(&subfamily_name.as_str()) {
-            Status::just_one_fail("nameid2-invalid", &format!("Name ID 2 (subfamily) invalid: {}; must be one of 'Regular', 'Italic', 'Bold' or 'Bold Italic'", subfamily_name))
+            Status::just_one_fail("nameid2-invalid", &format!("Name ID 2 (subfamily) invalid: {subfamily_name}; must be one of 'Regular', 'Italic', 'Bold' or 'Bold Italic'"))
         } else {
             Status::just_one_pass()
         },

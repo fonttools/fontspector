@@ -73,7 +73,7 @@ fn STAT_strings(t: &Testable, _context: &Context) -> CheckFnResult {
     if !problems.is_empty() {
         Ok(Status::just_one_fail(
             "bad-italic",
-            &format!("The following AxisValue entries on the STAT table should not contain \"Italic\": {}", problems),
+            &format!("The following AxisValue entries on the STAT table should not contain \"Italic\": {problems}"),
         ))
     } else {
         Ok(Status::just_one_pass())

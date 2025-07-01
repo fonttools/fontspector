@@ -38,10 +38,7 @@ fn category(c: &TestableCollection, _context: &Context) -> CheckFnResult {
         {
             problems.push(Status::fail(
                 "bad-value",
-                &format!(
-                    "The field category has \"{}\" which is not valid.",
-                    category_value
-                ),
+                &format!("The field category has \"{category_value}\" which is not valid."),
             ));
         }
     }

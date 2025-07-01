@@ -53,13 +53,13 @@ fn broken_links(c: &Testable, context: &Context) -> CheckFnResult {
         unique_links.push(link.to_string());
         if let Err(error) = get_url(context, &link) {
             if error.is_timeout() {
-                problems.push(Status::warn("timeout", &format!("Timedout while attempting to access: '{}'. Please verify if that's a broken link.", link)));
+                problems.push(Status::warn("timeout", &format!("Timedout while attempting to access: '{link}'. Please verify if that's a broken link.")));
             } else if error.status() == Some(StatusCode::TOO_MANY_REQUESTS) {
                 // Probably OK
             } else if let Some(status) = error.status() {
-                broken.push(format!("{} (status code: {})", link, status));
+                broken.push(format!("{link} (status code: {status})"));
             } else {
-                broken.push(format!("{} (error: {})", link, error));
+                broken.push(format!("{link} (error: {error})"));
             }
         }
     }
@@ -69,13 +69,13 @@ fn broken_links(c: &Testable, context: &Context) -> CheckFnResult {
     if !repo_url.is_empty() && !unique_links.contains(&repo_url.to_string()) {
         if let Err(error) = get_url(context, repo_url) {
             if error.is_timeout() {
-                problems.push(Status::warn("timeout", &format!("Timedout while attempting to access: '{}'. Please verify if that's a broken link.", repo_url)));
+                problems.push(Status::warn("timeout", &format!("Timedout while attempting to access: '{repo_url}'. Please verify if that's a broken link.")));
             } else if error.status() == Some(StatusCode::TOO_MANY_REQUESTS) {
                 // Probably OK
             } else {
                 problems.push(Status::fail(
                     "broken-repo-url",
-                    &format!("The repository url {} is broken: {}", repo_url, error),
+                    &format!("The repository url {repo_url} is broken: {error}"),
                 ));
             }
         }

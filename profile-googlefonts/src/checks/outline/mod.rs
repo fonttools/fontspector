@@ -36,7 +36,7 @@ pub(crate) fn name_and_bezglyph<'a>(
     f.all_glyphs().map(move |glyph| {
         let mut name = f.glyph_name_for_id_synthesise(glyph);
         if let Some(cp) = reverse_char_map.get(&glyph) {
-            name = format!("{} (U+{:04X})", name, cp);
+            name = format!("{name} (U+{cp:04X})");
         }
         let mut pen = BezGlyph::default();
         let result = f.draw_glyph(glyph, &mut pen, DEFAULT_LOCATION);

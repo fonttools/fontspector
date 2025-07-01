@@ -45,7 +45,7 @@ fn consistent_with_fonts(c: &TestableCollection, _context: &Context) -> CheckFnR
         {
             problems.push(Status::fail(
             "file-not-found",
-            &format!("Filename \"{}\" is listed on METADATA.pb but an actual font file with that name was not found.", declared_not_present),
+            &format!("Filename \"{declared_not_present}\" is listed on METADATA.pb but an actual font file with that name was not found."),
         ));
         }
         for provided_not_declared in provided_files
@@ -55,8 +55,7 @@ fn consistent_with_fonts(c: &TestableCollection, _context: &Context) -> CheckFnR
             problems.push(Status::fail(
                 "file-not-declared",
                 &format!(
-                    "Filename \"{}\" is not declared on METADATA.pb as a font.filename entry.",
-                    provided_not_declared
+                    "Filename \"{provided_not_declared}\" is not declared on METADATA.pb as a font.filename entry."
                 ),
             ));
         }

@@ -33,13 +33,10 @@ fn distinct_instance_records(t: &Testable, _context: &Context) -> CheckFnResult 
             let subfamily = f
                 .get_name_entry_strings(subfamily_name_id)
                 .next()
-                .unwrap_or_else(|| format!("ID {}", subfamily_name_id));
+                .unwrap_or_else(|| format!("ID {subfamily_name_id}"));
             problems.push(Status::warn(
                 &format!("repeated-instance-record:{subfamily}"),
-                &format!(
-                    "Instance {} with coordinates {:?} is duplicated",
-                    subfamily, coords
-                ),
+                &format!("Instance {subfamily} with coordinates {coords:?} is duplicated"),
             ));
         } else {
             unique_records.insert(instance_data);

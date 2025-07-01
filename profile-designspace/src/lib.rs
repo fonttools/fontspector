@@ -22,7 +22,7 @@ fn path_direction(t: &Testable, _context: &Context) -> CheckFnResult {
     let ds_contents = std::str::from_utf8(&t.contents)
         .map_err(|_| FontspectorError::General("designspace is not valid UTF-8".to_string()))?;
     let ds = quick_xml::de::from_str::<norad::designspace::DesignSpaceDocument>(ds_contents)
-        .map_err(|e| FontspectorError::General(format!("Failed to parse designspace: {}", e)))?;
+        .map_err(|e| FontspectorError::General(format!("Failed to parse designspace: {e}")))?;
     #[allow(clippy::unwrap_used)] // Life is short
     let dirname = t.filename.parent().unwrap();
     let master_names = ds.sources.iter().map(|s| &s.filename).collect::<Vec<_>>();

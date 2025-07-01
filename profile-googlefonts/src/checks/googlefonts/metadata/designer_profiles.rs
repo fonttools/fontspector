@@ -62,7 +62,7 @@ fn normalize_designer_name(designer: &str) -> String {
 )]
 fn designer_profiles(c: &Testable, context: &Context) -> CheckFnResult {
     let msg = family_proto(c).map_err(|e| {
-        FontspectorError::General(format!("METADATA.pb is not a valid FamilyProto: {:?}", e))
+        FontspectorError::General(format!("METADATA.pb is not a valid FamilyProto: {e:?}"))
     })?;
     skip!(
         context.skip_network,
@@ -88,7 +88,7 @@ fn designer_profiles(c: &Testable, context: &Context) -> CheckFnResult {
             let designer_profile = protobuf::text_format::parse_from_str::<DesignerInfoProto>(
                 &profile,
             )
-            .map_err(|e| FontspectorError::General(format!("Error parsing info.pb: {}", e)))?;
+            .map_err(|e| FontspectorError::General(format!("Error parsing info.pb: {e}")))?;
             if normalize_designer_name(designer_profile.designer()) != designer {
                 problems.push(Status::warn(
                         "mismatch",
@@ -112,8 +112,7 @@ fn designer_profiles(c: &Testable, context: &Context) -> CheckFnResult {
                 problems.push(Status::warn(
                     "missing-avatar",
                     &format!(
-                        "Designer {} still does not have an avatar image. Please provide one.",
-                        designer
+                        "Designer {designer} still does not have an avatar image. Please provide one."
                     ),
                 ));
             } else {
@@ -125,16 +124,14 @@ fn designer_profiles(c: &Testable, context: &Context) -> CheckFnResult {
                 );
                 let response = reqwest::blocking::get(&avatar_url).map_err(|e| {
                     FontspectorError::General(format!(
-                        "Error fetching avatar image from {}: {}",
-                        avatar_url, e
+                        "Error fetching avatar image from {avatar_url}: {e}"
                     ))
                 })?;
                 if !response.status().is_success() {
                     problems.push(Status::warn(
                         "bad-avatar-filename",
                         &format!(
-                            "The avatar filename provided seems to be incorrect: ({})",
-                            avatar_url
+                            "The avatar filename provided seems to be incorrect: ({avatar_url})"
                         ),
                     ));
                 }
@@ -143,8 +140,7 @@ fn designer_profiles(c: &Testable, context: &Context) -> CheckFnResult {
             problems.push(Status::warn(
                     "profile-not-found",
                     &format!(
-                        "It seems that {} is still not listed on the designers catalog. Please submit a photo and a link to a webpage where people can learn more about the work of this designer/typefoundry.",
-                        designer
+                        "It seems that {designer} is still not listed on the designers catalog. Please submit a photo and a link to a webpage where people can learn more about the work of this designer/typefoundry."
                     ),
                 ),
             );

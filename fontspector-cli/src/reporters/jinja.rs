@@ -99,7 +99,7 @@ impl JinjaTemplatedReporter {
             template_directory
         ))
         .unwrap_or_else(|e| {
-            log::error!("Error parsing {} templates: {:?}", name, e);
+            log::error!("Error parsing {name} templates: {e:?}");
             std::process::exit(1);
         });
         tera.register_filter("percent", percent_of);
@@ -150,8 +150,7 @@ impl Reporter for JinjaTemplatedReporter {
                     return Ok(true);
                 }
                 let value = value.as_str().ok_or(tera::Error::msg(format!(
-                    "'omitted' tester requires a string value, not {:?}",
-                    value
+                    "'omitted' tester requires a string value, not {value:?}"
                 )))?;
                 let Some(status) = StatusCode::from_string(value) else {
                     return Err(tera::Error::msg(format!(
@@ -256,7 +255,7 @@ impl Reporter for JinjaTemplatedReporter {
                 std::process::exit(1);
             });
         if self.filename == "-" {
-            let _ = writeln!(std::io::stdout(), "{}", rendered);
+            let _ = writeln!(std::io::stdout(), "{rendered}");
             return;
         }
         std::fs::write(&self.filename, rendered).unwrap_or_else(|e| {

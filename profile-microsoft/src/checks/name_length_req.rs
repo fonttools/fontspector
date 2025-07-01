@@ -24,7 +24,7 @@ fn name_length_req(t: &Testable, _context: &Context) -> CheckFnResult {
             {
                 family_name
             } else {
-                format!("{} {}", family_name, subfamily_name)
+                format!("{family_name} {subfamily_name}")
             };
             if logfont.len() > 31 {
                 Status::just_one_fail(

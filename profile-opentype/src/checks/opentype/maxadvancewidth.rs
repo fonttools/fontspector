@@ -26,8 +26,7 @@ fn maxadvancewidth(t: &Testable, _context: &Context) -> CheckFnResult {
         Status::just_one_fail(
             "mismatch",
             &format!(
-                "AdvanceWidthMax mismatch: expected {} from hmtx; got {} for hhea",
-                hmtx_advance_width_max, hhea_advance_width_max
+                "AdvanceWidthMax mismatch: expected {hmtx_advance_width_max} from hmtx; got {hhea_advance_width_max} for hhea"
             ),
         )
     } else {

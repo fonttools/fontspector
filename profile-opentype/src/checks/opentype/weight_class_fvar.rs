@@ -23,10 +23,7 @@ fn weight_class_fvar(t: &Testable, _context: &Context) -> CheckFnResult {
     if os2_value != fvar_value as u16 {
         return Ok(Status::just_one_fail(
             "bad-weight-class",
-            &format!(
-                "OS/2 usWeightClass is {}, but fvar default is {}",
-                os2_value, fvar_value
-            ),
+            &format!("OS/2 usWeightClass is {os2_value}, but fvar default is {fvar_value}"),
         ));
     }
 

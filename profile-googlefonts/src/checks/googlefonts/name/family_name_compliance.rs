@@ -65,8 +65,7 @@ fn family_name_compliance(t: &Testable, _context: &Context) -> CheckFnResult {
         problems.push(Status::fail(
             "camelcase",
             &format!(
-                "\"{}\" is a CamelCased name. To solve this, simply use spaces instead in the font name.",
-                family_name
+                "\"{family_name}\" is a CamelCased name. To solve this, simply use spaces instead in the font name."
             ),
         ));
     }
@@ -80,7 +79,7 @@ fn family_name_compliance(t: &Testable, _context: &Context) -> CheckFnResult {
     {
         problems.push(Status::fail(
             "abbreviation",
-            &format!("\"{}\" contains an abbreviation.", family_name),
+            &format!("\"{family_name}\" contains an abbreviation."),
         ));
     }
 
@@ -95,8 +94,7 @@ fn family_name_compliance(t: &Testable, _context: &Context) -> CheckFnResult {
         problems.push(Status::fail(
             "forbidden-characters",
             &format!(
-                "\"{}\" contains the following characters which are not allowed: \"{}\".",
-                family_name, forbidden_characters
+                "\"{family_name}\" contains the following characters which are not allowed: \"{forbidden_characters}\"."
             ),
         ));
     }
@@ -104,10 +102,7 @@ fn family_name_compliance(t: &Testable, _context: &Context) -> CheckFnResult {
     if !family_name.starts_with(|c: char| c.is_ascii_uppercase()) {
         problems.push(Status::fail(
             "starts-with-not-uppercase",
-            &format!(
-                "\"{}\" doesn't start with an uppercase letter.",
-                family_name
-            ),
+            &format!("\"{family_name}\" doesn't start with an uppercase letter."),
         ));
     }
     return_result(problems)

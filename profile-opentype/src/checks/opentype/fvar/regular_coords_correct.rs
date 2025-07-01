@@ -45,8 +45,7 @@ fn regular_coords_correct(t: &Testable, _context: &Context) -> CheckFnResult {
                     problems.push(Status::fail(
                         &format!("{axis}-not-{expected:0}"),
                         &format!(
-                            "Regular instance has {} coordinate of {}, expected {}",
-                            axis, actual, expected
+                            "Regular instance has {axis} coordinate of {actual}, expected {expected}"
                         ),
                     ));
                 }
@@ -58,8 +57,7 @@ fn regular_coords_correct(t: &Testable, _context: &Context) -> CheckFnResult {
                 problems.push(Status::warn(
                     "opsz",
                     &format!(
-                        "Regular instance has opsz coordinate of {}, expected between 10 and 16",
-                        actual
+                        "Regular instance has opsz coordinate of {actual}, expected between 10 and 16"
                     ),
                 ));
             }

@@ -84,11 +84,11 @@ fn italic_angle(t: &Testable, context: &Context) -> CheckFnResult {
     if let Some(calculated_italic_angle) = calculated_italic_angle {
         if calculated_italic_angle < 0.1 && value > 0.0 {
             problems.push(Status::warn("positive",
-                &format!("The value of post.italicAngle is positive, which is likely a mistake and should become negative for right-leaning Italics.\npost.italicAngle: {}\nangle calculated from outlines: {:.1})",value, calculated_italic_angle)));
+                &format!("The value of post.italicAngle is positive, which is likely a mistake and should become negative for right-leaning Italics.\npost.italicAngle: {value}\nangle calculated from outlines: {calculated_italic_angle:.1})")));
         }
         if calculated_italic_angle > 0.1 && value < 0.0 {
             problems.push(Status::warn("negative",
-                &format!("The value of post.italicAngle is negative, which is likely a mistake and should become positive for left-leaning Italics.\npost.italicAngle: {}\nangle calculated from outlines: {:.1})",value, calculated_italic_angle)));
+                &format!("The value of post.italicAngle is negative, which is likely a mistake and should become positive for left-leaning Italics.\npost.italicAngle: {value}\nangle calculated from outlines: {calculated_italic_angle:.1})")));
         }
     } else {
         // Fall back to checking it's positive
@@ -106,12 +106,12 @@ fn italic_angle(t: &Testable, context: &Context) -> CheckFnResult {
     if value.abs() > 30.0 {
         problems.push(Status::warn(
             "over-30-degrees",
-            &format!("The value of post.italicAngle ({}) is very high (over -30° or 30°, and should be confirmed.", value),
+            &format!("The value of post.italicAngle ({value}) is very high (over -30° or 30°, and should be confirmed."),
         ))
     } else if value.abs() > 20.0 {
         problems.push(Status::warn(
             "over-20-degrees",
-            &format!("The value of post.italicAngle ({}) seem very high (over -20° or 20°, and should be confirmed.", value),
+            &format!("The value of post.italicAngle ({value}) seem very high (over -20° or 20°, and should be confirmed."),
         ))
     }
     if let Some(style) = f.style() {

@@ -29,7 +29,7 @@ impl Reporter for JsonReporter {
                     checkresults
                         .serialize(serde_json::value::Serializer)
                         .unwrap_or_else(|e| {
-                            log::error!("Error serializing JSON report: {:}", e);
+                            log::error!("Error serializing JSON report: {e:}");
                             std::process::exit(1);
                         }),
                 );
@@ -42,12 +42,12 @@ impl Reporter for JsonReporter {
         });
 
         let report = serde_json::to_string_pretty(&output).unwrap_or_else(|e| {
-            log::error!("Error serializing JSON report: {:}", e);
+            log::error!("Error serializing JSON report: {e:}");
             std::process::exit(1);
         });
 
         if self.filename == "-" {
-            println!("{}", report);
+            println!("{report}");
             return;
         }
 

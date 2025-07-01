@@ -37,7 +37,7 @@ use fontspector_checkapi::prelude::*;
 )]
 fn OFL_copyright(t: &Testable, _context: &Context) -> CheckFnResult {
     let license_contents = String::from_utf8(t.contents.clone())
-        .map_err(|e| FontspectorError::General(format!("OFL.txt is not valid UTF-8: {:?}", e)))?
+        .map_err(|e| FontspectorError::General(format!("OFL.txt is not valid UTF-8: {e:?}")))?
         .trim()
         .split("\n")
         .next()
@@ -45,8 +45,7 @@ fn OFL_copyright(t: &Testable, _context: &Context) -> CheckFnResult {
         .to_lowercase();
     if !EXPECTED_COPYRIGHT_PATTERN.is_match(&license_contents) {
         return Ok(Status::just_one_fail("bad-format",
-          &format!("First line in license file is:\n\n\"{}\"\n\nwhich does not match the expected format, similar to:\n\n\"Copyright 2022 The Familyname Project Authors (git url)\"",
-          license_contents)));
+          &format!("First line in license file is:\n\n\"{license_contents}\"\n\nwhich does not match the expected format, similar to:\n\n\"Copyright 2022 The Familyname Project Authors (git url)\"")));
     }
     Ok(Status::just_one_pass())
 }

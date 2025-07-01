@@ -51,7 +51,8 @@ fn register_profiles<'a>() -> Registry<'a> {
         .register(&mut registry)
         .expect("Couldn't register Fontwerk profile, fontspector bug");
 
-    for (name, toml) in [("fontbureau", include_str!("../../profiles/fontbureau.toml"))] {
+    {
+        let (name, toml) = ("fontbureau", include_str!("../../profiles/fontbureau.toml"));
         let profile = Profile::from_toml(toml).expect("Couldn't load profile, fontspector bug");
         registry
             .register_profile(name, profile)
@@ -82,7 +83,7 @@ pub fn check_fonts(fonts: &JsValue, profile: &str) -> Result<String, JsValue> {
 
     let profile = registry
         .get_profile(profile)
-        .ok_or_else(|| format!("Could not find profile {:?}", profile))?;
+        .ok_or_else(|| format!("Could not find profile {profile:?}"))?;
     let context = Context {
         skip_network: true,
         network_timeout: None,

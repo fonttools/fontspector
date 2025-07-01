@@ -36,7 +36,7 @@ fn colinear_vectors(t: &Testable, context: &Context) -> CheckFnResult {
                     let prev_angle = (prev.p1 - prev.p0).angle();
                     let next_angle = (next.p1 - next.p0).angle();
                     if (prev_angle - next_angle).abs() < COLINEAR_EPSILON {
-                        all_warnings.push(format!("{}: {:?} -> {:?}", name, prev, next));
+                        all_warnings.push(format!("{name}: {prev:?} -> {next:?}"));
                     }
                 }
             }

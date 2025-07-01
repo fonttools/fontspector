@@ -44,10 +44,7 @@ fn arabic_spacing_symbols(t: &Testable, _context: &Context) -> CheckFnResult {
             if f.gdef_class(gid) == GlyphClassDef::Mark {
                 problems.push(Status::fail(
                     "gdef-mark",
-                    &format!(
-                        "U+{:04X} is defined in GDEF as a mark (class 3).",
-                        codepoint
-                    ),
+                    &format!("U+{codepoint:04X} is defined in GDEF as a mark (class 3)."),
                 ));
             }
         }

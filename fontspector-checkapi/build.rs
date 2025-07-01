@@ -26,12 +26,9 @@ fn out_dir_path(name: &str) -> PathBuf {
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Fetch and parse script tags
-    let script_response = minreq::get(SCRIPT_TAGS_URL).send().map_err(|e| {
-        format!(
-            "Failed to fetch OpenType script tags from {}: {}",
-            SCRIPT_TAGS_URL, e
-        )
-    })?;
+    let script_response = minreq::get(SCRIPT_TAGS_URL)
+        .send()
+        .map_err(|e| format!("Failed to fetch OpenType script tags from {SCRIPT_TAGS_URL}: {e}"))?;
     let script_html = Html::parse_document(script_response.as_str()?);
     #[allow(clippy::unwrap_used)] // it's a constant!
     let table_selector = Selector::parse("table").unwrap();
@@ -68,12 +65,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     // Fetch and parse language tags
-    let lang_response = minreq::get(LANG_TAGS_URL).send().map_err(|e| {
-        format!(
-            "Failed to fetch OpenType language tags from {}: {}",
-            LANG_TAGS_URL, e
-        )
-    })?;
+    let lang_response = minreq::get(LANG_TAGS_URL)
+        .send()
+        .map_err(|e| format!("Failed to fetch OpenType language tags from {LANG_TAGS_URL}: {e}"))?;
     let lang_html = Html::parse_document(lang_response.as_str()?);
 
     let mut language_tags = vec![];
@@ -112,7 +106,7 @@ pub const VALID_SCRIPT_TAGS: [&str; {}] = [ {} ];",
         script_tags.len(),
         script_tags
             .iter()
-            .map(|tag| format!("\"{}\"", tag))
+            .map(|tag| format!("\"{tag}\""))
             .collect::<Vec<_>>()
             .join(", "),
     )?;
@@ -126,7 +120,7 @@ pub const VALID_LANG_TAGS: [&str; {}] = [ {} ];",
         language_tags.len(),
         language_tags
             .iter()
-            .map(|tag| format!("\"{}\"", tag))
+            .map(|tag| format!("\"{tag}\""))
             .collect::<Vec<_>>()
             .join(", "),
     )?;

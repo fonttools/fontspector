@@ -21,14 +21,14 @@ pub(crate) fn register_and_return_toml_profile(
     let name = path.file_stem().unwrap_or_default().to_string_lossy();
     match std::fs::File::open(&path) {
         Ok(mut file) => {
-            log::info!("Loading profile from file {:?}", name);
+            log::info!("Loading profile from file {name:?}");
             let mut toml = String::new();
             if let Err(e) = file.read_to_string(&mut toml) {
-                log::error!("Could not read profile {:}: {:}", name, e);
+                log::error!("Could not read profile {name:}: {e:}");
                 std::process::exit(1);
             }
             let profile: Profile = Profile::from_toml(&toml).unwrap_or_else(|e| {
-                log::error!("Could not parse profile {:}: {:}", name, e);
+                log::error!("Could not parse profile {name:}: {e:}");
                 std::process::exit(1);
             });
 
@@ -45,7 +45,7 @@ pub(crate) fn register_and_return_toml_profile(
             registry
                 .register_profile(&name, profile)
                 .unwrap_or_else(|e| {
-                    log::error!("Could not register profile {:}: {:}", name, e);
+                    log::error!("Could not register profile {name:}: {e:}");
                     std::process::exit(1);
                 });
         }

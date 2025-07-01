@@ -43,7 +43,7 @@ fn font_names(t: &Testable, _context: &Context) -> CheckFnResult {
 
     let expected_font_data = build_expected_font(&f, &[])?;
     let expected_font = TestFont::new_from_data(&t.filename, &expected_font_data).map_err(|e| {
-        FontspectorError::General(format!("Couldn't build expected font from data: {}", e))
+        FontspectorError::General(format!("Couldn't build expected font from data: {e}"))
     })?;
     let mut ok = true;
     let mut md_table = Builder::new();
@@ -67,8 +67,8 @@ fn font_names(t: &Testable, _context: &Context) -> CheckFnResult {
             ));
         }
         if current != expected {
-            row.push(format!("**{}**", current));
-            row.push(format!("**{}**", expected));
+            row.push(format!("**{current}**"));
+            row.push(format!("**{expected}**"));
             ok = false;
         } else {
             row.push(current);
@@ -95,7 +95,7 @@ fn fix_font_names(t: &mut Testable) -> FixFnResult {
         return Ok(false);
     }
     let new_binary = build_name_table(f.font(), None, None, &[], None)
-        .map_err(|e| FontspectorError::Fix(format!("Couldn't build name table: {}", e)))?;
+        .map_err(|e| FontspectorError::Fix(format!("Couldn't build name table: {e}")))?;
     t.set(new_binary);
     Ok(true)
 }

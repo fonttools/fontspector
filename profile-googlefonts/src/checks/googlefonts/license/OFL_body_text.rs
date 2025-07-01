@@ -16,7 +16,7 @@ use crate::constants::OFL_BODY_TEXT;
 )]
 fn OFL_body_text(t: &Testable, _context: &Context) -> CheckFnResult {
     let mut license_contents = String::from_utf8(t.contents.clone())
-        .map_err(|e| FontspectorError::General(format!("OFL.txt is not valid UTF-8: {:?}", e)))?;
+        .map_err(|e| FontspectorError::General(format!("OFL.txt is not valid UTF-8: {e:?}")))?;
     if license_contents.ends_with('\n') {
         license_contents.pop();
     }

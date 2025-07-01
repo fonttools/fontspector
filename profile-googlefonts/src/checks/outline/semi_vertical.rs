@@ -39,7 +39,7 @@ fn semi_vertical(t: &Testable, context: &Context) -> CheckFnResult {
                     let angle = (line.p1 - line.p0).angle().to_degrees();
                     for y_expected in [-180.0, -90.0, 0.0, 90.0, 180.0] {
                         if close_but_not_on(angle, y_expected, 0.5) {
-                            all_warnings.push(format!("{}: {:?}", name, seg));
+                            all_warnings.push(format!("{name}: {seg:?}"));
                         }
                     }
                 }

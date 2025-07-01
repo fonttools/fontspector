@@ -24,8 +24,7 @@ fn unitsperem(f: &Testable, _context: &Context) -> CheckFnResult {
             Ok(Status::just_one_fail(
                 "out-of-range",
                 &format!(
-                    "unitsPerEm value must be a value between 16 and 16384. {} is out of range",
-                    bad_upem
+                    "unitsPerEm value must be a value between 16 and 16384. {bad_upem} is out of range"
                 ),
             ))
         }
@@ -34,7 +33,7 @@ fn unitsperem(f: &Testable, _context: &Context) -> CheckFnResult {
         }
         upem => Ok(Status::just_one_warn(
             "suboptimal",
-            &format!("In order to optimize performance on some legacy renderers, the value of unitsPerEm at the head table should ideally be a power of 2 between 16 to 16384. And values of 1000 and 2000 are also common and may be just fine as well. But we got {} instead.", upem),
+            &format!("In order to optimize performance on some legacy renderers, the value of unitsPerEm at the head table should ideally be a power of 2 between 16 to 16384. And values of 1000 and 2000 are also common and may be just fine as well. But we got {upem} instead."),
         )),
     }
 }

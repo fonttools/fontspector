@@ -49,7 +49,7 @@ fn family_vertical_metrics(c: &TestableCollection, context: &Context) -> CheckFn
         } else {
             problems.push(Status::fail(
                 "lacks-OS/2",
-                &format!("{} lacks an 'OS/2' table.", basename),
+                &format!("{basename} lacks an 'OS/2' table."),
             ));
         }
         if let Ok(hhea) = font.font().hhea() {
@@ -68,7 +68,7 @@ fn family_vertical_metrics(c: &TestableCollection, context: &Context) -> CheckFn
         } else {
             problems.push(Status::fail(
                 "lacks-hhea",
-                &format!("{} lacks a 'hhea' table.", basename),
+                &format!("{basename} lacks a 'hhea' table."),
             ));
         }
         font_names.push(basename);
@@ -82,7 +82,7 @@ fn family_vertical_metrics(c: &TestableCollection, context: &Context) -> CheckFn
         let all_the_same = values.iter().all(|a| a == &values[0]);
         if !all_the_same {
             problems.push(Status::fail(
-                &format!("{}-mismatch", key),
+                &format!("{key}-mismatch"),
                 &format!(
                     "{} is not the same across the family: {}",
                     key,
@@ -91,7 +91,7 @@ fn family_vertical_metrics(c: &TestableCollection, context: &Context) -> CheckFn
                         values
                             .iter()
                             .zip(font_names.iter())
-                            .map(|(a, b)| format!("{}: {}", b, a))
+                            .map(|(a, b)| format!("{b}: {a}"))
                     )
                 ),
             ))

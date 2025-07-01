@@ -80,8 +80,7 @@ fn validate(c: &Testable, _context: &Context) -> CheckFnResult {
         if designer.contains('/') {
             problems.push(Status::fail("slash",
                     &format!(
-                    "Font designer field contains a forward slash '{}'. Please use commas to separate multiple names instead.",
-                    designer
+                    "Font designer field contains a forward slash '{designer}'. Please use commas to separate multiple names instead."
                 )));
         }
     }

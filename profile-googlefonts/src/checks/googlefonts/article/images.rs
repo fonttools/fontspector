@@ -48,7 +48,7 @@ fn images(c: &TestableCollection, _context: &Context) -> CheckFnResult {
                 let Some(file) = c.get_file(&src) else {
                     problems.push(Status::error(
                         Some("missing-visual-file"),
-                        &format!("Visual asset file is missing: {}", src),
+                        &format!("Visual asset file is missing: {src}"),
                     ));
                     continue;
                 };
@@ -57,8 +57,7 @@ fn images(c: &TestableCollection, _context: &Context) -> CheckFnResult {
                     problems.push(Status::fail(
                         "filesize",
                         &format!(
-                            "`{}` has `{}` bytes, but the maximum filesize for {} images is `{}` bytes.",
-                            src, filesize, image_type, max_size
+                            "`{src}` has `{filesize}` bytes, but the maximum filesize for {image_type} images is `{max_size}` bytes."
                         ),
                     ));
                 }
@@ -67,8 +66,7 @@ fn images(c: &TestableCollection, _context: &Context) -> CheckFnResult {
                         problems.push(Status::fail(
                         "image-too-large",
                         &format!(
-                            "Image {}, is too large: `{}` x `{}` pixels`\n\nMax resolution allowed: `{}` x `{}` pixels",
-                            src, w, h, max_width, max_height
+                            "Image {src}, is too large: `{w}` x `{h}` pixels`\n\nMax resolution allowed: `{max_width}` x `{max_height}` pixels"
                         ),
                     ));
                     }

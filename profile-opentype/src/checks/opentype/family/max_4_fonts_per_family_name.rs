@@ -36,8 +36,7 @@ fn max_4_fonts_per_family_name(t: &TestableCollection, _context: &Context) -> Ch
             problems.push(Status::fail(
                 "too-many",
                 &format!(
-                    "Family name '{}' has {} fonts, which is more than the maximum of 4",
-                    family_name, count
+                    "Family name '{family_name}' has {count} fonts, which is more than the maximum of 4"
                 ),
             ));
         }

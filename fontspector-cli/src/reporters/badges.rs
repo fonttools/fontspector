@@ -27,7 +27,7 @@ impl BadgesReporter {
         // Create the directory if it doesn't exist
         if !std::path::Path::new(directory).exists() {
             std::fs::create_dir_all(directory).unwrap_or_else(|e| {
-                eprintln!("Error creating directory: {}", e);
+                eprintln!("Error creating directory: {e}");
                 exit(1);
             });
         }
@@ -42,7 +42,7 @@ impl BadgesReporter {
             ("ERRORED".to_string(), "red".to_string())
         } else if out_of > 0 {
             let percentage = score as f32 / out_of as f32 * 100.0;
-            (format!("{:.0}%", percentage), color_for(percentage))
+            (format!("{percentage:.0}%"), color_for(percentage))
         } else {
             ("SKIP".to_string(), "inactive".to_string())
         };
@@ -54,11 +54,11 @@ impl BadgesReporter {
         });
         let file_path = format!("{}/{}", self.directory, filename);
         let file = std::fs::File::create(file_path).unwrap_or_else(|e| {
-            eprintln!("Error creating file: {}", e);
+            eprintln!("Error creating file: {e}");
             exit(1);
         });
         serde_json::to_writer_pretty(file, &result).unwrap_or_else(|e| {
-            eprintln!("Error writing to file: {}", e);
+            eprintln!("Error writing to file: {e}");
             exit(1);
         });
     }

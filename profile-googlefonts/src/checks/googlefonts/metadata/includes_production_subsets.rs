@@ -21,7 +21,7 @@ fn includes_production_subsets(c: &Testable, context: &Context) -> CheckFnResult
     );
     let msg = family_proto(c)?;
     let production_metadata = production_metadata(context).map_err(|e| {
-        FontspectorError::General(format!("Failed to fetch production metadata: {:?}", e))
+        FontspectorError::General(format!("Failed to fetch production metadata: {e:?}"))
     })?;
     let prod_subsets = production_metadata
         .get("familyMetadataList")

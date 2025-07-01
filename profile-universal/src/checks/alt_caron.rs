@@ -70,7 +70,7 @@ fn alt_caron(t: &Testable, context: &Context) -> CheckFnResult {
                 match glyph {
                     Glyph::Simple(_) => {
                         let name = f.glyph_name_for_id_synthesise(gid);
-                        problems.push(Status::warn("decomposed-outline",&format!("{} is decomposed and therefore could not be checked. Please check manually.", name)));
+                        problems.push(Status::warn("decomposed-outline",&format!("{name} is decomposed and therefore could not be checked. Please check manually.")));
                     }
                     Glyph::Composite(composite) => {
                         if composite.components().count() == 1 {

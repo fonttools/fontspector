@@ -37,7 +37,7 @@ impl ShapingTest {
     pub(crate) fn note(&self) -> String {
         self.note
             .as_ref()
-            .map(|n| format!(" ({})", n))
+            .map(|n| format!(" ({n})"))
             .unwrap_or_default()
     }
 }

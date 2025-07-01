@@ -14,7 +14,7 @@ fn postscript_name(t: &Testable, _context: &Context) -> CheckFnResult {
         if !name.chars().all(|c| c.is_ascii_alphanumeric() || c == '-') {
             problems.push(Status::fail(
                 "bad-psname-entries",
-                &format!("PostScript name '{}' contains invalid characters", name),
+                &format!("PostScript name '{name}' contains invalid characters"),
             ));
         }
     }

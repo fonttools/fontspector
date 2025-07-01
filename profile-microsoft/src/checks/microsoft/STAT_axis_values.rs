@@ -39,10 +39,7 @@ fn STAT_axis_values(t: &Testable, _context: &Context) -> CheckFnResult {
         if axis_values_format1.contains(&key) {
             problems.push(Status::fail(
                 "not-unique",
-                &format!(
-                    "axis value {} (format 1) for axis #{axis_index} is not unique",
-                    axis_value
-                ),
+                &format!("axis value {axis_value} (format 1) for axis #{axis_index} is not unique"),
             ));
         } else {
             axis_values_format1.push(key);

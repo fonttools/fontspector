@@ -30,8 +30,7 @@ fn direction(t: &Testable, context: &Context) -> CheckFnResult {
         for (i, my_bounds) in bounds.iter().enumerate() {
             if my_bounds.is_zero_area() {
                 all_warnings.push(format!(
-                    "{} has a path with no bounds (probably a single point)",
-                    name
+                    "{name} has a path with no bounds (probably a single point)"
                 ));
                 continue;
             }
@@ -53,7 +52,7 @@ fn direction(t: &Testable, context: &Context) -> CheckFnResult {
             #[allow(clippy::indexing_slicing)]
             // is_within is initialized with the same length as bounds
             if is_within[i].is_empty() && path.area() > 0.0 {
-                all_warnings.push(format!("{} has a counter-clockwise outer contour", name));
+                all_warnings.push(format!("{name} has a counter-clockwise outer contour"));
             }
         }
     }

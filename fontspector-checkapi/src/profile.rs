@@ -121,7 +121,7 @@ impl Profile {
                     }
                 }
             } else {
-                return Err(format!("Unknown profile: {}", included_profile_str));
+                return Err(format!("Unknown profile: {included_profile_str}"));
             }
         }
 
@@ -189,7 +189,7 @@ impl Profile {
                 if registry.checks.contains_key(check_id) {
                     sections_and_checks.push((section_name, check_id))
                 } else {
-                    log::warn!("Unknown check: {}", check_id);
+                    log::warn!("Unknown check: {check_id}");
                 }
             }
         }
@@ -267,7 +267,7 @@ impl<'a> ProfileBuilder<'a> {
         if !self.profile.sections.contains_key(name) {
             self.profile.sections.insert(name.to_string(), vec![]);
         } else {
-            log::warn!("Section {} already exists", name);
+            log::warn!("Section {name} already exists");
         }
         self
     }

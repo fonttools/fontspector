@@ -85,8 +85,7 @@ fn contour_count(t: &Testable, context: &Context) -> CheckFnResult {
                     zero_contours.push(name);
                 } else if !data.contains(&count) {
                     bad_glyphs.push(format!(
-                        "{} (U+{:04X}): found {}, expected one of: {:?}",
-                        name, codepoint, count, data
+                        "{name} (U+{codepoint:04X}): found {count}, expected one of: {data:?}"
                     ));
                 }
             }
@@ -100,8 +99,7 @@ fn contour_count(t: &Testable, context: &Context) -> CheckFnResult {
                     zero_contours.push(name);
                 } else if !data.contains(&count) {
                     bad_glyphs.push(format!(
-                        "{} (unencoded): found {}, expected one of: {:?}",
-                        name, count, data
+                        "{name} (unencoded): found {count}, expected one of: {data:?}"
                     ));
                 }
             }

@@ -47,7 +47,7 @@ fn varfont_instances_in_order(t: &Testable, context: &Context) -> CheckFnResult 
                         context,
                         sublist.iter().map(|coords| coords
                             .iter()
-                            .map(|(k, v)| format!("{}={}", k, v))
+                            .map(|(k, v)| format!("{k}={v}"))
                             .join(", "))
                     ),
                 ),

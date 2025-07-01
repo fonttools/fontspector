@@ -25,20 +25,19 @@ pub(crate) fn create_buffer_and_run(
     if let Some(script) = options.script.as_deref() {
         buffer.set_script(
             rustybuzz::Script::from_str(script)
-                .map_err(|e| FontspectorError::Shaping(format!("Bad 'script' argument {}", e)))?,
+                .map_err(|e| FontspectorError::Shaping(format!("Bad 'script' argument {e}")))?,
         );
     }
     if let Some(language) = options.language.as_deref() {
-        buffer
-            .set_language(rustybuzz::Language::from_str(language).map_err(|e| {
-                FontspectorError::Shaping(format!("Bad 'language' argument {}", e))
-            })?);
+        buffer.set_language(
+            rustybuzz::Language::from_str(language)
+                .map_err(|e| FontspectorError::Shaping(format!("Bad 'language' argument {e}")))?,
+        );
     }
     if let Some(direction) = options.direction.as_deref() {
         buffer.set_direction(
-            rustybuzz::Direction::from_str(direction).map_err(|e| {
-                FontspectorError::Shaping(format!("Bad 'direction' argument {}", e))
-            })?,
+            rustybuzz::Direction::from_str(direction)
+                .map_err(|e| FontspectorError::Shaping(format!("Bad 'direction' argument {e}")))?,
         );
     }
     let features = options
@@ -92,7 +91,7 @@ pub(crate) trait ShapingCheck {
                 "no-tests",
                 "Shaping test directory not defined in configuration file",
             ))?;
-        let files = glob::glob(&format!("{}/*.json", shaping_file))
+        let files = glob::glob(&format!("{shaping_file}/*.json"))
         .map_err(|_| {
             FontspectorError::General("Invalid pattern in glob for shaping tests (shaping directory in configuration file was bad?)".to_string())
         })?

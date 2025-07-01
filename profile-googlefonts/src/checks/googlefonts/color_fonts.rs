@@ -33,7 +33,7 @@ fn color_fonts(t: &Testable, _context: &Context) -> CheckFnResult {
         {
             problems.push(Status::fail("add-svg", 
                 &format!(
-            "Font has COLRv1 but no SVG table; for CORLv1, we require that an SVG table is present to support environments where the former is not supported yet.\n{}", NANOEMOJI_ADVICE)));
+            "Font has COLRv1 but no SVG table; for CORLv1, we require that an SVG table is present to support environments where the former is not supported yet.\n{NANOEMOJI_ADVICE}")));
         }
     }
 
@@ -46,8 +46,7 @@ fn color_fonts(t: &Testable, _context: &Context) -> CheckFnResult {
             problems.push(Status::fail(
                 "add-colr",
                 &format!(
-                    "Font only has an SVG table. Please add a COLR table as well.\n{}",
-                    NANOEMOJI_ADVICE,
+                    "Font only has an SVG table. Please add a COLR table as well.\n{NANOEMOJI_ADVICE}",
                 ),
             ));
         }

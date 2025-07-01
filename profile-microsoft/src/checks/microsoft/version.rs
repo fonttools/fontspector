@@ -24,10 +24,7 @@ fn version(t: &Testable, _context: &Context) -> CheckFnResult {
         if !VERSION_PATTERN.is_match(&font_version) {
             Ok(Status::just_one_fail(
                 "version",
-                &format!(
-                    "Name ID 5 does not start with 'Version X.YY': '{}'",
-                    font_version
-                ),
+                &format!("Name ID 5 does not start with 'Version X.YY': '{font_version}'"),
             ))
         } else {
             Ok(Status::just_one_pass())

@@ -42,8 +42,7 @@ fn caret_slope(t: &Testable, _context: &Context) -> CheckFnResult {
             "mismatch",
             &format!(
                 "hhea.caretSlopeRise and hhea.caretSlopeRun do not match with post.italicAngle.
-                Got caretSlopeRise: {}, caretSlopeRun: {}, expected caretSlopeRise: {}, caretSlopeRun: {}",
-                rise, run, expected_rise, expected_run
+                Got caretSlopeRise: {rise}, caretSlopeRun: {run}, expected caretSlopeRise: {expected_rise}, caretSlopeRun: {expected_run}"
             ),
         ));
     }

@@ -28,10 +28,10 @@ fn obj_to_testable(py: Python, arg: &Bound<'_, PyAny>) -> PyResult<Testable> {
     if arg.is_instance_of::<PyString>() {
         let filename: String = arg.extract()?;
         return Testable::new(&filename)
-            .map_err(|e| PyValueError::new_err(format!("Couldn't create testable object: {}", e)));
+            .map_err(|e| PyValueError::new_err(format!("Couldn't create testable object: {e}")));
     }
     if !arg.is_instance(&ttfont_class)? {
-        panic!("I can't handle args {:?}", arg);
+        panic!("I can't handle args {arg:?}");
     }
     let filename: String = arg
         .getattr("reader")?
@@ -47,7 +47,7 @@ fn obj_to_testable(py: Python, arg: &Bound<'_, PyAny>) -> PyResult<Testable> {
         .ok_or_else(|| PyValueError::new_err("Couldn't convert tempfile path to string"))?;
     arg.call_method1("save", (tempfile,))?;
     let testable = Testable::new(tempfile)
-        .map_err(|e| PyValueError::new_err(format!("Couldn't create testable object: {}", e)))?;
+        .map_err(|e| PyValueError::new_err(format!("Couldn't create testable object: {e}")))?;
     Ok(testable)
 }
 
@@ -133,7 +133,7 @@ impl CheckTester {
         };
         if let Some(profile_name) = &self.profile {
             let profile = registry.get_profile(profile_name).ok_or_else(|| {
-                PyValueError::new_err(format!("Profile {} not found", profile_name))
+                PyValueError::new_err(format!("Profile {profile_name} not found"))
             })?;
             context = context.specialize(check, &context.configuration, profile);
         }

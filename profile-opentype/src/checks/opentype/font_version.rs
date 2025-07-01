@@ -52,7 +52,7 @@ fn font_version(f: &Testable, _context: &Context) -> CheckFnResult {
         ));
     }
     let name_id_5_version = name_id_5_version_str.parse::<f32>().map_err(|e| {
-        FontspectorError::General(format!("Could not parse name ID 5 version as float: {}", e))
+        FontspectorError::General(format!("Could not parse name ID 5 version as float: {e}"))
     })?;
     let warn_tolerance = 1.0 / (0x10000 as f32);
     let fail_tolerance = 1.0 / 2000.0;
@@ -60,8 +60,7 @@ fn font_version(f: &Testable, _context: &Context) -> CheckFnResult {
         return Ok(Status::just_one_fail(
             "mismatch",
             &format!(
-                "Font version mismatch: head table: {}, name table: {}",
-                head_version, name_id_5_version
+                "Font version mismatch: head table: {head_version}, name table: {name_id_5_version}"
             ),
         ));
     }
@@ -69,8 +68,7 @@ fn font_version(f: &Testable, _context: &Context) -> CheckFnResult {
         return Ok(Status::just_one_warn(
             "near-mismatch",
             &format!(
-                "Font version mismatch: head table: {}, name table: {}",
-                head_version, name_id_5_version
+                "Font version mismatch: head table: {head_version}, name table: {name_id_5_version}"
             ),
         ));
     }

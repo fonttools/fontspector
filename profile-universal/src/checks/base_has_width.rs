@@ -52,7 +52,7 @@ fn base_has_width(f: &Testable, context: &Context) -> CheckFnResult {
             if name == "NULL" {
                 continue;
             }
-            problems.push(format!("{} ({:?})", name, codepoint));
+            problems.push(format!("{name} ({codepoint:?})"));
         }
     }
     if problems.is_empty() {

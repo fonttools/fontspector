@@ -18,17 +18,11 @@ fn dump_data_map(
                 .flatten()
                 .map(|x| x.as_str().to_string())
                 .join(", ");
-            problems.push(Status::info(
-                &format!("{}-tag", typ),
-                &format!("{:?}", tags),
-            ));
+            problems.push(Status::info(&format!("{typ}-tag"), &format!("{tags:?}")));
         }
         _ => problems.push(Status::fail(
-            &format!("invalid-{}-tag", typ),
-            &format!(
-                "The '{}' tag in the 'meta' table is not a ScriptLangTags data map.",
-                typ
-            ),
+            &format!("invalid-{typ}-tag"),
+            &format!("The '{typ}' tag in the 'meta' table is not a ScriptLangTags data map."),
         )),
     };
     Ok(())

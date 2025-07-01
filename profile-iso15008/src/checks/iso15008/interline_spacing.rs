@@ -62,10 +62,7 @@ fn interline_spacing(t: &Testable, _context: &Context) -> CheckFnResult {
     if (linegap as f64) < width {
         return Ok(Status::just_one_fail(
             "bad-interline-spacing",
-            &format!(
-                "The interline space {} should be more than the stem width {}",
-                linegap, width
-            ),
+            &format!("The interline space {linegap} should be more than the stem width {width}"),
         ));
     }
     Ok(Status::just_one_pass())

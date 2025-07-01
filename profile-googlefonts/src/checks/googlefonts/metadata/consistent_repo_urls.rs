@@ -45,7 +45,7 @@ fn consistent_repo_urls(c: &TestableCollection, context: &Context) -> CheckFnRes
 
     for font in msg.fonts {
         if let Some(httpbit) = font.copyright().split("http").nth(1) {
-            let link = clean_url(&format!("http{}", httpbit));
+            let link = clean_url(&format!("http{httpbit}"));
             if link != repo_url {
                 bad_urls.push(("font copyright string", link));
             }
@@ -88,7 +88,7 @@ fn consistent_repo_urls(c: &TestableCollection, context: &Context) -> CheckFnRes
                     context,
                     bad_urls
                         .iter()
-                        .map(|(location, url)| format!("{} has '{}'", location, url))
+                        .map(|(location, url)| format!("{location} has '{url}'"))
                 )
             ),
         ));

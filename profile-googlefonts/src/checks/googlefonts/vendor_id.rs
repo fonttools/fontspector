@@ -49,25 +49,20 @@ fn vendor_id(t: &Testable, _context: &Context) -> CheckFnResult {
     if font_vendor_id.is_empty() {
         problems.push(Status::warn(
             "not-set",
-            &format!(
-                "OS/2 VendorID is not set.\n{}",
-                SUGGEST_MICROSOFT_VENDORLIST_WEBSITE
-            ),
+            &format!("OS/2 VendorID is not set.\n{SUGGEST_MICROSOFT_VENDORLIST_WEBSITE}"),
         ));
     } else if BAD_VIDS.contains(&font_vendor_id.as_str()) {
         problems.push(Status::warn(
             "bad",
             &format!(
-                "OS/2 VendorID is '{}', a font editor default.\n{}",
-                font_vendor_id, SUGGEST_MICROSOFT_VENDORLIST_WEBSITE
+                "OS/2 VendorID is '{font_vendor_id}', a font editor default.\n{SUGGEST_MICROSOFT_VENDORLIST_WEBSITE}"
             ),
         ));
     } else if !VENDOR_IDS.contains(&font_vendor_id.as_str()) {
         problems.push(Status::warn(
             "unknown",
             &format!(
-                "OS/2 VendorID value '{}' is not yet recognized.\n{}",
-                font_vendor_id, SUGGEST_MICROSOFT_VENDORLIST_WEBSITE
+                "OS/2 VendorID value '{font_vendor_id}' is not yet recognized.\n{SUGGEST_MICROSOFT_VENDORLIST_WEBSITE}"
             ),
         ));
     }

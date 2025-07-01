@@ -25,27 +25,24 @@ pub(crate) fn load_configuration(args: &Args) -> UserConfigurationFile {
     };
 
     let contents = std::fs::read_to_string(configfile).unwrap_or_else(|e| {
-        log::error!("Could not read configuration file {}: {:}", configfile, e);
+        log::error!("Could not read configuration file {configfile}: {e:}");
         std::process::exit(1)
     });
 
     if configfile.ends_with(".toml") {
         return toml::from_str(&contents).unwrap_or_else(|e| {
-            log::error!("Could not parse configuration file: {:}", e);
+            log::error!("Could not parse configuration file: {e:}");
             std::process::exit(1)
         });
     }
 
     if configfile.ends_with(".json") {
         return serde_json::from_str(&contents).unwrap_or_else(|e| {
-            log::error!("Could not parse configuration file: {:}", e);
+            log::error!("Could not parse configuration file: {e:}");
             std::process::exit(1)
         });
     }
 
-    log::error!(
-        "Configuration file must be in TOML or JSON format: {}",
-        configfile
-    );
+    log::error!("Configuration file must be in TOML or JSON format: {configfile}");
     std::process::exit(1);
 }

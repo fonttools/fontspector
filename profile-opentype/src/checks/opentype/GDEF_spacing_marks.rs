@@ -31,8 +31,7 @@ fn GDEF_spacing_marks(f: &Testable, context: &Context) -> CheckFnResult {
     );
     if !nonspacing_mark_glyphs.is_empty() {
         return Ok(Status::just_one_warn("spacing-mark-glyphs", &format!(
-            "The following glyphs seem to be spacing (because they have width > 0 on the hmtx table) so they may be in the GDEF mark glyph class by mistake, or they should have zero width instead:\n{}",
-                nonspacing_mark_glyphs
+            "The following glyphs seem to be spacing (because they have width > 0 on the hmtx table) so they may be in the GDEF mark glyph class by mistake, or they should have zero width instead:\n{nonspacing_mark_glyphs}"
         )));
     }
 

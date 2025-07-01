@@ -69,10 +69,7 @@ fn varfont_duplexed_axis_reflow(t: &Testable, context: &Context) -> CheckFnResul
                 if !duplex_axis_is_affected.is_empty() {
                     // Find the index of the phantom points in this glyph.
                     let glyf_glyph = f.get_glyf_glyph(glyph)?.ok_or_else(|| {
-                        FontspectorError::General(format!(
-                            "Glyph {} not found in glyf table",
-                            glyph
-                        ))
+                        FontspectorError::General(format!("Glyph {glyph} not found in glyf table"))
                     })?;
                     let point_count = match glyf_glyph {
                         Glyph::Simple(g) => g.points().count(),
