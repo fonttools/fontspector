@@ -1,0 +1,26 @@
+name: Release new packages
+
+on:
+  - workflow_dispatch
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Install protoc
+        run: sudo apt-get install protobuf-compiler
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        name: Set up Rust for caching
+      - name: Install smart release
+        run: cargo install smart-release
+      - name: Run smart release
+        run: cargo smart-release fontspector-checkapi fontspector-checkhelper fontspector-profile-opentype fontspector-profile-googlefonts fontspector-profile-universal fontspector --no-changelog-preview --allow-fully-generated-changelogs --update-crates-index --dry-run-cargo-publish
+      - name: Push tags
+        run: git push ; git push --tags
