@@ -21,10 +21,6 @@ jobs:
         name: Set up Rust for caching
       - name: Build
         run: cargo build
-      - name: Lint for formatting
-        run: cargo fmt --all -- --check
-      - name: Lint for warnings
-        run: cargo clippy --all-targets --all-features -- -D warnings
       - name: Run tests
         run: |
           cargo test --verbose --workspace --exclude fontspector-web
@@ -33,6 +29,33 @@ jobs:
           maturin build
           pip install ../target/wheels/fontspector*.whl
           pytest tests --verbose
+
+  formatting:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        name: Set up Rust for caching
+
+      - name: Lint for formatting
+        run: cargo fmt --all -- --check
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Install protoc
+        run: sudo apt-get install protobuf-compiler
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        name: Set up Rust for caching
+      - name: Lint for warnings
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
   deploy-binaries:
     name: Build and upload binaries
     permissions:
@@ -118,5 +141,4 @@ jobs:
         name: Add artefact to release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run:
-          gh release upload fontspector-${{ env.VERSION }} ${{ env.ASSET }}
+        run: gh release upload fontspector-${{ env.VERSION }} ${{ env.ASSET }}
