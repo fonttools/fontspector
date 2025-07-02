@@ -226,10 +226,12 @@ impl Reporter for JinjaTemplatedReporter {
             .iter()
             .map(|(k, v)| (k.clone(), v.title.to_string()))
             .collect();
+        let mut summary_keys: Vec<String> = summary.keys().map(|k| k.to_string()).collect();
+        summary_keys.reverse();
         let val: serde_json::Value = json!({
             "version": env!("CARGO_PKG_VERSION"),
             "summary": &summary,
-            "summary_keys": summary.keys().collect::<Vec<_>>(),
+            "summary_keys": summary_keys,
             "by_section_by_check": by_section_by_check,
             // "omitted": vec![],
             "fatal_checks": fatal_checks,

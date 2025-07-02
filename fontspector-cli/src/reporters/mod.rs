@@ -2,7 +2,10 @@ use crate::{reporters::csv::CsvReporter, Args};
 use fontspector_checkapi::{CheckResult, Registry, StatusCode};
 use jinja::JinjaTemplatedReporter;
 use json::JsonReporter;
-use std::{collections::HashMap, path::PathBuf};
+use std::{
+    collections::{BTreeMap, HashMap},
+    path::PathBuf,
+};
 
 include!(concat!(env!("OUT_DIR"), "/templates.rs"));
 
@@ -39,8 +42,8 @@ impl RunResults {
     }
 
     /// Get a summary of the results by status code
-    pub fn summary(&self) -> HashMap<StatusCode, i32> {
-        let mut summary = HashMap::new();
+    pub fn summary(&self) -> BTreeMap<StatusCode, i32> {
+        let mut summary = BTreeMap::new();
         for result in self.results.iter() {
             for subresult in result.subresults.iter() {
                 let entry = summary.entry(subresult.severity).or_insert(0);

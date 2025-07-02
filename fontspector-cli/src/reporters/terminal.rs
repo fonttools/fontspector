@@ -3,8 +3,9 @@ use crate::{reporters::Reporter, Args};
 use colored::{ColoredString, Colorize};
 use fontspector_checkapi::{FixResult, Registry, StatusCode};
 use itertools::Itertools;
+use std::collections::BTreeMap;
 use std::io::Write;
-use std::{collections::HashMap, path::Path};
+use std::path::Path;
 use termimad::MadSkin;
 
 pub(crate) struct TerminalReporter {
@@ -130,7 +131,7 @@ impl Reporter for TerminalReporter {
 }
 
 impl TerminalReporter {
-    pub fn summary_report(summary: HashMap<StatusCode, i32>) -> Result<(), std::io::Error> {
+    pub fn summary_report(summary: BTreeMap<StatusCode, i32>) -> Result<(), std::io::Error> {
         write!(std::io::stdout(), "\nSummary:\n  ")?;
         for code in StatusCode::all() {
             write!(
