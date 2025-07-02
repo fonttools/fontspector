@@ -211,6 +211,13 @@ impl Reporter for JinjaTemplatedReporter {
             }
         }
 
+        // If there are no bad results in the section, remove it
+        by_section_by_check.retain(|_section, checks| {
+            checks
+                .iter()
+                .any(|(_check, results)| results.iter().any(|r| r.worst_status() >= args.loglevel))
+        });
+
         let proposals: HashMap<String, Vec<String>> = registry
             .checks
             .iter()
