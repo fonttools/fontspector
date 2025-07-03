@@ -43,11 +43,20 @@ fn glyph_coverage(c: &TestableCollection, context: &Context) -> CheckFnResult {
         // A static key lookup of one or another key we know to be in there
         let coverage = get_coverage(&codepoints, required_glyphset).unwrap();
         if !coverage.missing.is_empty() {
-            let missing = coverage
+            let mut missing = coverage
                 .missing
                 .iter()
-                .map(|c| format!("0x{c:04X}",))
+                .map(|c| {
+                    format!(
+                        "0x{c:04X}: {}",
+                        char::from_u32(*c)
+                            .and_then(unicode_names2::name)
+                            .map(|n| n.to_string())
+                            .unwrap_or_default()
+                    )
+                })
                 .collect::<Vec<String>>();
+            missing.sort();
             problems.push(Status::fail(
                 "missing-codepoints",
                 &format!(
