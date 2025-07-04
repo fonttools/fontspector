@@ -34,7 +34,7 @@ itertools = { workspace = true }
 log = { workspace = true }
 env_logger = "0.11"
 rayon = "1.0.1"
-indicatif = { version = "0.17", features = ["rayon"] }
+indicatif = { version = "0.18", features = ["rayon"] }
 homedir = "0.3.4"
 shadow-rs = { version = "1.1.1", default-features = false }
 toml = { workspace = true }
