@@ -54,6 +54,8 @@ image = { version = "0.25.5", default-features = false, features = [
     "jpeg",
     "gif",
 ] }
+norad.workspace = true
+glyphslib.workspace = true
 
 [build-dependencies]
 protobuf-codegen = "3.7.1"
