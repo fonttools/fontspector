@@ -2,7 +2,7 @@ use fontations::{
     read::{tables::os2::SelectionFlags, TableProvider},
     write::from_obj::ToOwnedTable,
 };
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, SourceFile};
 
 #[check(
     id = "googlefonts/use_typo_metrics",
@@ -28,6 +28,7 @@ use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
     proposal = "https://github.com/fonttools/fontbakery/issues/3241",
     title = "OS/2.fsSelection bit 7 (USE_TYPO_METRICS) is set in all fonts.",
     hotfix = fix_use_typo_metrics,
+    fix_source = sourcefix_use_typo_metrics,
 )]
 fn use_typo_metrics(t: &Testable, context: &Context) -> CheckFnResult {
     let f = testfont!(t);
@@ -55,4 +56,25 @@ fn fix_use_typo_metrics(t: &mut Testable) -> FixFnResult {
     os2.fs_selection |= SelectionFlags::USE_TYPO_METRICS;
     t.set(f.rebuild_with_new_table(&os2)?);
     Ok(true)
+}
+
+fn sourcefix_use_typo_metrics(s: &mut SourceFile) -> FixFnResult {
+    match s.source {
+        fontspector_checkapi::Source::Ufo(ref mut font) => {
+            if let Some(selection) = font.font_info.open_type_os2_selection.as_mut() {
+                if !selection.contains(&7) {
+                    log::info!("Adding OS/2.fsSelection bit 7 (USE_TYPO_METRICS) to UFO font.");
+                    selection.push(7);
+                    Ok(true)
+                } else {
+                    Ok(false)
+                }
+            } else {
+                log::info!("Setting OS/2.fsSelection bit 7 (USE_TYPO_METRICS) in UFO font.");
+                font.font_info.open_type_os2_selection = Some(vec![7]);
+                Ok(true)
+            }
+        }
+        _ => Ok(false),
+    }
 }
