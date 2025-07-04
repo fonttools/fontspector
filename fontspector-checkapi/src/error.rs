@@ -44,6 +44,9 @@ pub enum FontspectorError {
     /// Could not load a UFO file
     #[error("Could not load UFO file: {0}")]
     UfoLoad(Arc<norad::error::FontLoadError>),
+    /// Could not save a UFO file
+    #[error("Could not save UFO file: {0}")]
+    UfoSave(Arc<norad::error::FontWriteError>),
     /// Could not load a designspace file
     #[error("Could not load designspace file: {0}")]
     DesignspaceLoad(Arc<norad::error::DesignSpaceLoadError>),
@@ -130,6 +133,11 @@ impl From<norad::error::FontLoadError> for FontspectorError {
     }
 }
 
+impl From<norad::error::FontWriteError> for FontspectorError {
+    fn from(err: norad::error::FontWriteError) -> Self {
+        FontspectorError::UfoSave(Arc::new(err))
+    }
+}
 impl From<Box<dyn std::error::Error>> for FontspectorError {
     fn from(err: Box<dyn std::error::Error>) -> Self {
         FontspectorError::General(err.to_string())
