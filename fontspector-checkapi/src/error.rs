@@ -41,12 +41,6 @@ pub enum FontspectorError {
     /// A file was not found
     #[error("File not found: {0}")]
     FileNotFound(PathBuf),
-    /// Could not load a UFO file
-    #[error("Could not load UFO file: {0}")]
-    UfoLoad(Arc<norad::error::FontLoadError>),
-    /// Could not load a designspace file
-    #[error("Could not load designspace file: {0}")]
-    DesignspaceLoad(Arc<norad::error::DesignSpaceLoadError>),
     /// A file was not recognized as a source
     #[error("Unrecognized source file: {0}")]
     UnrecognizedSource(PathBuf),
@@ -128,19 +122,6 @@ impl From<std::io::Error> for FontspectorError {
 impl<T> From<PoisonError<T>> for FontspectorError {
     fn from(err: PoisonError<T>) -> Self {
         FontspectorError::CachePoison(err.to_string())
-    }
-}
-
-use std::sync::Arc;
-impl From<norad::error::DesignSpaceLoadError> for FontspectorError {
-    fn from(err: norad::error::DesignSpaceLoadError) -> Self {
-        FontspectorError::DesignspaceLoad(Arc::new(err))
-    }
-}
-
-impl From<norad::error::FontLoadError> for FontspectorError {
-    fn from(err: norad::error::FontLoadError) -> Self {
-        FontspectorError::UfoLoad(Arc::new(err))
     }
 }
 
