@@ -147,7 +147,9 @@ fn main() {
         excludes.extend(more_excludes.iter().cloned());
     }
     let mut source_map = configuration.source_map.clone();
-    source_map.extend(args.source_map.clone());
+    for (key, val) in args.source_map.clone() {
+        source_map.insert(key, val);
+    }
 
     // Establish a check order
     let checkorder: Vec<(String, &TestableType, &Check, Context)> = profile.check_order(

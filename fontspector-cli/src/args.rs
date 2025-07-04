@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use crate::build;
 use clap::{ArgAction, Parser};
 use fontspector_checkapi::StatusCode;
@@ -115,7 +113,7 @@ pub struct Args {
     pub fix_sources: bool,
 
     #[arg(long, help_heading = "Fix problems", value_parser = parse_source_map)]
-    pub source_map: HashMap<String, String>,
+    pub source_map: Vec<(String, String)>,
 
     /// Input files
     pub inputs: Vec<String>,
