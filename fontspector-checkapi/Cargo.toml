@@ -44,6 +44,8 @@ itertools = { workspace = true }
 
 kurbo = { workspace = true, optional = true }
 thiserror = "2.0.12"
+glyphslib.workspace = true
+norad.workspace = true
 
 [lints]
 workspace = true

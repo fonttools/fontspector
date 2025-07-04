@@ -4,6 +4,7 @@ use crate::{
     context::Context,
     error::FontspectorError,
     prelude::FixFnResult,
+    source::SourceFile,
     status::CheckFnResult,
     testable::{TestableCollection, TestableType},
     CheckResult, Registry, Status, Testable,
@@ -50,6 +51,9 @@ pub enum CheckImplementation<'a> {
 /// The function signature for a hotfix function
 pub type HotfixFunction = dyn Fn(&mut Testable) -> FixFnResult;
 
+/// The function signature for a source fix function
+pub type FixSourceFunction = dyn Fn(&mut SourceFile) -> FixFnResult;
+
 #[derive(Clone)]
 /// A check definition
 pub struct Check<'a> {
@@ -66,7 +70,7 @@ pub struct Check<'a> {
     /// Function pointer implementing a hotfix to the binary file
     pub hotfix: Option<&'a HotfixFunction>,
     /// Function pointer implementing a hotfix to the font source file
-    pub fix_source: Option<&'a dyn Fn(&Testable) -> FixFnResult>,
+    pub fix_source: Option<&'a FixSourceFunction>,
     /// A registered file type that this check applies to
     pub applies_to: &'a str,
     /// Additional flags for the check
