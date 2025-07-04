@@ -472,7 +472,7 @@ fn try_fixing_stuff(
                         source.filename(),
                         fix_job.result.check_id
                     );
-                    fix_job.result.hotfix_result = match sourcefix_fn(source) {
+                    fix_job.result.sourcefix_result = match sourcefix_fn(source) {
                         Ok(hotfix_behaviour) => {
                             source_modified |= hotfix_behaviour;
                             Some(FixResult::Fixed)
