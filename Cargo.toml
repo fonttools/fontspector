@@ -60,6 +60,10 @@ zip = { version = "8", features = [
     "deflate",
 ], default-features = false } # CLI and web
 
+# Source fixes
+norad = "0.16.0"
+glyphslib = { git = "https://github.com/simoncozens/glyphslib-rs" }
+
 [workspace.lints.clippy]
 unwrap_used = "deny"
 expect_used = "deny"
