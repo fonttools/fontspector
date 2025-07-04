@@ -4,7 +4,7 @@ use serde::{ser::SerializeStruct, Serialize};
 
 use crate::{Check, CheckId, Status, StatusCode};
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, PartialEq)]
 /// The result of a fix operation.
 pub enum FixResult {
     /// A fix was available, but not requested
