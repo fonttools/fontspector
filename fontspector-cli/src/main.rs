@@ -477,13 +477,12 @@ fn try_fixing_stuff(
                         source.filename(),
                         fix_job.result.check_id
                     );
-                    fix_job.result.hotfix_result = match sourcefix_fn(source) {
-                        Ok(hotfix_behaviour) => {
-                            source_modified |= hotfix_behaviour;
-                            Some(FixResult::Fixed)
-                        }
-                        Err(e) => Some(FixResult::FixError(e.to_string())),
-                    }
+                    hotfix::run_sourcefix(
+                        source,
+                        &mut source_modified,
+                        &mut *fix_job.result,
+                        sourcefix_fn,
+                    );
                 }
             }
         }
