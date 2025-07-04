@@ -173,7 +173,7 @@ fn main() {
     let count_of_files = testables.iter().filter(|x| x.is_single()).count();
     let count_of_families = testables.len() - count_of_files;
 
-    if !any_reports_to_stdout {
+    if !any_reports_to_stdout && !args.quiet && !args.succinct {
         let _ = writeln!(
             std::io::stdout(),
             "Running {:} check{} on {} file{} in {} famil{}",
@@ -230,7 +230,7 @@ fn main() {
         reporter.report(&results, &args, &registry);
     }
 
-    if !args.quiet && !any_reports_to_stdout {
+    if !args.quiet && !args.succinct && !any_reports_to_stdout {
         let _ = writeln!(
             std::io::stdout(),
             "Ran {} checks in {:.3}s",
@@ -506,7 +506,7 @@ fn find_source(file: &str, source_map: &HashMap<String, String>) -> Option<Sourc
         source
     } else {
         log::warn!("No source file found for {file:?} in source map; cannot fix sources");
-        log::warn!("Specify --source_map=binary_file.ttf:source.glyphs on command line or in configuration file to fix sources");
+        log::warn!("Specify --source-map=binary_file.ttf:source.glyphs on command line or in configuration file to fix sources");
         return None;
     };
     let source_path = PathBuf::from(source_path_str);
