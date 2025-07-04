@@ -443,10 +443,9 @@ fn try_fixing_stuff(
     }
 
     for (file, fixes) in fix_jobs.into_iter() {
-        let mut testable = Testable::new(&file).unwrap_or_else(|e| {
-            log::error!("Could not load files from {file:?}: {e:}");
-            std::process::exit(1)
-        });
+        let Ok(mut testable) = Testable::new(&file) else {
+            continue;
+        };
         let mut source: Option<SourceFile> = if !args.fix_sources {
             None
         } else {
