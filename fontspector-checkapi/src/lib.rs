@@ -37,13 +37,19 @@ pub mod pens;
 mod profile;
 /// The registry of checks and profiles
 mod registry;
+
+/// Source files which can be fixed
+pub mod source;
 /// Data structures representing the most basic elements of a check's result
 mod status;
 /// Wraps a file or "thing" to be tested
 mod testable;
 /// Common utility functions for check implementors
 mod utils;
-pub use check::{return_result, Check, CheckFlags, CheckId, CheckImplementation, HotfixFunction};
+pub use check::{
+    return_result, Check, CheckFlags, CheckId, CheckImplementation, FixSourceFunction,
+    HotfixFunction,
+};
 pub use checkresult::{CheckResult, FixResult};
 pub use context::Context;
 pub use error::FontspectorError;
@@ -55,6 +61,7 @@ pub use font::{
 pub use gsub::{GetSubstitutionMap, SubstitutionMap};
 pub use profile::{Override, Profile, ProfileBuilder};
 pub use registry::Registry;
+pub use source::{Source, SourceFile};
 pub use status::{CheckFnResult, Status, StatusCode, StatusList};
 pub use testable::{Testable, TestableCollection, TestableType};
 

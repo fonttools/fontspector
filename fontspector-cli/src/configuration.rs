@@ -17,6 +17,8 @@ pub(crate) struct UserConfigurationFile {
 
     #[serde(flatten)]
     pub per_check_config: HashMap<CheckId, Value>,
+    #[serde(default)]
+    pub source_map: HashMap<String, String>,
 }
 
 pub(crate) fn load_configuration(args: &Args) -> UserConfigurationFile {

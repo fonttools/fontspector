@@ -1,4 +1,4 @@
-use std::sync::PoisonError;
+use std::{path::PathBuf, sync::PoisonError};
 
 use thiserror::Error;
 
@@ -38,6 +38,18 @@ pub enum FontspectorError {
         /// Additional details about the error
         more_details: String,
     },
+    /// A file was not found
+    #[error("File not found: {0}")]
+    FileNotFound(PathBuf),
+    /// Could not load a UFO file
+    #[error("Could not load UFO file: {0}")]
+    UfoLoad(Arc<norad::error::FontLoadError>),
+    /// Could not load a designspace file
+    #[error("Could not load designspace file: {0}")]
+    DesignspaceLoad(Arc<norad::error::DesignSpaceLoadError>),
+    /// A file was not recognized as a source
+    #[error("Unrecognized source file: {0}")]
+    UnrecognizedSource(PathBuf),
     /// Something went wrong doing Python things
     #[error("Python error: {0}")]
     Python(String),
@@ -71,6 +83,14 @@ pub enum FontspectorError {
     /// Something else happened when fixing the font
     #[error("Something went wrong while fixing: {0}")]
     Fix(String),
+    /// Something else happened when saving the font
+    #[error("Something went wrong while saving {path}: {error}")]
+    SaveError {
+        /// The path to the file that could not be saved
+        path: PathBuf,
+        /// The error that occurred while saving
+        error: String,
+    },
 }
 
 impl From<std::string::FromUtf8Error> for FontspectorError {
@@ -94,6 +114,25 @@ impl From<std::io::Error> for FontspectorError {
 impl<T> From<PoisonError<T>> for FontspectorError {
     fn from(err: PoisonError<T>) -> Self {
         FontspectorError::CachePoison(err.to_string())
+    }
+}
+
+use std::sync::Arc;
+impl From<norad::error::DesignSpaceLoadError> for FontspectorError {
+    fn from(err: norad::error::DesignSpaceLoadError) -> Self {
+        FontspectorError::DesignspaceLoad(Arc::new(err))
+    }
+}
+
+impl From<norad::error::FontLoadError> for FontspectorError {
+    fn from(err: norad::error::FontLoadError) -> Self {
+        FontspectorError::UfoLoad(Arc::new(err))
+    }
+}
+
+impl From<Box<dyn std::error::Error>> for FontspectorError {
+    fn from(err: Box<dyn std::error::Error>) -> Self {
+        FontspectorError::General(err.to_string())
     }
 }
 
