@@ -2,7 +2,7 @@ use fontations::{
     read::{tables::os2::SelectionFlags, TableProvider},
     write::from_obj::ToOwnedTable,
 };
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, SourceFile};
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Source, SourceFile};
 
 #[check(
     id = "googlefonts/use_typo_metrics",
@@ -59,22 +59,50 @@ fn fix_use_typo_metrics(t: &mut Testable) -> FixFnResult {
 }
 
 fn sourcefix_use_typo_metrics(s: &mut SourceFile) -> FixFnResult {
-    match s.source {
-        fontspector_checkapi::Source::Ufo(ref mut font) => {
-            if let Some(selection) = font.font_info.open_type_os2_selection.as_mut() {
-                if !selection.contains(&7) {
-                    log::info!("Adding OS/2.fsSelection bit 7 (USE_TYPO_METRICS) to UFO font.");
-                    selection.push(7);
-                    Ok(true)
-                } else {
-                    Ok(false)
-                }
-            } else {
-                log::info!("Setting OS/2.fsSelection bit 7 (USE_TYPO_METRICS) in UFO font.");
-                font.font_info.open_type_os2_selection = Some(vec![7]);
+    fn fix_a_ufo(font: &mut norad::Font) -> FixFnResult {
+        if let Some(selection) = font.font_info.open_type_os2_selection.as_mut() {
+            if !selection.contains(&7) {
+                log::info!("Adding OS/2.fsSelection bit 7 (USE_TYPO_METRICS) to UFO font.");
+                selection.push(7);
                 Ok(true)
+            } else {
+                Ok(false)
             }
+        } else {
+            log::info!("Setting OS/2.fsSelection bit 7 (USE_TYPO_METRICS) in UFO font.");
+            font.font_info.open_type_os2_selection = Some(vec![7]);
+            Ok(true)
         }
-        _ => Ok(false),
+    }
+    fn fix_custom_parameters(cps: &mut Vec<glyphslib::common::CustomParameter>) -> FixFnResult {
+        if let Some(cp) = cps.iter_mut().find(|cp| cp.name == "Use Typo Metrics") {
+            if cp.value.as_i64() != Some(1) {
+                log::info!("Setting 'Use Typo Metrics' custom parameter to 1 in Glyphs font.");
+                cp.value = 1.into();
+                Ok(true)
+            } else {
+                Ok(false)
+            }
+        } else {
+            log::info!("Adding 'Use Typo Metrics' custom parameter with value 1 in Glyphs font.");
+            cps.push(glyphslib::common::CustomParameter {
+                name: "Use Typo Metrics".to_string(),
+                value: 1.into(),
+                disabled: false,
+            });
+            Ok(true)
+        }
+    }
+    match s.source {
+        Source::Ufo(ref mut font) => fix_a_ufo(font),
+        Source::Designspace(ref mut ds) => ds.apply_fix(&fix_a_ufo),
+        Source::Glyphs(ref mut font) => match &mut **font {
+            glyphslib::Font::Glyphs2(glyphs2) => {
+                fix_custom_parameters(&mut glyphs2.custom_parameters)
+            }
+            glyphslib::Font::Glyphs3(glyphs3) => {
+                fix_custom_parameters(&mut glyphs3.custom_parameters)
+            }
+        },
     }
 }
