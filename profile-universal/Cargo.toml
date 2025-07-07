@@ -36,6 +36,8 @@ hashbrown = { workspace = true }
 kurbo = { workspace = true }
 stringcase = "0.4.0"
 fontdrasil = "0.4.0"
+norad.workspace = true
+glyphslib.workspace = true
 
 [lints]
 workspace = true

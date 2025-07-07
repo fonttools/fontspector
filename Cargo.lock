@@ -1683,6 +1683,7 @@ dependencies = [
  "fontspector-checkapi",
  "gf-metadata",
  "glob",
+ "glyphslib",
  "google-fonts-axisregistry",
  "google-fonts-glyphsets",
  "google-fonts-languages",
@@ -1694,6 +1695,7 @@ dependencies = [
  "itertools 0.14.0",
  "kurbo 0.11.3",
  "log",
+ "norad 0.16.1",
  "num-traits",
  "protobuf",
  "regex",
@@ -1766,12 +1768,14 @@ dependencies = [
  "fontspector-checkapi",
  "fontspector-checkhelper",
  "freetype-rs",
+ "glyphslib",
  "hashbrown 0.16.1",
  "humansize",
  "interpolatable",
  "itertools 0.14.0",
  "kurbo 0.11.3",
  "log",
+ "norad 0.16.1",
  "reqwest",
  "serde_json",
  "stringcase",
@@ -2088,7 +2092,6 @@ dependencies = [
 [[package]]
 name = "glyphslib"
 version = "0.2.3"
-source = "git+https://github.com/simoncozens/glyphslib-rs#8919c25d2b76d67ce4b45acc50020481ba79ce2a"
 dependencies = [
  "itertools 0.14.0",
  "openstep-plist",
@@ -3429,7 +3432,6 @@ dependencies = [
 [[package]]
 name = "openstep-plist"
 version = "1.0.0"
-source = "git+https://github.com/simoncozens/glyphslib-rs#8919c25d2b76d67ce4b45acc50020481ba79ce2a"
 dependencies = [
  "itertools 0.14.0",
  "serde",
