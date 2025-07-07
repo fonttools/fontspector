@@ -56,8 +56,7 @@ regex = "1.10.6"
 
 # Source fixes
 norad = "0.16.0"
-# glyphslib = { git = "https://github.com/simoncozens/glyphslib-rs" }
-glyphslib = { path = "../glyphslib-rs/glyphslib" }
+glyphslib = { git = "https://github.com/simoncozens/glyphslib-rs" }
 
 [workspace.lints.clippy]
 unwrap_used = "deny"
