@@ -1,13 +1,4 @@
-<<<<<<< HEAD
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata, Source, SourceFile};
-||||||| parent of 642a454 (Fixup 3797262)
-use fontspector_checkapi::{
-    prelude::*, skip, source::find_or_add_cp, testfont, FileTypeConvert, Metadata, Source,
-    SourceFile,
-};
-=======
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata, SourceFile};
->>>>>>> 642a454 (Fixup 3797262)
 use serde_json::json;
 use skrifa::raw::{tables::os2::SelectionFlags, TableProvider};
 use write_fonts::from_obj::ToOwnedTable;

@@ -2135,7 +2135,6 @@ dependencies = [
 [[package]]
 name = "glyphslib"
 version = "0.2.8"
-source = "git+https://github.com/simoncozens/glyphslib-rs#0d0305d39dbdc21663c728804007ba06460b8e6a"
 dependencies = [
  "itertools 0.14.0",
  "openstep-plist",
@@ -3466,7 +3465,6 @@ dependencies = [
 [[package]]
 name = "openstep-plist"
 version = "1.1.0"
-source = "git+https://github.com/simoncozens/glyphslib-rs#0d0305d39dbdc21663c728804007ba06460b8e6a"
 dependencies = [
  "itertools 0.14.0",
  "serde",
