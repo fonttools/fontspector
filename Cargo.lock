@@ -2135,6 +2135,8 @@ dependencies = [
 [[package]]
 name = "glyphslib"
 version = "0.2.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "57cd7cd65496e46667118d7b0ca78f7fde98efa734cfa1915cf699c30d0d57b2"
 dependencies = [
  "itertools 0.14.0",
  "openstep-plist",
@@ -3465,6 +3467,8 @@ dependencies = [
 [[package]]
 name = "openstep-plist"
 version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e96b4b3fe906fb081df1be6c58811ed24836595a146fcf5ff73b528c383cad70"
 dependencies = [
  "itertools 0.14.0",
  "serde",
