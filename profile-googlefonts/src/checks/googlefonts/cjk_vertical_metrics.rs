@@ -307,9 +307,7 @@ impl SimpleCjkBaseTable {
         Ok(())
     }
 
-    fn to_base(&self, with_idtp: bool) -> write_base::Base {
-        let mut horiz_records = vec![];
-        let mut vert_records = vec![];
+    fn base_tag_list(&self, with_idtp: bool) -> write_base::BaseTagList {
         let mut tags = write_base::BaseTagList::new(vec![
             Tag::new(b"icfb"),
             Tag::new(b"icft"),
@@ -319,6 +317,13 @@ impl SimpleCjkBaseTable {
         if with_idtp {
             tags.baseline_tags.push(Tag::new(b"idtp"));
         }
+        tags
+    }
+
+    fn to_base(&self, with_idtp: bool) -> write_base::Base {
+        let mut horiz_records = vec![];
+        let mut vert_records = vec![];
+        let tags = self.base_tag_list(with_idtp);
 
         for (script_tag, axis) in &self.0 {
             let default_index = if is_cjk(*script_tag) || script_tag == &Tag::new(b"DFLT") {
@@ -393,6 +398,85 @@ impl SimpleCjkBaseTable {
                 write_base::BaseScriptList::new(vert_records),
             )),
         )
+    }
+
+    fn to_fea(&self, with_idtp: bool) -> String {
+        let tags = self
+            .base_tag_list(with_idtp)
+            .baseline_tags
+            .iter()
+            .map(|t| t.to_string())
+            .collect::<Vec<_>>();
+        let mut base_table = "table BASE {\n".to_string();
+        base_table += &format!(
+            "HorizAxis.BaseTagList                {};\n",
+            tags.join("  ")
+        );
+        base_table.push_str("HorizAxis.BaseScriptList\n");
+        for (script_tag, axis) in &self.0 {
+            let baseline = if is_cjk(*script_tag) {
+                Tag::new(b"ideo")
+            } else {
+                Tag::new(b"romn")
+            };
+            base_table += &format!("                          {script_tag} {baseline}  ");
+            let mut h_values = vec![
+                axis.metrics.h_icfb,
+                axis.metrics.h_icft,
+                axis.metrics.h_ideo,
+                axis.metrics.h_romn,
+            ];
+            if with_idtp {
+                h_values.push(axis.metrics.h_idtp);
+            }
+            base_table.push_str(
+                &h_values
+                    .iter()
+                    .map(|&v| format!("{:>4.0}", v.unwrap_or_default()))
+                    .collect::<Vec<_>>()
+                    .join("  "),
+            );
+            base_table.push_str(",\n");
+        }
+        // Replace final ,\n with ;\n
+        base_table.pop();
+        base_table.pop();
+        base_table.push_str(";\n");
+        base_table += &format!(
+            "VertAxis.BaseTagList                 {};\n",
+            tags.join("  ")
+        );
+        base_table.push_str("VertAxis.BaseScriptList\n");
+        for (script_tag, axis) in &self.0 {
+            let baseline = if is_cjk(*script_tag) {
+                Tag::new(b"ideo")
+            } else {
+                Tag::new(b"romn")
+            };
+            base_table += &format!("                          {script_tag} {baseline}  ");
+            let mut v_values = vec![
+                axis.metrics.v_icfb,
+                axis.metrics.v_icft,
+                axis.metrics.v_ideo,
+                axis.metrics.v_romn,
+            ];
+            if with_idtp {
+                v_values.push(axis.metrics.v_idtp);
+            }
+            base_table.push_str(
+                &v_values
+                    .iter()
+                    .map(|&v| format!("{:>4.0}", v.unwrap_or_default()))
+                    .collect::<Vec<_>>()
+                    .join("  "),
+            );
+            base_table.push_str(",\n");
+        }
+        base_table.pop();
+        base_table.pop();
+        base_table.push_str(";\n");
+        base_table.push_str("} BASE;\n");
+        base_table
     }
 }
 
@@ -878,6 +962,7 @@ fn fix_vertical_metrics(t: &mut Testable) -> FixFnResult {
     if !f.has_table(b"BASE") {
         // Let's make one.
         let computed_metrics = compute_bounds(&f)?;
+        log::debug!("Computed metrics:\n{computed_metrics:?}\n",);
         let simple_base = SimpleCjkBaseTable::from_cjk_metrics(
             &computed_metrics,
             &[
@@ -893,6 +978,16 @@ fn fix_vertical_metrics(t: &mut Testable) -> FixFnResult {
         let average_width = computed_metrics.v_idtp.unwrap();
         let upem = f.font().head()?.units_per_em() as f32;
         let font_is_square = (average_width - upem).abs() / upem < 0.01;
+
+        log::info!(
+            "Adding BASE table for {} font:\n{}\n",
+            if font_is_square {
+                "square"
+            } else {
+                "non-square"
+            },
+            simple_base.to_fea(!font_is_square)
+        );
 
         let base: write_base::Base = simple_base.to_base(!font_is_square);
         let mut new_font = FontBuilder::new();
@@ -911,6 +1006,7 @@ fn fix_vertical_metrics(t: &mut Testable) -> FixFnResult {
         .ok_or(FontspectorError::General(
             "BASE table does not contain any metrics".to_string(),
         ))?;
+    let computed_bounds = compute_bounds(&f)?;
 
     // OS/2.fsSelection bit 7 (Use_Typo_Metrics) should be set
     let mut os2: write_os2::Os2 = f.font().os2()?.to_owned_table();
@@ -918,8 +1014,17 @@ fn fix_vertical_metrics(t: &mut Testable) -> FixFnResult {
 
     let metrics = f.vertical_metrics()?;
     let upem = f.font().head()?.units_per_em() as f32;
-    let expected_os2_ascender = actual_bounds.h_idtp.unwrap_or(0.0) + 0.075 * upem;
-    let expected_os2_descender = actual_bounds.h_ideo.unwrap_or(0.0) - 0.075 * upem;
+    let expected_os2_ascender = actual_bounds
+        .h_idtp
+        .unwrap_or(computed_bounds.h_idtp.unwrap_or_default())
+        + 0.075 * upem;
+    let expected_os2_descender = actual_bounds
+        .h_ideo
+        .unwrap_or(computed_bounds.h_ideo.unwrap_or_default())
+        - 0.075 * upem;
+    log::info!(
+        "Setting OS/2.sTypoAscender to {expected_os2_ascender:.0} and OS/2.sTypoDescender to {expected_os2_descender:.0}",
+    );
 
     if !close_enough(
         metrics.os2_typo_ascender,
@@ -927,6 +1032,7 @@ fn fix_vertical_metrics(t: &mut Testable) -> FixFnResult {
         expected_os2_ascender,
     ) {
         os2.s_typo_ascender = expected_os2_ascender as i16;
+        log::info!("Setting OS/2.sTypoAscender to {expected_os2_ascender:.0}",);
     }
     if !close_enough(
         metrics.os2_typo_descender,
@@ -934,8 +1040,40 @@ fn fix_vertical_metrics(t: &mut Testable) -> FixFnResult {
         expected_os2_descender,
     ) {
         os2.s_typo_descender = expected_os2_descender as i16;
+        log::info!("Setting OS/2.sTypoDescender to {expected_os2_descender:.0}",);
     }
     os2.s_typo_line_gap = 0;
+
+    // Do OS/2 winAscent/descent
+    let verts = vertical_glyphs(&f)?;
+    let all_bboxes = f
+        .all_glyphs()
+        .filter(|&gid| !verts.contains(&gid))
+        .filter_map(|gid| {
+            f.font()
+                .glyph_metrics(Size::unscaled(), LocationRef::default())
+                .bounds(gid)
+        })
+        .map(|b| (b.y_max, b.y_min))
+        .collect::<Vec<_>>();
+    if let Some(bbox_ymax) = all_bboxes
+        .iter()
+        .map(|(mx, _mn)| *mx)
+        .max_by(f32::total_cmp)
+    {
+        os2.us_win_ascent = bbox_ymax as u16;
+        log::info!("Setting OS/2.usWinAscent to {bbox_ymax:.0}",);
+    }
+
+    // OS/2.usWinDescent should be absolute value of font bbox yMin
+    if let Some(bbox_ymin) = all_bboxes
+        .iter()
+        .map(|(_mx, mn)| *mn)
+        .min_by(f32::total_cmp)
+    {
+        log::info!("Setting OS/2.usWinDescent to {bbox_ymin:.0}",);
+        os2.us_win_descent = bbox_ymin.abs() as u16;
+    }
 
     let mut hhea: write_hhea::Hhea = f.font().hhea()?.to_owned_table();
     hhea.line_gap = 0.into();
