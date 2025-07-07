@@ -34,6 +34,8 @@ humansize = "2.1.3"
 serde_json = { workspace = true }
 hashbrown = "0.15.2"
 kurbo = { workspace = true }
+norad.workspace = true
+glyphslib.workspace = true
 
 [lints]
 workspace = true
