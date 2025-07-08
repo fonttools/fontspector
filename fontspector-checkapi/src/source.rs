@@ -130,3 +130,30 @@ impl SourceFile {
         }
     }
 }
+
+// Utility functions for source fixes
+
+/// Find or add a custom parameter in a Glyphs font.
+pub fn find_or_add_cp(
+    cps: &mut Vec<glyphslib::common::CustomParameter>,
+    name: &str,
+    value: glyphslib::Plist,
+) -> FixFnResult {
+    if let Some(cp) = cps.iter_mut().find(|cp| cp.name == name) {
+        if cp.value != value {
+            log::info!("Setting {name} custom parameter to {value:?} in Glyphs font.");
+            cp.value = value;
+            Ok(true)
+        } else {
+            Ok(false)
+        }
+    } else {
+        log::info!("Adding {name} custom parameter with value {value:?} in Glyphs font.");
+        cps.push(glyphslib::common::CustomParameter {
+            name: name.to_string(),
+            value,
+            disabled: false,
+        });
+        Ok(true)
+    }
+}
