@@ -2,7 +2,9 @@ use fontations::{
     read::{tables::os2::SelectionFlags, TableProvider},
     write::from_obj::ToOwnedTable,
 };
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Source, SourceFile};
+use fontspector_checkapi::{
+    prelude::*, skip, source::find_or_add_cp, testfont, FileTypeConvert, Source, SourceFile,
+};
 
 #[check(
     id = "googlefonts/use_typo_metrics",
@@ -75,23 +77,7 @@ fn sourcefix_use_typo_metrics(s: &mut SourceFile) -> FixFnResult {
         }
     }
     fn fix_custom_parameters(cps: &mut Vec<glyphslib::common::CustomParameter>) -> FixFnResult {
-        if let Some(cp) = cps.iter_mut().find(|cp| cp.name == "Use Typo Metrics") {
-            if cp.value.as_i64() != Some(1) {
-                log::info!("Setting 'Use Typo Metrics' custom parameter to 1 in Glyphs font.");
-                cp.value = 1.into();
-                Ok(true)
-            } else {
-                Ok(false)
-            }
-        } else {
-            log::info!("Adding 'Use Typo Metrics' custom parameter with value 1 in Glyphs font.");
-            cps.push(glyphslib::common::CustomParameter {
-                name: "Use Typo Metrics".to_string(),
-                value: 1.into(),
-                disabled: false,
-            });
-            Ok(true)
-        }
+        find_or_add_cp(cps, "Use Typo Metrics", glyphslib::Plist::Integer(1))
     }
     match s.source {
         Source::Ufo(ref mut font) => fix_a_ufo(font),
