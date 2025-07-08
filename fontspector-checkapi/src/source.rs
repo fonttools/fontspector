@@ -39,22 +39,11 @@ impl SourceFile {
 
     /// Saves the source file.
     pub fn save(&self) -> Result<(), FontspectorError> {
-        match &self.source {
-            Source::Glyphs(font) => {
-                font.save(&self.file)
-                    .map_err(|e| FontspectorError::SaveError {
-                        path: self.file.clone(),
-                        error: e.to_string(),
-                    })
-            }
-            Source::Ufo(font) => Ok(font.save(&self.file)?),
-            Source::Designspace(doc) => {
-                doc.save(&self.file)
-                    .map_err(|e| FontspectorError::SaveError {
-                        path: self.file.clone(),
-                        error: e.to_string(),
-                    })
-            }
-        }
+        self.source
+            .save(&self.file)
+            .map_err(|e| FontspectorError::SaveError {
+                path: self.file.clone(),
+                error: e.to_string(),
+            })
     }
 }
