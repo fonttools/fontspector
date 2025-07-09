@@ -100,7 +100,7 @@ pub fn create_user_home_templates_directory(force: bool) -> PathBuf {
     let home = homedir::my_home()
         .expect("Couldn't get home directory")
         .expect("No home directory found");
-    let templates_dir = home.join(".fontspector/");
+    let templates_dir = home.join(".fontspector");
     if !templates_dir.exists() {
         std::fs::create_dir_all(&templates_dir).unwrap_or_else(|e| {
             println!("Couldn't create {:?}: {}", templates_dir.to_str(), e);
