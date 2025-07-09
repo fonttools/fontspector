@@ -9,14 +9,19 @@ use crate::{error::FontspectorError, Override};
 /// A severity level for a single check subresult
 pub enum StatusCode {
     /// Skip: the check didn't run because some condition was not met
+    #[value(alias("SKIP"), hide = true)]
     Skip,
     /// Pass: there's no problem here
+    #[value(alias("PASS"), hide = true)]
     Pass,
     /// Info: the check returned some useful information, but no problems
+    #[value(alias("INFO"), hide = true)]
     Info,
     /// Warn: a problem which should be manually reviewed
+    #[value(alias("WARN"), hide = true)]
     Warn,
     /// Fail: a problem materially affects the correctness of the font
+    #[value(alias("FAIL"), hide = true)]
     Fail,
     /// Error: something went wrong
     ///
@@ -25,6 +30,7 @@ pub enum StatusCode {
     /// parsed, even though we did our best to check for things. In
     /// other words, it's something so bad there's no point continuing
     /// with the check; it's equivalent to a Fontbakery FATAL.
+    #[value(alias("ERROR"), hide = true)]
     Error,
 }
 
