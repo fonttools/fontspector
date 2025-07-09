@@ -267,7 +267,14 @@ fn list_checks(args: &Args, registry: &Registry<'static>, profile: &fontspector_
         let checks: Vec<_> = checks
             .iter()
             .flat_map(|check| registry.checks.get(check))
-            .map(|check| json!({ "id": check.id, "title": check.title }))
+            .map(|check| {
+                json!({
+                    "id": check.id,
+                    "title": check.title,
+                    "hotfix": check.hotfix.is_some(),
+                    "source_fix": check.fix_source.is_some(),
+                })
+            })
             .collect();
         if checks.is_empty() {
             continue;
@@ -284,13 +291,20 @@ fn list_checks(args: &Args, registry: &Registry<'static>, profile: &fontspector_
         for (section, checks) in checks_per_section.iter() {
             termimad::print_text(&format!("\n# {section:}\n\n"));
             let mut table = "|Check ID|Title|\n|---|---|\n".to_string();
+            #[allow(clippy::indexing_slicing, clippy::unwrap_used)]
+            // We know these keys are present, we made them
             for check in checks {
-                #[allow(clippy::unwrap_used)] // We know these keys are present, we made them
-                table.push_str(&format!(
-                    "|{}|{}|\n",
-                    check.get("id").unwrap().as_str().unwrap(),
-                    check.get("title").unwrap().as_str().unwrap()
-                ));
+                let mut id = check["id"].as_str().unwrap().to_string();
+                let can_hotfix = check["hotfix"].as_bool().unwrap_or(false);
+                let can_source_fix = check["source_fix"].as_bool().unwrap_or(false);
+                if can_hotfix && can_source_fix {
+                    id = format!("{id} [H,S]");
+                } else if can_hotfix {
+                    id = format!("{id} [H]");
+                } else if can_source_fix {
+                    id = format!("{id} [S]");
+                }
+                table.push_str(&format!("|{}|{}|\n", id, check["title"].as_str().unwrap()));
             }
             termimad::print_text(&table);
         }
