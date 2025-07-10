@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata, SourceFile};
 use itertools::Itertools;
 use serde_json::json;
 use skrifa::{
@@ -53,7 +53,8 @@ fn test_glyph_name(s: &str) -> NameValidity {
         https://github.com/adobe-type-tools/agl-specification
         
         Glyph names must also be unique, as duplicate glyph names prevent font installation on Mac OS X.",
-    proposal = "https://github.com/fonttools/fontbakery/issues/2832"
+    proposal = "https://github.com/fonttools/fontbakery/issues/2832",
+    fix_source = sourcefix_valid_glyphnames,
 )]
 fn valid_glyphnames(f: &Testable, _context: &Context) -> CheckFnResult {
     let font = testfont!(f);
@@ -237,5 +238,29 @@ mod tests {
         let testable = test_able("source-sans-pro/VAR/SourceSansVariable-Roman.otf");
         let results = run_check(valid_glyphnames, testable);
         assert_skip(&results);
+    }
+}
+
+fn sourcefix_valid_glyphnames(
+    s: &mut SourceFile,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
+    let font = &mut s.source;
+
+    let mut changed = false;
+    for glyph in font.glyphs.iter_mut() {
+        if glyph.codepoints.contains(&0x20u32) && glyph.name != "space" {
+            glyph.name = "space".into();
+            changed = true;
+        }
+        if glyph.codepoints.contains(&0xa0u32) && glyph.name != "nbspace" {
+            glyph.name = "nbspace".into();
+            changed = true;
+        }
+    }
+    if changed {
+        Ok(FixResult::Fixed)
+    } else {
+        Ok(FixResult::NotBroken)
     }
 }
