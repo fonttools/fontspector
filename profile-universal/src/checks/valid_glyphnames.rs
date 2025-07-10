@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use fontations::skrifa::raw::{types::Version16Dot16, TableProvider};
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Source, SourceFile};
 use itertools::Itertools;
 
 enum NameValidity {
@@ -49,7 +49,8 @@ fn test_glyph_name(s: &str) -> NameValidity {
         https://github.com/adobe-type-tools/agl-specification
         
         Glyph names must also be unique, as duplicate glyph names prevent font installation on Mac OS X.",
-    proposal = "https://github.com/fonttools/fontbakery/issues/2832"
+    proposal = "https://github.com/fonttools/fontbakery/issues/2832",
+    fix_source = sourcefix_valid_glyphnames,
 )]
 fn valid_glyphnames(f: &Testable, _context: &Context) -> CheckFnResult {
     let font = testfont!(f);
@@ -168,4 +169,59 @@ fn valid_glyphnames(f: &Testable, _context: &Context) -> CheckFnResult {
     }
 
     return_result(problems)
+}
+
+fn sourcefix_valid_glyphnames(s: &mut SourceFile) -> FixFnResult {
+    fn fix_a_ufo(font: &mut norad::Font) -> FixFnResult {
+        let mut changed = false;
+        let mut renames = vec![];
+        let layer = font.default_layer_mut();
+        if let Some(space_glyph) = layer
+            .iter()
+            .find(|g| g.codepoints.contains(' '))
+            .map(|x| x.name().as_str())
+        {
+            if space_glyph != "space" {
+                renames.push((space_glyph.to_string(), "space"));
+            }
+        }
+        if let Some(nbspace_glyph) = layer
+            .iter()
+            .find(|g| g.codepoints.contains(0xa0 as char))
+            .map(|x| x.name().as_str())
+        {
+            if nbspace_glyph != "nbspace" {
+                renames.push((nbspace_glyph.to_string(), "nbspace"));
+            }
+        }
+        for (old_name, new_name) in renames {
+            layer.rename_glyph(&old_name, new_name, true).map_err(|e| {
+                FontspectorError::Fix(format!(
+                    "Failed to rename glyph {old_name} to {new_name}: {e}"
+                ))
+            })?;
+            changed = true;
+        }
+
+        Ok(changed)
+    }
+    match s.source {
+        Source::Ufo(ref mut font) => fix_a_ufo(font),
+        Source::Designspace(ref mut ds) => ds.apply_fix(&fix_a_ufo),
+        Source::Glyphs(ref mut font) => {
+            let font = font.font_mut();
+            let mut changed = false;
+            for glyph in font.glyphs_mut().iter_mut() {
+                if glyph.unicode().contains(&0x20u32) && glyph.name() != "space" {
+                    glyph.set_name("space".to_string());
+                    changed = true;
+                }
+                if glyph.unicode().contains(&0xa0u32) && glyph.name() != "nbspace" {
+                    glyph.set_name("nbspace".to_string());
+                    changed = true;
+                }
+            }
+            Ok(changed)
+        }
+    }
 }
