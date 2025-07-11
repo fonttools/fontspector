@@ -15,6 +15,7 @@ jobs:
         with:
           submodules: recursive
           fetch-depth: 0
+          token: ${{ secrets.RELEASE_TOKEN }}
       - uses: fregante/setup-git-user@v2
       - name: Install protoc
         run: sudo apt-get update && sudo apt-get install protobuf-compiler
@@ -26,6 +27,4 @@ jobs:
       - name: Install smart release
         run: cargo install cargo-smart-release
       - name: Run smart release
-        run: cargo smart-release fontspector-checkapi fontspector-checkhelper fontspector-profile-opentype fontspector-profile-googlefonts fontspector-profile-universal fontspector --no-changelog-preview --allow-fully-generated-changelogs --update-crates-index --dry-run-cargo-publish
-      - name: Push tags
-        run: git push ; git push --tags
+        run: cargo smart-release --no-changelog-preview --allow-fully-generated-changelogs --update-crates-index
