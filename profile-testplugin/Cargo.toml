@@ -8,7 +8,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 fontspector-checkapi = { path = "../fontspector-checkapi" }
-toml = { workspace = "true" }
+toml = { workspace = true }
 serde_json = { workspace = true }
 
 [target.'cfg(not(target_family = "wasm"))'.dependencies]
