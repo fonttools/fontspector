@@ -1285,7 +1285,7 @@ dependencies = [
  "homedir",
  "indexmap",
  "indicatif",
- "itertools 0.13.0",
+ "itertools 0.14.0",
  "log",
  "markdown",
  "quote",
@@ -1295,7 +1295,7 @@ dependencies = [
  "shadow-rs",
  "tera",
  "termimad",
- "toml",
+ "toml 0.9.1",
  "walkdir",
  "zip",
 ]
@@ -1309,7 +1309,7 @@ dependencies = [
  "fontspector-checkhelper",
  "glob-match",
  "indexmap",
- "itertools 0.13.0",
+ "itertools 0.14.0",
  "kurbo",
  "log",
  "minreq",
@@ -1319,7 +1319,7 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror 2.0.12",
- "toml",
+ "toml 0.9.1",
 ]
 
 [[package]]
@@ -1353,7 +1353,7 @@ version = "1.0.0"
 dependencies = [
  "fontations",
  "fontspector-checkapi",
- "itertools 0.13.0",
+ "itertools 0.14.0",
  "pluginator",
 ]
 
@@ -1364,7 +1364,7 @@ dependencies = [
  "fontspector-checkapi",
  "norad",
  "pluginator",
- "quick-xml",
+ "quick-xml 0.38.0",
  "serde_json",
 ]
 
@@ -1374,7 +1374,7 @@ version = "1.0.0"
 dependencies = [
  "fontations",
  "fontspector-checkapi",
- "itertools 0.13.0",
+ "itertools 0.14.0",
  "pluginator",
  "serde_json",
 ]
@@ -1394,7 +1394,7 @@ dependencies = [
  "hashbrown 0.15.4",
  "image",
  "indexmap",
- "itertools 0.13.0",
+ "itertools 0.14.0",
  "kurbo",
  "log",
  "num-traits",
@@ -1424,7 +1424,7 @@ version = "1.0.2"
 dependencies = [
  "fontations",
  "fontspector-checkapi",
- "itertools 0.13.0",
+ "itertools 0.14.0",
  "kurbo",
  "rustybuzz",
 ]
@@ -1447,7 +1447,7 @@ dependencies = [
  "fontations",
  "fontspector-checkapi",
  "fontspector-checkhelper",
- "itertools 0.13.0",
+ "itertools 0.14.0",
  "kurbo",
  "unicode-properties",
 ]
@@ -1459,7 +1459,7 @@ dependencies = [
  "fontspector-checkapi",
  "pluginator",
  "serde_json",
- "toml",
+ "toml 0.8.23",
 ]
 
 [[package]]
@@ -1473,7 +1473,7 @@ dependencies = [
  "hashbrown 0.15.4",
  "humansize",
  "interpolatable",
- "itertools 0.13.0",
+ "itertools 0.14.0",
  "kurbo",
  "log",
  "reqwest",
@@ -2837,7 +2837,7 @@ dependencies = [
  "close_already",
  "indexmap",
  "plist",
- "quick-xml",
+ "quick-xml 0.37.5",
  "serde",
  "serde_derive",
  "serde_repr",
@@ -3200,7 +3200,7 @@ checksum = "3d77244ce2d584cd84f6a15f86195b8c9b2a0dfbfd817c09e0464244091a58ed"
 dependencies = [
  "base64",
  "indexmap",
- "quick-xml",
+ "quick-xml 0.37.5",
  "serde",
  "time",
 ]
@@ -3585,6 +3585,16 @@ name = "quick-xml"
 version = "0.37.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "331e97a1af0bf59823e6eadffe373d7b27f485be8748f71471c662c1f269b7fb"
+dependencies = [
+ "memchr",
+ "serde",
+]
+
+[[package]]
+name = "quick-xml"
+version = "0.38.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8927b0664f5c5a98265138b7e3f90aa19a6b21353182469ace36d4ac527b7b1b"
 dependencies = [
  "memchr",
  "serde",
@@ -4099,6 +4109,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "serde_spanned"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "40734c41988f7306bb04f0ecf60ec0f3f1caa34290e4e8ea471dcd3346483b83"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "serde_urlencoded"
 version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4181,7 +4200,7 @@ dependencies = [
  "rustybuzz",
  "serde",
  "serde_json",
- "toml",
+ "toml 0.8.23",
  "unicode-joining-type",
  "unicode-normalization",
  "unicode-properties",
@@ -4702,9 +4721,22 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dc1beb996b9d83529a9e75c17a1686767d148d70663143c7854d8b4a09ced362"
 dependencies = [
  "serde",
- "serde_spanned",
- "toml_datetime",
+ "serde_spanned 0.6.9",
+ "toml_datetime 0.6.11",
  "toml_edit",
+]
+
+[[package]]
+name = "toml"
+version = "0.9.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0207d6ed1852c2a124c1fbec61621acb8330d2bf969a5d0643131e9affd985a5"
+dependencies = [
+ "serde",
+ "serde_spanned 1.0.0",
+ "toml_datetime 0.7.0",
+ "toml_parser",
+ "winnow",
 ]
 
 [[package]]
@@ -4717,6 +4749,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "toml_datetime"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bade1c3e902f58d73d3f294cd7f20391c1cb2fbcb643b73566bc773971df91e3"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "toml_edit"
 version = "0.22.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4724,9 +4765,18 @@ checksum = "41fe8c660ae4257887cf66394862d21dbca4a6ddd26f04a3560410406a2f819a"
 dependencies = [
  "indexmap",
  "serde",
- "serde_spanned",
- "toml_datetime",
+ "serde_spanned 0.6.9",
+ "toml_datetime 0.6.11",
  "toml_write",
+ "winnow",
+]
+
+[[package]]
+name = "toml_parser"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b5c1c469eda89749d2230d8156a5969a69ffe0d6d01200581cdc6110674d293e"
+dependencies = [
  "winnow",
 ]
 
