@@ -19,7 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 2 commits contributed to the release over the course of 7 calendar days.
+ - 3 commits contributed to the release.
+ - 9 days passed between releases.
  - 2 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 2 unique issues were worked on: [#314](https://github.com/fonttools/fontspector/issues/314), [#326](https://github.com/fonttools/fontspector/issues/326)
 
@@ -33,6 +34,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Update rust crate indicatif to 0.18 ([`cefb525`](https://github.com/fonttools/fontspector/commit/cefb5250c292752ece71d7fe3b2ccd30f682f416))
  * **[#326](https://github.com/fonttools/fontspector/issues/326)**
     - Support installing with cargo-binstall ([`3d7a965`](https://github.com/fonttools/fontspector/commit/3d7a965e900a6aed406ddf8a78f490ff3d42dd6a))
+ * **Uncategorized**
+    - Release fontspector-fontbakery-bridge v1.1.0, fontspector-profile-googlefonts v1.2.0, fontspector v1.3.0 ([`05adc63`](https://github.com/fonttools/fontspector/commit/05adc636ddf710008076985ab8c2a03ea19a0f6c))
 </details>
 
 ## v1.2.0 (2025-07-02)

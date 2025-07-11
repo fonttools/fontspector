@@ -16,14 +16,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - <csr-id-dc046deddb76c9aec8e0cfba84fb69d3e5cf397b/> Correctl deserialize remote_styles
  - <csr-id-525b27b4f24d91acad5ad0c0c101135592698b95/> Only check for regressions if we have the font already
    * fix(googlefonts/cjk_vertical_metrics_regressions): Only check for regressions if we have the font already
-   
-   * chore(ci): apt-get update before installing
+* chore(ci): apt-get update before installing
 
 ### Commit Statistics
 
 <csr-read-only-do-not-edit/>
 
- - 3 commits contributed to the release over the course of 3 calendar days.
+ - 4 commits contributed to the release.
+ - 9 days passed between releases.
  - 3 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 3 unique issues were worked on: [#313](https://github.com/fonttools/fontspector/issues/313), [#325](https://github.com/fonttools/fontspector/issues/325), [#327](https://github.com/fonttools/fontspector/issues/327)
 
@@ -39,6 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Only check for regressions if we have the font already ([`525b27b`](https://github.com/fonttools/fontspector/commit/525b27b4f24d91acad5ad0c0c101135592698b95))
  * **[#327](https://github.com/fonttools/fontspector/issues/327)**
     - Correctl deserialize remote_styles ([`dc046de`](https://github.com/fonttools/fontspector/commit/dc046deddb76c9aec8e0cfba84fb69d3e5cf397b))
+ * **Uncategorized**
+    - Release fontspector-fontbakery-bridge v1.1.0, fontspector-profile-googlefonts v1.2.0, fontspector v1.3.0 ([`05adc63`](https://github.com/fonttools/fontspector/commit/05adc636ddf710008076985ab8c2a03ea19a0f6c))
 </details>
 
 ## v1.1.1 (2025-07-02)
@@ -125,9 +127,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  * **Uncategorized**
     - Release fontspector-checkapi v1.1.1, fontspector-profile-opentype v1.2.0, fontspector-profile-googlefonts v1.1.1, fontspector-profile-universal v1.1.1, fontspector v1.2.0 ([`f407a9a`](https://github.com/fonttools/fontspector/commit/f407a9aaf0aae501443842311f1b5c27eab007b6))
 </details>
-
-<csr-unknown>
- Use best family name for consistency with METADATA.pb Correctly parse URL in OFL text Improve rationale rewrapping add skip for cff fonts<csr-unknown/>
 
 ## v1.1.0 (2025-06-19)
 
