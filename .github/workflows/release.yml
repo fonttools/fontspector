@@ -27,4 +27,4 @@ jobs:
       - name: Install smart release
         run: cargo install cargo-smart-release
       - name: Run smart release
-        run: cargo smart-release --no-changelog-preview --allow-fully-generated-changelogs --update-crates-index
+        run: cargo smart-release `python3 scripts/publishable.py` --no-changelog-preview --allow-fully-generated-changelogs --update-crates-index --execute
