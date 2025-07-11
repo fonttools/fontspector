@@ -9,6 +9,9 @@ homepage = "https://fonttools.github.io/fontspector/"
 license = "Apache-2.0"
 readme = "../README.md"
 
+[package.metadata.binstall]
+pkg-url = "{ repo }/releases/download/fontspector-v{ version }/{ name }-v{ version }-{target}{ archive-suffix }"
+
 [features]
 python = ["dep:fontbakery-bridge", "fontspector-checkapi/python"]
 

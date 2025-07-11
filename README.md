@@ -24,6 +24,7 @@ Fontspector is made up of multiple crates:
 You have two options for running the CLI tool - you can download our binaries, or you can compile your own.
 
 - Official release binaries are available from the [GitHub releases page](https://github.com/fonttools/fontspector/releases).
+- You can install from binary with `cargo-binstall fontspector`. (If you don't have `cargo-binstall`, you can install it with `brew install cargo-binstall` on macOS Homebrew or `curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash`.)
 - You can build the latest release from source with `cargo install fontspector`. (If you don't have a Rust compiler installed, you can use `brew install rustup` on macOS Homebrew or [rustup](https://rustup.rs) to install one.)
 - You can build the bleeding-edge version with `cargo install git+https://github.com/fonttools/fontspector/`
 
