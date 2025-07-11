@@ -184,22 +184,38 @@ fn remote_styles_impl(family: &str, context: &Context) -> Result<Vec<Testable>, 
                     "Expected an array".to_string(),
                 ))
                 .and_then(|a| {
-                    a.iter()
+                    let objects = a
+                        .iter()
+                        .map(|v| {
+                            v.as_object().ok_or(FontspectorError::CacheSerialization(
+                                "Expected an object".to_string(),
+                            ))
+                        })
+                        .collect::<Result<Vec<_>, FontspectorError>>()?;
+                    objects
+                        .into_iter()
                         .map(|v| {
                             let filename = v.get("filename").and_then(Value::as_str).ok_or(
                                 FontspectorError::CacheSerialization(
                                     "Expected a string".to_string(),
                                 ),
                             )?;
-                            let contents = v.get("contents").and_then(Value::as_str).ok_or(
-                                FontspectorError::CacheSerialization(
-                                    "Expected a string".to_string(),
-                                ),
-                            )?;
-                            Ok(Testable::new_with_contents(
-                                filename,
-                                contents.as_bytes().to_vec(),
-                            ))
+                            let contents = v
+                                .get("contents")
+                                .and_then(Value::as_array)
+                                .ok_or(FontspectorError::CacheSerialization(
+                                    "Expected a Vec<u8>".to_string(),
+                                ))?
+                                .iter()
+                                .map(|x| {
+                                    x.as_u64()
+                                        .ok_or(FontspectorError::CacheSerialization(
+                                            "Expected a u64".to_string(),
+                                        ))
+                                        .map(|u| u as u8)
+                                })
+                                .collect::<Result<Vec<u8>, FontspectorError>>()?;
+                            Ok(Testable::new_with_contents(filename, contents))
                         })
                         .collect()
                 })
