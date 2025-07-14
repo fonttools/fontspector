@@ -32,6 +32,11 @@ fn axes_match(c: &TestableCollection, context: &Context) -> CheckFnResult {
     let family = msg.display_name.as_ref().unwrap_or(&name);
     let mut problems: Vec<Status> = vec![];
     skip!(msg.axes.is_empty(), "not-variable", "Not a variable font");
+    skip!(
+        !is_listed_on_google_fonts(&name, context)?,
+        "not-listed-on-google-fonts",
+        "Skipping check because font is not listed on Google Fonts"
+    );
 
     let remote_styles = remote_styles(family, context)?;
     let mut missing_axes = HashSet::new();
