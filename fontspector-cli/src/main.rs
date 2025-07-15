@@ -62,7 +62,7 @@ fn main() {
         .version(short_version)
         .long_version(build::CLAP_LONG_VERSION);
     let mut matches = cmd2.get_matches();
-    let args = Args::from_arg_matches_mut(&mut matches).unwrap_or_else(|e| {
+    let mut args = Args::from_arg_matches_mut(&mut matches).unwrap_or_else(|e| {
         let _ = e.print();
         std::process::exit(1);
     });
@@ -118,7 +118,7 @@ fn main() {
     }
     // We create one collection for each set of testable files in a directory.
     // So let's group the inputs per directory, and then map them into a FontCollection
-    let grouped_inputs = group_inputs(&args);
+    let grouped_inputs = group_inputs(&mut args);
 
     if grouped_inputs.is_empty() {
         log::error!("No input files");
@@ -297,7 +297,41 @@ fn list_checks(args: &Args, registry: &Registry<'static>, profile: &fontspector_
 // Group each file into a set per directory, and wrap that in a TestableCollection.
 // It feels like this takes an inordinately long time, but remember that this also
 // reads the input files.
-fn group_inputs(args: &Args) -> Vec<TestableCollection> {
+fn group_inputs(args: &mut Args) -> Vec<TestableCollection> {
+    // As a fun Easter egg, if the input file is a single source file, we will
+    // pass it to fontc, compile it and stick it in the source map.
+    #[cfg(feature = "fontc")]
+    #[allow(clippy::indexing_slicing)] // We know this is a single file
+    if args.inputs.len() == 1
+        && (args.inputs[0].ends_with(".glyphs")
+            || args.inputs[0].ends_with(".designspace")
+            || args.inputs[0].ends_with(".ufo")
+            || args.inputs[0].ends_with(".glyphspackage"))
+    {
+        let path = PathBuf::from(&args.inputs[0]);
+        if let Ok(input) = fontc::Input::new(&path) {
+            log::info!("Compiling {}", &path.display());
+            let flags = fontc::Flags::default();
+            match fontc::generate_font(
+                &input,
+                &PathBuf::from("build/"),
+                Some(&PathBuf::from("font.ttf")),
+                flags,
+                false,
+            ) {
+                Err(e) => {
+                    log::error!("Could not compile font: {e}");
+                    std::process::exit(1);
+                }
+                Ok(font) => {
+                    let ttf_filename = path.with_extension("ttf");
+                    let testable = Testable::new_with_contents(&ttf_filename, font);
+                    return vec![TestableCollection::from_testables(vec![testable], None)];
+                }
+            }
+        }
+    }
+
     let inputs = args
         .inputs
         .iter()
