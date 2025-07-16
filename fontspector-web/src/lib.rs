@@ -1,12 +1,12 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, path::PathBuf};
 
 use js_sys::{Reflect, Uint8Array};
 use serde_json::{json, Value};
 use wasm_bindgen::prelude::*;
 extern crate console_error_panic_hook;
 use fontspector_checkapi::{
-    Check, CheckResult, Context, Plugin, Profile, Registry, Testable, TestableCollection,
-    TestableType,
+    Check, CheckResult, Context, Plugin, Profile, Registry, StatusCode, TestFont, Testable,
+    TestableCollection, TestableType,
 };
 use profile_adobe::Adobe;
 use profile_fontwerk::Fontwerk;
@@ -63,7 +63,32 @@ fn register_profiles<'a>() -> Registry<'a> {
 }
 
 #[wasm_bindgen]
-pub fn check_fonts(fonts: &JsValue, profile: &str) -> Result<String, JsValue> {
+pub fn best_family_name(fonts: &JsValue) -> Result<String, JsValue> {
+    let mut names: Vec<String> = Reflect::own_keys(fonts)?
+        .into_iter()
+        .flat_map(|filename| {
+            let file: JsValue = Reflect::get(fonts, &filename).unwrap();
+            let contents = Uint8Array::new(&file).to_vec();
+            TestFont::new_from_data(&PathBuf::from(filename.as_string().unwrap()), &contents)
+                .map(|t| t.best_familyname())
+        })
+        .flatten()
+        .collect::<Vec<String>>();
+    names.sort();
+    names.dedup();
+    if names.is_empty() {
+        return Ok("Unknown".to_string());
+    }
+    Ok(names.join(", "))
+}
+
+#[wasm_bindgen]
+pub fn check_fonts(
+    fonts: &JsValue,
+    profile: &str,
+    full_lists: bool,
+    loglevels: &str,
+) -> Result<String, JsValue> {
     console_error_panic_hook::set_once();
     let registry = register_profiles();
     let testables: Vec<Testable> = Reflect::own_keys(fonts)?
@@ -79,6 +104,7 @@ pub fn check_fonts(fonts: &JsValue, profile: &str) -> Result<String, JsValue> {
             }
         })
         .collect();
+    let min_severity = StatusCode::from_string(loglevels);
     let collection = TestableCollection::from_testables(testables, None);
 
     let profile = registry
@@ -89,7 +115,7 @@ pub fn check_fonts(fonts: &JsValue, profile: &str) -> Result<String, JsValue> {
         network_timeout: None,
         configuration: HashMap::new(),
         check_metadata: serde_json::Value::Null,
-        full_lists: false,
+        full_lists,
         cache: Default::default(),
         overrides: vec![],
     };
@@ -104,7 +130,7 @@ pub fn check_fonts(fonts: &JsValue, profile: &str) -> Result<String, JsValue> {
         &all_testables,
     );
 
-    let results: Vec<CheckResult> = checkorder
+    let mut results: Vec<CheckResult> = checkorder
         .iter()
         .map(|(sectionname, testable, check, context)| {
             (
@@ -115,6 +141,10 @@ pub fn check_fonts(fonts: &JsValue, profile: &str) -> Result<String, JsValue> {
         })
         .flat_map(|(_, _, result)| result)
         .collect();
+    if let Some(severity) = min_severity {
+        // Filter results by severity
+        results.retain(|result| result.worst_status() >= severity);
+    }
     serde_json::to_string(&results).map_err(|e| e.to_string().into())
 }
 
