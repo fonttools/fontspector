@@ -46,7 +46,9 @@ async function init() {
     self.fulllists = fulllists;
     self.exclude_checks = EXCLUDE_CHECKS;
     try {
-      const results = JSON.parse(wasm.check_fonts(files, profile));
+      const results = JSON.parse(
+        wasm.check_fonts(files, profile, fulllists, loglevels)
+      );
       self.postMessage(results);
     } catch (error) {
       self.postMessage({ error: error, id });
