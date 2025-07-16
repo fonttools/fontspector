@@ -329,6 +329,9 @@ fbWorker.onmessage = (event) => {
     }
     return;
   }
+  if ("name" in message) {
+    $("#font-name").html(message.name);
+  }
   if ("error" in message) {
     showError(message.error);
   } else {

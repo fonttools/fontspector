@@ -46,6 +46,8 @@ async function init() {
     self.fulllists = fulllists;
     self.exclude_checks = EXCLUDE_CHECKS;
     try {
+      const name = wasm.best_family_name(files);
+      self.postMessage({ name });
       const results = JSON.parse(
         wasm.check_fonts(files, profile, fulllists, loglevels)
       );

@@ -11,6 +11,9 @@ export type StatusCode = "FAIL" | "WARN" | "INFO" | "ERROR" | "PASS" | "SKIP";
 interface ErrorMessage {
   error: string;
 }
+interface NameMessage {
+  name: string;
+}
 export interface ReadyMessage {
   ready: boolean;
   version: string;
@@ -41,4 +44,4 @@ export type CheckResult = {
   worst_status: StatusCode;
 };
 
-export type Message = ErrorMessage | ReadyMessage | CheckResult[];
+export type Message = ErrorMessage | NameMessage | ReadyMessage | CheckResult[];

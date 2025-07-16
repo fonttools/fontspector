@@ -1,11 +1,11 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, path::PathBuf};
 
 use js_sys::{Reflect, Uint8Array};
 use serde_json::{json, Value};
 use wasm_bindgen::prelude::*;
 extern crate console_error_panic_hook;
 use fontspector_checkapi::{
-    Check, CheckResult, Context, Plugin, Profile, Registry, StatusCode, Testable,
+    Check, CheckResult, Context, Plugin, Profile, Registry, StatusCode, TestFont, Testable,
     TestableCollection, TestableType,
 };
 use profile_adobe::Adobe;
@@ -60,6 +60,26 @@ fn register_profiles<'a>() -> Registry<'a> {
     }
 
     registry
+}
+
+#[wasm_bindgen]
+pub fn best_family_name(fonts: &JsValue) -> Result<String, JsValue> {
+    let mut names: Vec<String> = Reflect::own_keys(fonts)?
+        .into_iter()
+        .flat_map(|filename| {
+            let file: JsValue = Reflect::get(fonts, &filename).unwrap();
+            let contents = Uint8Array::new(&file).to_vec();
+            TestFont::new_from_data(&PathBuf::from(filename.as_string().unwrap()), &contents)
+                .map(|t| t.best_familyname())
+        })
+        .flatten()
+        .collect::<Vec<String>>();
+    names.sort();
+    names.dedup();
+    if names.is_empty() {
+        return Ok("Unknown".to_string());
+    }
+    Ok(names.join(", "))
 }
 
 #[wasm_bindgen]
