@@ -103,6 +103,17 @@
       #startModal {
         overflow: scroll !important;
       }
+      .tab-content {
+        padding-bottom: 50px;
+      }
+      .footer {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        background-color: #f8f9fa;
+        padding: 10px 0;
+        text-align: center;
+      }
     </style>
   </head>
 
@@ -180,6 +191,11 @@
                       id="listcheckscontainer"
                     >
                       <p>
+                        <a
+                          class="btn btn-outline-primary float-right"
+                          href="https://github.com/fonttools/fontspector/issues/new/choose"
+                          >Report an issue</a
+                        >
                         <button
                           id="listchecksbtn"
                           class="btn btn-outline-primary"
@@ -304,6 +320,15 @@
         </div>
       </div>
     </div>
+    <footer class="footer">
+      <a href="https://github.com/fonttools/fontspector/issues/new/choose"
+        >Report an issue</a
+      >
+      <span class="ml-4 mr-4">|</span>
+      <a href="https://github.com/fonttools/fontspector"
+        >View source on GitHub</a
+      >
+    </footer>
   </body>
   <script src="bootstrap.js"></script>
 </html>
