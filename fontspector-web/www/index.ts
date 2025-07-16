@@ -331,10 +331,14 @@ fbWorker.onmessage = (event) => {
   }
   if ("name" in message) {
     $("#font-name").html(message.name);
+    return;
   }
   if ("error" in message) {
     showError(message.error);
   } else {
+    $("#v-pills-tab").empty();
+    $("#v-pills-tabContent").empty();
+
     $("#v-pills-tab button:first-child").tab("show");
     showResult(message as CheckResult[]);
   }
