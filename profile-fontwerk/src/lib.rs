@@ -33,6 +33,7 @@ impl fontspector_checkapi::Plugin for Fontwerk {
             .add_and_register_check(checks::fontwerk::name_consistency)
             .add_and_register_check(checks::fontwerk::required_name_ids)
             .add_and_register_check(checks::fontwerk::soft_hyphen)
+            .add_and_register_check(checks::fontwerk::fstype)
             //.add_and_register_check(checks::fontwerk::vendor_id)
             // TODO: implement other Fontwerk checks
             // .add_and_register_check("fontwerk/names_match_default_fvar")
