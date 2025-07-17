@@ -23,6 +23,8 @@ impl fontspector_checkapi::Plugin for Fontwerk {
             .exclude_check("googlefonts/production_glyphs_similarity")
             .exclude_check("googlefonts/vendor_id") // Custom fontwerk test below
             .exclude_check("googlefonts/version_bump")
+            .exclude_check("googlefonts/font_names")
+            .exclude_check("control_chars")
             .exclude_check("fontdata_namecheck")
             .include_profile("opentype")
             .add_section("Fontwerk Checks")
