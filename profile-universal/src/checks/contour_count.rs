@@ -110,7 +110,7 @@ fn contour_count(t: &Testable, context: &Context) -> CheckFnResult {
             "contour-count",
             &format!(
                 "This check inspects the glyph outlines and detects the total number of contours in each of them. The expected values are
-     infered from the typical ammounts of contours observed in a
+     inferred from the typical amounts of contours observed in a
      large collection of reference font families. The divergences
      listed below may simply indicate a significantly different
      design on some of your glyphs. On the other hand, some of these
