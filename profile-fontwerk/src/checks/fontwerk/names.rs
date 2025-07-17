@@ -102,31 +102,26 @@ fn required_name_ids(t: &Testable, context: &Context) -> CheckFnResult {
     let mut bad_names: Vec<String> = vec![];
 
     let name_PEL_codes = get_name_PEL_codes(font.font());
-    if let Some(PEL_codes) = name_PEL_codes {
-        for codes in PEL_codes {
-            for code in codes.iter() {
-                let mut missing_name_ids: Vec<_> = vec![];
-                for id in vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 25] {
-                    let name_id = StringId::from(id);
-                    if let Some(_name_string) =
-                        get_name_entry_string(&font.font(), code.0, code.1, code.2, name_id)
-                    {
-                        continue;
-                    } else {
-                        if id == 25 && !font.is_variable_font() {
-                            // Skip Variations PostScript Name Prefix if not a variable font
-                            continue;
-                        }
-                        missing_name_ids.push(id);
-                    }
+    for code in name_PEL_codes {
+        let mut missing_name_ids: Vec<_> = vec![];
+        for id in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 25] {
+            let name_id = StringId::from(id);
+            if let Some(_name_string) =
+                get_name_entry_string(&font.font(), code.0, code.1, code.2, name_id)
+            {
+                continue;
+            } else {
+                if id == 25 && !font.is_variable_font() {
+                    // Skip Variations PostScript Name Prefix if not a variable font
+                    continue;
                 }
-                if !missing_name_ids.is_empty() {
-                    bad_names.push(format!(
-                        "Missing required name IDs {:?} for {:?}.",
-                        missing_name_ids, code
-                    ));
-                }
+                missing_name_ids.push(id);
             }
+        }
+        if !missing_name_ids.is_empty() {
+            bad_names.push(format!(
+                "Missing required name IDs {missing_name_ids:?} for {code:?}.",
+            ));
         }
     }
 
@@ -172,64 +167,58 @@ fn name_consistency(t: &Testable, context: &Context) -> CheckFnResult {
     ];
 
     let name_PEL_codes = get_name_PEL_codes(font.font());
-    if let Some(PEL_codes) = name_PEL_codes {
-        for code in PEL_codes {
-            let mut name_strings: Vec<(String, String)> = vec![];
-            for (platform, encoding, language) in code.iter() {
-                for (i, name_id_pair) in name_ids.iter().enumerate() {
-                    let mut full_name = String::new();
-                    let mut pair = vec![];
-                    let mut id_pair = vec![name_id_pair.0];
-                    if let Some(sub_name_id) = name_id_pair.1 {
-                        id_pair.push(sub_name_id);
-                    }
-                    for name_id in id_pair.iter() {
-                        if let Some(name_string) = get_name_entry_string(
-                            &font.font(),
-                            *platform,
-                            *encoding,
-                            *language,
-                            *name_id,
-                        ) {
-                            pair.push(true);
-                            full_name.push_str(&name_string.to_string());
-                            full_name.push(' ');
-                        }
-                    }
-                    if pair.is_empty() {
-                        // Skip if no name entries were found
-                        continue;
-                    }
-                    // Normalize the full name by removing 'Regular' and trimming whitespace
-                    let trimmed = full_name.trim();
-                    let replaced = trimmed.replace("Regular", "");
-                    let normalized_full_name = replaced.trim();
-                    let pair_info = if i == 0 {
-                        "1 + 2".to_string()
-                    } else if i == 1 {
-                        "4".to_string()
-                    } else if i == 2 {
-                        "16 + 17".to_string()
-                    } else {
-                        "21 + 22".to_string()
-                    };
-                    name_strings.push((normalized_full_name.to_string(), pair_info));
+    for code in name_PEL_codes {
+        let mut name_strings: Vec<(String, String)> = vec![];
+        for (i, name_id_pair) in name_ids.iter().enumerate() {
+            let mut full_name = String::new();
+            let mut pair = vec![];
+            let mut id_pair = vec![name_id_pair.0];
+            if let Some(sub_name_id) = name_id_pair.1 {
+                id_pair.push(sub_name_id);
+            }
+            for name_id in id_pair.iter() {
+                if let Some(name_string) =
+                    get_name_entry_string(&font.font(), code.0, code.1, code.2, *name_id)
+                {
+                    pair.push(true);
+                    full_name.push_str(&name_string.to_string());
+                    full_name.push(' ');
                 }
             }
-            // We only check for consistency if we have more than one name string
-            if name_strings.len() > 1 {
-                let first = &name_strings[0];
-                for name in name_strings[1..].iter() {
-                    if first.0 != name.0 {
-                        bad_names.push(format!(
-                            "Inconsistent names {:?}: {} ({}) != {} ({})",
-                            code, first.0, first.1, name.0, name.1
-                        ));
-                    }
+            if pair.is_empty() {
+                // Skip if no name entries were found
+                continue;
+            }
+            // Normalize the full name by removing 'Regular' and trimming whitespace
+            let trimmed = full_name.trim();
+            let replaced = trimmed.replace("Regular", "");
+            let normalized_full_name = replaced.trim();
+            let pair_info = if i == 0 {
+                "1 + 2".to_string()
+            } else if i == 1 {
+                "4".to_string()
+            } else if i == 2 {
+                "16 + 17".to_string()
+            } else {
+                "21 + 22".to_string()
+            };
+            name_strings.push((normalized_full_name.to_string(), pair_info));
+        }
+
+        // We only check for consistency if we have more than one name string
+        if name_strings.len() > 1 {
+            let first = &name_strings[0];
+            for name in name_strings[1..].iter() {
+                if first.0 != name.0 {
+                    bad_names.push(format!(
+                        "Inconsistent names {:?}: {} ({}) != {} ({})",
+                        code, first.0, first.1, name.0, name.1
+                    ));
                 }
             }
         }
     }
+
     Ok(if bad_names.is_empty() {
         Status::just_one_pass()
     } else {
@@ -313,23 +302,22 @@ fn get_string_id_from_string(name_id_string: &str) -> Option<StringId> {
     registered_name_ids.get(name_id_string).copied()
 }
 
-fn get_name_PEL_codes(font: FontRef) -> Option<Vec<Vec<(u16, u16, u16)>>> {
-    let name_table = font.name().ok()?;
+fn get_name_PEL_codes(font: FontRef) -> Vec<(u16, u16, u16)> {
+    let name_table = font.name().ok();
 
-    let mut codes: HashMap<(u16, u16, u16), Vec<(u16, u16, u16)>> = HashMap::new();
-    for rec in name_table.name_record().iter() {
-        let code = (rec.platform_id(), rec.encoding_id(), rec.language_id());
-        codes.entry(code).or_default().push(code);
+    let mut codes_vec = vec![];
+    if let Some(name_table) = name_table {
+        for rec in name_table.name_record().iter() {
+            let code = (rec.platform_id(), rec.encoding_id(), rec.language_id());
+            codes_vec.push(code);
+        }
     }
-    // Remove duplicates by converting to a HashSet
-    let mut unique_codes: HashSet<(u16, u16, u16)> = HashSet::new();
-    for code in codes.keys() {
-        unique_codes.insert(*code);
-    }
-    // Convert HashSet back to Vec and sort it
-    let mut name_PEL_codes = vec![unique_codes.into_iter().collect::<Vec<(u16, u16, u16)>>()];
-    name_PEL_codes.iter_mut().for_each(|v| v.sort());
-    Some(name_PEL_codes)
+    // make set of codes_vec
+    let unique_codes: HashSet<(u16, u16, u16)> = codes_vec.into_iter().collect();
+
+    let mut unique_codes: Vec<(u16, u16, u16)> = unique_codes.into_iter().collect();
+    unique_codes.sort();
+    unique_codes
 }
 
 #[cfg(test)]
@@ -361,7 +349,7 @@ mod tests {
         let font = FontRef::new(contents).expect("Failed to create FontRef from contents");
         let expected_codes = vec![(1, 0, 0), (3, 1, 1033)];
         let name_PEL_codes = get_name_PEL_codes(font);
-        assert_eq!(name_PEL_codes, Some(vec![expected_codes.clone()]));
+        assert_eq!(name_PEL_codes, expected_codes);
     }
 
     #[test]
@@ -462,9 +450,9 @@ mod tests {
             ]
             .to_vec(),
         ));
-        tests.push((StatusCode::Fail, Some("The following issues have been found:\n\n* Inconsistent names [(3, 1, 1033)]: Family Name Bold (1 + 2) != Family Name Medium (4)".to_string()), [(1, "Family Name"), (2, "Bold"), (4, "Family Name Medium")].to_vec()));
-        tests.push((StatusCode::Fail, Some("The following issues have been found:\n\n* Inconsistent names [(3, 1, 1033)]: Family Name Bold (1 + 2) != Family Name Medium (16 + 17)".to_string()), [(1, "Family Name"), (2, "Bold"), (16, "Family Name"), (17, "Medium")].to_vec()));
-        tests.push((StatusCode::Fail, Some("The following issues have been found:\n\n* Inconsistent names [(3, 1, 1033)]: Family Name Condensed Bold (1 + 2) != Family Name Cond Bold (21 + 22)".to_string()), [(1, "Family Name Condensed"), (2, "Bold"), (21, "Family Name"), (22, "Cond Bold")].to_vec()));
+        tests.push((StatusCode::Fail, Some("The following issues have been found:\n\n* Inconsistent names (3, 1, 1033): Family Name Bold (1 + 2) != Family Name Medium (4)".to_string()), [(1, "Family Name"), (2, "Bold"), (4, "Family Name Medium")].to_vec()));
+        tests.push((StatusCode::Fail, Some("The following issues have been found:\n\n* Inconsistent names (3, 1, 1033): Family Name Bold (1 + 2) != Family Name Medium (16 + 17)".to_string()), [(1, "Family Name"), (2, "Bold"), (16, "Family Name"), (17, "Medium")].to_vec()));
+        tests.push((StatusCode::Fail, Some("The following issues have been found:\n\n* Inconsistent names (3, 1, 1033): Family Name Condensed Bold (1 + 2) != Family Name Cond Bold (21 + 22)".to_string()), [(1, "Family Name Condensed"), (2, "Bold"), (21, "Family Name"), (22, "Cond Bold")].to_vec()));
         for (expected_severity, expected_message, records) in tests.iter() {
             let mut builder = FontBuilder::new();
             builder.add_table(&Maxp::default()).unwrap();
