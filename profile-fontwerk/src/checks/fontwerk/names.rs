@@ -1,8 +1,6 @@
-use fontations::write::tables::name::Name;
 use fontations::{
     read::{tables::name::NameString, TableProvider},
     skrifa::{font::FontRef, string::StringId},
-    write::tables::name::NameRecord,
 };
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
 use std::collections::{HashMap, HashSet};
