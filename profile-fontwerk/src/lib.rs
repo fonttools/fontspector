@@ -24,15 +24,18 @@ impl fontspector_checkapi::Plugin for Fontwerk {
             .exclude_check("googlefonts/vendor_id") // Custom fontwerk test below
             .exclude_check("googlefonts/version_bump")
             .exclude_check("googlefonts/font_names")
+            .exclude_check("googlefonts/varfont/has_HVAR")
             .exclude_check("control_chars")
             .exclude_check("fontdata_namecheck")
             .include_profile("opentype")
             .add_section("Fontwerk Checks")
             .add_and_register_check(checks::fontwerk::name_entries)
+            .add_and_register_check(checks::fontwerk::name_consistency)
+            .add_and_register_check(checks::fontwerk::required_name_ids)
+            .add_and_register_check(checks::fontwerk::soft_hyphen)
             //.add_and_register_check(checks::fontwerk::vendor_id)
             // TODO: implement other Fontwerk checks
             // .add_and_register_check("fontwerk/names_match_default_fvar")
-            // .add_and_register_check("fontwerk/style_linking");
             .with_configuration_defaults(
                 "opentype/vendor_id",
                 HashMap::from([
