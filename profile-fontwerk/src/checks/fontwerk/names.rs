@@ -1,20 +1,11 @@
+use fontations::write::tables::name::Name;
+use fontations::{
+    read::{tables::name::NameString, TableProvider},
+    skrifa::{font::FontRef, string::StringId},
+    write::tables::name::NameRecord,
+};
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
 use std::collections::{HashMap, HashSet};
-use fontations::write::{
-    tables::name::{Name},
-};
-use fontations::{
-    read::{
-        tables::name::{NameString},
-        TableProvider
-    },
-    skrifa::{
-        font::FontRef,
-        string::StringId,
-    },
-    write::tables::name::{NameRecord},
-};
-
 
 #[check(
     id = "fontwerk/name_entries",
@@ -95,8 +86,14 @@ fn name_consistency(t: &Testable, context: &Context) -> CheckFnResult {
     let name_ids: Vec<(StringId, Option<StringId>)> = vec![
         (StringId::FAMILY_NAME, Some(StringId::SUBFAMILY_NAME)),
         (StringId::FULL_NAME, None),
-        (StringId::TYPOGRAPHIC_FAMILY_NAME, Some(StringId::TYPOGRAPHIC_SUBFAMILY_NAME)),
-        (StringId::WWS_FAMILY_NAME, Some(StringId::WWS_SUBFAMILY_NAME)),
+        (
+            StringId::TYPOGRAPHIC_FAMILY_NAME,
+            Some(StringId::TYPOGRAPHIC_SUBFAMILY_NAME),
+        ),
+        (
+            StringId::WWS_FAMILY_NAME,
+            Some(StringId::WWS_SUBFAMILY_NAME),
+        ),
     ];
 
     let name_PEL_codes = get_name_PEL_codes(font.font());
@@ -107,12 +104,13 @@ fn name_consistency(t: &Testable, context: &Context) -> CheckFnResult {
                 for (i, name_id_pair) in name_ids.iter().enumerate() {
                     let mut full_name = String::new();
                     let mut pair = vec![];
-                    let mut id_pair = vec![name_id_pair.0, ];
+                    let mut id_pair = vec![name_id_pair.0];
                     if let Some(sub_name_id) = name_id_pair.1 {
                         id_pair.push(sub_name_id);
                     }
                     for name_id in id_pair.iter() {
-                        if let Some(name_string) = get_name_entry_string(&font.font(),
+                        if let Some(name_string) = get_name_entry_string(
+                            &font.font(),
                             *platform,
                             *encoding,
                             *language,
@@ -125,7 +123,7 @@ fn name_consistency(t: &Testable, context: &Context) -> CheckFnResult {
                     }
                     if pair.is_empty() {
                         // Skip if no name entries were found
-                        continue; 
+                        continue;
                     }
                     // Normalize the full name by removing 'Regular' and trimming whitespace
                     let trimmed = full_name.trim();
@@ -171,7 +169,13 @@ fn name_consistency(t: &Testable, context: &Context) -> CheckFnResult {
 }
 
 /// Get a string from the font's name table by platform_id, encoding_id, language_id and name_id
-fn get_name_entry_string<'a>(font: &'a FontRef, platform_id: u16, encoding_id: u16, language_id: u16, name_id: StringId) -> Option<NameString<'a>> {
+fn get_name_entry_string<'a>(
+    font: &'a FontRef,
+    platform_id: u16,
+    encoding_id: u16,
+    language_id: u16,
+    name_id: StringId,
+) -> Option<NameString<'a>> {
     let name = font.name().ok();
     let mut records = name
         .as_ref()
@@ -234,7 +238,6 @@ fn get_string_id_from_string(name_id_string: &str) -> Option<StringId> {
     registered_name_ids.get(name_id_string).copied()
 }
 
-
 fn get_name_PEL_codes(font: FontRef) -> Option<Vec<Vec<(u16, u16, u16)>>> {
     let name_table = font.name().ok()?;
 
@@ -254,7 +257,6 @@ fn get_name_PEL_codes(font: FontRef) -> Option<Vec<Vec<(u16, u16, u16)>>> {
     Some(name_PEL_codes)
 }
 
-
 #[cfg(test)]
 mod tests {
     #![allow(clippy::unwrap_used)]
@@ -267,8 +269,8 @@ mod tests {
         FontBuilder,
     };
     use fontspector_checkapi::StatusCode;
-    use serde_json::json;
     use fontspector_checkapi::{Context, Testable};
+    use serde_json::json;
 
     #[test]
     fn test_get_name_ids_from_string() {
@@ -281,8 +283,7 @@ mod tests {
         let contents = include_bytes!(
             "../../../../fontspector-py/data/test/montserrat/Montserrat-Regular.ttf"
         );
-        let font = FontRef::new(contents)
-            .expect("Failed to create FontRef from contents");
+        let font = FontRef::new(contents).expect("Failed to create FontRef from contents");
         let expected_codes = vec![(1, 0, 0), (3, 1, 1033)];
         let name_PEL_codes = get_name_PEL_codes(font);
         assert_eq!(name_PEL_codes, Some(vec![expected_codes.clone()]));
@@ -372,23 +373,31 @@ mod tests {
     #[test]
     fn test_name_consistency() {
         let mut tests = Vec::new();
-        tests.push((StatusCode::Pass, None, [(1, "Family Name"), (2, "Bold"), (4, "Family Name Bold"), (16, "Family Name"), (17, "Bold"), (21, "Family Name"), (22, "Bold")].to_vec()));
+        tests.push((
+            StatusCode::Pass,
+            None,
+            [
+                (1, "Family Name"),
+                (2, "Bold"),
+                (4, "Family Name Bold"),
+                (16, "Family Name"),
+                (17, "Bold"),
+                (21, "Family Name"),
+                (22, "Bold"),
+            ]
+            .to_vec(),
+        ));
         tests.push((StatusCode::Fail, Some("The following issues have been found:\n\n* Inconsistent names [(3, 1, 1033)]: Family Name Bold (1 + 2) != Family Name Medium (4)".to_string()), [(1, "Family Name"), (2, "Bold"), (4, "Family Name Medium")].to_vec()));
         tests.push((StatusCode::Fail, Some("The following issues have been found:\n\n* Inconsistent names [(3, 1, 1033)]: Family Name Bold (1 + 2) != Family Name Medium (16 + 17)".to_string()), [(1, "Family Name"), (2, "Bold"), (16, "Family Name"), (17, "Medium")].to_vec()));
         tests.push((StatusCode::Fail, Some("The following issues have been found:\n\n* Inconsistent names [(3, 1, 1033)]: Family Name Condensed Bold (1 + 2) != Family Name Cond Bold (21 + 22)".to_string()), [(1, "Family Name Condensed"), (2, "Bold"), (21, "Family Name"), (22, "Cond Bold")].to_vec()));
-        for (expected_severity, expected_message, records) in tests.iter(){
+        for (expected_severity, expected_message, records) in tests.iter() {
             let mut builder = FontBuilder::new();
             builder.add_table(&Maxp::default()).unwrap();
             let mut name_table = Name::default();
             let mut new_records = Vec::new();
             for rec in records.iter() {
-                let name_rec = NameRecord::new(
-                    3,
-                    1,
-                    1033,
-                    NameId::new(rec.0),
-                    String::from(rec.1).into(),
-                );
+                let name_rec =
+                    NameRecord::new(3, 1, 1033, NameId::new(rec.0), String::from(rec.1).into());
                 new_records.push(name_rec);
             }
             new_records.sort();
@@ -405,7 +414,5 @@ mod tests {
             assert_eq!(result.message, *expected_message);
             assert_eq!(result.severity, *expected_severity);
         }
-
     }
-
 }
