@@ -56,6 +56,7 @@ fn smart_dropout(t: &Testable, _context: &Context) -> CheckFnResult {
         "not-ttf",
         "Font does not have TrueType outlines"
     );
+    skip!(!f.has_table(b"prep"), "no-prep-table", "Font is not hinted");
 
     skip!(
         f.has_table(b"TSI5"),
