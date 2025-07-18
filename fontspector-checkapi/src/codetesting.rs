@@ -1,6 +1,8 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::collections::HashMap;
+use std::path::{Path, PathBuf};
+use std::sync::LazyLock;
 
 // No bad thing if we panic in tests
 use crate::{prelude::*, Check, CheckResult, Context, FileTypeConvert, StatusCode};
@@ -10,29 +12,36 @@ use fontations::write::{
     FontBuilder,
 };
 
-#[macro_export]
-/// Create a Testable object from a file in the test resources directory
-macro_rules! TEST_FILE {
-    ($fname:expr) => {{
-        // The usual thing to use here is env!("CARGO_MANIFEST_DIR"), but that's a pain
-        // when we're in a workspace - if you're running `cargo test` inside a package,
-        // the manifest dir is the package root; if you're running `cargo test -p foo`,
-        // the manifest dir is the workspace root. So ask Cargo for the workspace root
-        // and go from there.
-        let mut output = std::process::Command::new(env!("CARGO"))
-            .arg("locate-project")
-            .arg("--workspace")
-            .arg("--message-format=plain")
-            .output()
-            .unwrap()
-            .stdout;
-        let cargo_path = std::path::Path::new(std::str::from_utf8(&output).unwrap().trim());
-        let mut workspace_root = cargo_path.parent().unwrap().to_path_buf();
+/// The root of the workspace, used to locate test resources
+// The usual thing to use here is env!("CARGO_MANIFEST_DIR"), but that's a pain
+// when we're in a workspace - if you're running `cargo test` inside a package,
+// the manifest dir is the package root; if you're running `cargo test -p foo`,
+// the manifest dir is the workspace root. So ask Cargo for the workspace root
+// and go from there.
+static WORKSPACE_ROOT: LazyLock<PathBuf> = LazyLock::new(|| {
+    let output = std::process::Command::new(env!("CARGO"))
+        .arg("locate-project")
+        .arg("--workspace")
+        .arg("--message-format=plain")
+        .output()
+        .unwrap()
+        .stdout;
+    let cargo_path = std::path::Path::new(std::str::from_utf8(&output).unwrap().trim());
+    cargo_path.parent().unwrap().to_path_buf()
+});
 
-        workspace_root.push("resources/test/");
-        let file = workspace_root.join($fname);
-        Testable::new(file.clone()).expect(&format!("Couldn't read test file {:?}", file))
-    }};
+/// Return a pathname for a file in the test resources directory
+pub fn test_file(fname: impl AsRef<Path>) -> PathBuf {
+    let mut workspace_root = WORKSPACE_ROOT.clone();
+
+    workspace_root.push("resources/test/");
+    workspace_root.join(fname)
+}
+
+/// Return a Testable from a file in the test resources directory
+pub fn test_able(fname: impl AsRef<Path>) -> Testable {
+    let path = test_file(fname);
+    Testable::new(path).unwrap()
 }
 
 /// Run a check on a font and return the result
