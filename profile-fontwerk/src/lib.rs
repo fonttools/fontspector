@@ -3,13 +3,16 @@ mod checks;
 use serde_json::json;
 use std::collections::HashMap;
 
-use fontspector_checkapi::{ProfileBuilder, Registry};
+use fontspector_checkapi::{Override, ProfileBuilder, Registry, StatusCode};
 
 pub struct Fontwerk;
 impl fontspector_checkapi::Plugin for Fontwerk {
     fn register(&self, cr: &mut Registry) -> Result<(), String> {
         let builder = ProfileBuilder::new()
             .include_profile("googlefonts")
+            .with_overrides("valid_glyphnames", vec![
+                Override::new("found-invalid-names", StatusCode::Warn, "")
+            ])
             // exclude googlefonts checks
             .exclude_check("googlefonts/canonical_filename")
             .exclude_check("googlefonts/family/italics_have_roman_counterparts")  // May need some improvements before we decide to include this one.
