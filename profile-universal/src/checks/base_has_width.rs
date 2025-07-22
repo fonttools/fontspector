@@ -61,7 +61,7 @@ fn base_has_width(f: &Testable, context: &Context) -> CheckFnResult {
         Ok(Status::just_one_fail(
             "zero-width-bases",
             &format!(
-                "The following glyphs had zero advance width:\n{}",
+                "The following glyphs had zero advance width:\n\n{}",
                 bullet_list(context, problems),
             ),
         ))

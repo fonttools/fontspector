@@ -84,7 +84,7 @@ fn family_vertical_metrics(c: &TestableCollection, context: &Context) -> CheckFn
             problems.push(Status::fail(
                 &format!("{key}-mismatch"),
                 &format!(
-                    "{} is not the same across the family: {}",
+                    "{} is not the same across the family:\n\n{}",
                     key,
                     bullet_list(
                         context,

@@ -129,7 +129,7 @@ impl OurLang<'_> {
                 problems.push(Status::fail(
                     reason,
                     &format!(
-                    "We detected support for the {} language because {}, but the font is missing the following codepoints needed to render the {} sample text{}:\n{}",
+                    "We detected support for the {} language because {}, but the font is missing the following codepoints needed to render the {} sample text{}:\n\n{}",
                     self.name, support.as_ref().unwrap(), sample_name, supplement,
                     bullet_list(context,unique_missing.iter().map(|c| format!("{} (U+{:04X})", c, *c as u32)).collect::<Vec<_>>())                    
                 )));
@@ -170,7 +170,7 @@ impl OurLang<'_> {
                 problems.push(Status::fail(
                     "missing-subsetted",
                     &format!(
-                    "The font has the following codepoints needed to render the {} sample text for language {}, but although {}, tofu will still be produced because the codepoints do not appear in any of the subsets {}:\n{}",
+                    "The font has the following codepoints needed to render the {} sample text for language {}, but although {}, tofu will still be produced because the codepoints do not appear in any of the subsets {}:\n\n{}",
                     sample_name, self.name, support.as_ref().unwrap(),
                     subsets.iter().map(|(name, _)| name.to_string()).collect::<Vec<_>>().join(", "), 
                      bullet_list(context,unique_missing.iter().map(|c| format!("{} (U+{:04X})", c, *c as u32)).collect::<Vec<_>>())

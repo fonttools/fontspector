@@ -57,7 +57,7 @@ fn ligature_carets(t: &Testable, context: &Context) -> CheckFnResult {
         return Ok(Status::just_one_warn(
             "incomplete-caret-pos-data",
             &format!(
-                "This font lacks caret positioning values for these ligature glyphs:\n\t- {}\n\n",
+                "This font lacks caret positioning values for these ligature glyphs:\n\n{}",
                 bullet_list(
                     context,
                     missing.iter().map(|g| f.glyph_name_for_id_synthesise(*g))

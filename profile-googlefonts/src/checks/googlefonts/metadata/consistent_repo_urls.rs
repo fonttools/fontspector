@@ -85,7 +85,7 @@ fn consistent_repo_urls(c: &TestableCollection, context: &Context) -> CheckFnRes
         return Ok(Status::just_one_fail(
             "mismatch",
             &format!(
-                "Repository URL is {}. But:\n{}",
+                "Repository URL is {}. But:\n\n{}",
                 repo_url,
                 bullet_list(
                     context,

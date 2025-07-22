@@ -74,7 +74,7 @@ fn missing_small_caps_glyphs(t: &Testable, context: &Context) -> CheckFnResult {
             problems.push(Status::fail(
                 error_code,
                 &format!(
-                    "The following letters did not take part in {} substitutions:\n{}",
+                    "The following letters did not take part in {} substitutions:\n\n{}",
                     feature,
                     bullet_list(
                         context,

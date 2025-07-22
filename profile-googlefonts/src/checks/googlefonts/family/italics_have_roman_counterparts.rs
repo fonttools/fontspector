@@ -65,7 +65,7 @@ fn italics_have_roman_counterparts(c: &TestableCollection, context: &Context) ->
         problems.push(Status::fail(
             "missing-roman",
             &format!(
-                "Italics missing a Roman counterpart:\n{}",
+                "Italics missing a Roman counterpart:\n\n{}",
                 bullet_list(context, missing_roman)
             ),
         ));

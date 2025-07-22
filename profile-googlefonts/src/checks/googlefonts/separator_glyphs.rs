@@ -27,7 +27,7 @@ fn separator_glyphs(t: &Testable, context: &Context) -> CheckFnResult {
         Ok(Status::just_one_warn(
             "missing-separator-glyphs",
             &format!(
-                "The following separator glyphs are missing:\n{}",
+                "The following separator glyphs are missing:\n\n{}",
                 bullet_list(context, missing.iter().map(|&cp| format!("U+{cp:X}")))
             ),
         ))

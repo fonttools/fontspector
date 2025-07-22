@@ -25,7 +25,7 @@ fn vtt_volt_data(t: &Testable, context: &Context) -> CheckFnResult {
         problems.push(Status::fail(
             "volt-feature",
             &format!(
-                "Found unwanted VOLT feature tags:\n{}",
+                "Found unwanted VOLT feature tags:\n\n{},",
                 bullet_list(context, bad_tags)
             ),
         ));
@@ -62,7 +62,7 @@ fn vtt_volt_data(t: &Testable, context: &Context) -> CheckFnResult {
         problems.push(Status::fail(
             "volt-langsys",
             &format!(
-                "Found unwanted VOLT language system tags:\n{}",
+                "Found unwanted VOLT language system tags:\n\n{}",
                 bullet_list(context, bad_langsys.iter())
             ),
         ));

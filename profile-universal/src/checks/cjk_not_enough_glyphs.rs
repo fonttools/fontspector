@@ -62,7 +62,7 @@ fn cjk_not_enough_glyphs(f: &Testable, context: &Context) -> CheckFnResult {
         Status::just_one_warn(
             "cjk-not-enough-glyphs",
             &format!(
-                "{} when there needs to be at least 150 in order to support the smallest CJK writing system, Kana.\nThe following CJK glyphs were found:\n{}\nPlease check that these glyphs have the correct unicodes.",
+                "{} when there needs to be at least 150 in order to support the smallest CJK writing system, Kana.\nThe following CJK glyphs were found:\n\n{}\nPlease check that these glyphs have the correct unicodes.",
                 num_cjk_glyphs,
                 bullet_list(context, cjk_glyphs)
             ),

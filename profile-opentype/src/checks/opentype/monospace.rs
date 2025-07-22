@@ -122,7 +122,7 @@ fn monospace(t: &Testable, context: &Context) -> CheckFnResult {
             problems.push(Status::warn(
                 "mono-outliers",
                 &format!(
-                    "Font is monospaced (common width = {}) but {unusual_count} glyphs ({outliers_ratio:.2}%) have a different width. You should check the widths of: {}",
+                    "Font is monospaced (common width = {}) but {unusual_count} glyphs ({outliers_ratio:.2}%) have a different width. You should check the widths of:\n\n{}",
                     statistics.most_common_width,
                     bullet_list(context, unusually_spaced_glyphs.iter().map(|(gid, metric)| {
                         let glyphname = font.glyph_name_for_id_synthesise(GlyphId::new(*gid as u32));

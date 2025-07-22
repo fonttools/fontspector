@@ -85,7 +85,7 @@ fn broken_links(c: &Testable, context: &Context) -> CheckFnResult {
         problems.push(Status::fail(
             "broken-links",
             &format!(
-                "The following links are broken:\n{}",
+                "The following links are broken:\n\n{}",
                 bullet_list(context, broken)
             ),
         ));

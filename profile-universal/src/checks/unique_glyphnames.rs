@@ -47,8 +47,7 @@ fn unique_glyphnames(t: &Testable, context: &Context) -> CheckFnResult {
         Ok(Status::just_one_fail(
             "duplicated-glyph-names",
             &format!(
-                "
-            These glyph names occur more than once: {}",
+                "These glyph names occur more than once:\n\n{}",
                 bullet_list(context, duplicates)
             ),
         ))

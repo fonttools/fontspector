@@ -56,7 +56,7 @@ fn whitespace_ink(t: &Testable, context: &Context) -> CheckFnResult {
         Ok(Status::just_one_fail(
             "has-ink",
             &format!(
-                "The following glyphs have ink; they should be replaced by an empty glyph:\n{}",
+                "The following glyphs have ink; they should be replaced by an empty glyph:\n\n{}",
                 bullet_list(context, inky)
             ),
         ))
