@@ -47,6 +47,7 @@ impl fontspector_checkapi::Plugin for Fontwerk {
             .with_configuration_defaults(
                 "fontwerk/name_entries",
                 HashMap::from([
+                    ("COPYRIGHT_NOTICE".to_string(), json!(r"regex:Copyright \(c\) (\d{4}(-\d{4})?, )*\d{4}(-\d{4})? Fontwerk GmbH\. All rights reserved\.")),
                     ("MANUFACTURER".to_string(), json!("Fontwerk")),
                     ("VENDOR_URL".to_string(), json!("https://fontwerk.com")),
                     ("LICENSE_DESCRIPTION".to_string(), json!("This Font Software is the property of Fontwerk GmbH its use by you is covered under the terms of an End-User License Agreement (EULA). Unless you have entered into a specific license agreement granting you additional rights, your use of this Font Software is limited by the terms of the actual license agreement you have entered into with Fontwerk. If you have any questions concerning your rights you should review the EULA you received with the software or contact Fontwerk. A copy of the EULA for this Font Software can be found on https://fontwerk.com/licensing.")),

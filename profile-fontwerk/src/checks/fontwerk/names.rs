@@ -43,15 +43,34 @@ fn name_entries(f: &Testable, context: &Context) -> CheckFnResult {
                 bad_names.push(format!("No {key} entry found"));
                 continue;
             }
+            let mut value_str = if let Some(v_str) = value.as_str() {
+                v_str
+            } else {
+                bad_names.push(format!("Value for '{key}' is not a string."));
+                continue;
+            };
+            let is_regex = value_str.starts_with("regex:");
+            if is_regex {
+                value_str = value_str.trim_start_matches("regex:");
+            }
             for entry in name_table_entries {
-                let value_str = if let Some(v_str) = value.as_str() {
-                    v_str
+                if is_regex {
+                    match regex::Regex::new(value_str) {
+                        Ok(re) => {
+                            if !re.is_match(&entry.to_string()) {
+                                bad_names.push(format!(
+                                    "{key} is '{entry}' but should match '{value_str}'."
+                                ));
+                            }
+                        }
+                        Err(e) => {
+                            bad_names.push(format!("Invalid regex for '{key}': {value_str} ({e})"));
+                        }
+                    }
                 } else {
-                    bad_names.push(format!("Value for '{key}' is not a string."));
-                    continue;
-                };
-                if entry != value_str {
-                    bad_names.push(format!("{key} is '{entry}' but should be '{value_str}'."));
+                    if entry != value_str {
+                        bad_names.push(format!("{key} is '{entry}' but should be '{value_str}'."));
+                    }
                 }
             }
         }
@@ -364,8 +383,20 @@ mod tests {
             "LICENSE_URL".to_string(),
             json!("https://another-foundry.com"),
         )]);
+        let config_5 = HashMap::from([(
+            "COPYRIGHT_NOTICE".to_string(),
+            json!(
+                r"regex:Copyright \(c\) (\d{4}(-\d{4})?, )*\d{4}(-\d{4})? Fontwerk GmbH\. All rights reserved\."
+            ),
+        )]);
+        let config_6 = HashMap::from([(
+            "LICENSE_DESCRIPTION".to_string(),
+            json!(
+                "This Font Software is the property of Fontwerk GmbH its use by you is covered under the terms of an End-User License Agreement (EULA). Unless you have entered into a specific license agreement granting you additional rights, your use of this Font Software is limited by the terms of the actual license agreement you have entered into with Fontwerk. If you have any questions concerning your rights you should review the EULA you received with the software or contact Fontwerk. A copy of the EULA for this Font Software can be found on https://fontwerk.com/licensing."
+            ),
+        )]);
 
-        let configs = [config_1, config_2, config_3, config_4];
+        let configs = [config_1, config_2, config_3, config_4, config_5, config_6];
         let expected = [
             (StatusCode::Pass, None),
             (
@@ -392,6 +423,15 @@ mod tests {
                         .to_string(),
                 ),
             ),
+            (
+                StatusCode::Fail,
+                Some(
+                    "The following issues have been found:\n\n\
+                    * COPYRIGHT_NOTICE is 'Copyright (c) 2022-2025 OtherName GmbH. All rights reserved.' but should match 'Copyright \\(c\\) (\\d{4}(-\\d{4})?, )*\\d{4}(-\\d{4})? Fontwerk GmbH\\. All rights reserved\\.'."
+                        .to_string(),
+                ),
+            ),
+            (StatusCode::Pass, None),
         ];
         let mut builder = FontBuilder::new();
         // We need to add a default maxp table, because otherwise
@@ -399,16 +439,19 @@ mod tests {
         builder.add_table(&Maxp::default()).unwrap();
         let mut name_table = Name::default();
         let mut new_records = Vec::new();
-        let name_rec = NameRecord::new(3, 1, 1033, NameId::new(8), String::from("Fontwerk").into());
-        new_records.push(name_rec);
-        let name_rec = NameRecord::new(
-            3,
-            1,
-            1033,
-            NameId::new(11),
-            String::from("https://fontwerk.com").into(),
-        );
-        new_records.push(name_rec);
+        let nids = [
+            (
+                0,
+                "Copyright (c) 2022-2025 OtherName GmbH. All rights reserved.",
+            ),
+            (8, "Fontwerk"),
+            (11, "https://fontwerk.com"),
+            (13, "This Font Software is the property of Fontwerk GmbH its use by you is covered under the terms of an End-User License Agreement (EULA). Unless you have entered into a specific license agreement granting you additional rights, your use of this Font Software is limited by the terms of the actual license agreement you have entered into with Fontwerk. If you have any questions concerning your rights you should review the EULA you received with the software or contact Fontwerk. A copy of the EULA for this Font Software can be found on https://fontwerk.com/licensing."),
+        ];
+        for (nid, s) in nids.iter() {
+            let name_rec = NameRecord::new(3, 1, 1033, NameId::new(*nid), (*s).to_string().into());
+            new_records.push(name_rec);
+        }
         new_records.sort();
         name_table.name_record = new_records;
         builder.add_table(&name_table).unwrap();
