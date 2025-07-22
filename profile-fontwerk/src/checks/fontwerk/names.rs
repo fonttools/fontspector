@@ -67,10 +67,8 @@ fn name_entries(f: &Testable, context: &Context) -> CheckFnResult {
                             bad_names.push(format!("Invalid regex for '{key}': {value_str} ({e})"));
                         }
                     }
-                } else {
-                    if entry != value_str {
-                        bad_names.push(format!("{key} is '{entry}' but should be '{value_str}'."));
-                    }
+                } else if entry != value_str {
+                    bad_names.push(format!("{key} is '{entry}' but should be '{value_str}'."));
                 }
             }
         }
