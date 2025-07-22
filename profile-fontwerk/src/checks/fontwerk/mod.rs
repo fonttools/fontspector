@@ -7,3 +7,5 @@ mod soft_hyphen;
 pub use soft_hyphen::soft_hyphen;
 mod fstype;
 pub use fstype::fstype;
+mod glyph_coverage;
+pub use glyph_coverage::glyph_coverage;
