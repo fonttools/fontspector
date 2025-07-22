@@ -179,7 +179,7 @@ mod tests {
             .next()
             .unwrap();
 
-        let expected_message = "This font is missing required glyphs:\n\n[\"uniFEFF\", \"uni2060\", \"uni27E8\", \"uni27E9\", \"uni2011\", \"uni20BF\", \"uni2052\", \"uni22C5\", \"uni2117\", \"uniFFFD\", \".null\", \"leftanglebracket-math.case\", \"rightanglebracket-math.case\", \"figuredash.case\", \"hyphentwo.case\", \"nonbreakinghyphen.case\", \"colon.case\", \"exclamdown.case\", \"questiondown.case\", \"ringcomb.case\"]";
+        let expected_message = "This font is missing required glyphs:\n\n[\"uniFEFF\", \"uni2060\", \"uni27E8\", \"uni27E9\", \"uni2011\", \"uni20BF\", \"uni2052\", \"uni22C5\", \"uni2117\", \"uniFFFD\", \"leftanglebracket-math.case\", \"rightanglebracket-math.case\", \"figuredash.case\", \"hyphentwo.case\", \"nonbreakinghyphen.case\", \"colon.case\", \"exclamdown.case\", \"questiondown.case\", \"ringcomb.case\"]";
         assert_eq!(result.message, Some(expected_message.to_string()));
     }
 }
