@@ -91,7 +91,7 @@ fn fix_maxp_version(t: &mut Testable) -> FixFnResult {
 
 #[cfg(test)]
 mod tests {
-    use fontspector_checkapi::{codetesting::run_check, StatusCode, TEST_FILE};
+    use fontspector_checkapi::{codetesting::run_check, codetesting::test_able, StatusCode};
 
     use super::*;
 
@@ -99,12 +99,12 @@ mod tests {
     #[test]
     fn test_maxp_version() {
         // Source Sans Pro OTF should be OK
-        let mut ssp_otf = TEST_FILE!("source-sans-pro/OTF/SourceSansPro-Regular.otf");
+        let mut ssp_otf = test_able("source-sans-pro/OTF/SourceSansPro-Regular.otf");
         let result = run_check(maxp_version, ssp_otf.clone()).unwrap();
         assert_eq!(result.worst_status(), StatusCode::Pass);
 
         // Steal maxp table from a TTF
-        let ssp_ttf = TEST_FILE!("source-sans-pro/TTF/SourceSansPro-Regular.ttf");
+        let ssp_ttf = test_able("source-sans-pro/TTF/SourceSansPro-Regular.ttf");
         let maxp: Maxp = TTF
             .from_testable(&ssp_ttf)
             .unwrap()

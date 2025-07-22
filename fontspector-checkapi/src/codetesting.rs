@@ -41,7 +41,7 @@ pub fn test_file(fname: impl AsRef<Path>) -> PathBuf {
 /// Return a Testable from a file in the test resources directory
 pub fn test_able(fname: impl AsRef<Path>) -> Testable {
     let path = test_file(fname);
-    Testable::new(path).unwrap()
+    Testable::new(path).expect("Failed to load test file")
 }
 
 /// Run a check on a font and return the result

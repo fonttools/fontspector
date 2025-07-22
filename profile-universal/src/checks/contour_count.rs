@@ -133,3 +133,17 @@ fn contour_count(t: &Testable, context: &Context) -> CheckFnResult {
     }
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    use fontspector_checkapi::codetesting::{assert_pass, run_check, test_able};
+
+    use super::*;
+
+    #[test]
+    fn test_contour_count() {
+        let test_font = test_able("ibmplexsans-vf/IBMPlexSansVar-Roman.ttf");
+        let result = run_check(contour_count, test_font);
+        assert_pass(result);
+    }
+}
