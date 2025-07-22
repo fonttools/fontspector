@@ -17,7 +17,9 @@ fn fstype(t: &Testable, _context: &Context) -> CheckFnResult {
     } else {
         Status::just_one_fail(
             "fstype",
-            &format!("OS/2 fsType must be set to Print & Preview (Bit 4), found {fstype_val} instead."),
+            &format!(
+                "OS/2 fsType must be set to Print & Preview (Bit 4), found {fstype_val} instead."
+            ),
         )
     })
 }
