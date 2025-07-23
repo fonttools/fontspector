@@ -25,4 +25,5 @@
 # (first name; alphabetical order)
 
 Felipe Correa da Silva Sanches <juca@members.fsf.org>
+Olli Meier <hallo@olli-meier.de>
 Simon Cozens <simon@simon-cozens.org>
