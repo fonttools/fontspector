@@ -105,7 +105,7 @@ fn font_copyright(c: &TestableCollection, context: &Context) -> CheckFnResult {
         if copyright_sources.len() > 1 {
             problems.push(Status::fail(
                 "mismatch",
-                &format!("Copyright notices differ between name table entries and METADATA.pb. The following entries were found:\n{}",
+                &format!("Copyright notices differ between name table entries and METADATA.pb. The following entries were found:\n\n{}",
                 bullet_list(
                   context,
                   copyright_sources.iter().map(|(a, b)| format!("{a}: {b:?}"))

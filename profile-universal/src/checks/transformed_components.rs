@@ -94,7 +94,7 @@ fn transformed_components(f: &Testable, context: &Context) -> CheckFnResult {
     } else {
         Ok(Status::just_one_fail(
             "transformed-components",
-            &format!("The following glyphs had components with scaling or rotation or inverted outline direction:\n{}",
+            &format!("The following glyphs had components with scaling or rotation or inverted outline direction:\n\n{}",
             bullet_list(context, failures))
         ))
     }

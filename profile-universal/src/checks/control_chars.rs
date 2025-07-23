@@ -26,7 +26,7 @@ fn control_chars(t: &Testable, context: &Context) -> CheckFnResult {
         Ok(Status::just_one_fail(
             "unacceptable",
             &format!(
-                "The following unacceptable control characters were identified:\n{}",
+                "The following unacceptable control characters were identified:\n\n{}",
                 bullet_list(context, &bad_characters)
             ),
         ))

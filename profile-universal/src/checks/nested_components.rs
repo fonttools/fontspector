@@ -62,7 +62,7 @@ fn nested_components(f: &Testable, context: &Context) -> CheckFnResult {
         Ok(Status::just_one_fail(
             "found-nested-components",
             &format!(
-                "The following glyphs have components which are themselves component glyphs:\n{}",
+                "The following glyphs have components which are themselves component glyphs:\n\n{}",
                 bullet_list(context, failures)
             ),
         ))

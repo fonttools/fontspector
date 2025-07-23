@@ -30,7 +30,7 @@ fn regular_is_400(c: &TestableCollection, context: &Context) -> CheckFnResult {
         Ok(Status::just_one_fail(
             "not-400",
             &format!(
-                "METADATA.pb: Regular font weight must be 400. Please fix these: {}",
+                "METADATA.pb: Regular font weight must be 400. Please fix these:\n\n{}",
                 bullet_list(context, badfonts),
             ),
         ))

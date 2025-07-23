@@ -20,7 +20,7 @@ fn has_license(c: &TestableCollection, context: &Context) -> CheckFnResult {
         Status::just_one_fail(
             "multiple",
             &format!(
-                "More than a single license file found: {}",
+                "More than a single license file found:\n\n{}",
                 bullet_list(context, licenses.iter().flat_map(|x| x.basename())),
             ),
         )

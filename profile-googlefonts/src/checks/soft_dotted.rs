@@ -180,13 +180,13 @@ fn soft_dotted(t: &Testable, context: &Context) -> CheckFnResult {
     let mut message = "".to_string();
     if !fail_unchanged_strings.is_empty() {
         message.push_str(&format!(
-            "The dot of soft dotted characters used in orthographies _must_ disappear in the following strings: {}",
+            "The dot of soft dotted characters used in orthographies _must_ disappear in the following strings:\n\n{}",
             bullet_list(context, fail_unchanged_strings)
         ));
     }
     if !warn_unchanged_strings.is_empty() {
         message.push_str(&format!(
-            "The dot of soft dotted characters _should_ disappear in other cases, for example: {}",
+            "The dot of soft dotted characters _should_ disappear in other cases, for example:\n\n{}",
             bullet_list(context, warn_unchanged_strings)
         ));
     }

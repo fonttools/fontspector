@@ -88,7 +88,7 @@ fn axes(c: &TestableCollection, context: &Context) -> CheckFnResult {
         problems.push(Status::fail(
             "missing-axes",
             &format!(
-                "The font variation axes {} are present in the font's fvar table but are not declared on the METADATA.pb file.",
+                "The font variation axes:\n\n{}\nare present in the font's fvar table but are not declared on the METADATA.pb file.",
                 bullet_list(context, &missing)
             ),
         ));
@@ -97,7 +97,7 @@ fn axes(c: &TestableCollection, context: &Context) -> CheckFnResult {
         problems.push(Status::fail(
             "extra-axes",
             &format!(
-                "The METADATA.pb file lists font variation axes that are not supported by this family: {}",
+                "The METADATA.pb file lists font variation axes that are not supported by this family:\n\n{}",
                 bullet_list(context, &extra)
             ),
         ));
