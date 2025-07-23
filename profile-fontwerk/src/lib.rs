@@ -13,6 +13,9 @@ impl fontspector_checkapi::Plugin for Fontwerk {
             .with_overrides("valid_glyphnames", vec![
                 Override::new("found-invalid-names", StatusCode::Warn, "")
             ])
+            .with_overrides("soft_hyphen", vec![
+                Override::new("softhyphen", StatusCode::Fail, "For Fontwerk, the 'Soft Hyphen' character must be removed.")
+            ])
             // exclude googlefonts checks
             .exclude_check("googlefonts/canonical_filename")
             .exclude_check("googlefonts/family/italics_have_roman_counterparts")  // May need some improvements before we decide to include this one.
@@ -35,7 +38,6 @@ impl fontspector_checkapi::Plugin for Fontwerk {
             .add_and_register_check(checks::fontwerk::name_entries)
             .add_and_register_check(checks::fontwerk::name_consistency)
             .add_and_register_check(checks::fontwerk::required_name_ids)
-            .add_and_register_check(checks::fontwerk::soft_hyphen)
             .add_and_register_check(checks::fontwerk::fstype)
             .add_and_register_check(checks::fontwerk::glyph_coverage)
             //.add_and_register_check(checks::fontwerk::vendor_id)
