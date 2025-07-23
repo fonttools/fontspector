@@ -91,3 +91,14 @@ fontspector \
     --profile microsoft \                   # This uses the profile defined in the plugin
     MyFont.ttf
 ```
+
+## Contributing
+
+If you wish to contribute to the development of fontspector, you are
+very welcome! Please read the [contributors guide](CONTRIBUTING.md) for
+more details.
+
+Members of the fontspector community are expected to agree with the
+[contributor code of conduct](CODE_OF_CONDUCT.md). If you come across
+any behaviour which does not meet our standards, please see the
+reporting procedures in the code of conduct.
