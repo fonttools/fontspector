@@ -52,7 +52,7 @@ fn cmap_format_12(t: &Testable, context: &Context) -> CheckFnResult {
                 problems.push(Status::warn(
                     "missing-format-4",
                     &format!(
-                        "The format 12 subtable did not contain all codepoints from the format 4 subtable: {}",
+                        "The format 12 subtable did not contain all codepoints from the format 4 subtable:\n\n{}",
                         bullet_list(context, unmapped)
                     )
                 ))

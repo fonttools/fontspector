@@ -41,7 +41,7 @@ fn GDEF_mark_chars(f: &Testable, context: &Context) -> CheckFnResult {
         return Ok(Status::just_one_warn(
             "mark-chars",
             &format!(
-                "The following mark characters should be in the GDEF mark glyph class:\n{mark_chars_not_in_gdef_mark}"
+                "The following mark characters should be in the GDEF mark glyph class:\n\n{mark_chars_not_in_gdef_mark}"
             ),
         ));
     }

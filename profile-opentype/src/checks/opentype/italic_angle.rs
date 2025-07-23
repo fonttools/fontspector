@@ -133,7 +133,7 @@ fn italic_angle(t: &Testable, context: &Context) -> CheckFnResult {
         problems.push(Status::warn(
             "empty-glyphs",
             &format!(
-                "The following glyphs were present but did not contain any outlines:\n{}",
+                "The following glyphs were present but did not contain any outlines:\n\n{}",
                 bullet_list(
                     context,
                     bad_gids

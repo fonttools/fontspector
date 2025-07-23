@@ -40,7 +40,7 @@ fn GDEF_non_mark_chars(t: &Testable, context: &Context) -> CheckFnResult {
         return Ok(Status::just_one_warn(
             "non-mark-chars",
             &format!(
-                "The following non-mark characters should not be in the GDEF mark glyph class:\n{}",
+                "The following non-mark characters should not be in the GDEF mark glyph class:\n\n{}",
                 bullet_list(
                     context,
                     non_mark_gids_in_mark.map(|(cp, gid)| format!(

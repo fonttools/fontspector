@@ -50,7 +50,7 @@ fn tnum_horizontal_metrics(c: &TestableCollection, context: &Context) -> CheckFn
         Ok(Status::just_one_fail(
             "inconsistent-widths",
             &format!(
-                "The most common tabular glyph width is {}. But there are other tabular glyphs with different widths such as the following ones:\n\t{}",
+                "The most common tabular glyph width is {}. But there are other tabular glyphs with different widths such as the following ones:\n\n{}",
                 most_common.0,
                 bullet_list(context,
                 tnum_widths
