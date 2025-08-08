@@ -83,7 +83,7 @@ impl TestFont<'_> {
     }
 
     /// A [read-fonts](https://docs.rs/read-fonts/) font object
-    pub fn font(&self) -> FontRef {
+    pub fn font(&self) -> FontRef<'_> {
         #[allow(clippy::expect_used)] // We just tested for it in the initializer
         FontRef::new(self.font_data).expect("Can't happen")
     }
@@ -229,7 +229,7 @@ impl TestFont<'_> {
     }
 
     /// Retrieve a glyph by ID from the `glyf` table
-    pub fn get_glyf_glyph(&self, gid: GlyphId) -> Result<Option<Glyph>, ReadError> {
+    pub fn get_glyf_glyph(&self, gid: GlyphId) -> Result<Option<Glyph<'_>>, ReadError> {
         let loca = self.font().loca(None)?;
         let glyf = self.font().glyf()?;
         loca.get_glyf(gid, &glyf)
@@ -362,7 +362,7 @@ impl TestFont<'_> {
     pub fn feature_records(
         &self,
         gsub_only: bool,
-    ) -> impl Iterator<Item = (&FeatureRecord, Result<Feature, ReadError>)> {
+    ) -> impl Iterator<Item = (&FeatureRecord, Result<Feature<'_>, ReadError>)> {
         let gsub_featurelist = self
             .font()
             .gsub()
