@@ -18,7 +18,7 @@ pub struct FileType<'a> {
 }
 impl FileType<'_> {
     /// Create a new file type with a glob pattern
-    pub fn new(pattern: &str) -> FileType {
+    pub fn new(pattern: &str) -> FileType<'_> {
         FileType { pattern }
     }
 

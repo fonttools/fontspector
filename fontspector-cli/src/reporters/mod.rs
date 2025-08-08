@@ -54,7 +54,7 @@ impl RunResults {
     }
 
     /// Organize the results by testable and section
-    pub fn organize(&self) -> OrganisedResults {
+    pub fn organize(&self) -> OrganisedResults<'_> {
         let mut organised_results: OrganisedResults = HashMap::new();
         for checkresult in self.iter() {
             let section = organised_results

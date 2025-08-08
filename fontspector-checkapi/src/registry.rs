@@ -24,7 +24,7 @@ impl<'a> Registry<'a> {
     }
 
     /// Get an iterator over all checks
-    pub fn iter(&self) -> impl Iterator<Item = &Check> {
+    pub fn iter(&self) -> impl Iterator<Item = &Check<'_>> {
         self.checks.values()
     }
 

@@ -1,4 +1,7 @@
-use fontations::{skrifa::raw::TableProvider, write::from_obj::ToOwnedTable};
+use fontations::{
+    skrifa::raw::TableProvider,
+    write::{from_obj::ToOwnedTable, tables::head::Flags},
+};
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
 
 #[check(
@@ -25,19 +28,26 @@ fn integer_ppem_if_hinted(f: &Testable, _context: &Context) -> CheckFnResult {
         "no-hints",
         "Font does not have fpgm table."
     );
-    Ok(if font.font().head()?.flags() & 0b1000 == 0 {
-        Status::just_one_fail("bad-flags",
+    Ok(
+        if font
+            .font()
+            .head()?
+            .flags()
+            .contains(Flags::FORCE_INTEGER_PPEM)
+        {
+            Status::just_one_pass()
+        } else {
+            Status::just_one_fail("bad-flags",
         "This is a hinted font, so it must have bit 3 set on the flags of the head table, so that PPEM values will be rounded into an integer value."
     )
-    } else {
-        Status::just_one_pass()
-    })
+        },
+    )
 }
 
 fn fix_integer_ppem_if_hinted(t: &mut Testable) -> FixFnResult {
     let f = testfont!(t);
     let mut head: fontations::write::tables::head::Head = f.font().head()?.to_owned_table();
-    head.flags |= 0b1000;
+    head.flags |= Flags::FORCE_INTEGER_PPEM;
     t.set(f.rebuild_with_new_table(&head)?);
     Ok(true)
 }

@@ -130,7 +130,7 @@ impl TestableCollection {
     }
 
     /// Return each [Testable] in the collection, along with the collection itself.
-    pub fn collection_and_files(&self) -> impl Iterator<Item = TestableType> {
+    pub fn collection_and_files(&self) -> impl Iterator<Item = TestableType<'_>> {
         vec![TestableType::Collection(self)]
             .into_iter()
             .chain(self.testables.iter().map(TestableType::Single))
