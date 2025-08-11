@@ -5,7 +5,52 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.1.2 (2025-08-11)
+
+### Chore
+
+ - <csr-id-0c6365a1d3383dad9d12de3984989ee5747b35cf/> get working again
+   * chore: Upgrade fontations deps
+   
+   * chore: API changed
+   
+   * chore: Comply with new elided lifetime rules
+
+### Bug Fixes
+
+ - <csr-id-d58c9ef800041bb3ec8cd266907d4c03f1b548c9/> Improve formatting of bulleted lists, fixes #352
+ - <csr-id-1fd17e6a7e44c5d31bf560d02c6cf846f4fc59b3/> Rebuild desired glyph data, fixes #284
+ - <csr-id-0c50d3bf0c259394384857c2908b59f5da279170/> Only run check on hinted fonts, fixes #347
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 4 commits contributed to the release.
+ - 40 days passed between releases.
+ - 4 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 4 unique issues were worked on: [#348](https://github.com/fonttools/fontspector/issues/348), [#349](https://github.com/fonttools/fontspector/issues/349), [#357](https://github.com/fonttools/fontspector/issues/357), [#371](https://github.com/fonttools/fontspector/issues/371)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#348](https://github.com/fonttools/fontspector/issues/348)**
+    - Rebuild desired glyph data, fixes #284 ([`1fd17e6`](https://github.com/fonttools/fontspector/commit/1fd17e6a7e44c5d31bf560d02c6cf846f4fc59b3))
+ * **[#349](https://github.com/fonttools/fontspector/issues/349)**
+    - Only run check on hinted fonts, fixes #347 ([`0c50d3b`](https://github.com/fonttools/fontspector/commit/0c50d3bf0c259394384857c2908b59f5da279170))
+ * **[#357](https://github.com/fonttools/fontspector/issues/357)**
+    - Improve formatting of bulleted lists, fixes #352 ([`d58c9ef`](https://github.com/fonttools/fontspector/commit/d58c9ef800041bb3ec8cd266907d4c03f1b548c9))
+ * **[#371](https://github.com/fonttools/fontspector/issues/371)**
+    - Get working again ([`0c6365a`](https://github.com/fonttools/fontspector/commit/0c6365a1d3383dad9d12de3984989ee5747b35cf))
+</details>
+
 ## v1.1.1 (2025-07-02)
+
+<csr-id-138edbbfba88008d71d9247eccbdfc017fef8b81/>
+<csr-id-a6b7ffc4f39c6b1c1bd92cd9b07f4ba22d54ef2e/>
 
 ### Chore
 
@@ -18,8 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
  - <csr-id-46e90e51624979590af83272f96cbcfc521b7d0a/> Improve rationale rewrapping
    * fix(cli): Improve rationale rewrapping
-   
-   * chore: Style fixes for new clippy
+* chore: Style fixes for new clippy
 
 ### Style
 
@@ -32,7 +76,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 3 commits contributed to the release over the course of 11 calendar days.
+ - 4 commits contributed to the release over the course of 11 calendar days.
  - 12 days passed between releases.
  - 3 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 3 unique issues were worked on: [#287](https://github.com/fonttools/fontspector/issues/287), [#291](https://github.com/fonttools/fontspector/issues/291), [#299](https://github.com/fonttools/fontspector/issues/299)
@@ -49,6 +93,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Update fontations dependencies ([`138edbb`](https://github.com/fonttools/fontspector/commit/138edbbfba88008d71d9247eccbdfc017fef8b81))
  * **[#299](https://github.com/fonttools/fontspector/issues/299)**
     - Improve rationale rewrapping ([`46e90e5`](https://github.com/fonttools/fontspector/commit/46e90e51624979590af83272f96cbcfc521b7d0a))
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.1.1, fontspector-profile-opentype v1.2.0, fontspector-profile-googlefonts v1.1.1, fontspector-profile-universal v1.1.1, fontspector v1.2.0 ([`f407a9a`](https://github.com/fonttools/fontspector/commit/f407a9aaf0aae501443842311f1b5c27eab007b6))
 </details>
 
 ## v1.1.0 (2025-06-19)

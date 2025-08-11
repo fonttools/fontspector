@@ -5,10 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## v1.1.0 (2025-07-11)
+## v1.2.0 (2025-08-11)
 
 ### Chore
 
+ - <csr-id-c69a556c43bd09c1368073faf6f3ac6c985e0dc0/> Add changelog
  - <csr-id-f44be5515dcaea17b96b1df7a4b11407561d0c17/> Improve error handling
    * chore: Better error handling
    
@@ -44,8 +45,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 6 commits contributed to the release.
- - 5 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 8 commits contributed to the release over the course of 87 calendar days.
+ - 95 days passed between releases.
+ - 6 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 6 unique issues were worked on: [#113](https://github.com/fonttools/fontspector/issues/113), [#133](https://github.com/fonttools/fontspector/issues/133), [#161](https://github.com/fonttools/fontspector/issues/161), [#275](https://github.com/fonttools/fontspector/issues/275), [#287](https://github.com/fonttools/fontspector/issues/287), [#299](https://github.com/fonttools/fontspector/issues/299)
 
 ### Commit Details
@@ -66,7 +68,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Deny indexing slicing ([`a6b7ffc`](https://github.com/fonttools/fontspector/commit/a6b7ffc4f39c6b1c1bd92cd9b07f4ba22d54ef2e))
  * **[#299](https://github.com/fonttools/fontspector/issues/299)**
     - Improve rationale rewrapping ([`46e90e5`](https://github.com/fonttools/fontspector/commit/46e90e51624979590af83272f96cbcfc521b7d0a))
+ * **Uncategorized**
+    - Add changelog ([`c69a556`](https://github.com/fonttools/fontspector/commit/c69a556c43bd09c1368073faf6f3ac6c985e0dc0))
+    - Release fontspector-fontbakery-bridge v1.1.0, fontspector-profile-googlefonts v1.2.0, fontspector v1.3.0 ([`05adc63`](https://github.com/fonttools/fontspector/commit/05adc636ddf710008076985ab8c2a03ea19a0f6c))
 </details>
+
+## v1.1.0 (2025-07-11)
+
+<csr-id-f44be5515dcaea17b96b1df7a4b11407561d0c17/>
+<csr-id-d76cf586e4d8b509a6af4b2df724264afe125359/>
+<csr-id-a6b7ffc4f39c6b1c1bd92cd9b07f4ba22d54ef2e/>
+
+### Chore
+
+ - <csr-id-f44be5515dcaea17b96b1df7a4b11407561d0c17/> Improve error handling
+   * chore: Better error handling
+   
+   * chore: Better error handling for fix functions too
+ - <csr-id-d76cf586e4d8b509a6af4b2df724264afe125359/> Roll dependencies
+   * chore(deps): Add renovate config
+   
+   * chore(deps): Update pyo3 deps and fix
+   
+   * Update lock file
+   
+   * fix(fontbakery-bridge): Fix up fontbakery-bridge for new pyo3
+
+### New Features
+
+ - <csr-id-06e1ff0b9234917d3040559465b70c4b3c44e61e/> fontwerk profile
+
+### Bug Fixes
+
+ - <csr-id-46e90e51624979590af83272f96cbcfc521b7d0a/> Improve rationale rewrapping
+   * fix(cli): Improve rationale rewrapping
+* chore: Style fixes for new clippy
+
+### Style
+
+ - <csr-id-a6b7ffc4f39c6b1c1bd92cd9b07f4ba22d54ef2e/> deny indexing slicing
+   * chore: More lints into Cargo.toml
+   
+   * style: Deny indexing slicing
 
 ## v1.0.0 (2025-05-08)
 
