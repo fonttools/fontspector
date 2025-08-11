@@ -5,10 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## v1.3.0 (2025-07-11)
+## v1.4.0 (2025-08-11)
+
+### Chore
+
+ - <csr-id-0c6365a1d3383dad9d12de3984989ee5747b35cf/> get working again
+   * chore: Upgrade fontations deps
+   
+   * chore: API changed
+   
+   * chore: Comply with new elided lifetime rules
 
 ### New Features
 
+ - <csr-id-7b324745f3a6b339a134be2f68f89fe726f4fc97/> Support on-the-fly compilation
  - <csr-id-3d7a965e900a6aed406ddf8a78f490ff3d42dd6a/> Support installing with cargo-binstall
 
 ### Bug Fixes
@@ -19,9 +29,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 2 commits contributed to the release over the course of 7 calendar days.
- - 2 commits were understood as [conventional](https://www.conventionalcommits.org).
- - 2 unique issues were worked on: [#314](https://github.com/fonttools/fontspector/issues/314), [#326](https://github.com/fonttools/fontspector/issues/326)
+ - 5 commits contributed to the release.
+ - 40 days passed between releases.
+ - 4 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 4 unique issues were worked on: [#314](https://github.com/fonttools/fontspector/issues/314), [#326](https://github.com/fonttools/fontspector/issues/326), [#340](https://github.com/fonttools/fontspector/issues/340), [#371](https://github.com/fonttools/fontspector/issues/371)
 
 ### Commit Details
 
@@ -33,7 +44,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Update rust crate indicatif to 0.18 ([`cefb525`](https://github.com/fonttools/fontspector/commit/cefb5250c292752ece71d7fe3b2ccd30f682f416))
  * **[#326](https://github.com/fonttools/fontspector/issues/326)**
     - Support installing with cargo-binstall ([`3d7a965`](https://github.com/fonttools/fontspector/commit/3d7a965e900a6aed406ddf8a78f490ff3d42dd6a))
+ * **[#340](https://github.com/fonttools/fontspector/issues/340)**
+    - Support on-the-fly compilation ([`7b32474`](https://github.com/fonttools/fontspector/commit/7b324745f3a6b339a134be2f68f89fe726f4fc97))
+ * **[#371](https://github.com/fonttools/fontspector/issues/371)**
+    - Get working again ([`0c6365a`](https://github.com/fonttools/fontspector/commit/0c6365a1d3383dad9d12de3984989ee5747b35cf))
+ * **Uncategorized**
+    - Release fontspector-fontbakery-bridge v1.1.0, fontspector-profile-googlefonts v1.2.0, fontspector v1.3.0 ([`05adc63`](https://github.com/fonttools/fontspector/commit/05adc636ddf710008076985ab8c2a03ea19a0f6c))
 </details>
+
+## v1.3.0 (2025-07-11)
+
+### New Features
+
+ - <csr-id-3d7a965e900a6aed406ddf8a78f490ff3d42dd6a/> Support installing with cargo-binstall
+
+### Bug Fixes
+
+ - <csr-id-cefb5250c292752ece71d7fe3b2ccd30f682f416/> update rust crate indicatif to 0.18
 
 ## v1.2.0 (2025-07-02)
 

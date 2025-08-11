@@ -5,7 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.2.1 (2025-08-11)
+
+### Bug Fixes
+
+ - <csr-id-d58c9ef800041bb3ec8cd266907d4c03f1b548c9/> Improve formatting of bulleted lists, fixes #352
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 1 commit contributed to the release.
+ - 40 days passed between releases.
+ - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
+ - 1 unique issue was worked on: [#357](https://github.com/fonttools/fontspector/issues/357)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#357](https://github.com/fonttools/fontspector/issues/357)**
+    - Improve formatting of bulleted lists, fixes #352 ([`d58c9ef`](https://github.com/fonttools/fontspector/commit/d58c9ef800041bb3ec8cd266907d4c03f1b548c9))
+</details>
+
 ## v1.2.0 (2025-07-02)
+
+<csr-id-138edbbfba88008d71d9247eccbdfc017fef8b81/>
+<csr-id-a6b7ffc4f39c6b1c1bd92cd9b07f4ba22d54ef2e/>
 
 ### Chore
 
@@ -20,20 +48,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Bug Fixes
 
+<csr-id-24e8aaeb0226552af2a94eb51b724afbf4f29cf3/>
+
  - <csr-id-46e90e51624979590af83272f96cbcfc521b7d0a/> Improve rationale rewrapping
    * fix(cli): Improve rationale rewrapping
-   
-   * chore: Style fixes for new clippy
- - <csr-id-24e8aaeb0226552af2a94eb51b724afbf4f29cf3/> Allow larger families with same bits
-   * Extend test for bold_italic_unique_for_nameid1 with condensed styles
-   
-   * Add missing ttFonts to unittest
-   
-   * Fix bold_italic_unique_for_nameid1
-   
-   * Use: .first(), because we avoid indexing into vectors
-   
-   * Fix: Lint issue
+* chore: Style fixes for new clippy
+* Extend test for bold_italic_unique_for_nameid1 with condensed styles
+* Add missing ttFonts to unittest
+* Fix bold_italic_unique_for_nameid1
+* Use: .first(), because we avoid indexing into vectors
+* Fix: Lint issue
 
 ### Style
 
@@ -46,7 +70,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 5 commits contributed to the release over the course of 11 calendar days.
+ - 6 commits contributed to the release over the course of 11 calendar days.
  - 12 days passed between releases.
  - 5 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 5 unique issues were worked on: [#161](https://github.com/fonttools/fontspector/issues/161), [#279](https://github.com/fonttools/fontspector/issues/279), [#287](https://github.com/fonttools/fontspector/issues/287), [#291](https://github.com/fonttools/fontspector/issues/291), [#299](https://github.com/fonttools/fontspector/issues/299)
@@ -67,7 +91,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Update fontations dependencies ([`138edbb`](https://github.com/fonttools/fontspector/commit/138edbbfba88008d71d9247eccbdfc017fef8b81))
  * **[#299](https://github.com/fonttools/fontspector/issues/299)**
     - Improve rationale rewrapping ([`46e90e5`](https://github.com/fonttools/fontspector/commit/46e90e51624979590af83272f96cbcfc521b7d0a))
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.1.1, fontspector-profile-opentype v1.2.0, fontspector-profile-googlefonts v1.1.1, fontspector-profile-universal v1.1.1, fontspector v1.2.0 ([`f407a9a`](https://github.com/fonttools/fontspector/commit/f407a9aaf0aae501443842311f1b5c27eab007b6))
 </details>
+
+<csr-unknown>
+ Allow larger families with same bits<csr-unknown/>
 
 ## v1.1.0 (2025-06-19)
 
