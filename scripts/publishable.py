@@ -24,4 +24,7 @@ for member in members:
 if "fontspector" in publishable:
     publishable.remove("fontspector")
     publishable.append("fontspector")
+# Move check-api to start
+publishable.remove("fontspector-checkapi")
+publishable.insert(0, "fontspector-checkapi")
 print(" ".join(publishable))
