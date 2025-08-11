@@ -497,9 +497,9 @@ checksum = "175812e0be2bccb6abe50bb8d566126198344f707e304f45c648fd8f2cc0365e"
 
 [[package]]
 name = "bytemuck"
-version = "1.23.1"
+version = "1.23.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5c76a5792e44e4abe34d3abf15636779261d45a7450612059293d1d2cfc63422"
+checksum = "3995eaeebcdf32f91f980d360f78732ddc061097ab4e39991ae7a6ace9194677"
 dependencies = [
  "bytemuck_derive",
 ]
@@ -544,9 +544,9 @@ dependencies = [
 
 [[package]]
 name = "camino"
-version = "1.1.10"
+version = "1.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0da45bc31171d8d6960122e222a67740df867c1dd53b4d51caa297084c185cab"
+checksum = "5d07aa9a93b00c76f71bc35d598bed923f6d4f3a9ca5c24b7737ae1a292841c0"
 dependencies = [
  "serde",
 ]
@@ -582,9 +582,9 @@ checksum = "37b2a672a2cb129a2e41c10b1224bb368f9f37a2b16b612598138befd7b37eb5"
 
 [[package]]
 name = "cc"
-version = "1.2.31"
+version = "1.2.32"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c3a42d84bb6b69d3a8b3eaacf0d88f179e1929695e1ad012b6cf64d9caaa5fd2"
+checksum = "2352e5597e9c544d5e6d9c95190d5d27738ade584fa8db0a16e130e5c2b5296e"
 dependencies = [
  "jobserver",
  "libc",
@@ -1412,25 +1412,13 @@ dependencies = [
 
 [[package]]
 name = "fontations"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d02f283ce06cb9e6245b3052f217fb57365b2fdfc295c79367c81bd8be552c73"
-dependencies = [
- "font-types",
- "read-fonts 0.30.1",
- "skrifa 0.32.0",
- "write-fonts 0.39.1",
-]
-
-[[package]]
-name = "fontations"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6ce83f5942797f03c95b06864da889bc5a6acf543cd5bbf108ea114d898fc824"
 dependencies = [
  "font-types",
- "read-fonts 0.31.1",
- "skrifa 0.33.1",
+ "read-fonts 0.31.2",
+ "skrifa",
  "write-fonts 0.39.1",
 ]
 
@@ -1584,7 +1572,7 @@ name = "fontspector-checkapi"
 version = "1.1.1"
 dependencies = [
  "clap",
- "fontations 0.3.0",
+ "fontations",
  "fontspector-checkhelper",
  "glob-match",
  "indexmap",
@@ -1630,7 +1618,7 @@ dependencies = [
 name = "fontspector-profile-adobe"
 version = "1.0.0"
 dependencies = [
- "fontations 0.3.0",
+ "fontations",
  "fontspector-checkapi",
  "itertools 0.14.0",
  "pluginator",
@@ -1651,7 +1639,7 @@ dependencies = [
 name = "fontspector-profile-fontwerk"
 version = "1.0.0"
 dependencies = [
- "fontations 0.3.0",
+ "fontations",
  "fontspector-checkapi",
  "itertools 0.14.0",
  "pluginator",
@@ -1664,7 +1652,7 @@ name = "fontspector-profile-googlefonts"
 version = "1.2.0"
 dependencies = [
  "chrono",
- "fontations 0.3.0",
+ "fontations",
  "fontspector-checkapi",
  "glob",
  "google-fonts-axisregistry",
@@ -1702,7 +1690,7 @@ dependencies = [
 name = "fontspector-profile-iso15008"
 version = "1.0.2"
 dependencies = [
- "fontations 0.3.0",
+ "fontations",
  "fontspector-checkapi",
  "itertools 0.14.0",
  "kurbo",
@@ -1713,7 +1701,7 @@ dependencies = [
 name = "fontspector-profile-microsoft"
 version = "0.1.0"
 dependencies = [
- "fontations 0.3.0",
+ "fontations",
  "fontspector-checkapi",
  "pluginator",
  "regex",
@@ -1724,7 +1712,7 @@ dependencies = [
 name = "fontspector-profile-opentype"
 version = "1.2.0"
 dependencies = [
- "fontations 0.3.0",
+ "fontations",
  "fontspector-checkapi",
  "fontspector-checkhelper",
  "itertools 0.14.0",
@@ -1746,7 +1734,7 @@ dependencies = [
 name = "fontspector-profile-universal"
 version = "1.1.1"
 dependencies = [
- "fontations 0.3.0",
+ "fontations",
  "fontspector-checkapi",
  "fontspector-checkhelper",
  "freetype-rs",
@@ -1990,9 +1978,9 @@ dependencies = [
 
 [[package]]
 name = "glob"
-version = "0.3.2"
+version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a8d1add55171497b4705a648c6b583acafb01d58050a51727785f0b2c8e0a2b2"
+checksum = "0cc23270f6e1808e30a928bdc84dea0b9b4136a8bc82338574f23baf47bbd280"
 
 [[package]]
 name = "glob-match"
@@ -2073,7 +2061,7 @@ version = "0.4.16"
 source = "git+https://github.com/googlefonts/axisregistry#0adc239e762cb5cedcc25c064acca20438ec3b6b"
 dependencies = [
  "bytes",
- "fontations 0.3.0",
+ "fontations",
  "glob",
  "indexmap",
  "itertools 0.13.0",
@@ -2604,7 +2592,7 @@ name = "interpolatable"
 version = "1.1.1"
 source = "git+https://github.com/simoncozens/interpolatable#d95fb8a353bf11649cce62428362fa53d651cf45"
 dependencies = [
- "fontations 0.3.0",
+ "fontations",
  "greencurves",
  "itertools 0.13.0",
  "kurbo",
@@ -2841,9 +2829,9 @@ checksum = "2c4a545a15244c7d945065b5d392b2d2d7f21526fba56ce51467b06ed445e8f7"
 
 [[package]]
 name = "libc"
-version = "0.2.174"
+version = "0.2.175"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1171693293099992e19cddea4e8b849964e9846f4acee11b3948bcc337be8776"
+checksum = "6a82ae493e598baaea5209805c49bbf2ea7de956d50d7da0da1164f9c6d28543"
 
 [[package]]
 name = "libduckdb-sys"
@@ -4046,19 +4034,9 @@ dependencies = [
 
 [[package]]
 name = "read-fonts"
-version = "0.30.1"
+version = "0.31.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "192735ef611aac958468e670cb98432c925426f3cb71521fda202130f7388d91"
-dependencies = [
- "bytemuck",
- "font-types",
-]
-
-[[package]]
-name = "read-fonts"
-version = "0.31.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a76192a41e824262f0e86922b0ab6dc770c4600f3b2a9373fe33439727a918d5"
+checksum = "eb16bffd9221b97a7de1b048520122b3926cf11e778c42c4c7514a4ee9da9455"
 dependencies = [
  "bytemuck",
  "font-types",
@@ -4310,9 +4288,9 @@ dependencies = [
 
 [[package]]
 name = "rustversion"
-version = "1.0.21"
+version = "1.0.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8a0d197bd2c9dc6e53b84da9556a69ba4cdfab8619eb41a8bd1cc2027a0f6b1d"
+checksum = "b39cdef0fa800fc44525c84ccb54a029961a8215f9619753635a9c0d2538d46d"
 
 [[package]]
 name = "rustybuzz"
@@ -4581,11 +4559,11 @@ dependencies = [
 
 [[package]]
 name = "shaperglot"
-version = "1.0.3"
-source = "git+https://github.com/googlefonts/shaperglot#fafea94d0c4ffe291b34c6748149006b13476755"
+version = "1.1.0"
+source = "git+https://github.com/googlefonts/shaperglot#b7ba56e583e89a1c169f4ef7c3419e4e76e00974"
 dependencies = [
  "ambassador",
- "fontations 0.2.0",
+ "fontations",
  "google-fonts-languages",
  "indexmap",
  "itertools 0.14.0",
@@ -4661,29 +4639,19 @@ checksum = "56199f7ddabf13fe5074ce809e7d3f42b42ae711800501b5b16ea82ad029c39d"
 
 [[package]]
 name = "skrifa"
-version = "0.32.0"
+version = "0.33.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e6d632b5a73f566303dbeabd344dc3e716fd4ddc9a70d6fc8ea8e6f06617da97"
+checksum = "78cc1f79e5624f166718224ef883095bea315801aca75b62c64f3937755a586d"
 dependencies = [
  "bytemuck",
- "read-fonts 0.30.1",
-]
-
-[[package]]
-name = "skrifa"
-version = "0.33.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cb886d448c2a43b337448919c17947d33dd9f98defd37cf333d63cdfe5fff6ef"
-dependencies = [
- "bytemuck",
- "read-fonts 0.31.1",
+ "read-fonts 0.31.2",
 ]
 
 [[package]]
 name = "slab"
-version = "0.4.10"
+version = "0.4.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "04dc19736151f35336d325007ac991178d504a119863a2fcb3758cdb5e52c50d"
+checksum = "7a2ae44ef20feb57a68b23d846850f861394c2e02dc425a50098ae8c90267589"
 
 [[package]]
 name = "smallvec"
@@ -5532,9 +5500,9 @@ checksum = "06abde3611657adf66d383f00b093d7faecc7fa57071cce2578660c9f1010821"
 
 [[package]]
 name = "uuid"
-version = "1.17.0"
+version = "1.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3cf4199d1e5d15ddd86a694e4d0dffa9c323ce759fea589f00fef9d81cc1931d"
+checksum = "f33196643e165781c20a5ead5582283a7dacbb87855d867fbc2df3f81eddc1be"
 dependencies = [
  "getrandom 0.3.3",
  "js-sys",
@@ -6100,7 +6068,7 @@ dependencies = [
  "indexmap",
  "kurbo",
  "log",
- "read-fonts 0.31.1",
+ "read-fonts 0.31.2",
 ]
 
 [[package]]
