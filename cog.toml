@@ -22,6 +22,8 @@ cog check
 """
 
 [commit_types]
+release = { changelog_title = "", omit_from_changelog = true }
+
 
 [changelog]
 path = "CHANGELOG.md"
@@ -30,3 +32,4 @@ authors = []
 [bump_profiles]
 
 [packages]
+
