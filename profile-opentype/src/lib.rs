@@ -39,6 +39,7 @@ impl fontspector_checkapi::Plugin for OpenType {
             .add_and_register_check(checks::opentype::layout_valid_script_tags)
             .add_and_register_check(checks::opentype::loca::maxp_num_glyphs)
             .add_and_register_check(checks::opentype::mac_style)
+            .add_and_register_check(checks::opentype::maxp_version)
             .add_and_register_check(checks::opentype::maxadvancewidth)
             .add_and_register_check(checks::opentype::monospace)
             .add_and_register_check(checks::opentype::name::empty_records)
