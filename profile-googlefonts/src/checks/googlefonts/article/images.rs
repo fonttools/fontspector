@@ -39,13 +39,16 @@ fn images(c: &TestableCollection, _context: &Context) -> CheckFnResult {
     let selector = Selector::parse("img,svg,video,iframe").unwrap();
     for element in fragment.select(&selector) {
         if let Some(src) = element.value().attr("src") {
-            let src = src.to_lowercase();
-            let extension = src.split('.').next_back().unwrap_or_default();
+            let extension = src
+                .split('.')
+                .next_back()
+                .unwrap_or_default()
+                .to_lowercase();
             if let Some((max_width, max_height, image_type, max_size)) =
-                image_requirements(extension)
+                image_requirements(&extension)
             {
                 has_visuals = true;
-                let Some(file) = c.get_file(&src) else {
+                let Some(file) = c.get_file(src) else {
                     problems.push(Status::error(
                         Some("missing-visual-file"),
                         &format!("Visual asset file is missing: {src}"),
