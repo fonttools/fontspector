@@ -198,7 +198,9 @@ impl Profile {
             for (section_name, check_id) in sections_and_checks.iter() {
                 #[allow(clippy::unwrap_used)] // We checked for this above
                 let check = registry.checks.get(check_id.as_str()).unwrap();
-                if check.applies(testable, registry) {
+                if check.applies(testable, registry)
+                    && per_file_included_excluded(check_id, configuration, testable)
+                {
                     let specialized_context = context.specialize(check, configuration, self);
                     order.push((
                         section_name.to_string(),
@@ -238,6 +240,50 @@ fn included_excluded(
     true
 }
 
+/// Apply per-file inclusions and exclusions to a list of checks
+///
+/// Returns true if the check should be included, false if it should be excluded.
+fn per_file_included_excluded(
+    check_id: &str,
+    configuration: &HashMap<CheckId, serde_json::Value>,
+    testable: &TestableType,
+) -> bool {
+    if let Some(explicit_files) = configuration
+        .get(check_id)
+        .and_then(|x| x.get("explicit_files"))
+        .and_then(|x| x.as_array())
+    {
+        let explicit_file_names: Vec<&str> =
+            explicit_files.iter().flat_map(|x| x.as_str()).collect();
+        return match testable {
+            TestableType::Single(testable) => testable
+                .basename()
+                .is_some_and(|b| explicit_file_names.iter().any(|s| s == &b)),
+            TestableType::Collection(_) => true,
+        };
+    }
+
+    if let Some(skips) = configuration
+        .get(check_id)
+        .and_then(|x| x.get("exclude_files"))
+        .and_then(|x| x.as_array())
+    {
+        if skips.is_empty() {
+            return true;
+        }
+        let is_skipped = match testable {
+            TestableType::Single(testable) => testable
+                .basename()
+                .is_some_and(|b| skips.iter().any(|s| s.as_str() == Some(&b))),
+            // Maybe you should be able to skip a collection? But surely that just means "don't run the check"?
+            TestableType::Collection(_) => false,
+        };
+        if is_skipped {
+            return false;
+        }
+    }
+    true
+}
 /// A builder for creating a profile
 ///
 /// This is a convenience builder for creating a profile in code, rather than
