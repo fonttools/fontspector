@@ -1478,14 +1478,16 @@ dependencies = [
 
 [[package]]
 name = "fontdrasil"
-version = "0.2.1"
+version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1a3978e5d9abdfa6a40de4d11e050c0d13d0c79d30e210d25f6b9ae65621c6a4"
+checksum = "730d114cf82eb12e9f2be187be1ab8c8f2a76d04d7ebf15c8e7776c044def449"
 dependencies = [
+ "env_logger",
+ "log",
  "ordered-float",
  "serde",
  "smol_str",
- "write-fonts 0.38.2",
+ "write-fonts 0.40.0",
 ]
 
 [[package]]
@@ -1735,6 +1737,7 @@ name = "fontspector-profile-universal"
 version = "1.1.2"
 dependencies = [
  "fontations",
+ "fontdrasil",
  "fontspector-checkapi",
  "fontspector-checkhelper",
  "freetype-rs",
@@ -4044,6 +4047,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "read-fonts"
+version = "0.32.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a551c092f06f2ec38b689276d712fd2dd423ed53a80345dca1d9ad327a70add4"
+dependencies = [
+ "bytemuck",
+ "font-types",
+ "serde",
+]
+
+[[package]]
 name = "redox_syscall"
 version = "0.5.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6076,6 +6090,20 @@ dependencies = [
  "kurbo",
  "log",
  "read-fonts 0.31.2",
+]
+
+[[package]]
+name = "write-fonts"
+version = "0.40.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9a7baa942f3717df1610a03578697ba374409934fc97021aebc8231b1a7e3ad9"
+dependencies = [
+ "font-types",
+ "indexmap",
+ "kurbo",
+ "log",
+ "read-fonts 0.32.0",
+ "serde",
 ]
 
 [[package]]

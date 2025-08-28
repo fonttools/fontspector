@@ -1,8 +1,9 @@
 use fontations::{
     read::FontRef,
-    skrifa::{raw::TableProvider, MetadataProvider},
+    skrifa::{instance::Location, raw::TableProvider, MetadataProvider},
     types::NameId,
 };
+use fontdrasil::coords::{CoordConverter, DesignCoord, NormalizedCoord, UserCoord};
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
 use tabled::{Table, Tabled};
 
@@ -25,6 +26,14 @@ struct TableEntry {
     hhea.ascent = 927
     \"OS/2.sxHeight\" = 518 # Key needs to be escaped because of / in OS/2
     name.versionString = { \"en-us\" = \"Version 1.008\" } # Languages must be present
+    fvar.axes = {
+        wght = { name = \"Weight\", min = 100, max = 900, default = 400 }
+    }
+    fvar.namedInstances = {
+        Thin = { wght = 100 },
+        Light = { wght = 300 },
+        ...
+    }
     ```
 
     Alternatively, the configuration can be specialized on a per-font basis:
@@ -67,6 +76,7 @@ fn field_values(t: &Testable, context: &Context) -> CheckFnResult {
         };
 
         let serialized = font_to_json(&font.font());
+        println!("Serialized: {:#?}", serialized);
         let mut incorrect = vec![];
         for (key, value) in config_for_this_font.iter() {
             let found = serialized.get(key);
@@ -128,8 +138,7 @@ pub fn font_to_json(font: &FontRef) -> Value {
             b"head" => font.head().map(|t| <dyn SomeTable>::serialize(&t)),
             b"hhea" => font.hhea().map(|t| <dyn SomeTable>::serialize(&t)),
             b"vhea" => font.vhea().map(|t| <dyn SomeTable>::serialize(&t)),
-            b"fvar" => font.fvar().map(|t| <dyn SomeTable>::serialize(&t)),
-            b"avar" => font.avar().map(|t| <dyn SomeTable>::serialize(&t)),
+            // b"avar" => font.avar().map(|t| <dyn SomeTable>::serialize(&t)),
             b"maxp" => font.maxp().map(|t| <dyn SomeTable>::serialize(&t)),
             b"OS/2" => font.os2().map(|t| <dyn SomeTable>::serialize(&t)),
             b"post" => font.post().map(|t| <dyn SomeTable>::serialize(&t)),
@@ -142,13 +151,14 @@ pub fn font_to_json(font: &FontRef) -> Value {
         );
     }
 
-    // Other tables require a bit of massaging to produce information which makes sense to diff.
+    // Other tables require a bit of massaging to produce information which makes sense to test.
     map.insert("name".to_string(), serialize_name_table(font));
+    map.insert("fvar".to_string(), serialize_fvar_table(font));
     Value::Object(flatten_map(&map))
 }
 
 use fontations::read::traversal::{FieldType, SomeArray, SomeTable};
-use serde_json::{Map, Number, Value};
+use serde_json::{json, Map, Number, Value};
 
 fn serialize_name_table<'a>(font: &(impl MetadataProvider<'a> + TableProvider<'a>)) -> Value {
     let mut map = Map::new();
@@ -174,6 +184,42 @@ fn serialize_name_table<'a>(font: &(impl MetadataProvider<'a> + TableProvider<'a
     }
     Value::Object(map)
 }
+
+fn serialize_fvar_table(font: &FontRef) -> Value {
+    let mut map = Map::new();
+    if !font.axes().is_empty() {
+        let mut axes_map = Map::new();
+        for axis in font.axes().iter() {
+            axes_map.insert(
+                axis.tag().to_string(),
+                json!(
+                    {
+                        "name": font.localized_strings(axis.name_id()).english_or_first().map_or("Unknown axis".to_string(), |f| f.to_string()),
+                        "min": axis.min_value(),
+                        "max": axis.max_value(),
+                        "default": axis.default_value(),
+                    }
+                ),
+            );
+        }
+        map.insert("axes".to_string(), Value::Object(axes_map));
+    }
+    if !font.named_instances().is_empty() {
+        let mut instances_map = Map::new();
+        for instance in font.named_instances().iter() {
+            let name = font
+                .localized_strings(instance.subfamily_name_id())
+                .english_or_first()
+                .map_or("Unknown instance".to_string(), |f| f.to_string());
+            if let Ok(location) = font.denormalize_location(instance.location()) {
+                instances_map.insert(name, location.into());
+            }
+        }
+        map.insert("namedInstances".to_string(), Value::Object(instances_map));
+    }
+    Value::Object(map)
+}
+
 pub(crate) trait ToValue {
     fn serialize(&self) -> Value;
 }
@@ -245,5 +291,94 @@ impl<'a> ToValue for dyn SomeTable<'a> + 'a {
             field_num += 1;
         }
         Value::Object(map)
+    }
+}
+
+fn lerp(a: f32, b: f32, t: f32) -> f32 {
+    a + (b - a) * t
+}
+fn poor_mans_denormalize(
+    peak: f32,
+    axis: &fontations::read::tables::fvar::VariationAxisRecord,
+) -> f32 {
+    if peak > 0.0 {
+        lerp(
+            axis.default_value().to_f32(),
+            axis.max_value().to_f32(),
+            peak,
+        )
+    } else {
+        lerp(
+            axis.default_value().to_f32(),
+            axis.min_value().to_f32(),
+            -peak,
+        )
+    }
+}
+
+pub trait DenormalizeLocation {
+    /// Given a normalized location tuple, turn it back into a friendly representation in userspace
+    fn denormalize_location(
+        &self,
+        location: Location,
+    ) -> Result<Map<String, Value>, FontspectorError>;
+}
+
+impl DenormalizeLocation for FontRef<'_> {
+    fn denormalize_location(
+        &self,
+        location: Location,
+    ) -> Result<Map<String, Value>, FontspectorError> {
+        let all_axes = self.fvar()?.axes()?;
+        let mut map = Map::new();
+        for (axis_index, axis) in all_axes.iter().enumerate() {
+            // Start with a default convertor, may edit later
+            let mut converter = CoordConverter::unmapped(
+                UserCoord::new(axis.min_value().to_f64()),
+                UserCoord::new(axis.max_value().to_f64()),
+                UserCoord::new(axis.min_value().to_f64()),
+            );
+            // If there is an avar table, we denormalize its mappings and use it
+            if let Ok(avar) = self.avar() {
+                if let Some(Ok(segment_map)) = avar.axis_segment_maps().get(axis_index) {
+                    let default_idx = segment_map
+                        .axis_value_maps
+                        .iter()
+                        .position(|avm| avm.from_coordinate().to_f32() == 0.0)
+                        .unwrap_or(0);
+                    let normalized_map = segment_map
+                        .axis_value_maps
+                        .iter()
+                        .map(|axis_value_map| {
+                            (
+                                UserCoord::new(poor_mans_denormalize(
+                                    axis_value_map.from_coordinate().to_f32(),
+                                    axis,
+                                ) as f64),
+                                DesignCoord::new(poor_mans_denormalize(
+                                    axis_value_map.to_coordinate().to_f32(),
+                                    axis,
+                                ) as f64),
+                            )
+                        })
+                        .collect::<Vec<_>>();
+                    converter = CoordConverter::new(normalized_map, default_idx);
+                }
+            }
+            let coord = location
+                .coords()
+                .get(axis_index)
+                .ok_or(FontspectorError::General(
+                    "Not enough axes in fvar table".to_string(),
+                ))?
+                .to_f32() as f64;
+            let normalized_value = NormalizedCoord::new(coord);
+            // Denormalize to userspace!
+            map.insert(
+                axis.axis_tag().to_string(),
+                json!(normalized_value.to_user(&converter).to_f64()),
+            );
+        }
+        Ok(map)
     }
 }
