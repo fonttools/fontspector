@@ -17,6 +17,7 @@ mod empty_glyph_on_gid1_for_colrv0;
 mod empty_letters;
 mod family_vertical_metrics;
 mod family_win_ascent_and_descent;
+mod field_values;
 mod file_size;
 #[cfg(not(target_family = "wasm"))]
 mod fontdata_namecheck;
@@ -81,6 +82,7 @@ pub use empty_glyph_on_gid1_for_colrv0::empty_glyph_on_gid1_for_colrv0;
 pub use empty_letters::empty_letters;
 pub use family_vertical_metrics::family_vertical_metrics;
 pub use family_win_ascent_and_descent::family_win_ascent_and_descent;
+pub use field_values::field_values;
 pub use file_size::file_size;
 #[cfg(not(target_family = "wasm"))]
 pub use fontdata_namecheck::fontdata_namecheck;
