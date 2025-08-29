@@ -22,7 +22,6 @@ fn colr_glyph_entry_with_no_layers(t: &Testable, _context: &Context) -> CheckFnR
 
     let mut bad_glyphs = vec![];
 
-    // Check if GID 1 exists and has no layers
     if let Some(records) = colr.base_glyph_records() {
         if let Ok(colr_glyph_entries) = records {
             for base_glyph in colr_glyph_entries {
