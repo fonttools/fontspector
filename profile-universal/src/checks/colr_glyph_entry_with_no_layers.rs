@@ -1,7 +1,5 @@
-use fontations::{skrifa::raw::TableProvider};
-use fontspector_checkapi::{
-    prelude::*, skip, testfont, FileTypeConvert, Testable
-};
+use fontations::skrifa::raw::TableProvider;
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Testable};
 
 #[check(
     id = "colr_glyph_entry_with_no_layers",
