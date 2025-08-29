@@ -20,16 +20,14 @@ fn colr_glyph_entry_with_no_layers(t: &Testable, _context: &Context) -> CheckFnR
 
     let mut bad_glyphs = vec![];
 
-    if let Some(records) = colr.base_glyph_records() {
-        if let Ok(colr_glyph_entries) = records {
-            for base_glyph in colr_glyph_entries {
-                if base_glyph.num_layers == 0 {
-                    let name = f.glyph_name_for_id(base_glyph.glyph_id());
-                    if let Some(name) = name {
-                        bad_glyphs.push(name.to_string());
-                    } else {
-                        bad_glyphs.push(format!("{:?}", base_glyph.glyph_id()));
-                    }
+    if let Some(Ok(colr_glyph_entries)) = colr.base_glyph_records() {
+        for base_glyph in colr_glyph_entries {
+            if base_glyph.num_layers == 0 {
+                let name = f.glyph_name_for_id(base_glyph.glyph_id());
+                if let Some(name) = name {
+                    bad_glyphs.push(name.to_string());
+                } else {
+                    bad_glyphs.push(format!("{:?}", base_glyph.glyph_id()));
                 }
             }
         }
