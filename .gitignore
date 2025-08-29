@@ -7,7 +7,6 @@ node_modules/
 *.fontspectorplugin
 package-lock.json
 .DS_Store
-*ttf
 report*
 *.csv
 venv

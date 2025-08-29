@@ -26,6 +26,7 @@ impl fontspector_checkapi::Plugin for Universal {
             .add_and_register_check(checks::contour_count)
             .add_and_register_check(checks::control_chars)
             .add_and_register_check(checks::empty_glyph_on_gid1_for_colrv0)
+            .add_and_register_check(checks::colr_glyph_entry_with_no_layers)
             .add_and_register_check(checks::empty_letters)
             .add_and_register_check(checks::family_vertical_metrics)
             .add_and_register_check(checks::family_win_ascent_and_descent)
