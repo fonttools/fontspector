@@ -7,3 +7,5 @@ mod fstype;
 pub use fstype::fstype;
 mod glyph_coverage;
 pub use glyph_coverage::glyph_coverage;
+mod weightclass;
+pub use weightclass::weightclass;

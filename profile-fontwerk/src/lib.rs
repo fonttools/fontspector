@@ -31,6 +31,7 @@ impl fontspector_checkapi::Plugin for Fontwerk {
             .exclude_check("googlefonts/version_bump")
             .exclude_check("googlefonts/font_names")
             .exclude_check("googlefonts/varfont/has_HVAR")
+            .exclude_check("googlefonts/weightclass")
             .exclude_check("control_chars")
             .exclude_check("fontdata_namecheck")
             .include_profile("opentype")
@@ -40,7 +41,7 @@ impl fontspector_checkapi::Plugin for Fontwerk {
             .add_and_register_check(checks::fontwerk::required_name_ids)
             .add_and_register_check(checks::fontwerk::fstype)
             .add_and_register_check(checks::fontwerk::glyph_coverage)
-            //.add_and_register_check(checks::fontwerk::vendor_id)
+            .add_and_register_check(checks::fontwerk::weightclass)
             // TODO: implement other Fontwerk checks
             // .add_and_register_check("fontwerk/names_match_default_fvar")
             .with_configuration_defaults(
