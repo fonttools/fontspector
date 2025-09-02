@@ -40,7 +40,7 @@ const FW_LAT_STD_ENCODED_GLYPHS: [u32; 414] = [
     0x0303, 0x0304, 0x0326, 0x0327, 0x0328, 0x00A8, 0x02D9, 0x0060, 0x00B4, 0x02DD, 0x02C6, 0x02C7,
     0x02D8, 0x02DA, 0x02DC, 0x00AF, 0x00B8, 0x02DB,
 ];
-const FW_LAT_STD_UNENCODED_GLYPHS: &[[&str; 2]; 48] = &[
+const FW_LAT_STD_UNENCODED_GLYPHS: &[[&str; 2]; 11] = &[
     // [prefered name, alternative name]
     [".notdef", ".notdef"],
     ["zero.tf", "uni0030.tf"],
@@ -53,43 +53,6 @@ const FW_LAT_STD_UNENCODED_GLYPHS: &[[&str; 2]; 48] = &[
     ["seven.tf", "uni0037.tf"],
     ["eight.tf", "uni0038.tf"],
     ["nine.tf", "uni0039.tf"],
-    ["leftanglebracket-math.case", "uni27E8.case"],
-    ["rightanglebracket-math.case", "uni27E9.case"],
-    ["hyphen.case", "uni002D.case"],
-    ["endash.case", "uni2013.case"],
-    ["emdash.case", "uni2014.case"],
-    ["figuredash.case", "uni2012.case"],
-    ["hyphentwo.case", "uni2010.case"],
-    ["nonbreakinghyphen.case", "uni2011.case"],
-    ["parenleft.case", "uni0028.case"],
-    ["parenright.case", "uni0029.case"],
-    ["braceleft.case", "uni007B.case"],
-    ["braceright.case", "uni007D.case"],
-    ["bracketleft.case", "uni005B.case"],
-    ["bracketright.case", "uni005D.case"],
-    ["guillemetleft.case", "guillemotleft.case"],
-    ["guillemetright.case", "guillemotright.case"],
-    ["guilsinglleft.case", "uni2039.case"],
-    ["guilsinglright.case", "uni203A.case"],
-    ["colon.case", "uni003A.case"],
-    ["exclamdown.case", "uni00A1.case"],
-    ["questiondown.case", "uni00BF.case"],
-    ["periodcentered.case", "uni00B7.case"],
-    ["bullet.case", "uni2022.case"],
-    ["slash.case", "uni002F.case"],
-    ["backslash.case", "uni005C.case"],
-    ["at.case", "uni0040.case"],
-    ["dieresiscomb.case", "uni0308.case"],
-    ["dotaccentcomb.case", "uni0307.case"],
-    ["gravecomb.case", "uni0300.case"],
-    ["acutecomb.case", "uni0301.case"],
-    ["hungarumlautcomb.case", "uni030B.case"],
-    ["circumflexcomb.case", "uni0302.case"],
-    ["caroncomb.case", "uni030C.case"],
-    ["brevecomb.case", "uni0306.case"],
-    ["ringcomb.case", "uni030A.case"],
-    ["tildecomb.case", "uni0303.case"],
-    ["macroncomb.case", "uni0304.case"],
 ];
 
 #[check(
@@ -179,7 +142,7 @@ mod tests {
             .next()
             .unwrap();
 
-        let expected_message = "This font is missing required glyphs:\n\n[\"uniFEFF\", \"uni2060\", \"uni27E8\", \"uni27E9\", \"uni2011\", \"uni20BF\", \"uni2052\", \"uni22C5\", \"uni2117\", \"uniFFFD\", \"leftanglebracket-math.case\", \"rightanglebracket-math.case\", \"figuredash.case\", \"hyphentwo.case\", \"nonbreakinghyphen.case\", \"colon.case\", \"exclamdown.case\", \"questiondown.case\", \"ringcomb.case\"]";
+        let expected_message = "This font is missing required glyphs:\n\n[\"uniFEFF\", \"uni2060\", \"uni27E8\", \"uni27E9\", \"uni2011\", \"uni20BF\", \"uni2052\", \"uni22C5\", \"uni2117\", \"uniFFFD\"]";
         assert_eq!(result.message, Some(expected_message.to_string()));
     }
 }
