@@ -78,6 +78,35 @@ pub fn assert_results_contain(
         .any(|subresult| subresult.severity == severity && subresult.code == code));
 }
 
+/// Assert that a check result contains an expected message substring
+pub fn assert_messages_contain(check_result: Option<CheckResult>, wanted_message: &str) {
+    if check_result.is_none() {
+        panic!("Check result was None");
+    }
+    let result = check_result.unwrap();
+    let mut found = false;
+    for subresult in &result.subresults {
+        if let Some(message) = &subresult.message {
+            if message.contains(wanted_message) {
+                found = true;
+                break;
+            }
+        }
+    }
+    if !found {
+        let all_messages: Vec<String> = result
+            .subresults
+            .iter()
+            .filter_map(|s| s.message.clone())
+            .collect();
+        panic!(
+            "Could not find message '{}' in check results.\nMessages found:\n- {}",
+            wanted_message,
+            all_messages.join("\n- ")
+        );
+    }
+}
+
 /// Manipulate a font by changing a name table entry (for testing purposes only)
 pub fn set_name_entry(
     font: &mut Testable,
