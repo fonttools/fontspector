@@ -94,6 +94,7 @@ impl fontspector_checkapi::Plugin for Universal {
             .add_and_register_check(checks::whitespace_widths)
             .add_and_register_check(checks::field_values)
             .add_and_register_check(checks::has_features)
+            .add_and_register_check(checks::has_glyphs)
             .build("universal", cr)
 
         //  Checks which don't make sense any more
