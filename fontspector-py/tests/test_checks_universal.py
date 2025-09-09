@@ -327,27 +327,7 @@ def test_check_whitespace_ink(check):
     )
 
 
-@check_id("legacy_accents")
-def test_check_legacy_accents(check):
-    """Check that legacy accents aren't used in composite glyphs."""
-    test_font = TTFont(TEST_FILE("montserrat/Montserrat-Regular.ttf"))
-    assert_PASS(check(test_font))
 
-    test_font = TTFont(TEST_FILE("mada/Mada-Regular.ttf"))
-    assert_results_contain(
-        check(test_font),
-        FAIL,
-        "legacy-accents-gdef",
-        "for legacy accents being defined in GDEF as marks.",
-    )
-
-    test_font = TTFont(TEST_FILE("lugrasimo/Lugrasimo-Regular.ttf"))
-    assert_results_contain(
-        check(test_font),
-        FAIL,
-        "legacy-accents-width",
-        "for legacy accents having zero width.",
-    )
 
 
 mada_fonts = [
@@ -506,35 +486,10 @@ def test_check_superfamily_vertical_metrics(
     )
 
 
-@check_id("STAT_strings")
-def test_check_STAT_strings(check):
-    good = TTFont(TEST_FILE("ibmplexsans-vf/IBMPlexSansVar-Roman.ttf"))
-    assert_PASS(check(good))
-
-    bad = TTFont(TEST_FILE("ibmplexsans-vf/IBMPlexSansVar-Italic.ttf"))
-    assert_results_contain(check(bad), FAIL, "bad-italic")
 
 
-@check_id("rupee")
-def test_check_rupee(check):
-    """Ensure indic fonts have the Indian Rupee Sign glyph."""
 
-    # Note that this is stricter than fontbakery
-    ttFont = TTFont(TEST_FILE("mada/Mada-Regular.ttf"))
-    msg = assert_results_contain(check(ttFont), WARN, "missing-rupee")
 
-    # This one is good:
-    ttFont = TTFont(
-        TEST_FILE("indic-font-with-rupee-sign/NotoSerifDevanagari-Regular.ttf")
-    )
-    assert_PASS(check(ttFont))
-
-    # But this one lacks the glyph:
-    ttFont = TTFont(
-        TEST_FILE("indic-font-without-rupee-sign/NotoSansOlChiki-Regular.ttf")
-    )
-    msg = assert_results_contain(check(ttFont), FAIL, "missing-rupee")
-    assert "Please add a glyph for Indian Rupee Sign (₹) at codepoint U+20B9." in msg
 
 
 @pytest.mark.skip(reason="Check not yet implemented")
@@ -678,32 +633,10 @@ def test_check_cjk_chws_feature(check):
     assert_PASS(check(ttFont))
 
 
-@check_id("transformed_components")
-def test_check_transformed_components(check):
-    """Ensure component transforms do not perform scaling or rotation."""
-    font = TEST_FILE("cabin/Cabin-Regular.ttf")
-    assert_PASS(check(font), "with a good font...")
-
-    # DM Sans v1.100 had some transformed components
-    # and it's hinted
-    font = TEST_FILE("dm-sans-v1.100/DMSans-Regular.ttf")
-    assert_results_contain(check(font), FAIL, "transformed-components")
-
-    # Amiri is unhinted, but it contains four transformed components
-    # that result in reversed outline direction
-    font = TEST_FILE("amiri/AmiriQuranColored.ttf")
-    assert_results_contain(check(font), FAIL, "transformed-components")
 
 
-@check_id("gpos7")
-def test_check_gpos7(check):
-    """Check if font contains any GPOS 7 lookups
-    which are not widely supported."""
-    font = TEST_FILE("mada/Mada-Regular.ttf")
-    assert_PASS(check(font), "with a good font...")
 
-    font = TEST_FILE("notosanskhudawadi/NotoSansKhudawadi-Regular.ttf")
-    assert_results_contain(check(font), WARN, "has-gpos7")
+
 
 
 @pytest.mark.skip(reason="Check not yet implemented")

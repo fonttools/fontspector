@@ -162,3 +162,24 @@ fn alignment_miss(t: &Testable, context: &Context) -> CheckFnResult {
 
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    use fontspector_checkapi::codetesting::{
+        assert_messages_contain, assert_results_contain, run_check, test_able,
+    };
+
+    use fontspector_checkapi::StatusCode;
+
+    #[test]
+    fn test_outline_alignment_miss() {
+        let testable = test_able("wonky_paths/WonkySourceSansPro-Regular.ttf");
+        let results = run_check(super::alignment_miss, testable);
+        assert_results_contain(
+            results.clone(),
+            StatusCode::Warn,
+            Some("found-misalignments".to_string()),
+        );
+        assert_messages_contain(results, "A (U+0041): X=3,Y=-2 (should be at baseline 0?)");
+    }
+}

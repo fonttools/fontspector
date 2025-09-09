@@ -63,3 +63,27 @@ fn overlapping_path_segments(t: &Testable, context: &Context) -> CheckFnResult {
         Status::just_one_pass()
     })
 }
+
+#[cfg(test)]
+mod tests {
+    use fontspector_checkapi::codetesting::{
+        assert_pass, assert_results_contain, run_check, test_able,
+    };
+
+    use fontspector_checkapi::StatusCode;
+
+    #[test]
+    fn test_overlapping_path_segments() {
+        let testable = test_able("overlapping_path_segments/Figtree[wght].ttf");
+        let results = run_check(super::overlapping_path_segments, testable);
+        assert_results_contain(
+            results,
+            StatusCode::Warn,
+            Some("overlapping-path-segments".to_string()),
+        );
+
+        let testable = test_able("merriweather/Merriweather-Regular.ttf");
+        let results = run_check(super::overlapping_path_segments, testable);
+        assert_pass(results);
+    }
+}

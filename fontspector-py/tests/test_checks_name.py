@@ -241,17 +241,7 @@ def DISABLED_test_check_glyphs_file_name_family_and_style_max_length(check):
         )
 
 
-@check_id("no_mac_entries")
-def test_check_name_no_mac_entries(check):
-    """Ensure font doesn't have Mac name table entries (platform=1)."""
 
-    font = TEST_FILE("abeezee/ABeeZee-Italic.ttf")
-    assert_results_contain(
-        check(font), FAIL, "mac-names", "with a font containing Mac names"
-    )
-
-    font = TEST_FILE("source-sans-pro/OTF/SourceSansPro-Regular.otf")
-    assert_PASS(check(font), "with a font without Mac names")
 
 
 @check_id("name/no_copyright_on_description")

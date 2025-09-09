@@ -40,3 +40,23 @@ fn gpos7(t: &Testable, _context: &Context) -> CheckFnResult {
     }
     return Ok(Status::just_one_pass());
 }
+
+#[cfg(test)]
+mod tests {
+    use fontspector_checkapi::codetesting::{
+        assert_pass, assert_results_contain, run_check, test_able,
+    };
+
+    use fontspector_checkapi::StatusCode;
+
+    #[test]
+    fn test_gpos7() {
+        let testable = test_able("mada/Mada-Regular.ttf");
+        let results = run_check(super::gpos7, testable);
+        assert_pass(results);
+
+        let testable = test_able("notosanskhudawadi/NotoSansKhudawadi-Regular.ttf");
+        let results = run_check(super::gpos7, testable);
+        assert_results_contain(results, StatusCode::Warn, Some("has-gpos7".to_string()));
+    }
+}

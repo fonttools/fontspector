@@ -75,3 +75,31 @@ fn short_segments(t: &Testable, context: &Context) -> CheckFnResult {
         Status::just_one_pass()
     })
 }
+
+#[cfg(test)]
+mod tests {
+    use fontspector_checkapi::codetesting::{
+        assert_messages_contain, assert_results_contain, run_check, test_able,
+    };
+
+    use fontspector_checkapi::StatusCode;
+
+    #[test]
+    fn test_outline_short_segments() {
+        let testable = test_able("wonky_paths/WonkySourceSansPro-Regular.ttf");
+        let results = run_check(super::short_segments, testable);
+        assert_results_contain(
+            results.clone(),
+            StatusCode::Warn,
+            Some("found-short-segments".to_string()),
+        );
+        assert_messages_contain(
+            results,
+            "D (U+0044) contains a short segment Line(Line { p0: (180.0, 68.0)",
+        );
+
+        let testable = test_able("source-sans-pro/VAR/SourceSansVariable-Roman.otf");
+        let results = run_check(super::short_segments, testable);
+        assert_results_contain(results, StatusCode::Skip, Some("variable-font".to_string()));
+    }
+}

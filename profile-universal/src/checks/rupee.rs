@@ -45,3 +45,27 @@ fn rupee(f: &Testable, context: &Context) -> CheckFnResult {
         ));
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use fontspector_checkapi::codetesting::{
+        assert_pass, assert_results_contain, run_check, test_able,
+    };
+
+    use fontspector_checkapi::StatusCode;
+
+    #[test]
+    fn test_rupee() {
+        let testable = test_able("mada/Mada-Regular.ttf");
+        let results = run_check(super::rupee, testable);
+        assert_results_contain(results, StatusCode::Warn, Some("missing-rupee".to_string()));
+
+        let testable = test_able("indic-font-with-rupee-sign/NotoSerifDevanagari-Regular.ttf");
+        let results = run_check(super::rupee, testable);
+        assert_pass(results);
+
+        let testable = test_able("indic-font-without-rupee-sign/NotoSansOlChiki-Regular.ttf");
+        let results = run_check(super::rupee, testable);
+        assert_results_contain(results, StatusCode::Fail, Some("missing-rupee".to_string()));
+    }
+}
