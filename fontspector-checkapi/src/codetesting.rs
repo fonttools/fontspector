@@ -46,10 +46,28 @@ pub fn test_able(fname: impl AsRef<Path>) -> Testable {
 
 /// Run a check on a font and return the result
 pub fn run_check(check: Check<'_>, font: Testable) -> Option<CheckResult> {
+    run_check_with_config(check, font, HashMap::new())
+}
+
+/// Run a check on a font with a given configuration and return the result
+pub fn run_check_with_config(
+    check: Check<'_>,
+    font: Testable,
+    config: HashMap<String, serde_json::Value>,
+) -> Option<CheckResult> {
+    let mut configuration = HashMap::new();
+    let mut check_config = serde_json::Map::new();
+    for (k, v) in config {
+        check_config.insert(k, v);
+    }
+    configuration.insert(
+        check.id.to_string(),
+        serde_json::Value::Object(check_config),
+    );
     let ctx: Context = Context {
         skip_network: false,
         network_timeout: Some(10),
-        configuration: HashMap::new(),
+        configuration,
         check_metadata: check.metadata(),
         full_lists: false,
         cache: Default::default(),
