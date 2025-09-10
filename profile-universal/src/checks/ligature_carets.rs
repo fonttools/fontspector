@@ -20,7 +20,7 @@ use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
     proposal = "https://github.com/fonttools/fontbakery/issues/1225",
     title = "Are there caret positions declared for every ligature?"
 )]
-fn ligature_carets(t: &Testable, context: &Context) -> CheckFnResult {
+pub fn ligature_carets(t: &Testable, context: &Context) -> CheckFnResult {
     let f = testfont!(t);
     let ligature_glyphs = f
         .all_glyphs()
@@ -66,4 +66,28 @@ fn ligature_carets(t: &Testable, context: &Context) -> CheckFnResult {
         ));
     }
     Ok(Status::just_one_pass())
+}
+
+#[cfg(test)]
+mod tests {
+    use fontspector_checkapi::codetesting::{assert_results_contain, run_check, test_able};
+    use fontspector_checkapi::StatusCode;
+
+    #[test]
+    fn test_ligature_carets_no_ligatures() {
+        let testable = test_able("mada/Mada-Medium.ttf");
+        let results = run_check(super::ligature_carets, testable);
+        assert_results_contain(results, StatusCode::Skip, Some("no-ligatures".to_string()));
+    }
+
+    #[test]
+    fn test_ligature_carets_lacks_caret_pos() {
+        let testable = test_able("source-sans-pro/OTF/SourceSansPro-Bold.otf");
+        let results = run_check(super::ligature_carets, testable);
+        assert_results_contain(
+            results,
+            StatusCode::Warn,
+            Some("lacks-caret-pos".to_string()),
+        );
+    }
 }

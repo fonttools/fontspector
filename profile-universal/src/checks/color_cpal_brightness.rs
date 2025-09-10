@@ -24,7 +24,7 @@ const MINIMUM_BRIGHTNESS: f32 = 0.1 * 256.0;
     proposal = "https://github.com/fonttools/fontbakery/pull/3908",
     title = "Color layers should have a minimum brightness."
 )]
-fn color_cpal_brightness(t: &Testable, context: &Context) -> CheckFnResult {
+pub fn color_cpal_brightness(t: &Testable, context: &Context) -> CheckFnResult {
     let f = testfont!(t);
     let mut dark_glyphs = HashSet::new();
     skip!(
@@ -90,5 +90,31 @@ fn color_cpal_brightness(t: &Testable, context: &Context) -> CheckFnResult {
                 )
             ),
         ))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use fontspector_checkapi::codetesting::{
+        assert_pass, assert_results_contain, run_check, test_able,
+    };
+    use fontspector_checkapi::StatusCode;
+
+    #[test]
+    fn test_check_color_cpal_brightness_too_dark() {
+        let testable = test_able("color_fonts/AmiriQuranColored_too_dark.ttf");
+        let results = run_check(super::color_cpal_brightness, testable);
+        assert_results_contain(
+            results,
+            StatusCode::Warn,
+            Some("glyphs-too-dark-or-too-bright".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_check_color_cpal_brightness_good() {
+        let testable = test_able("color_fonts/AmiriQuranColored.ttf");
+        let results = run_check(super::color_cpal_brightness, testable);
+        assert_pass(results);
     }
 }

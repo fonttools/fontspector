@@ -81,7 +81,7 @@ fn any_glyphs_have_instructions(font: &FontRef<'_>) -> Result<bool, ReadError> {
     proposal = "https://github.com/fonttools/fontbakery/issues/4829",
     title = "Show hinting filesize impact."
 )]
-fn hinting_impact(f: &Testable, _context: &Context) -> CheckFnResult {
+pub fn hinting_impact(f: &Testable, _context: &Context) -> CheckFnResult {
     let font = testfont!(f);
     skip!(!is_hinted(&font), "not-hinted", "Font is not hinted");
     let hinted_size = f.contents.len();
@@ -108,4 +108,24 @@ fn hinting_impact(f: &Testable, _context: &Context) -> CheckFnResult {
             change,
         ),
     ))
+}
+
+#[cfg(test)]
+mod tests {
+    use fontspector_checkapi::codetesting::{assert_results_contain, run_check, test_able};
+    use fontspector_checkapi::StatusCode;
+
+    #[test]
+    fn test_hinting_impact_unhinted() {
+        let testable = test_able("mada/Mada-Regular.ttf");
+        let results = run_check(super::hinting_impact, testable);
+        assert_results_contain(results, StatusCode::Skip, Some("not-hinted".to_string()));
+    }
+
+    #[test]
+    fn test_hinting_impact_hinted() {
+        let testable = test_able("nunito/Nunito-Regular.ttf");
+        let results = run_check(super::hinting_impact, testable);
+        assert_results_contain(results, StatusCode::Info, Some("size-impact".to_string()));
+    }
 }
