@@ -82,21 +82,18 @@ mod tests {
         let testable = test_able("wonky_paths/WonkySourceSansPro-Regular.ttf");
         let results = run_check(super::direction, testable);
         assert_results_contain(
-            results.clone(),
+            &results,
             StatusCode::Warn,
             Some("ccw-outer-contour".to_string()),
         );
+        assert_messages_contain(&results, "A (U+0041) has a counter-clockwise outer contour");
         assert_messages_contain(
-            results.clone(),
-            "A (U+0041) has a counter-clockwise outer contour",
-        );
-        assert_messages_contain(
-            results,
+            &results,
             "x (U+0078) has a path with no bounds (probably a single point)",
         );
 
         let testable = test_able("wonky_paths/OutlineTest.ttf");
         let results = run_check(super::direction, testable);
-        assert_pass(results);
+        assert_pass(&results);
     }
 }

@@ -71,20 +71,20 @@ mod tests {
     fn test_file_size_pass() {
         let testable = test_able("mada/Mada-Regular.ttf");
         let results = run_check_with_config(super::file_size, testable, get_config());
-        assert_pass(results);
+        assert_pass(&results);
     }
 
     #[test]
     fn test_file_size_warn() {
         let testable = test_able("varfont/inter/Inter[slnt,wght].ttf");
         let results = run_check_with_config(super::file_size, testable, get_config());
-        assert_results_contain(results, StatusCode::Warn, Some("large-font".to_string()));
+        assert_results_contain(&results, StatusCode::Warn, Some("large-font".to_string()));
     }
 
     #[test]
     fn test_file_size_fail() {
         let testable = test_able("cjk/NotoSansJP[wght].ttf");
         let results = run_check_with_config(super::file_size, testable, get_config());
-        assert_results_contain(results, StatusCode::Fail, Some("massive-font".to_string()));
+        assert_results_contain(&results, StatusCode::Fail, Some("massive-font".to_string()));
     }
 }

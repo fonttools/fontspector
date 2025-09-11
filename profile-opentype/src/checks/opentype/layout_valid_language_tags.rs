@@ -62,7 +62,7 @@ mod tests {
     fn test_layout_valid_language_tags_pass() {
         let testable = test_able("nunito/Nunito-Regular.ttf");
         let results = run_check(super::layout_valid_language_tags, testable);
-        assert_pass(results);
+        assert_pass(&results);
     }
 
     #[test]
@@ -70,7 +70,7 @@ mod tests {
         let testable = test_able("rosarivo/Rosarivo-Regular.ttf");
         let results = run_check(super::layout_valid_language_tags, testable);
         assert_results_contain(
-            results,
+            &results,
             StatusCode::Fail,
             Some("bad-language-tags".to_string()),
         );

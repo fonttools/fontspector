@@ -36,14 +36,14 @@ mod tests {
     fn test_check_freetype_rasterizer_good() {
         let testable = test_able("cabin/Cabin-Regular.ttf");
         let results = run_check(super::freetype_rasterizer, testable);
-        assert_pass(results);
+        assert_pass(&results);
     }
 
     #[test]
     fn test_check_freetype_rasterizer_good_varfont() {
         let testable = test_able("source-sans-pro/VAR/SourceSansVariable-Italic.ttf");
         let results = run_check(super::freetype_rasterizer, testable);
-        assert_pass(results);
+        assert_pass(&results);
     }
 
     #[test]
@@ -51,7 +51,7 @@ mod tests {
         let testable = test_able("ancho/AnchoGX.ttf");
         let results = run_check(super::freetype_rasterizer, testable);
         assert_results_contain(
-            results,
+            &results,
             StatusCode::Fail,
             Some("freetype-crash".to_string()),
         );
@@ -62,7 +62,7 @@ mod tests {
         let testable = test_able("rubik/Rubik-Italic.ttf");
         let results = run_check(super::freetype_rasterizer, testable);
         assert_results_contain(
-            results,
+            &results,
             StatusCode::Fail,
             Some("freetype-crash".to_string()),
         );

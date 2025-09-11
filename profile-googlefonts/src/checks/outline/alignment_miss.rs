@@ -176,10 +176,10 @@ mod tests {
         let testable = test_able("wonky_paths/WonkySourceSansPro-Regular.ttf");
         let results = run_check(super::alignment_miss, testable);
         assert_results_contain(
-            results.clone(),
+            &results,
             StatusCode::Warn,
             Some("found-misalignments".to_string()),
         );
-        assert_messages_contain(results, "A (U+0041): X=3,Y=-2 (should be at baseline 0?)");
+        assert_messages_contain(&results, "A (U+0041): X=3,Y=-2 (should be at baseline 0?)");
     }
 }

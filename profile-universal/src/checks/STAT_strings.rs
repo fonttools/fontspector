@@ -82,10 +82,10 @@ mod tests {
     fn test_stat_strings() {
         let testable = test_able("ibmplexsans-vf/IBMPlexSansVar-Roman.ttf");
         let results = run_check(super::STAT_strings, testable);
-        assert_pass(results);
+        assert_pass(&results);
 
         let testable = test_able("ibmplexsans-vf/IBMPlexSansVar-Italic.ttf");
         let results = run_check(super::STAT_strings, testable);
-        assert_results_contain(results, StatusCode::Fail, Some("bad-italic".to_string()));
+        assert_results_contain(&results, StatusCode::Fail, Some("bad-italic".to_string()));
     }
 }

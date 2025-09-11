@@ -144,6 +144,6 @@ mod tests {
     fn test_contour_count() {
         let test_font = test_able("ibmplexsans-vf/IBMPlexSansVar-Roman.ttf");
         let result = run_check(contour_count, test_font);
-        assert_pass(result);
+        assert_pass(&result);
     }
 }

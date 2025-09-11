@@ -71,15 +71,19 @@ mod tests {
         let testable = test_able("wonky_paths/WonkySourceSansPro-Regular.otf");
         let results = run_check(super::colinear_vectors, testable);
         assert_results_contain(
-            results.clone(),
+            &results,
             StatusCode::Warn,
             Some("found-colinear-vectors".to_string()),
         );
-        assert_messages_contain(results.clone(), "C (U+0043)");
-        assert_messages_contain(results, "E (U+0045)");
+        assert_messages_contain(&results, "C (U+0043)");
+        assert_messages_contain(&results, "E (U+0045)");
 
         let testable = test_able("source-sans-pro/VAR/SourceSansVariable-Roman.otf");
         let results = run_check(super::colinear_vectors, testable);
-        assert_results_contain(results, StatusCode::Skip, Some("variable-font".to_string()));
+        assert_results_contain(
+            &results,
+            StatusCode::Skip,
+            Some("variable-font".to_string()),
+        );
     }
 }

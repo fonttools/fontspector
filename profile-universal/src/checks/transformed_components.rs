@@ -275,12 +275,12 @@ mod tests {
     fn test_transformed_components() {
         let testable = test_able("cabin/Cabin-Regular.ttf");
         let results = run_check(super::transformed_components, testable);
-        assert_pass(results);
+        assert_pass(&results);
 
         let testable = test_able("dm-sans-v1.100/DMSans-Regular.ttf");
         let results = run_check(super::transformed_components, testable);
         assert_results_contain(
-            results,
+            &results,
             StatusCode::Fail,
             Some("transformed-components".to_string()),
         );
@@ -288,7 +288,7 @@ mod tests {
         let testable = test_able("amiri/AmiriQuranColored.ttf");
         let results = run_check(super::transformed_components, testable);
         assert_results_contain(
-            results,
+            &results,
             StatusCode::Fail,
             Some("transformed-components".to_string()),
         );

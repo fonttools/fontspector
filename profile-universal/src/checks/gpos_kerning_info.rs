@@ -50,20 +50,20 @@ mod tests {
     fn test_gpos_kerning_info_monospaced() {
         let testable = test_able("overpassmono/OverpassMono-Regular-post-edit.subset.ttf");
         let results = run_check(super::gpos_kerning_info, testable);
-        assert_results_contain(results, StatusCode::Skip, Some("monospaced".to_string()));
+        assert_results_contain(&results, StatusCode::Skip, Some("monospaced".to_string()));
     }
 
     #[test]
     fn test_gpos_kerning_info_has_kerning_ext() {
         let testable = test_able("mada/Mada-Regular.ttf");
         let results = run_check(super::gpos_kerning_info, testable);
-        assert_pass(results);
+        assert_pass(&results);
     }
 
     #[test]
     fn test_gpos_kerning_info_has_kerning_type2() {
         let testable = test_able("leaguegothic-vf/LeagueGothic[wdth].ttf");
         let results = run_check(super::gpos_kerning_info, testable);
-        assert_pass(results);
+        assert_pass(&results);
     }
 }

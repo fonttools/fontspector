@@ -79,29 +79,45 @@ pub fn run_check_with_config(
 /// Assert that a check passes
 ///
 /// Takes a `CheckResult` and asserts that the worst status is `Pass`
-pub fn assert_pass(check_result: Option<CheckResult>) {
-    let status = check_result.unwrap().worst_status();
+pub fn assert_pass(check_result: &Option<CheckResult>) {
+    let status = check_result.as_ref().unwrap().worst_status();
     assert_eq!(status, StatusCode::Pass);
+}
+/// Assert that a check is skipped
+///
+/// Takes a `CheckResult` and asserts that the worst status is `Skip`
+pub fn assert_skip(check_result: &Option<CheckResult>) {
+    let status = check_result.as_ref().unwrap().worst_status();
+    assert_eq!(status, StatusCode::Skip);
 }
 
 /// Assert that a check result contains an expected status and code
 pub fn assert_results_contain(
-    check_result: Option<CheckResult>,
+    check_result: &Option<CheckResult>,
     severity: StatusCode,
     code: Option<String>,
 ) {
-    let subresults = check_result.unwrap().subresults;
+    let subresults = &check_result.as_ref().unwrap().subresults;
     assert!(subresults
         .iter()
-        .any(|subresult| subresult.severity == severity && subresult.code == code));
+        .any(|subresult| subresult.severity == severity && subresult.code == code),
+        "Could not find result with severity {:?} and code {:?} in check results.\nResults found:\n- {}",
+        severity,
+        code,
+        subresults
+            .iter()
+            .map(|subresult| subresult.to_string())
+            .collect::<Vec<_>>()
+            .join("\n- ")
+    );
 }
 
 /// Assert that a check result contains an expected message substring
-pub fn assert_messages_contain(check_result: Option<CheckResult>, wanted_message: &str) {
+pub fn assert_messages_contain(check_result: &Option<CheckResult>, wanted_message: &str) {
     if check_result.is_none() {
         panic!("Check result was None");
     }
-    let result = check_result.unwrap();
+    let result = check_result.as_ref().unwrap();
     let mut found = false;
     for subresult in &result.subresults {
         if let Some(message) = &subresult.message {

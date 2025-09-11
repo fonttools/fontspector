@@ -119,13 +119,13 @@ mod tests {
     fn test_hinting_impact_unhinted() {
         let testable = test_able("mada/Mada-Regular.ttf");
         let results = run_check(super::hinting_impact, testable);
-        assert_results_contain(results, StatusCode::Skip, Some("not-hinted".to_string()));
+        assert_results_contain(&results, StatusCode::Skip, Some("not-hinted".to_string()));
     }
 
     #[test]
     fn test_hinting_impact_hinted() {
         let testable = test_able("nunito/Nunito-Regular.ttf");
         let results = run_check(super::hinting_impact, testable);
-        assert_results_contain(results, StatusCode::Info, Some("size-impact".to_string()));
+        assert_results_contain(&results, StatusCode::Info, Some("size-impact".to_string()));
     }
 }

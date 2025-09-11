@@ -105,7 +105,7 @@ mod tests {
         let testable = test_able("color_fonts/AmiriQuranColored_too_dark.ttf");
         let results = run_check(super::color_cpal_brightness, testable);
         assert_results_contain(
-            results,
+            &results,
             StatusCode::Warn,
             Some("glyphs-too-dark-or-too-bright".to_string()),
         );
@@ -115,6 +115,6 @@ mod tests {
     fn test_check_color_cpal_brightness_good() {
         let testable = test_able("color_fonts/AmiriQuranColored.ttf");
         let results = run_check(super::color_cpal_brightness, testable);
-        assert_pass(results);
+        assert_pass(&results);
     }
 }

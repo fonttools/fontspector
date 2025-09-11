@@ -72,18 +72,22 @@ mod tests {
         let testable = test_able("wonky_paths/WonkySourceSansPro-Regular.ttf");
         let results = run_check(super::semi_vertical, testable);
         assert_results_contain(
-            results.clone(),
+            &results,
             StatusCode::Warn,
             Some("found-semi-vertical".to_string()),
         );
-        assert_messages_contain(results, "B (U+0042)");
+        assert_messages_contain(&results, "B (U+0042)");
 
         let testable = test_able("source-sans-pro/VAR/SourceSansVariable-Roman.otf");
         let results = run_check(super::semi_vertical, testable);
-        assert_results_contain(results, StatusCode::Skip, Some("variable-font".to_string()));
+        assert_results_contain(
+            &results,
+            StatusCode::Skip,
+            Some("variable-font".to_string()),
+        );
 
         let testable = test_able("source-sans-pro/OTF/SourceSansPro-Italic.otf");
         let results = run_check(super::semi_vertical, testable);
-        assert_results_contain(results, StatusCode::Skip, Some("italic".to_string()));
+        assert_results_contain(&results, StatusCode::Skip, Some("italic".to_string()));
     }
 }

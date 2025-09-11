@@ -58,14 +58,22 @@ mod tests {
     fn test_rupee() {
         let testable = test_able("mada/Mada-Regular.ttf");
         let results = run_check(super::rupee, testable);
-        assert_results_contain(results, StatusCode::Warn, Some("missing-rupee".to_string()));
+        assert_results_contain(
+            &results,
+            StatusCode::Warn,
+            Some("missing-rupee".to_string()),
+        );
 
         let testable = test_able("indic-font-with-rupee-sign/NotoSerifDevanagari-Regular.ttf");
         let results = run_check(super::rupee, testable);
-        assert_pass(results);
+        assert_pass(&results);
 
         let testable = test_able("indic-font-without-rupee-sign/NotoSansOlChiki-Regular.ttf");
         let results = run_check(super::rupee, testable);
-        assert_results_contain(results, StatusCode::Fail, Some("missing-rupee".to_string()));
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("missing-rupee".to_string()),
+        );
     }
 }

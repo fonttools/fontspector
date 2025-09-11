@@ -77,13 +77,13 @@ mod tests {
         let testable = test_able("overlapping_path_segments/Figtree[wght].ttf");
         let results = run_check(super::overlapping_path_segments, testable);
         assert_results_contain(
-            results,
+            &results,
             StatusCode::Warn,
             Some("overlapping-path-segments".to_string()),
         );
 
         let testable = test_able("merriweather/Merriweather-Regular.ttf");
         let results = run_check(super::overlapping_path_segments, testable);
-        assert_pass(results);
+        assert_pass(&results);
     }
 }

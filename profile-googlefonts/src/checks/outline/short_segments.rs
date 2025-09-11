@@ -89,17 +89,21 @@ mod tests {
         let testable = test_able("wonky_paths/WonkySourceSansPro-Regular.ttf");
         let results = run_check(super::short_segments, testable);
         assert_results_contain(
-            results.clone(),
+            &results,
             StatusCode::Warn,
             Some("found-short-segments".to_string()),
         );
         assert_messages_contain(
-            results,
+            &results,
             "D (U+0044) contains a short segment Line(Line { p0: (180.0, 68.0)",
         );
 
         let testable = test_able("source-sans-pro/VAR/SourceSansVariable-Roman.otf");
         let results = run_check(super::short_segments, testable);
-        assert_results_contain(results, StatusCode::Skip, Some("variable-font".to_string()));
+        assert_results_contain(
+            &results,
+            StatusCode::Skip,
+            Some("variable-font".to_string()),
+        );
     }
 }

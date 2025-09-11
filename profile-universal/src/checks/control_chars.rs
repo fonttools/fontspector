@@ -45,7 +45,7 @@ mod tests {
         let testable =
             test_able("bad_character_set/control_chars/FontbakeryTesterCCGood-Regular.ttf");
         let results = run_check(super::control_chars, testable);
-        assert_pass(results);
+        assert_pass(&results);
     }
 
     #[test]
@@ -53,7 +53,7 @@ mod tests {
         let testable =
             test_able("bad_character_set/control_chars/FontbakeryTesterCCOneBad-Regular.ttf");
         let results = run_check(super::control_chars, testable);
-        assert_results_contain(results, StatusCode::Fail, Some("unacceptable".to_string()));
+        assert_results_contain(&results, StatusCode::Fail, Some("unacceptable".to_string()));
     }
 
     #[test]
@@ -61,6 +61,6 @@ mod tests {
         let testable =
             test_able("bad_character_set/control_chars/FontbakeryTesterCCMultiBad-Regular.ttf");
         let results = run_check(super::control_chars, testable);
-        assert_results_contain(results, StatusCode::Fail, Some("unacceptable".to_string()));
+        assert_results_contain(&results, StatusCode::Fail, Some("unacceptable".to_string()));
     }
 }

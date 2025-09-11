@@ -77,7 +77,7 @@ mod tests {
     fn test_ligature_carets_no_ligatures() {
         let testable = test_able("mada/Mada-Medium.ttf");
         let results = run_check(super::ligature_carets, testable);
-        assert_results_contain(results, StatusCode::Skip, Some("no-ligatures".to_string()));
+        assert_results_contain(&results, StatusCode::Skip, Some("no-ligatures".to_string()));
     }
 
     #[test]
@@ -85,7 +85,7 @@ mod tests {
         let testable = test_able("source-sans-pro/OTF/SourceSansPro-Bold.otf");
         let results = run_check(super::ligature_carets, testable);
         assert_results_contain(
-            results,
+            &results,
             StatusCode::Warn,
             Some("lacks-caret-pos".to_string()),
         );
