@@ -145,3 +145,41 @@ fn dotted_circle(t: &Testable, context: &Context) -> CheckFnResult {
     }
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::dotted_circle;
+    use fontspector_checkapi::codetesting::{
+        assert_pass, assert_results_contain, run_check, test_able,
+    };
+    use fontspector_checkapi::StatusCode;
+
+    #[test]
+    fn test_check_dotted_circle_pass() {
+        let testable = test_able("mada/Mada-Regular.ttf");
+        let results = run_check(dotted_circle, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_check_dotted_circle_missing() {
+        let testable = test_able("cabin/Cabin-Regular.ttf");
+        let results = run_check(dotted_circle, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Warn,
+            Some("missing-dotted-circle".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_check_dotted_circle_unattached() {
+        let testable = test_able("broken_markazitext/MarkaziText-VF.ttf");
+        let results = run_check(dotted_circle, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("unattached-dotted-circle-marks".to_string()),
+        );
+    }
+}

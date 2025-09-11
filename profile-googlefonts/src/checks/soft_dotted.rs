@@ -196,3 +196,57 @@ fn soft_dotted(t: &Testable, context: &Context) -> CheckFnResult {
         return Ok(Status::just_one_warn("soft-dotted", &message));
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use fontspector_checkapi::codetesting::{
+        assert_messages_contain, assert_pass, assert_results_contain, run_check, test_able,
+    };
+    use fontspector_checkapi::StatusCode;
+
+    #[test]
+    fn test_check_soft_dotted_abeezee() {
+        let testable = test_able("abeezee/ABeeZee-Regular.ttf");
+        let results = run_check(soft_dotted, testable);
+
+        assert_messages_contain(
+            &results,
+            "The dot of soft dotted characters _should_ disappear",
+        );
+        assert_results_contain(&results, StatusCode::Warn, Some("soft-dotted".to_string()));
+    }
+
+    #[test]
+    fn test_check_soft_dotted_cabin() {
+        let testable = test_able("cabin/Cabin-Regular.ttf");
+        let results = run_check(soft_dotted, testable);
+        assert_results_contain(&results, StatusCode::Warn, Some("soft-dotted".to_string()));
+        assert_messages_contain(
+            &results,
+            "The dot of soft dotted characters used in orthographies",
+        );
+        assert_messages_contain(
+            &results,
+            "The dot of soft dotted characters _should_ disappear",
+        );
+    }
+
+    #[test]
+    fn test_check_soft_dotted_akshar() {
+        let testable = test_able("akshar/Akshar[wght].ttf");
+        let results = run_check(soft_dotted, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_check_soft_dotted_rosarivo() {
+        let testable = test_able("rosarivo/Rosarivo-Regular.ttf");
+        let results = run_check(soft_dotted, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Skip,
+            Some("no-soft-dotted".to_string()),
+        );
+    }
+}
