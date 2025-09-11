@@ -339,7 +339,7 @@ fn get_name_PEL_codes(font: FontRef) -> Vec<(u16, u16, u16)> {
 
 #[cfg(test)]
 mod tests {
-    #![allow(clippy::unwrap_used)]
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
 
     use super::*;
     use fontations::skrifa::raw::types::NameId;
