@@ -33,7 +33,7 @@ fn mangle_name(glyph: &str) -> String {
 #[check(
     id = "alt_caron",
     title = "Check accent of Lcaron, dcaron, lcaron, tcaron",
-    rationale = "
+    rationale = r#"
         Lcaron, dcaron, lcaron, tcaron should NOT be composed with quoteright
         or quotesingle or comma or caron(comb). It should be composed with a
         distinctive glyph which doesn't look like an apostrophe.
@@ -42,7 +42,7 @@ fn mangle_name(glyph: &str) -> String {
         https://ilovetypography.com/2009/01/24/on-diacritics/
         http://diacritics.typo.cz/index.php?id=5
         https://www.typotheque.com/articles/lcaron
-    ",
+    "#,
     proposal = "https://github.com/fonttools/fontbakery/issues/3308"
 )]
 fn alt_caron(t: &Testable, context: &Context) -> CheckFnResult {
@@ -108,4 +108,38 @@ fn alt_caron(t: &Testable, context: &Context) -> CheckFnResult {
         }
     }
     return_result(problems)
+}
+
+#[cfg(test)]
+mod tests {
+    use fontspector_checkapi::codetesting::{
+        assert_pass, assert_results_contain, run_check, test_able,
+    };
+    use fontspector_checkapi::StatusCode;
+
+    #[test]
+    fn test_check_alt_caron_bad_and_wrong() {
+        let testable = test_able("annie/AnnieUseYourTelescope-Regular.ttf");
+        let results = run_check(super::alt_caron, testable);
+        assert_results_contain(&results, StatusCode::Warn, Some("bad-mark".to_string()));
+        assert_results_contain(&results, StatusCode::Fail, Some("wrong-mark".to_string()));
+    }
+
+    #[test]
+    fn test_check_alt_caron_decomposed() {
+        let testable = test_able("cousine/Cousine-Bold.ttf");
+        let results = run_check(super::alt_caron, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Warn,
+            Some("decomposed-outline".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_check_alt_caron_pass() {
+        let testable = test_able("merriweather/Merriweather-Regular.ttf");
+        let results = run_check(super::alt_caron, testable);
+        assert_pass(&results);
+    }
 }

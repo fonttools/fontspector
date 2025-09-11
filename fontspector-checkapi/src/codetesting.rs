@@ -69,7 +69,7 @@ pub fn run_check_with_config(
         network_timeout: Some(10),
         configuration,
         check_metadata: check.metadata(),
-        full_lists: false,
+        full_lists: true,
         cache: Default::default(),
         overrides: vec![],
     };
@@ -114,6 +114,20 @@ pub fn assert_results_contain(
 
 /// Assert that a check result contains an expected message substring
 pub fn assert_messages_contain(check_result: &Option<CheckResult>, wanted_message: &str) {
+    assert_messages_contain_impl(check_result, wanted_message, true);
+}
+
+/// Assert that a check result does not contain an expected message substring
+pub fn assert_messages_dont_contain(check_result: &Option<CheckResult>, wanted_message: &str) {
+    assert_messages_contain_impl(check_result, wanted_message, false);
+}
+
+/// Implementation of assert_messages_contain and assert_messages_dont_contain
+fn assert_messages_contain_impl(
+    check_result: &Option<CheckResult>,
+    wanted_message: &str,
+    positive: bool,
+) {
     if check_result.is_none() {
         panic!("Check result was None");
     }
@@ -127,7 +141,7 @@ pub fn assert_messages_contain(check_result: &Option<CheckResult>, wanted_messag
             }
         }
     }
-    if !found {
+    if found != positive {
         let all_messages: Vec<String> = result
             .subresults
             .iter()

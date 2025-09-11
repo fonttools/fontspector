@@ -13,7 +13,7 @@ use itertools::Itertools;
 
 #[check(
     id = "unreachable_glyphs",
-    rationale = "
+    rationale = r#" 
         Glyphs are either accessible directly through Unicode codepoints or through
         substitution rules.
 
@@ -22,7 +22,7 @@ use itertools::Itertools;
 
         Any glyphs not accessible by these means are redundant and serve only
         to increase the font's file size.
-    ",
+    "#,
     proposal = "https://github.com/fonttools/fontbakery/issues/3160",
     title = "Check font contains no unreachable glyphs"
 )]
@@ -134,5 +134,82 @@ fn unreachable_glyphs(t: &Testable, context: &Context) -> CheckFnResult {
                 )
             ),
         ))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use fontspector_checkapi::codetesting::{
+        assert_messages_contain, assert_messages_dont_contain, assert_pass, assert_results_contain,
+        run_check, test_able,
+    };
+    use fontspector_checkapi::StatusCode;
+
+    #[test]
+    fn test_check_unreachable_glyphs_pass() {
+        let testable = test_able("noto_sans_tamil_supplement/NotoSansTamilSupplement-Regular.ttf");
+        let results = run_check(super::unreachable_glyphs, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_check_unreachable_glyphs_colrv0_pass() {
+        let testable = test_able("color_fonts/AmiriQuranColored.ttf");
+        let results = run_check(super::unreachable_glyphs, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_check_unreachable_glyphs_colrv1_pass() {
+        let testable = test_able("color_fonts/noto-glyf_colr_1.ttf");
+        let results = run_check(super::unreachable_glyphs, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_check_unreachable_glyphs_fail() {
+        let testable = test_able("merriweather/Merriweather-Regular.ttf");
+        let results = run_check(super::unreachable_glyphs, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Warn,
+            Some("unreachable-glyphs".to_string()),
+        );
+        let expected_glyphs = vec![
+            "Gtilde",
+            "eight.dnom",
+            "four.dnom",
+            "three.dnom",
+            "two.dnom",
+            "i.dot",
+            "five.numr",
+            "seven.numr",
+            "bullet.cap",
+            "periodcentered.cap",
+            "ampersand.sc",
+            "I.uc",
+        ];
+        for glyph in expected_glyphs {
+            assert_messages_contain(&results, glyph);
+        }
+        let unexpected_glyphs = vec![
+            "caronvertical",
+            "acute.cap",
+            "breve.cap",
+            "caron.cap",
+            "circumflex.cap",
+            "dotaccent.cap",
+            "dieresis.cap",
+            "grave.cap",
+            "hungarumlaut.cap",
+            "macron.cap",
+            "ring.cap",
+            "tilde.cap",
+            "breve.r",
+            "breve.rcap",
+        ];
+        for glyph in unexpected_glyphs {
+            assert_messages_dont_contain(&results, glyph);
+        }
     }
 }

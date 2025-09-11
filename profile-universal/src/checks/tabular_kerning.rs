@@ -40,7 +40,7 @@ const NUMERALS: [char; 10] = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
 #[check(
     id = "tabular_kerning",
-    rationale = "
+    rationale = r#"
         
         Tabular glyphs should not have kerning, as they are meant to be used in tables.
 
@@ -48,16 +48,16 @@ const NUMERALS: [char; 10] = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
         - all glyphs in a font in combination with tabular numerals;
         - tabular symbols in combination with tabular numerals.
 
-        \"Tabular symbols\" is defined as:
-        - for fonts with a \"tnum\" feature, all \"tnum\" substitution target glyphs;
-        - for fonts without a \"tnum\" feature, all glyphs that have the same width
+        "Tabular symbols" is defined as:
+        - for fonts with a "tnum" feature, all "tnum" substitution target glyphs;
+        - for fonts without a "tnum" feature, all glyphs that have the same width
         as the tabular numerals, but limited to numbers, math and currency symbols.
 
-        This check may produce false positives for fonts with no \"tnum\" feature
+        This check may produce false positives for fonts with no "tnum" feature
         and with equal-width numerals (and other same-width symbols) that are
         not intended to be used as tabular numerals.
     
-    ",
+    "#,
     proposal = "https://github.com/fonttools/fontbakery/issues/4440",
     title = "Check tabular widths don't have kerning."
 )]
@@ -253,4 +253,55 @@ fn involved_pairs_format2(pp2: PairPosFormat2) -> Result<Vec<PairSlot>, ReadErro
         }
     }
     Ok(results)
+}
+
+#[cfg(test)]
+mod tests {
+    use fontspector_checkapi::codetesting::{
+        assert_pass, assert_results_contain, run_check, test_able,
+    };
+    use fontspector_checkapi::StatusCode;
+
+    #[test]
+    fn test_check_tabular_kerning_no_numerals() {
+        let testable = test_able("BadGrades/BadGrades-VF.ttf");
+        let results = run_check(super::tabular_kerning, testable);
+        assert_results_contain(&results, StatusCode::Skip, Some("no-numerals".to_string()));
+    }
+
+    #[test]
+    fn test_check_tabular_kerning_no_tabular_numerals() {
+        let testable = test_able("akshar/Akshar[wght].ttf");
+        let results = run_check(super::tabular_kerning, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Skip,
+            Some("no-tabular-numerals".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_check_tabular_kerning_pass() {
+        let testable = test_able("montserrat/Montserrat-Regular.ttf");
+        let results = run_check(super::tabular_kerning, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_check_tabular_kerning_fail() {
+        let testable = test_able("ptserif/PT_Serif-Web-Italic.ttf");
+        let results = run_check(super::tabular_kerning, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("has-tabular-kerning".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_check_tabular_kerning_digraphs() {
+        let testable = test_able("ubuntusans/UbuntuSans[wdth,wght].ttf");
+        let results = run_check(super::tabular_kerning, testable);
+        assert_pass(&results);
+    }
 }
