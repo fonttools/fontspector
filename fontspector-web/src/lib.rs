@@ -1,3 +1,4 @@
+#![allow(clippy::expect_used, clippy::unwrap_used)]
 use std::{collections::HashMap, path::PathBuf};
 
 use js_sys::{Reflect, Uint8Array};

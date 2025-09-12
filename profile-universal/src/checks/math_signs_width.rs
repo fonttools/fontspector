@@ -27,13 +27,13 @@ const COMMON_WIDTH_MATH_CHARS: [char; 314] = [
 
 #[check(
     id = "math_signs_width",
-    rationale = "
+    rationale = r#"#,
         It is a common practice to have math signs sharing the same width
         (preferably the same width as tabular figures accross the entire font family).
 
         This probably comes from the will to avoid additional tabular math signs
         knowing that their design can easily share the same width.
-    ",
+    "#,
     proposal = "https://github.com/fonttools/fontbakery/issues/3832",
     title = "Check math signs have the same width."
 )]
@@ -81,4 +81,30 @@ fn math_signs_width(f: &Testable, _context: &Context) -> CheckFnResult {
     }
     // No most common
     return Ok(Status::just_one_pass());
+}
+
+#[cfg(test)]
+mod tests {
+    use fontspector_checkapi::codetesting::{
+        assert_pass, assert_results_contain, run_check, test_able,
+    };
+    use fontspector_checkapi::StatusCode;
+
+    #[test]
+    fn test_check_math_signs_width_pass() {
+        let testable = test_able("stixtwomath/STIXTwoMath-Regular.ttf");
+        let results = run_check(super::math_signs_width, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_check_math_signs_width_fail() {
+        let testable = test_able("montserrat/Montserrat-Regular.ttf");
+        let results = run_check(super::math_signs_width, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Warn,
+            Some("width-outliers".to_string()),
+        );
+    }
 }

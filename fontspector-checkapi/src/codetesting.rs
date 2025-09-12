@@ -1,6 +1,8 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::collections::HashMap;
+use std::path::{Path, PathBuf};
+use std::sync::LazyLock;
 
 // No bad thing if we panic in tests
 use crate::{prelude::*, Check, CheckResult, Context, FileTypeConvert, StatusCode};
@@ -10,39 +12,64 @@ use fontations::write::{
     FontBuilder,
 };
 
-#[macro_export]
-/// Create a Testable object from a file in the test resources directory
-macro_rules! TEST_FILE {
-    ($fname:expr) => {{
-        // The usual thing to use here is env!("CARGO_MANIFEST_DIR"), but that's a pain
-        // when we're in a workspace - if you're running `cargo test` inside a package,
-        // the manifest dir is the package root; if you're running `cargo test -p foo`,
-        // the manifest dir is the workspace root. So ask Cargo for the workspace root
-        // and go from there.
-        let mut output = std::process::Command::new(env!("CARGO"))
-            .arg("locate-project")
-            .arg("--workspace")
-            .arg("--message-format=plain")
-            .output()
-            .unwrap()
-            .stdout;
-        let cargo_path = std::path::Path::new(std::str::from_utf8(&output).unwrap().trim());
-        let mut workspace_root = cargo_path.parent().unwrap().to_path_buf();
+/// The root of the workspace, used to locate test resources
+// The usual thing to use here is env!("CARGO_MANIFEST_DIR"), but that's a pain
+// when we're in a workspace - if you're running `cargo test` inside a package,
+// the manifest dir is the package root; if you're running `cargo test -p foo`,
+// the manifest dir is the workspace root. So ask Cargo for the workspace root
+// and go from there.
+static WORKSPACE_ROOT: LazyLock<PathBuf> = LazyLock::new(|| {
+    let output = std::process::Command::new(env!("CARGO"))
+        .arg("locate-project")
+        .arg("--workspace")
+        .arg("--message-format=plain")
+        .output()
+        .unwrap()
+        .stdout;
+    let cargo_path = std::path::Path::new(std::str::from_utf8(&output).unwrap().trim());
+    cargo_path.parent().unwrap().to_path_buf()
+});
 
-        workspace_root.push("resources/test/");
-        let file = workspace_root.join($fname);
-        Testable::new(file.clone()).expect(&format!("Couldn't read test file {:?}", file))
-    }};
+/// Return a pathname for a file in the test resources directory
+pub fn test_file(fname: impl AsRef<Path>) -> PathBuf {
+    let mut workspace_root = WORKSPACE_ROOT.clone();
+
+    workspace_root.push("resources/test/");
+    workspace_root.join(fname)
+}
+
+/// Return a Testable from a file in the test resources directory
+pub fn test_able(fname: impl AsRef<Path>) -> Testable {
+    let path = test_file(fname);
+    Testable::new(path).expect("Failed to load test file")
 }
 
 /// Run a check on a font and return the result
 pub fn run_check(check: Check<'_>, font: Testable) -> Option<CheckResult> {
+    run_check_with_config(check, font, HashMap::new())
+}
+
+/// Run a check on a font with a given configuration and return the result
+pub fn run_check_with_config(
+    check: Check<'_>,
+    font: Testable,
+    config: HashMap<String, serde_json::Value>,
+) -> Option<CheckResult> {
+    let mut configuration = HashMap::new();
+    let mut check_config = serde_json::Map::new();
+    for (k, v) in config {
+        check_config.insert(k, v);
+    }
+    configuration.insert(
+        check.id.to_string(),
+        serde_json::Value::Object(check_config),
+    );
     let ctx: Context = Context {
         skip_network: false,
         network_timeout: Some(10),
-        configuration: HashMap::new(),
+        configuration,
         check_metadata: check.metadata(),
-        full_lists: false,
+        full_lists: true,
         cache: Default::default(),
         overrides: vec![],
     };
@@ -52,21 +79,80 @@ pub fn run_check(check: Check<'_>, font: Testable) -> Option<CheckResult> {
 /// Assert that a check passes
 ///
 /// Takes a `CheckResult` and asserts that the worst status is `Pass`
-pub fn assert_pass(check_result: Option<CheckResult>) {
-    let status = check_result.unwrap().worst_status();
+pub fn assert_pass(check_result: &Option<CheckResult>) {
+    let status = check_result.as_ref().unwrap().worst_status();
     assert_eq!(status, StatusCode::Pass);
+}
+/// Assert that a check is skipped
+///
+/// Takes a `CheckResult` and asserts that the worst status is `Skip`
+pub fn assert_skip(check_result: &Option<CheckResult>) {
+    let status = check_result.as_ref().unwrap().worst_status();
+    assert_eq!(status, StatusCode::Skip);
 }
 
 /// Assert that a check result contains an expected status and code
 pub fn assert_results_contain(
-    check_result: Option<CheckResult>,
+    check_result: &Option<CheckResult>,
     severity: StatusCode,
     code: Option<String>,
 ) {
-    let subresults = check_result.unwrap().subresults;
+    let subresults = &check_result.as_ref().unwrap().subresults;
     assert!(subresults
         .iter()
-        .any(|subresult| subresult.severity == severity && subresult.code == code));
+        .any(|subresult| subresult.severity == severity && subresult.code == code),
+        "Could not find result with severity {:?} and code {:?} in check results.\nResults found:\n- {}",
+        severity,
+        code,
+        subresults
+            .iter()
+            .map(|subresult| subresult.to_string())
+            .collect::<Vec<_>>()
+            .join("\n- ")
+    );
+}
+
+/// Assert that a check result contains an expected message substring
+pub fn assert_messages_contain(check_result: &Option<CheckResult>, wanted_message: &str) {
+    assert_messages_contain_impl(check_result, wanted_message, true);
+}
+
+/// Assert that a check result does not contain an expected message substring
+pub fn assert_messages_dont_contain(check_result: &Option<CheckResult>, wanted_message: &str) {
+    assert_messages_contain_impl(check_result, wanted_message, false);
+}
+
+/// Implementation of assert_messages_contain and assert_messages_dont_contain
+fn assert_messages_contain_impl(
+    check_result: &Option<CheckResult>,
+    wanted_message: &str,
+    positive: bool,
+) {
+    if check_result.is_none() {
+        panic!("Check result was None");
+    }
+    let result = check_result.as_ref().unwrap();
+    let mut found = false;
+    for subresult in &result.subresults {
+        if let Some(message) = &subresult.message {
+            if message.contains(wanted_message) {
+                found = true;
+                break;
+            }
+        }
+    }
+    if found != positive {
+        let all_messages: Vec<String> = result
+            .subresults
+            .iter()
+            .filter_map(|s| s.message.clone())
+            .collect();
+        panic!(
+            "Could not find message '{}' in check results.\nMessages found:\n- {}",
+            wanted_message,
+            all_messages.join("\n- ")
+        );
+    }
 }
 
 /// Manipulate a font by changing a name table entry (for testing purposes only)

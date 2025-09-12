@@ -76,3 +76,40 @@ fn jaggy_segments(t: &Testable, context: &Context) -> CheckFnResult {
     }
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    use fontspector_checkapi::codetesting::{
+        assert_messages_contain, assert_pass, assert_results_contain, run_check, test_able,
+    };
+
+    use fontspector_checkapi::StatusCode;
+
+    #[test]
+    fn test_outline_jaggy_segments() {
+        let testable = test_able("wonky_paths/WonkySourceSansPro-Regular.ttf");
+        let results = run_check(super::jaggy_segments, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Warn,
+            Some("found-jaggy-segments".to_string()),
+        );
+        assert_messages_contain(&results, "E (U+0045)");
+
+        let testable = test_able("familysans/FamilySans-Regular.ttf");
+        let results = run_check(super::jaggy_segments, testable);
+        assert_pass(&results);
+
+        let testable = test_able("source-sans-pro/OTF/SourceSansPro-LightItalic.otf");
+        let results = run_check(super::jaggy_segments, testable);
+        assert_pass(&results);
+
+        let testable = test_able("source-sans-pro/VAR/SourceSansVariable-Roman.otf");
+        let results = run_check(super::jaggy_segments, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Skip,
+            Some("variable-font".to_string()),
+        );
+    }
+}

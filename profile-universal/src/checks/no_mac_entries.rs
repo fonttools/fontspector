@@ -28,3 +28,29 @@ fn no_mac_entries(t: &Testable, _context: &Context) -> CheckFnResult {
     }
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        StatusCode,
+    };
+
+    #[test]
+    fn test_no_mac_entries() {
+        // Test with a font that has no Mac names.
+        let testable = test_able("source-sans-pro/OTF/SourceSansPro-Regular.otf");
+        let results = run_check(no_mac_entries, testable);
+        assert_pass(&results);
+
+        // Test with a font that has Mac names.
+        let testable_with_mac = test_able("abeezee/ABeeZee-Italic.ttf");
+        let results_with_mac = run_check(no_mac_entries, testable_with_mac);
+        assert_results_contain(
+            &results_with_mac,
+            StatusCode::Fail,
+            Some("mac-names".to_string()),
+        );
+    }
+}

@@ -69,3 +69,23 @@ fn STAT_strings(t: &Testable, _context: &Context) -> CheckFnResult {
         Ok(Status::just_one_pass())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use fontspector_checkapi::codetesting::{
+        assert_pass, assert_results_contain, run_check, test_able,
+    };
+
+    use fontspector_checkapi::StatusCode;
+
+    #[test]
+    fn test_stat_strings() {
+        let testable = test_able("ibmplexsans-vf/IBMPlexSansVar-Roman.ttf");
+        let results = run_check(super::STAT_strings, testable);
+        assert_pass(&results);
+
+        let testable = test_able("ibmplexsans-vf/IBMPlexSansVar-Italic.ttf");
+        let results = run_check(super::STAT_strings, testable);
+        assert_results_contain(&results, StatusCode::Fail, Some("bad-italic".to_string()));
+    }
+}

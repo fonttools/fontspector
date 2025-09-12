@@ -115,8 +115,10 @@ mod tests {
             let maxp = Maxp::default();
             font_builder.add_table(&maxp).unwrap();
 
-            let mut os2: Os2 = Os2::default();
-            os2.us_weight_class = weight_class_value;
+            let os2: Os2 = Os2 {
+                us_weight_class: weight_class_value,
+                ..Default::default()
+            };
             font_builder.add_table(&os2).unwrap();
 
             let mut name: Name = Name::default();

@@ -327,29 +327,6 @@ def test_check_whitespace_ink(check):
     )
 
 
-@check_id("legacy_accents")
-def test_check_legacy_accents(check):
-    """Check that legacy accents aren't used in composite glyphs."""
-    test_font = TTFont(TEST_FILE("montserrat/Montserrat-Regular.ttf"))
-    assert_PASS(check(test_font))
-
-    test_font = TTFont(TEST_FILE("mada/Mada-Regular.ttf"))
-    assert_results_contain(
-        check(test_font),
-        FAIL,
-        "legacy-accents-gdef",
-        "for legacy accents being defined in GDEF as marks.",
-    )
-
-    test_font = TTFont(TEST_FILE("lugrasimo/Lugrasimo-Regular.ttf"))
-    assert_results_contain(
-        check(test_font),
-        FAIL,
-        "legacy-accents-width",
-        "for legacy accents having zero width.",
-    )
-
-
 mada_fonts = [
     # ⚠️ 'test_check_family_win_ascent_and_descent' expects the Regular font to be first
     TEST_FILE("mada/Mada-Regular.ttf"),
@@ -506,107 +483,6 @@ def test_check_superfamily_vertical_metrics(
     )
 
 
-@check_id("STAT_strings")
-def test_check_STAT_strings(check):
-    good = TTFont(TEST_FILE("ibmplexsans-vf/IBMPlexSansVar-Roman.ttf"))
-    assert_PASS(check(good))
-
-    bad = TTFont(TEST_FILE("ibmplexsans-vf/IBMPlexSansVar-Italic.ttf"))
-    assert_results_contain(check(bad), FAIL, "bad-italic")
-
-
-@check_id("rupee")
-def test_check_rupee(check):
-    """Ensure indic fonts have the Indian Rupee Sign glyph."""
-
-    # Note that this is stricter than fontbakery
-    ttFont = TTFont(TEST_FILE("mada/Mada-Regular.ttf"))
-    msg = assert_results_contain(check(ttFont), WARN, "missing-rupee")
-
-    # This one is good:
-    ttFont = TTFont(
-        TEST_FILE("indic-font-with-rupee-sign/NotoSerifDevanagari-Regular.ttf")
-    )
-    assert_PASS(check(ttFont))
-
-    # But this one lacks the glyph:
-    ttFont = TTFont(
-        TEST_FILE("indic-font-without-rupee-sign/NotoSansOlChiki-Regular.ttf")
-    )
-    msg = assert_results_contain(check(ttFont), FAIL, "missing-rupee")
-    assert "Please add a glyph for Indian Rupee Sign (₹) at codepoint U+20B9." in msg
-
-
-@pytest.mark.skip(reason="Check not yet implemented")
-@check_id("unreachable_glyphs")
-def test_check_unreachable_glyphs(check):
-    """Check font contains no unreachable glyphs."""
-    font = TEST_FILE("noto_sans_tamil_supplement/NotoSansTamilSupplement-Regular.ttf")
-    assert_PASS(check(font))
-
-    # Also ensure it works correctly with a color font in COLR v0 format:
-    font = TEST_FILE("color_fonts/AmiriQuranColored.ttf")
-    assert_PASS(check(font))
-
-    # And also with a color font in COLR v1 format:
-    font = TEST_FILE("color_fonts/noto-glyf_colr_1.ttf")
-    assert_PASS(check(font))
-
-    font = TEST_FILE("merriweather/Merriweather-Regular.ttf")
-    message = assert_results_contain(check(font), WARN, "unreachable-glyphs")
-    for glyph in [
-        "Gtilde",
-        "eight.dnom",
-        "four.dnom",
-        "three.dnom",
-        "two.dnom",
-        "i.dot",
-        "five.numr",
-        "seven.numr",
-        "bullet.cap",
-        "periodcentered.cap",
-        "ampersand.sc",
-        "I.uc",
-    ]:
-        assert glyph in message
-
-    for glyph in [
-        "caronvertical",
-        "acute.cap",
-        "breve.cap",
-        "caron.cap",
-        "circumflex.cap",
-        "dotaccent.cap",
-        "dieresis.cap",
-        "grave.cap",
-        "hungarumlaut.cap",
-        "macron.cap",
-        "ring.cap",
-        "tilde.cap",
-        "breve.r",
-        "breve.rcap",
-    ]:
-        assert glyph not in message
-
-    ttFont = TTFont(TEST_FILE("notosansmath/NotoSansMath-Regular.ttf"))
-    ttFont.ensureDecompiled()  # (required for mock glyph removal below)
-    glyph_order = ttFont.getGlyphOrder()
-
-    # upWhiteMediumTriangle is used as a component in circledTriangle,
-    # since CFF does not have composites it became unused.
-    # So that is a build tooling issue.
-    message = assert_results_contain(check(ttFont), WARN, "unreachable-glyphs")
-    assert "upWhiteMediumTriangle" in message
-    assert "upWhiteMediumTriangle" in glyph_order
-
-    # Other than that problem, no other glyphs are unreachable;
-    # Remove the glyph and then try again.
-    glyph_order.remove("upWhiteMediumTriangle")
-    ttFont.setGlyphOrder(glyph_order)
-    assert "upWhiteMediumTriangle" not in ttFont.glyphOrder
-    assert_PASS(check(ttFont))
-
-
 @check_id("soft_hyphen")
 def test_check_soft_hyphen(montserrat_ttFonts, check):
     """Check glyphs contain the recommended contour count"""
@@ -676,34 +552,6 @@ def test_check_cjk_chws_feature(check):
     ttFont["GSUB"].table.FeatureList.FeatureRecord.extend([chws, vchw])
 
     assert_PASS(check(ttFont))
-
-
-@check_id("transformed_components")
-def test_check_transformed_components(check):
-    """Ensure component transforms do not perform scaling or rotation."""
-    font = TEST_FILE("cabin/Cabin-Regular.ttf")
-    assert_PASS(check(font), "with a good font...")
-
-    # DM Sans v1.100 had some transformed components
-    # and it's hinted
-    font = TEST_FILE("dm-sans-v1.100/DMSans-Regular.ttf")
-    assert_results_contain(check(font), FAIL, "transformed-components")
-
-    # Amiri is unhinted, but it contains four transformed components
-    # that result in reversed outline direction
-    font = TEST_FILE("amiri/AmiriQuranColored.ttf")
-    assert_results_contain(check(font), FAIL, "transformed-components")
-
-
-@check_id("gpos7")
-def test_check_gpos7(check):
-    """Check if font contains any GPOS 7 lookups
-    which are not widely supported."""
-    font = TEST_FILE("mada/Mada-Regular.ttf")
-    assert_PASS(check(font), "with a good font...")
-
-    font = TEST_FILE("notosanskhudawadi/NotoSansKhudawadi-Regular.ttf")
-    assert_results_contain(check(font), WARN, "has-gpos7")
 
 
 @pytest.mark.skip(reason="Check not yet implemented")
@@ -794,22 +642,6 @@ def test_check_interpolation_issues(check):
     assert "Unfulfilled Conditions: is_ttf" in msg
 
 
-@check_id("math_signs_width")
-def test_check_math_signs_width(check):
-    """Check font math signs have the same width."""
-    # The STIXTwo family was the reference font project
-    # that we used to come up with the initial list of math glyphs
-    # that should ideally have the same width.
-    font = TEST_FILE("stixtwomath/STIXTwoMath-Regular.ttf")
-    assert_PASS(check(font))
-
-    # In our reference Montserrat Regular, the logicalnot
-    # (also known as negation sign) '¬' has a width of 555 while
-    # all other 12 math glyphs have width = 494.
-    font = TEST_FILE("montserrat/Montserrat-Regular.ttf")
-    assert_results_contain(check(font), WARN, "width-outliers")
-
-
 @check_id("linegaps")
 def test_check_linegaps(check):
     """Checking Vertical Metric Linegaps."""
@@ -867,20 +699,6 @@ def test_check_STAT_in_statics(check):
     stat.AxisValueArray.AxisValue = [stat.AxisValueArray.AxisValue[0]]
 
     # It should PASS now
-    assert_PASS(check(ttFont))
-
-
-@check_id("alt_caron")
-def test_check_alt_caron(check):
-    """Check accent of Lcaron, dcaron, lcaron, tcaron"""
-    ttFont = TTFont(TEST_FILE("annie/AnnieUseYourTelescope-Regular.ttf"))
-    assert_results_contain(check(ttFont), WARN, "bad-mark")
-    assert_results_contain(check(ttFont), FAIL, "wrong-mark")
-
-    ttFont = TTFont(TEST_FILE("cousine/Cousine-Bold.ttf"))
-    assert_results_contain(check(ttFont), WARN, "decomposed-outline")
-
-    ttFont = TTFont(TEST_FILE("merriweather/Merriweather-Regular.ttf"))
     assert_PASS(check(ttFont))
 
 

@@ -59,3 +59,35 @@ fn legacy_accents(f: &Testable, _context: &Context) -> CheckFnResult {
     }
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    use fontspector_checkapi::codetesting::{
+        assert_pass, assert_results_contain, run_check, test_able,
+    };
+
+    use fontspector_checkapi::StatusCode;
+
+    #[test]
+    fn test_legacy_accents() {
+        let testable = test_able("montserrat/Montserrat-Regular.ttf");
+        let results = run_check(super::legacy_accents, testable);
+        assert_pass(&results);
+
+        let testable = test_able("mada/Mada-Regular.ttf");
+        let results = run_check(super::legacy_accents, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("legacy-accents-gdef".to_string()),
+        );
+
+        let testable = test_able("lugrasimo/Lugrasimo-Regular.ttf");
+        let results = run_check(super::legacy_accents, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("legacy-accents-width".to_string()),
+        );
+    }
+}

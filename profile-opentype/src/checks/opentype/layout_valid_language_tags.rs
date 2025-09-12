@@ -13,7 +13,7 @@ use fontspector_checkapi::{constants::VALID_LANG_TAGS, prelude::*, testfont, Fil
     proposal = "https://github.com/fonttools/fontbakery/issues/3355",
     title = "Does the font have any invalid language tags?"
 )]
-fn layout_valid_language_tags(f: &Testable, _context: &Context) -> CheckFnResult {
+pub fn layout_valid_language_tags(f: &Testable, _context: &Context) -> CheckFnResult {
     let font = testfont!(f);
     let mut bad_tag = HashSet::new();
     let gsub_script_list = font
@@ -49,4 +49,30 @@ fn layout_valid_language_tags(f: &Testable, _context: &Context) -> CheckFnResult
             ),
         )
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use fontspector_checkapi::codetesting::{
+        assert_pass, assert_results_contain, run_check, test_able,
+    };
+    use fontspector_checkapi::StatusCode;
+
+    #[test]
+    fn test_layout_valid_language_tags_pass() {
+        let testable = test_able("nunito/Nunito-Regular.ttf");
+        let results = run_check(super::layout_valid_language_tags, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_layout_valid_language_tags_fail() {
+        let testable = test_able("rosarivo/Rosarivo-Regular.ttf");
+        let results = run_check(super::layout_valid_language_tags, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("bad-language-tags".to_string()),
+        );
+    }
 }
