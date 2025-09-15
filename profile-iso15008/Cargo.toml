@@ -1,6 +1,6 @@
 [package]
 name = "fontspector-profile-iso15008"
-version = "1.0.3"
+version = "1.0.4"
 edition = "2021"
 authors = ["Simon Cozens <simon@simon-cozens.org>"]
 description = "Fontspector checks for OpenType font conformance to ISO 15008:2008"

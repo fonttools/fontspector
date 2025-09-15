@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## v1.3.0 (2025-08-11)
+## v1.4.0 (2025-09-15)
 
 ### New Features
 
@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Bug Fixes
 
+ - <csr-id-bcb694b8d657e273a0086c0ab504223bb741851a/> update rust crate scraper to 0.24.0
+ - <csr-id-e6a7be64f557673eabf1c7e605fa443d1fea7aac/> Don't lowercase filenames before testing
  - <csr-id-d58c9ef800041bb3ec8cd266907d4c03f1b548c9/> Improve formatting of bulleted lists, fixes #352
  - <csr-id-ddcdb233646c320153e61319810b69a223e3952d/> Skip check if font is new
  - <csr-id-dc046deddb76c9aec8e0cfba84fb69d3e5cf397b/> Correctl deserialize remote_styles
@@ -21,14 +23,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    
    * chore(ci): apt-get update before installing
 
+### Other
+
+ - <csr-id-90205a8089d1394f957cdf13cdcc461b73824425/> fontspector-checkapi v1.1.2, fontspector-fontbakery-bridge v1.2.0, fontspector-profile-fontwerk v1.1.0, fontspector-profile-googlefonts v1.3.0, fontspector-profile-opentype v1.2.1, fontspector-profile-universal v1.1.2, fontspector v1.4.0
+
+### Test
+
+ - <csr-id-abd4d4cf426666d0dac52706a763fb01d0e85d2c/> Move the tests from Python to Rust
+   * chore(codetesting): Improve codetesting story slightly
+   
+   * test(contour_count): WIP move test to Rust
+   
+   * chore: Helper function for check testing
+   
+   * test: Move many tests to Rust, by some strange magic
+   
+   * test: add test files
+   
+   * chore: Helper function for check testing with parameters
+   
+   * test: Move many more tests to Rust, thanks to my little electronic friend
+   
+   * chore: Change test helper functions to take references
+   
+   * test: Two more tests to Rust
+   
+   * chore: Fix up warnings
+   
+   * test: Four more tests to Rust
+
 ### Commit Statistics
 
 <csr-read-only-do-not-edit/>
 
- - 6 commits contributed to the release.
- - 40 days passed between releases.
- - 5 commits were understood as [conventional](https://www.conventionalcommits.org).
- - 5 unique issues were worked on: [#313](https://github.com/fonttools/fontspector/issues/313), [#325](https://github.com/fonttools/fontspector/issues/325), [#327](https://github.com/fonttools/fontspector/issues/327), [#339](https://github.com/fonttools/fontspector/issues/339), [#357](https://github.com/fonttools/fontspector/issues/357)
+ - 10 commits contributed to the release over the course of 66 calendar days.
+ - 9 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 8 unique issues were worked on: [#313](https://github.com/fonttools/fontspector/issues/313), [#325](https://github.com/fonttools/fontspector/issues/325), [#327](https://github.com/fonttools/fontspector/issues/327), [#339](https://github.com/fonttools/fontspector/issues/339), [#357](https://github.com/fonttools/fontspector/issues/357), [#394](https://github.com/fonttools/fontspector/issues/394), [#399](https://github.com/fonttools/fontspector/issues/399), [#418](https://github.com/fonttools/fontspector/issues/418)
 
 ### Commit Details
 
@@ -46,9 +76,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Skip check if font is new ([`ddcdb23`](https://github.com/fonttools/fontspector/commit/ddcdb233646c320153e61319810b69a223e3952d))
  * **[#357](https://github.com/fonttools/fontspector/issues/357)**
     - Improve formatting of bulleted lists, fixes #352 ([`d58c9ef`](https://github.com/fonttools/fontspector/commit/d58c9ef800041bb3ec8cd266907d4c03f1b548c9))
+ * **[#394](https://github.com/fonttools/fontspector/issues/394)**
+    - Don't lowercase filenames before testing ([`e6a7be6`](https://github.com/fonttools/fontspector/commit/e6a7be64f557673eabf1c7e605fa443d1fea7aac))
+ * **[#399](https://github.com/fonttools/fontspector/issues/399)**
+    - Update rust crate scraper to 0.24.0 ([`bcb694b`](https://github.com/fonttools/fontspector/commit/bcb694b8d657e273a0086c0ab504223bb741851a))
+ * **[#418](https://github.com/fonttools/fontspector/issues/418)**
+    - Move the tests from Python to Rust ([`abd4d4c`](https://github.com/fonttools/fontspector/commit/abd4d4cf426666d0dac52706a763fb01d0e85d2c))
  * **Uncategorized**
+    - Fontspector-checkapi v1.1.2, fontspector-fontbakery-bridge v1.2.0, fontspector-profile-fontwerk v1.1.0, fontspector-profile-googlefonts v1.3.0, fontspector-profile-opentype v1.2.1, fontspector-profile-universal v1.1.2, fontspector v1.4.0 ([`90205a8`](https://github.com/fonttools/fontspector/commit/90205a8089d1394f957cdf13cdcc461b73824425))
     - Release fontspector-fontbakery-bridge v1.1.0, fontspector-profile-googlefonts v1.2.0, fontspector v1.3.0 ([`05adc63`](https://github.com/fonttools/fontspector/commit/05adc636ddf710008076985ab8c2a03ea19a0f6c))
 </details>
+
+## v1.3.0 (2025-08-11)
+
+### New Features
+
+ - <csr-id-66839cbfb32380dd2b45184c82722f3fe4083341/> Display Unicode names of missing codepoints
+
+### Bug Fixes
+
+ - <csr-id-d58c9ef800041bb3ec8cd266907d4c03f1b548c9/> Improve formatting of bulleted lists, fixes #352
+ - <csr-id-ddcdb233646c320153e61319810b69a223e3952d/> Skip check if font is new
+ - <csr-id-dc046deddb76c9aec8e0cfba84fb69d3e5cf397b/> Correctl deserialize remote_styles
+ - <csr-id-525b27b4f24d91acad5ad0c0c101135592698b95/> Only check for regressions if we have the font already
+   * fix(googlefonts/cjk_vertical_metrics_regressions): Only check for regressions if we have the font already
+* chore(ci): apt-get update before installing
 
 ## v1.2.0 (2025-07-11)
 

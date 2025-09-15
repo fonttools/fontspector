@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## v1.1.2 (2025-08-11)
+## v1.2.0 (2025-09-15)
 
 ### Chore
 
@@ -16,20 +16,69 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    
    * chore: Comply with new elided lifetime rules
 
+### New Features
+
+ - <csr-id-36399a0f334f5348bf7c5dc951c3d03fb1fe0afe/> New check
+ - <csr-id-6726d1fc9f61577ad6020127b0135146abfe507b/> colr_glyph_entry_with_no_layers
+   * test: Add testdata –> color font with glyph entry within the COLR table with no layers (modified with ttx)
+   
+   * Update .gitignore
+   
+   * feat: colr_glyph_entry_with_no_layers
+   
+   * refactor: remove comment
+   
+   * refactor: run cargo fmt
+   
+   * fix: this `if let` can be collapsed into the outer `if let`
+ - <csr-id-fe2405db54f4da13ae03673150e91163f4f6d889/> New check
+ - <csr-id-74f8cf3206b0b74227b9e22a5f0071a016ad9973/> New check
+   * feat(opentype/field_values): New check
+   
+   * chore: improve fvar serialization
+
 ### Bug Fixes
 
  - <csr-id-d58c9ef800041bb3ec8cd266907d4c03f1b548c9/> Improve formatting of bulleted lists, fixes #352
  - <csr-id-1fd17e6a7e44c5d31bf560d02c6cf846f4fc59b3/> Rebuild desired glyph data, fixes #284
  - <csr-id-0c50d3bf0c259394384857c2908b59f5da279170/> Only run check on hinted fonts, fixes #347
 
+### Other
+
+ - <csr-id-90205a8089d1394f957cdf13cdcc461b73824425/> fontspector-checkapi v1.1.2, fontspector-fontbakery-bridge v1.2.0, fontspector-profile-fontwerk v1.1.0, fontspector-profile-googlefonts v1.3.0, fontspector-profile-opentype v1.2.1, fontspector-profile-universal v1.1.2, fontspector v1.4.0
+
+### Test
+
+ - <csr-id-abd4d4cf426666d0dac52706a763fb01d0e85d2c/> Move the tests from Python to Rust
+   * chore(codetesting): Improve codetesting story slightly
+   
+   * test(contour_count): WIP move test to Rust
+   
+   * chore: Helper function for check testing
+   
+   * test: Move many tests to Rust, by some strange magic
+   
+   * test: add test files
+   
+   * chore: Helper function for check testing with parameters
+   
+   * test: Move many more tests to Rust, thanks to my little electronic friend
+   
+   * chore: Change test helper functions to take references
+   
+   * test: Two more tests to Rust
+   
+   * chore: Fix up warnings
+   
+   * test: Four more tests to Rust
+
 ### Commit Statistics
 
 <csr-read-only-do-not-edit/>
 
- - 4 commits contributed to the release.
- - 40 days passed between releases.
- - 4 commits were understood as [conventional](https://www.conventionalcommits.org).
- - 4 unique issues were worked on: [#348](https://github.com/fonttools/fontspector/issues/348), [#349](https://github.com/fonttools/fontspector/issues/349), [#357](https://github.com/fonttools/fontspector/issues/357), [#371](https://github.com/fonttools/fontspector/issues/371)
+ - 10 commits contributed to the release over the course of 57 calendar days.
+ - 10 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 9 unique issues were worked on: [#348](https://github.com/fonttools/fontspector/issues/348), [#349](https://github.com/fonttools/fontspector/issues/349), [#357](https://github.com/fonttools/fontspector/issues/357), [#371](https://github.com/fonttools/fontspector/issues/371), [#405](https://github.com/fonttools/fontspector/issues/405), [#407](https://github.com/fonttools/fontspector/issues/407), [#409](https://github.com/fonttools/fontspector/issues/409), [#417](https://github.com/fonttools/fontspector/issues/417), [#418](https://github.com/fonttools/fontspector/issues/418)
 
 ### Commit Details
 
@@ -45,7 +94,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Improve formatting of bulleted lists, fixes #352 ([`d58c9ef`](https://github.com/fonttools/fontspector/commit/d58c9ef800041bb3ec8cd266907d4c03f1b548c9))
  * **[#371](https://github.com/fonttools/fontspector/issues/371)**
     - Get working again ([`0c6365a`](https://github.com/fonttools/fontspector/commit/0c6365a1d3383dad9d12de3984989ee5747b35cf))
+ * **[#405](https://github.com/fonttools/fontspector/issues/405)**
+    - New check ([`74f8cf3`](https://github.com/fonttools/fontspector/commit/74f8cf3206b0b74227b9e22a5f0071a016ad9973))
+ * **[#407](https://github.com/fonttools/fontspector/issues/407)**
+    - New check ([`fe2405d`](https://github.com/fonttools/fontspector/commit/fe2405db54f4da13ae03673150e91163f4f6d889))
+ * **[#409](https://github.com/fonttools/fontspector/issues/409)**
+    - Colr_glyph_entry_with_no_layers ([`6726d1f`](https://github.com/fonttools/fontspector/commit/6726d1fc9f61577ad6020127b0135146abfe507b))
+ * **[#417](https://github.com/fonttools/fontspector/issues/417)**
+    - New check ([`36399a0`](https://github.com/fonttools/fontspector/commit/36399a0f334f5348bf7c5dc951c3d03fb1fe0afe))
+ * **[#418](https://github.com/fonttools/fontspector/issues/418)**
+    - Move the tests from Python to Rust ([`abd4d4c`](https://github.com/fonttools/fontspector/commit/abd4d4cf426666d0dac52706a763fb01d0e85d2c))
+ * **Uncategorized**
+    - Fontspector-checkapi v1.1.2, fontspector-fontbakery-bridge v1.2.0, fontspector-profile-fontwerk v1.1.0, fontspector-profile-googlefonts v1.3.0, fontspector-profile-opentype v1.2.1, fontspector-profile-universal v1.1.2, fontspector v1.4.0 ([`90205a8`](https://github.com/fonttools/fontspector/commit/90205a8089d1394f957cdf13cdcc461b73824425))
 </details>
+
+## v1.1.2 (2025-08-11)
+
+<csr-id-0c6365a1d3383dad9d12de3984989ee5747b35cf/>
+
+### Chore
+
+ - <csr-id-0c6365a1d3383dad9d12de3984989ee5747b35cf/> get working again
+   * chore: Upgrade fontations deps
+   
+   * chore: API changed
+   
+   * chore: Comply with new elided lifetime rules
+
+### Bug Fixes
+
+ - <csr-id-d58c9ef800041bb3ec8cd266907d4c03f1b548c9/> Improve formatting of bulleted lists, fixes #352
+ - <csr-id-1fd17e6a7e44c5d31bf560d02c6cf846f4fc59b3/> Rebuild desired glyph data, fixes #284
+ - <csr-id-0c50d3bf0c259394384857c2908b59f5da279170/> Only run check on hinted fonts, fixes #347
 
 ## v1.1.1 (2025-07-02)
 

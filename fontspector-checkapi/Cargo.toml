@@ -1,6 +1,6 @@
 [package]
 name = "fontspector-checkapi"
-version = "1.1.2"
+version = "1.2.0"
 edition = "2021"
 description = "Library for developing checks for the fontspector font QA tool"
 license = "MIT OR Apache-2.0"

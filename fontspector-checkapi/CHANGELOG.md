@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## v1.1.2 (2025-08-11)
+## v1.2.0 (2025-09-15)
 
 ### Chore
 
@@ -16,14 +16,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    
    * chore: Comply with new elided lifetime rules
 
+### New Features
+
+ - <csr-id-dacd8d5d49e1c85774957133df73fa5112351bda/> Add per-font inclusions and exclusions
+   * feat(cli): Add per-font inclusions and exclusions
+   
+   * docs: Start a 'using' doc
+
+### Bug Fixes
+
+ - <csr-id-bcb694b8d657e273a0086c0ab504223bb741851a/> update rust crate scraper to 0.24.0
+
+### Other
+
+ - <csr-id-90205a8089d1394f957cdf13cdcc461b73824425/> fontspector-checkapi v1.1.2, fontspector-fontbakery-bridge v1.2.0, fontspector-profile-fontwerk v1.1.0, fontspector-profile-googlefonts v1.3.0, fontspector-profile-opentype v1.2.1, fontspector-profile-universal v1.1.2, fontspector v1.4.0
+
+### Test
+
+ - <csr-id-abd4d4cf426666d0dac52706a763fb01d0e85d2c/> Move the tests from Python to Rust
+   * chore(codetesting): Improve codetesting story slightly
+   
+   * test(contour_count): WIP move test to Rust
+   
+   * chore: Helper function for check testing
+   
+   * test: Move many tests to Rust, by some strange magic
+   
+   * test: add test files
+   
+   * chore: Helper function for check testing with parameters
+   
+   * test: Move many more tests to Rust, thanks to my little electronic friend
+   
+   * chore: Change test helper functions to take references
+   
+   * test: Two more tests to Rust
+   
+   * chore: Fix up warnings
+   
+   * test: Four more tests to Rust
+
 ### Commit Statistics
 
 <csr-read-only-do-not-edit/>
 
- - 1 commit contributed to the release.
- - 40 days passed between releases.
- - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
- - 1 unique issue was worked on: [#371](https://github.com/fonttools/fontspector/issues/371)
+ - 5 commits contributed to the release over the course of 35 calendar days.
+ - 5 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 4 unique issues were worked on: [#371](https://github.com/fonttools/fontspector/issues/371), [#399](https://github.com/fonttools/fontspector/issues/399), [#403](https://github.com/fonttools/fontspector/issues/403), [#418](https://github.com/fonttools/fontspector/issues/418)
 
 ### Commit Details
 
@@ -33,7 +72,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
  * **[#371](https://github.com/fonttools/fontspector/issues/371)**
     - Get working again ([`0c6365a`](https://github.com/fonttools/fontspector/commit/0c6365a1d3383dad9d12de3984989ee5747b35cf))
+ * **[#399](https://github.com/fonttools/fontspector/issues/399)**
+    - Update rust crate scraper to 0.24.0 ([`bcb694b`](https://github.com/fonttools/fontspector/commit/bcb694b8d657e273a0086c0ab504223bb741851a))
+ * **[#403](https://github.com/fonttools/fontspector/issues/403)**
+    - Add per-font inclusions and exclusions ([`dacd8d5`](https://github.com/fonttools/fontspector/commit/dacd8d5d49e1c85774957133df73fa5112351bda))
+ * **[#418](https://github.com/fonttools/fontspector/issues/418)**
+    - Move the tests from Python to Rust ([`abd4d4c`](https://github.com/fonttools/fontspector/commit/abd4d4cf426666d0dac52706a763fb01d0e85d2c))
+ * **Uncategorized**
+    - Fontspector-checkapi v1.1.2, fontspector-fontbakery-bridge v1.2.0, fontspector-profile-fontwerk v1.1.0, fontspector-profile-googlefonts v1.3.0, fontspector-profile-opentype v1.2.1, fontspector-profile-universal v1.1.2, fontspector v1.4.0 ([`90205a8`](https://github.com/fonttools/fontspector/commit/90205a8089d1394f957cdf13cdcc461b73824425))
 </details>
+
+## v1.1.2 (2025-08-11)
+
+<csr-id-0c6365a1d3383dad9d12de3984989ee5747b35cf/>
+
+### Chore
+
+ - <csr-id-0c6365a1d3383dad9d12de3984989ee5747b35cf/> get working again
+   * chore: Upgrade fontations deps
+   
+   * chore: API changed
+   
+   * chore: Comply with new elided lifetime rules
 
 ## v1.1.1 (2025-07-02)
 
@@ -83,9 +143,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  * **Uncategorized**
     - Release fontspector-checkapi v1.1.1, fontspector-profile-opentype v1.2.0, fontspector-profile-googlefonts v1.1.1, fontspector-profile-universal v1.1.1, fontspector v1.2.0 ([`f407a9a`](https://github.com/fonttools/fontspector/commit/f407a9aaf0aae501443842311f1b5c27eab007b6))
 </details>
-
-<csr-unknown>
- Improve rationale rewrapping<csr-unknown/>
 
 ## v1.1.0 (2025-06-19)
 

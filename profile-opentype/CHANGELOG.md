@@ -5,20 +5,52 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## v1.2.1 (2025-08-11)
+## v1.3.0 (2025-09-15)
+
+### New Features
+
+ - <csr-id-c6dfbb4ab45f78c2501baafa6abe603e9a3bd26e/> New check
 
 ### Bug Fixes
 
  - <csr-id-d58c9ef800041bb3ec8cd266907d4c03f1b548c9/> Improve formatting of bulleted lists, fixes #352
 
+### Other
+
+ - <csr-id-90205a8089d1394f957cdf13cdcc461b73824425/> fontspector-checkapi v1.1.2, fontspector-fontbakery-bridge v1.2.0, fontspector-profile-fontwerk v1.1.0, fontspector-profile-googlefonts v1.3.0, fontspector-profile-opentype v1.2.1, fontspector-profile-universal v1.1.2, fontspector v1.4.0
+
+### Test
+
+ - <csr-id-abd4d4cf426666d0dac52706a763fb01d0e85d2c/> Move the tests from Python to Rust
+   * chore(codetesting): Improve codetesting story slightly
+   
+   * test(contour_count): WIP move test to Rust
+   
+   * chore: Helper function for check testing
+   
+   * test: Move many tests to Rust, by some strange magic
+   
+   * test: add test files
+   
+   * chore: Helper function for check testing with parameters
+   
+   * test: Move many more tests to Rust, thanks to my little electronic friend
+   
+   * chore: Change test helper functions to take references
+   
+   * test: Two more tests to Rust
+   
+   * chore: Fix up warnings
+   
+   * test: Four more tests to Rust
+
 ### Commit Statistics
 
 <csr-read-only-do-not-edit/>
 
- - 1 commit contributed to the release.
- - 40 days passed between releases.
- - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
- - 1 unique issue was worked on: [#357](https://github.com/fonttools/fontspector/issues/357)
+ - 4 commits contributed to the release over the course of 51 calendar days.
+ - 4 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 3 unique issues were worked on: [#357](https://github.com/fonttools/fontspector/issues/357), [#381](https://github.com/fonttools/fontspector/issues/381), [#418](https://github.com/fonttools/fontspector/issues/418)
 
 ### Commit Details
 
@@ -28,7 +60,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
  * **[#357](https://github.com/fonttools/fontspector/issues/357)**
     - Improve formatting of bulleted lists, fixes #352 ([`d58c9ef`](https://github.com/fonttools/fontspector/commit/d58c9ef800041bb3ec8cd266907d4c03f1b548c9))
+ * **[#381](https://github.com/fonttools/fontspector/issues/381)**
+    - New check ([`c6dfbb4`](https://github.com/fonttools/fontspector/commit/c6dfbb4ab45f78c2501baafa6abe603e9a3bd26e))
+ * **[#418](https://github.com/fonttools/fontspector/issues/418)**
+    - Move the tests from Python to Rust ([`abd4d4c`](https://github.com/fonttools/fontspector/commit/abd4d4cf426666d0dac52706a763fb01d0e85d2c))
+ * **Uncategorized**
+    - Fontspector-checkapi v1.1.2, fontspector-fontbakery-bridge v1.2.0, fontspector-profile-fontwerk v1.1.0, fontspector-profile-googlefonts v1.3.0, fontspector-profile-opentype v1.2.1, fontspector-profile-universal v1.1.2, fontspector v1.4.0 ([`90205a8`](https://github.com/fonttools/fontspector/commit/90205a8089d1394f957cdf13cdcc461b73824425))
 </details>
+
+## v1.2.1 (2025-08-11)
+
+### Bug Fixes
+
+ - <csr-id-d58c9ef800041bb3ec8cd266907d4c03f1b548c9/> Improve formatting of bulleted lists, fixes #352
 
 ## v1.2.0 (2025-07-02)
 
@@ -94,9 +138,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  * **Uncategorized**
     - Release fontspector-checkapi v1.1.1, fontspector-profile-opentype v1.2.0, fontspector-profile-googlefonts v1.1.1, fontspector-profile-universal v1.1.1, fontspector v1.2.0 ([`f407a9a`](https://github.com/fonttools/fontspector/commit/f407a9aaf0aae501443842311f1b5c27eab007b6))
 </details>
-
-<csr-unknown>
- Allow larger families with same bits<csr-unknown/>
 
 ## v1.1.0 (2025-06-19)
 

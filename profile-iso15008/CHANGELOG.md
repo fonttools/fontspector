@@ -5,14 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.0.4 (2025-09-15)
+
+### Chore
+
+ - <csr-id-f9682839c4d940f0bedc7891029e22f5e0a3df29/> Bump version number
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 1 commit contributed to the release.
+ - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
+ - 1 unique issue was worked on: [#376](https://github.com/fonttools/fontspector/issues/376)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#376](https://github.com/fonttools/fontspector/issues/376)**
+    - Bump version number ([`f968283`](https://github.com/fonttools/fontspector/commit/f9682839c4d940f0bedc7891029e22f5e0a3df29))
+</details>
+
 ## v1.0.2 (2025-07-02)
+
+<csr-id-a6b7ffc4f39c6b1c1bd92cd9b07f4ba22d54ef2e/>
 
 ### Bug Fixes
 
  - <csr-id-46e90e51624979590af83272f96cbcfc521b7d0a/> Improve rationale rewrapping
    * fix(cli): Improve rationale rewrapping
-   
-   * chore: Style fixes for new clippy
+* chore: Style fixes for new clippy
 
 ### Style
 
@@ -25,7 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 2 commits contributed to the release over the course of 11 calendar days.
+ - 3 commits contributed to the release over the course of 11 calendar days.
  - 43 days passed between releases.
  - 2 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 2 unique issues were worked on: [#287](https://github.com/fonttools/fontspector/issues/287), [#299](https://github.com/fonttools/fontspector/issues/299)
@@ -40,6 +65,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Deny indexing slicing ([`a6b7ffc`](https://github.com/fonttools/fontspector/commit/a6b7ffc4f39c6b1c1bd92cd9b07f4ba22d54ef2e))
  * **[#299](https://github.com/fonttools/fontspector/issues/299)**
     - Improve rationale rewrapping ([`46e90e5`](https://github.com/fonttools/fontspector/commit/46e90e51624979590af83272f96cbcfc521b7d0a))
+ * **Uncategorized**
+    - Release fontspector-profile-iso15008 v1.0.2, fontspector v1.2.0 ([`3b75f05`](https://github.com/fonttools/fontspector/commit/3b75f0584028dde09ee048620017e95aaa9661af))
 </details>
 
 ## v1.0.1 (2025-05-20)
