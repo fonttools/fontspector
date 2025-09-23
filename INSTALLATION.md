@@ -13,7 +13,10 @@ If you want to test *lots* of fonts, you have two options for installing the CLI
   - Choose `x86_64-pc-windows-gnu` if you're on Windows.
   - Choose `x86_64-unknown-linux-gnu` on Linux.
 
-Once you have downloaded the archive, unpack it. It should contain a single file. Place this anywhere in your path. (On Mac and Linux you might want to put it into `/usr/local/bin/`, or `~/bin` if you have that in your path. In Windows, you could put it in `C:\Users\Yourname\AppData\Local\Programs`)
+Once you have downloaded the archive, unpack it. It should contain a single file. Place this anywhere in your path. 
+- On Mac and Linux you might want to put it into `/usr/local/bin/`, or `~/bin` if you have that in your path. You can find what locations are in your path with the terminal command `echo $PATH`. This is a list of locations separated by colons.
+- On Mac, if you see `/usr/local/bin/` in the path list, you can use `open /usr/local/bin/` to open this folder in Finder, and then you can drag and drop the executable file into it.
+- On Windows, you could put it in `C:\Users\Yourname\AppData\Local\Programs`.
 
 - Altenatively, you can download _and_ install with `cargo-binstall fontspector`. If you don't have `cargo-binstall`, you need to install it first:
   - `brew install cargo-binstall` on macOS Homebrew
@@ -49,7 +52,7 @@ Please note that this is a command-line binary, meant to be used inside a termin
 
 To check everything is working, run `fontspector --list-checks`. This should output a list of registered checks.
 
-**Note for macOS users:** If you are using a downloaded binary and the command fails, it may be because the binary is not code-signed. You may see a warning that "fontspector can't be opened because it is from an unidentified developer." To fix this, open your `System Settings` application, go to the `Privacy & Security` section, and you should see a message about `fontspector` being blocked under the "Security" heading. Click the "Open Anyway" button to grant permission for it to run. You only need to do this once.
+**Note for macOS users:** If you are using a downloaded binary and the command fails, it may be because the binary is not code-signed. You may see a warning that "fontspector can't be opened because it is from an unidentified developer." To fix this, open your `System Settings` application, go to the `Privacy & Security` section, and you should see a message about `fontspector` being blocked under the "Security" heading. Click the "Open Anyway" button to grant permission for it to run. You only need to do this once. (Alternatively, you can right-click the executable and select “Open,” then select “Open” again, in the warning popup.)
 
 If the command still does not work, check that fontspector is installed and in your path; if that doesn't work, please [open an issue](https://github.com/fonttools/fontspector/issues), making sure to state how you obtained your Fontspector binary, where you put it, how you ran it, what output you got from the computer, what operating system you are using, and any other details which might be helpful to debug the problem.
 
