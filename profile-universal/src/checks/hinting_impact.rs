@@ -26,7 +26,6 @@ fn dehinted(font: &FontRef) -> Result<Vec<u8>, FontspectorError> {
             continue;
         }
         if tag == Tag::new(b"glyf") && glyf_table_hinted {
-            // https://github.com/googlefonts/fontations/issues/1253
             let glyf: Glyf = font.glyf()?;
             let loca = font.loca(None)?;
             let glyph_count: u32 = font.maxp()?.num_glyphs().into();
@@ -38,10 +37,10 @@ fn dehinted(font: &FontRef) -> Result<Vec<u8>, FontspectorError> {
                 .map(|g| Glyph::from_table_ref(&g))
                 .collect();
             for glyph in owned_glyphs.iter_mut() {
-                if let Glyph::Simple(ref mut _simple) = glyph {
+                if let Glyph::Simple(ref mut simple) = glyph {
                     // Coming to a write-fonts near you soon!
                     // log::warn!("TTF dehinting not yet implemented; upgrade write-fonts");
-                    // simple.instructions = vec![];
+                    simple.instructions = vec![];
                 }
                 builder.add_glyph(glyph)?;
             }
