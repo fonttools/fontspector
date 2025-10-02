@@ -5,7 +5,7 @@ use crate::{
     Context, FileType, Testable,
 };
 use fontations::{
-    read::TopLevelTable,
+    read::{tables::name::NameString, TopLevelTable},
     skrifa::{
         font::FontRef,
         outline::{DrawSettings, OutlinePen},
@@ -569,4 +569,51 @@ impl VerticalMetrics {
             hhea_linegap: (self.hhea_linegap as f32 * scaled_upm).ceil() as i16,
         }
     }
+}
+
+/// Get a string from the font's name table by platform_id, encoding_id, language_id and name_id
+pub fn get_name_entry_string<'a>(
+    font: &'a FontRef,
+    platform_id: u16,
+    encoding_id: u16,
+    language_id: u16,
+    name_id: StringId,
+) -> Option<NameString<'a>> {
+    let name = font.name().ok();
+    let mut records = name
+        .as_ref()
+        .map(|name| name.name_record().iter())
+        .unwrap_or([].iter());
+    records.find_map(|record| {
+        if record.platform_id() == platform_id
+            && record.encoding_id() == encoding_id
+            && record.language_id() == language_id
+            && record.name_id() == name_id
+        {
+            // Use ? to extract the TableRef before calling string_data()
+            let name_table = name.as_ref()?;
+            record.string(name_table.string_data()).ok()
+        } else {
+            None
+        }
+    })
+}
+
+/// Get a list of PEL codes (platform_id, encoding_id, language_id)
+pub fn get_name_pel_codes(font: FontRef) -> Vec<(u16, u16, u16)> {
+    let name_table = font.name().ok();
+
+    let mut codes_vec = vec![];
+    if let Some(name_table) = name_table {
+        for rec in name_table.name_record().iter() {
+            let code = (rec.platform_id(), rec.encoding_id(), rec.language_id());
+            codes_vec.push(code);
+        }
+    }
+    // make set of codes_vec
+    let unique_codes: HashSet<(u16, u16, u16)> = codes_vec.into_iter().collect();
+
+    let mut unique_codes: Vec<(u16, u16, u16)> = unique_codes.into_iter().collect();
+    unique_codes.sort();
+    unique_codes
 }

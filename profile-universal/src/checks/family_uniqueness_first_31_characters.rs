@@ -1,12 +1,9 @@
-use fontations::{
-    read::{tables::name::NameString, TableProvider},
-    skrifa::{font::FontRef, string::StringId},
+use fontations::skrifa::string::StringId;
+use fontspector_checkapi::{
+    get_name_entry_string, get_name_pel_codes, prelude::*, skip, FileTypeConvert,
+    TestableCollection,
 };
-use fontspector_checkapi::{prelude::*, skip, FileTypeConvert};
-use std::{
-    collections::{HashMap, HashSet},
-    vec,
-};
+use std::{collections::HashMap, vec};
 
 #[check(
     id = "family/uniqueness_first_31_characters",
@@ -33,7 +30,7 @@ fn family_uniqueness_first_31_characters(
     let mut first_31_char_collection: std::collections::HashMap<(u16, u16, u16), Vec<String>> =
         HashMap::new();
     for font in fonts.iter() {
-        let name_PEL_codes = get_name_PEL_codes(font.font());
+        let name_PEL_codes = get_name_pel_codes(font.font());
         for code in name_PEL_codes {
             let mut full_name = String::new();
             let id_pair = [
@@ -80,52 +77,6 @@ fn family_uniqueness_first_31_characters(
             ),
         )
     })
-}
-
-/// Get a string from the font's name table by platform_id, encoding_id, language_id and name_id
-fn get_name_entry_string<'a>(
-    font: &'a FontRef,
-    platform_id: u16,
-    encoding_id: u16,
-    language_id: u16,
-    name_id: StringId,
-) -> Option<NameString<'a>> {
-    let name = font.name().ok();
-    let mut records = name
-        .as_ref()
-        .map(|name| name.name_record().iter())
-        .unwrap_or([].iter());
-    records.find_map(|record| {
-        if record.platform_id() == platform_id
-            && record.encoding_id() == encoding_id
-            && record.language_id() == language_id
-            && record.name_id() == name_id
-        {
-            // Use ? to extract the TableRef before calling string_data()
-            let name_table = name.as_ref()?;
-            record.string(name_table.string_data()).ok()
-        } else {
-            None
-        }
-    })
-}
-
-fn get_name_PEL_codes(font: FontRef) -> Vec<(u16, u16, u16)> {
-    let name_table = font.name().ok();
-
-    let mut codes_vec = vec![];
-    if let Some(name_table) = name_table {
-        for rec in name_table.name_record().iter() {
-            let code = (rec.platform_id(), rec.encoding_id(), rec.language_id());
-            codes_vec.push(code);
-        }
-    }
-    // make set of codes_vec
-    let unique_codes: HashSet<(u16, u16, u16)> = codes_vec.into_iter().collect();
-
-    let mut unique_codes: Vec<(u16, u16, u16)> = unique_codes.into_iter().collect();
-    unique_codes.sort();
-    unique_codes
 }
 
 #[cfg(test)]
