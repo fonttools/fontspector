@@ -30,6 +30,7 @@ impl fontspector_checkapi::Plugin for Universal {
             .add_and_register_check(checks::empty_letters)
             .add_and_register_check(checks::family_vertical_metrics)
             .add_and_register_check(checks::family_win_ascent_and_descent)
+            .add_and_register_check(checks::family_uniqueness_first_31_characters)
             .add_and_register_check(checks::file_size)
             .with_configuration_defaults(
                 "file_size",
