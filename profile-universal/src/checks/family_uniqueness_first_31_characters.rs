@@ -46,19 +46,18 @@ fn family_uniqueness_first_31_characters(
                 }
             }
             let first_31_char = full_name.chars().take(31).collect::<String>();
-            if first_31_char_collection.contains_key(&code) {
-                if let Some(existing) = first_31_char_collection.get(&code) {
-                    if existing.contains(&first_31_char) {
-                        let basename = font
-                            .filename
-                            .file_name()
-                            .and_then(|x| x.to_str())
-                            .map(|x| x.to_string())
-                            .unwrap_or("A font".to_string());
-                        bad_names.push(format!("Non-unique first 31 characters in name (NID 16+17, {code:?}): {full_name} ({basename})"));
-                    }
+            if let Some(existing) = first_31_char_collection.get(&code) {
+                if existing.contains(&first_31_char) {
+                    let basename = font
+                        .filename
+                        .file_name()
+                        .and_then(|x| x.to_str())
+                        .map(|x| x.to_string())
+                        .unwrap_or("A font".to_string());
+                    bad_names.push(format!("Non-unique first 31 characters in name (NID 16+17, {code:?}): {full_name} ({basename})"));
                 }
             }
+
             first_31_char_collection
                 .entry(code)
                 .or_default()
