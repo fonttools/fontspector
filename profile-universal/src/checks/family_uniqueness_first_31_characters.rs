@@ -1,6 +1,6 @@
 use fontations::skrifa::string::StringId;
 use fontspector_checkapi::{
-    get_name_entry_string, get_name_pel_codes, prelude::*, skip, FileTypeConvert,
+    get_name_entry_string, get_name_platform_tuples, prelude::*, skip, FileTypeConvert,
     TestableCollection,
 };
 use std::{collections::HashMap, vec};
@@ -30,7 +30,7 @@ fn family_uniqueness_first_31_characters(
     let mut first_31_char_collection: std::collections::HashMap<(u16, u16, u16), Vec<String>> =
         HashMap::new();
     for font in fonts.iter() {
-        let name_PEL_codes = get_name_pel_codes(font.font());
+        let name_PEL_codes = get_name_platform_tuples(font.font());
         for code in name_PEL_codes {
             let mut full_name = String::new();
             let id_pair = [

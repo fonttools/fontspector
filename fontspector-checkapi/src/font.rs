@@ -600,7 +600,7 @@ pub fn get_name_entry_string<'a>(
 }
 
 /// Get a list of PEL codes (platform_id, encoding_id, language_id)
-pub fn get_name_pel_codes(font: FontRef) -> Vec<(u16, u16, u16)> {
+pub fn get_name_platform_tuples(font: FontRef) -> Vec<(u16, u16, u16)> {
     let name_table = font.name().ok();
 
     let mut codes_vec = vec![];
