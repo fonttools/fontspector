@@ -599,21 +599,16 @@ pub fn get_name_entry_string<'a>(
     })
 }
 
-/// Get a list of PEL codes (platform_id, encoding_id, language_id)
-pub fn get_name_platform_tuples(font: FontRef) -> Vec<(u16, u16, u16)> {
+/// Get a set of PEL codes (platform_id, encoding_id, language_id)
+pub fn get_name_platform_tuples(font: FontRef) -> HashSet<(u16, u16, u16)> {
     let name_table = font.name().ok();
 
-    let mut codes_vec = vec![];
+    let mut codes = HashSet::new();
     if let Some(name_table) = name_table {
         for rec in name_table.name_record().iter() {
             let code = (rec.platform_id(), rec.encoding_id(), rec.language_id());
-            codes_vec.push(code);
+            codes.insert(code);
         }
     }
-    // make set of codes_vec
-    let unique_codes: HashSet<(u16, u16, u16)> = codes_vec.into_iter().collect();
-
-    let mut unique_codes: Vec<(u16, u16, u16)> = unique_codes.into_iter().collect();
-    unique_codes.sort();
-    unique_codes
+    codes
 }
