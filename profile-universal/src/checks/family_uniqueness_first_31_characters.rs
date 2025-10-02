@@ -18,24 +18,28 @@ use std::{
     ",
     implementation = "all",
     title = "Check if first 31 characters are unique within a font family",
-    proposal = "https://github.com/fonttools/fontspector/issues/472",
+    proposal = "https://github.com/fonttools/fontspector/issues/472"
 )]
-fn family_uniqueness_first_31_characters(c: &TestableCollection, context: &Context) -> CheckFnResult {
+fn family_uniqueness_first_31_characters(
+    c: &TestableCollection,
+    context: &Context,
+) -> CheckFnResult {
     let fonts = TTF.from_collection(c);
     for font in fonts.iter() {
         skip!(!font.has_table(b"name"), "no-name", "No name table.");
     }
     let mut bad_names: Vec<String> = vec![];
 
-    let mut first_31_char_collection = HashMap::new();
+    let mut first_31_char_collection: std::collections::HashMap<(u16, u16, u16), Vec<String>> =
+        HashMap::new();
     for font in fonts.iter() {
         let name_PEL_codes = get_name_PEL_codes(font.font());
         for code in name_PEL_codes {
             let mut full_name = String::new();
-            let id_pair = vec![
+            let id_pair = [
                 StringId::TYPOGRAPHIC_FAMILY_NAME,
-                StringId::TYPOGRAPHIC_SUBFAMILY_NAME
-                ];
+                StringId::TYPOGRAPHIC_SUBFAMILY_NAME,
+            ];
             for name_id in id_pair.iter() {
                 if let Some(name_string) =
                     get_name_entry_string(&font.font(), code.0, code.1, code.2, *name_id)
@@ -46,23 +50,21 @@ fn family_uniqueness_first_31_characters(c: &TestableCollection, context: &Conte
             }
             let first_31_char = full_name.chars().take(31).collect::<String>();
             if first_31_char_collection.contains_key(&code) {
-                let existing: &Vec<String> = first_31_char_collection.get(&code).unwrap();
-                if existing.contains(&first_31_char) {
-                    let basename = font
-                        .filename
-                        .file_name()
-                        .and_then(|x| x.to_str())
-                        .map(|x| x.to_string())
-                        .unwrap_or("A font".to_string());
-                    bad_names.push(format!(
-                        "Non-unique first 31 characters in name (NID 16+17, {:?}): {} ({})",
-                        code, full_name, basename
-                    ));
+                if let Some(existing) = first_31_char_collection.get(&code) {
+                    if existing.contains(&first_31_char) {
+                        let basename = font
+                            .filename
+                            .file_name()
+                            .and_then(|x| x.to_str())
+                            .map(|x| x.to_string())
+                            .unwrap_or("A font".to_string());
+                        bad_names.push(format!("Non-unique first 31 characters in name (NID 16+17, {code:?}): {full_name} ({basename})"));
+                    }
                 }
             }
             first_31_char_collection
                 .entry(code)
-                .or_insert_with(Vec::new)
+                .or_default()
                 .push(first_31_char);
         }
     }
@@ -149,14 +151,24 @@ mod tests {
             ("XY Neue DIN Figures Only", StatusCode::Pass, None),
         ];
         for (family_name, expected_severity, expected_message) in CONFIGS {
-            run_family_uniqueness_first_31_characters_test(family_name, expected_severity, expected_message);
+            run_family_uniqueness_first_31_characters_test(
+                family_name,
+                expected_severity,
+                expected_message,
+            );
         }
     }
 
-    fn run_family_uniqueness_first_31_characters_test(family_name: &str, expected_severity: StatusCode, expected_message: Option<String>) {
+    fn run_family_uniqueness_first_31_characters_test(
+        family_name: &str,
+        expected_severity: StatusCode,
+        expected_message: Option<String>,
+    ) {
         let font_names_nid17: Vec<String> = vec![
-            "Cond Regular".to_string(), "Cond Bold".to_string(),
-            "Cond Medium".to_string(), "Cond XBold".to_string(),
+            "Cond Regular".to_string(),
+            "Cond Bold".to_string(),
+            "Cond Medium".to_string(),
+            "Cond XBold".to_string(),
         ];
         let mut testables: Vec<Testable> = vec![];
         for name_id17 in font_names_nid17.iter() {
@@ -165,9 +177,11 @@ mod tests {
             let mut name_table = Name::default();
             let mut new_records = Vec::new();
 
-            let name_rec_nid16 = NameRecord::new(3, 1, 1033, NameId::new(16), family_name.to_string().into());
+            let name_rec_nid16 =
+                NameRecord::new(3, 1, 1033, NameId::new(16), family_name.to_string().into());
             new_records.push(name_rec_nid16);
-            let name_rec_nid17 = NameRecord::new(3, 1, 1033, NameId::new(17), name_id17.clone().into());
+            let name_rec_nid17 =
+                NameRecord::new(3, 1, 1033, NameId::new(17), name_id17.clone().into());
             new_records.push(name_rec_nid17);
 
             new_records.sort();
@@ -194,5 +208,4 @@ mod tests {
         assert_eq!(result.severity, expected_severity);
         assert_eq!(result.message, expected_message);
     }
-
 }
