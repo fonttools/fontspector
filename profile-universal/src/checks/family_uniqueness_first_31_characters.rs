@@ -143,9 +143,9 @@ mod tests {
     #[test]
     fn test_family_uniqueness_first_31_characters() {
         let CONFIGS: Vec<(&str, StatusCode, Option<String>)> = vec![
-            // the follwing family name will call a fail as the first 31 characters are not unique together with Cond Bold, Cond Medium and Cond XBold
+            // the following family name will call a fail as the first 31 characters are not unique together with Cond Bold, Cond Medium and Cond XBold
             ("XYZ Neue DIN Figures Only", StatusCode::Fail, Some("The following issues have been found:\n\n* Non-unique first 31 characters in name (NID 16+17, (3, 1, 1033)): XYZ Neue DIN Figures Only Cond Bold  (XYZNeueDINFiguresOnlyCondBold.ttf)\n* Non-unique first 31 characters in name (NID 16+17, (3, 1, 1033)): XYZ Neue DIN Figures Only Cond Medium  (XYZNeueDINFiguresOnlyCondMedium.ttf)\n* Non-unique first 31 characters in name (NID 16+17, (3, 1, 1033)): XYZ Neue DIN Figures Only Cond XBold  (XYZNeueDINFiguresOnlyCondXBold.ttf)".to_string())),
-            // the follwing family name passes becuase the first 31 characters are unique together with Cond Bold, Cond Medium and Cond XBold
+            // the following family name passes because the first 31 characters are unique together with Cond Bold, Cond Medium and Cond XBold
             ("XY Neue DIN Figures Only", StatusCode::Pass, None),
         ];
         for (family_name, expected_severity, expected_message) in CONFIGS {
