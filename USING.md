@@ -8,7 +8,7 @@ Fontspector is a tool for quality control of OpenType fonts. It is a font testin
 *   `-p, --profile <PROFILE>`: Profile to check (default: universal).
 *   `-L, --list-checks`: List the checks available in the selected profile.
 *   `--list-checks-json`: List checks in JSON format.
-*   `--configuration <CONFIGURATION>`: Read configuration file (TOML/YAML).
+*   `--configuration <CONFIGURATION>`: Read configuration file (TOML/JSON).
 *   `-c, --checkid <CHECKID>`: Explicit check-ids (or parts of their name) to be executed.
 *   `-x, --exclude-checkid <EXCLUDE_CHECKID>`: Exclude check-ids (or parts of their name) from execution.
 *   `--full-lists`: Report full lists of items instead of abbreviated lists.
