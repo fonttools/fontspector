@@ -26,7 +26,7 @@ pub struct Args {
     #[clap(short = 'J', long)]
     pub jobs: Option<usize>,
 
-    /// Read configuration file (TOML/YAML)
+    /// Read configuration file (TOML/JSON)
     #[clap(long)]
     pub configuration: Option<String>,
 
