@@ -571,12 +571,19 @@ impl VerticalMetrics {
     }
 }
 
+/// A selector for a platform, encoding, and language in a font's name table.
+pub struct PlatformSelector {
+    /// The platform ID eg. 3 = Windows
+    pub platform_id: u16,
+    /// The encoding ID for the platform, eg. 1 = Unicode BMP
+    pub encoding_id: u16,
+    /// The language ID for the platform and encoding, eg. 1033 = en-US
+    pub language_id: u16,
+}
 /// Get a string from the font's name table by platform_id, encoding_id, language_id and name_id
 pub fn get_name_entry_string<'a>(
     font: &'a FontRef,
-    platform_id: u16,
-    encoding_id: u16,
-    language_id: u16,
+    selector: PlatformSelector,
     name_id: StringId,
 ) -> Option<NameString<'a>> {
     let name = font.name().ok();
@@ -585,9 +592,9 @@ pub fn get_name_entry_string<'a>(
         .map(|name| name.name_record().iter())
         .unwrap_or([].iter());
     records.find_map(|record| {
-        if record.platform_id() == platform_id
-            && record.encoding_id() == encoding_id
-            && record.language_id() == language_id
+        if record.platform_id() == selector.platform_id
+            && record.encoding_id() == selector.encoding_id
+            && record.language_id() == selector.language_id
             && record.name_id() == name_id
         {
             // Use ? to extract the TableRef before calling string_data()

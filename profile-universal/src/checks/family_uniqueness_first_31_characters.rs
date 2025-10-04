@@ -1,6 +1,6 @@
 use fontations::skrifa::string::StringId;
 use fontspector_checkapi::{
-    get_name_entry_string, get_name_platform_tuples, prelude::*, skip, FileTypeConvert,
+    get_name_entry_string, get_name_platform_tuples, PlatformSelector, prelude::*, skip, FileTypeConvert,
     TestableCollection,
 };
 use std::{collections::HashMap, vec};
@@ -30,23 +30,28 @@ fn family_uniqueness_first_31_characters(
     let mut first_31_char_collection: std::collections::HashMap<(u16, u16, u16), Vec<String>> =
         HashMap::new();
     for font in fonts.iter() {
-        let name_PEL_codes = get_name_platform_tuples(font.font());
-        for code in name_PEL_codes {
+        let platform_tuples = get_name_platform_tuples(font.font());
+        for platform_tuple in platform_tuples {
             let mut full_name = String::new();
             let id_pair = [
                 StringId::TYPOGRAPHIC_FAMILY_NAME,
                 StringId::TYPOGRAPHIC_SUBFAMILY_NAME,
             ];
             for name_id in id_pair.iter() {
+                let selector = PlatformSelector {
+                    platform_id: platform_tuple.0,
+                    encoding_id: platform_tuple.1,
+                    language_id: platform_tuple.2,
+                };
                 if let Some(name_string) =
-                    get_name_entry_string(&font.font(), code.0, code.1, code.2, *name_id)
+                    get_name_entry_string(&font.font(), selector, *name_id)
                 {
                     full_name.push_str(&name_string.to_string());
                     full_name.push(' ');
                 }
             }
             let first_31_char = full_name.chars().take(31).collect::<String>();
-            if let Some(existing) = first_31_char_collection.get(&code) {
+            if let Some(existing) = first_31_char_collection.get(&platform_tuple) {
                 if existing.contains(&first_31_char) {
                     let basename = font
                         .filename
@@ -54,12 +59,12 @@ fn family_uniqueness_first_31_characters(
                         .and_then(|x| x.to_str())
                         .map(|x| x.to_string())
                         .unwrap_or("A font".to_string());
-                    bad_names.push(format!("Non-unique first 31 characters in name (NID 16+17, {code:?}): {full_name} ({basename})"));
+                    bad_names.push(format!("Non-unique first 31 characters in name (NID 16+17, {platform_tuple:?}): {full_name} ({basename})"));
                 }
             }
 
             first_31_char_collection
-                .entry(code)
+                .entry(platform_tuple)
                 .or_default()
                 .push(first_31_char);
         }
