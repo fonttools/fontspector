@@ -1,7 +1,7 @@
 use fontations::skrifa::string::StringId;
 use fontspector_checkapi::{
-    get_name_entry_string, get_name_platform_tuples, PlatformSelector, prelude::*, skip, FileTypeConvert,
-    TestableCollection,
+    get_name_entry_string, get_name_platform_tuples, prelude::*, skip, FileTypeConvert,
+    PlatformSelector, TestableCollection,
 };
 use std::{collections::HashMap, vec};
 
@@ -43,9 +43,7 @@ fn family_uniqueness_first_31_characters(
                     encoding_id: platform_tuple.1,
                     language_id: platform_tuple.2,
                 };
-                if let Some(name_string) =
-                    get_name_entry_string(&font.font(), selector, *name_id)
-                {
+                if let Some(name_string) = get_name_entry_string(&font.font(), selector, *name_id) {
                     full_name.push_str(&name_string.to_string());
                     full_name.push(' ');
                 }
@@ -95,21 +93,29 @@ mod tests {
         FontBuilder,
     };
     use fontspector_checkapi::StatusCode;
-    use fontspector_checkapi::{Context, Testable};
+    use fontspector_checkapi::{Testable, TestableType};
+
+    use fontspector_checkapi::codetesting::{
+        assert_messages_contain, assert_pass, assert_results_contain, run_check_with_config,
+    };
 
     #[test]
     fn test_family_uniqueness_first_31_characters() {
-        let CONFIGS: Vec<(&str, StatusCode, Option<String>)> = vec![
+        let TESTS: Vec<(&str, StatusCode, Option<String>, Option<String>)> = vec![
             // the following family name will call a fail as the first 31 characters are not unique together with Cond Bold, Cond Medium and Cond XBold
-            ("XYZ Neue DIN Figures Only", StatusCode::Fail, Some("The following issues have been found:\n\n* Non-unique first 31 characters in name (NID 16+17, (3, 1, 1033)): XYZ Neue DIN Figures Only Cond Bold  (XYZNeueDINFiguresOnlyCondBold.ttf)\n* Non-unique first 31 characters in name (NID 16+17, (3, 1, 1033)): XYZ Neue DIN Figures Only Cond Medium  (XYZNeueDINFiguresOnlyCondMedium.ttf)\n* Non-unique first 31 characters in name (NID 16+17, (3, 1, 1033)): XYZ Neue DIN Figures Only Cond XBold  (XYZNeueDINFiguresOnlyCondXBold.ttf)".to_string())),
+            ("XYZ Neue DIN Figures Only",
+            StatusCode::Fail,
+            Some("The following issues have been found:\n\n* Non-unique first 31 characters in name (NID 16+17, (3, 1, 1033)): XYZ Neue DIN Figures Only Cond Bold  (XYZNeueDINFiguresOnlyCondBold.ttf)\n* Non-unique first 31 characters in name (NID 16+17, (3, 1, 1033)): XYZ Neue DIN Figures Only Cond Medium  (XYZNeueDINFiguresOnlyCondMedium.ttf)\n* Non-unique first 31 characters in name (NID 16+17, (3, 1, 1033)): XYZ Neue DIN Figures Only Cond XBold  (XYZNeueDINFiguresOnlyCondXBold.ttf)".to_string()),
+            Some("bad-names-first_31_characters".to_string())),
             // the following family name passes because the first 31 characters are unique together with Cond Bold, Cond Medium and Cond XBold
-            ("XY Neue DIN Figures Only", StatusCode::Pass, None),
+            ("XY Neue DIN Figures Only", StatusCode::Pass, None, None),
         ];
-        for (family_name, expected_severity, expected_message) in CONFIGS {
+        for (family_name, expected_severity, expected_message, expected_code) in TESTS {
             run_family_uniqueness_first_31_characters_test(
                 family_name,
                 expected_severity,
                 expected_message,
+                expected_code,
             );
         }
     }
@@ -118,6 +124,7 @@ mod tests {
         family_name: &str,
         expected_severity: StatusCode,
         expected_message: Option<String>,
+        expected_code: Option<String>,
     ) {
         let font_names_nid17: Vec<String> = vec![
             "Cond Regular".to_string(),
@@ -152,15 +159,17 @@ mod tests {
             directory: "".to_string(),
         };
 
-        let context = Context {
-            ..Default::default()
-        };
-        let result = family_uniqueness_first_31_characters_impl(&collection, &context)
-            .unwrap()
-            .next()
-            .unwrap();
+        let results = run_check_with_config(
+            family_uniqueness_first_31_characters,
+            TestableType::Collection(&collection),
+            HashMap::new(),
+        );
 
-        assert_eq!(result.severity, expected_severity);
-        assert_eq!(result.message, expected_message);
+        if expected_severity == StatusCode::Pass {
+            assert_pass(&results);
+        } else {
+            assert_messages_contain(&results, expected_message.as_deref().unwrap_or(""));
+        }
+        assert_results_contain(&results, expected_severity, expected_code);
     }
 }
