@@ -32,7 +32,7 @@ fn has_glyphs(t: &Testable, context: &Context) -> CheckFnResult {
         "No configuration found for has_glyphs"
     );
     let font_config = if config.is_object() {
-        println!("Config is an object: {:?}", config);
+        //println!("Config is an object: {:?}", config);
         let font_name = t.basename().unwrap_or("<Unnamed Font>".to_string());
         // If the config is a table of tables, specialize it by font filename
         if let Some(specific) = config.as_object().and_then(|o| o.get(&font_name)) {
