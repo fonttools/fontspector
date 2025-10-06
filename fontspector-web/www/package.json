@@ -29,7 +29,7 @@
   "dependencies": {
     "@svgdotjs/svg.js": "^3.2.4",
     "@types/bootstrap": "^4.6.6",
-    "bootstrap": "^4.6.2",
+    "bootstrap": "^5.0.0",
     "cmark-gfm-js": "^1.1.7",
     "diffenator3": "file:../pkg",
     "dropzone": "^6.0.0-beta.2",
