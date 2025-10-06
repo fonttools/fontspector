@@ -5,7 +5,7 @@ use crate::{
     Context, FileType, Testable,
 };
 use fontations::{
-    read::TopLevelTable,
+    read::{tables::name::NameString, TopLevelTable},
     skrifa::{
         font::FontRef,
         outline::{DrawSettings, OutlinePen},
@@ -569,4 +569,53 @@ impl VerticalMetrics {
             hhea_linegap: (self.hhea_linegap as f32 * scaled_upm).ceil() as i16,
         }
     }
+}
+
+/// A selector for a platform, encoding, and language in a font's name table.
+pub struct PlatformSelector {
+    /// The platform ID eg. 3 = Windows
+    pub platform_id: u16,
+    /// The encoding ID for the platform, eg. 1 = Unicode BMP
+    pub encoding_id: u16,
+    /// The language ID for the platform and encoding, eg. 1033 = en-US
+    pub language_id: u16,
+}
+/// Get a string from the font's name table by platform_id, encoding_id, language_id and name_id
+pub fn get_name_entry_string<'a>(
+    font: &'a FontRef,
+    selector: PlatformSelector,
+    name_id: StringId,
+) -> Option<NameString<'a>> {
+    let name = font.name().ok();
+    let mut records = name
+        .as_ref()
+        .map(|name| name.name_record().iter())
+        .unwrap_or([].iter());
+    records.find_map(|record| {
+        if record.platform_id() == selector.platform_id
+            && record.encoding_id() == selector.encoding_id
+            && record.language_id() == selector.language_id
+            && record.name_id() == name_id
+        {
+            // Use ? to extract the TableRef before calling string_data()
+            let name_table = name.as_ref()?;
+            record.string(name_table.string_data()).ok()
+        } else {
+            None
+        }
+    })
+}
+
+/// Get a set of PEL codes (platform_id, encoding_id, language_id)
+pub fn get_name_platform_tuples(font: FontRef) -> HashSet<(u16, u16, u16)> {
+    let name_table = font.name().ok();
+
+    let mut codes = HashSet::new();
+    if let Some(name_table) = name_table {
+        for rec in name_table.name_record().iter() {
+            let code = (rec.platform_id(), rec.encoding_id(), rec.language_id());
+            codes.insert(code);
+        }
+    }
+    codes
 }

@@ -48,7 +48,10 @@ pub use checkresult::{CheckResult, FixResult};
 pub use context::Context;
 pub use error::FontspectorError;
 pub use filetype::{FileType, FileTypeConvert};
-pub use font::{TestFont, DEFAULT_LOCATION, TTF};
+pub use font::{
+    get_name_entry_string, get_name_platform_tuples, PlatformSelector, TestFont, DEFAULT_LOCATION,
+    TTF,
+};
 pub use gsub::{GetSubstitutionMap, SubstitutionMap};
 pub use profile::{Override, Profile, ProfileBuilder};
 pub use registry::Registry;
