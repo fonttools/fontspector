@@ -115,6 +115,9 @@ fn required_name_ids(t: &Testable, context: &Context) -> CheckFnResult {
     }
     let mut bad_names: Vec<String> = vec![];
     let platform_tuples = get_name_platform_tuples(font.font());
+    // sorted platform tuples to have deterministic output
+    let mut platform_tuples: Vec<_> = platform_tuples.into_iter().collect();
+    platform_tuples.sort();
     for platform_tuple in platform_tuples {
         let mut missing_name_ids: Vec<_> = vec![];
         for id in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 25] {
@@ -478,7 +481,7 @@ mod tests {
             .unwrap()
             .next()
             .unwrap();
-        let expected_message = "The following issues have been found:\n\n* Missing required name IDs [7, 10, 16, 17] for (3, 1, 1033).\n* Missing required name IDs [7, 10, 16, 17] for (1, 0, 0).";
+        let expected_message = "The following issues have been found:\n\n* Missing required name IDs [7, 10, 16, 17] for (1, 0, 0).\n* Missing required name IDs [7, 10, 16, 17] for (3, 1, 1033).";
         assert_eq!(result.message, Some(expected_message.to_string()));
     }
 }
