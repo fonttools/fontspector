@@ -46,13 +46,13 @@ pub fn test_able(fname: impl AsRef<Path>) -> Testable {
 
 /// Run a check on a font and return the result
 pub fn run_check(check: Check<'_>, font: Testable) -> Option<CheckResult> {
-    run_check_with_config(check, font, HashMap::new())
+    run_check_with_config(check, TestableType::Single(&font), HashMap::new())
 }
 
-/// Run a check on a font with a given configuration and return the result
+/// Run a check on a font or collection with a given configuration and return the result
 pub fn run_check_with_config(
     check: Check<'_>,
-    font: Testable,
+    things: TestableType<'_>,
     config: HashMap<String, serde_json::Value>,
 ) -> Option<CheckResult> {
     let mut configuration = HashMap::new();
@@ -73,7 +73,7 @@ pub fn run_check_with_config(
         cache: Default::default(),
         overrides: vec![],
     };
-    check.run(&TestableType::Single(&font), &ctx, None)
+    check.run(&things, &ctx, None)
 }
 
 /// Assert that a check passes
