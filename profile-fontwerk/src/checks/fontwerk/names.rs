@@ -1,12 +1,9 @@
-use fontations::{
-    read::{tables::name::NameString, TableProvider},
-    skrifa::{font::FontRef, string::StringId},
+use fontations::skrifa::string::StringId;
+use fontspector_checkapi::{
+    get_name_entry_string, get_name_platform_tuples, prelude::*, skip, testfont, FileTypeConvert,
+    PlatformSelector,
 };
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
-use std::{
-    collections::{HashMap, HashSet},
-    vec,
-};
+use std::{collections::HashMap, vec};
 
 #[check(
     id = "fontwerk/name_entries",
@@ -114,8 +111,8 @@ fn name_consistency(t: &Testable, context: &Context) -> CheckFnResult {
         ),
     ];
 
-    let name_PEL_codes = get_name_PEL_codes(font.font());
-    for code in name_PEL_codes {
+    let platform_tuples = get_name_platform_tuples(font.font());
+    for platform_tuple in platform_tuples {
         let mut name_strings: Vec<(String, String)> = vec![];
         for (i, name_id_pair) in name_ids.iter().enumerate() {
             let mut full_name = String::new();
@@ -125,9 +122,12 @@ fn name_consistency(t: &Testable, context: &Context) -> CheckFnResult {
                 id_pair.push(sub_name_id);
             }
             for name_id in id_pair.iter() {
-                if let Some(name_string) =
-                    get_name_entry_string(&font.font(), code.0, code.1, code.2, *name_id)
-                {
+                let selector = PlatformSelector {
+                    platform_id: platform_tuple.0,
+                    encoding_id: platform_tuple.1,
+                    language_id: platform_tuple.2,
+                };
+                if let Some(name_string) = get_name_entry_string(&font.font(), selector, *name_id) {
                     pair.push(true);
                     full_name.push_str(&name_string.to_string());
                     full_name.push(' ');
@@ -160,7 +160,7 @@ fn name_consistency(t: &Testable, context: &Context) -> CheckFnResult {
                 if first.0 != name.0 {
                     bad_names.push(format!(
                         "Inconsistent names {:?}: {} ({}) != {} ({})",
-                        code, first.0, first.1, name.0, name.1
+                        platform_tuple, first.0, first.1, name.0, name.1
                     ));
                 }
             }
@@ -177,34 +177,6 @@ fn name_consistency(t: &Testable, context: &Context) -> CheckFnResult {
                 bullet_list(context, bad_names)
             ),
         )
-    })
-}
-
-/// Get a string from the font's name table by platform_id, encoding_id, language_id and name_id
-fn get_name_entry_string<'a>(
-    font: &'a FontRef,
-    platform_id: u16,
-    encoding_id: u16,
-    language_id: u16,
-    name_id: StringId,
-) -> Option<NameString<'a>> {
-    let name = font.name().ok();
-    let mut records = name
-        .as_ref()
-        .map(|name| name.name_record().iter())
-        .unwrap_or([].iter());
-    records.find_map(|record| {
-        if record.platform_id() == platform_id
-            && record.encoding_id() == encoding_id
-            && record.language_id() == language_id
-            && record.name_id() == name_id
-        {
-            // Use ? to extract the TableRef before calling string_data()
-            let name_table = name.as_ref()?;
-            record.string(name_table.string_data()).ok()
-        } else {
-            None
-        }
     })
 }
 
@@ -250,24 +222,6 @@ fn get_string_id_from_string(name_id_string: &str) -> Option<StringId> {
     registered_name_ids.get(name_id_string).copied()
 }
 
-fn get_name_PEL_codes(font: FontRef) -> Vec<(u16, u16, u16)> {
-    let name_table = font.name().ok();
-
-    let mut codes_vec = vec![];
-    if let Some(name_table) = name_table {
-        for rec in name_table.name_record().iter() {
-            let code = (rec.platform_id(), rec.encoding_id(), rec.language_id());
-            codes_vec.push(code);
-        }
-    }
-    // make set of codes_vec
-    let unique_codes: HashSet<(u16, u16, u16)> = codes_vec.into_iter().collect();
-
-    let mut unique_codes: Vec<(u16, u16, u16)> = unique_codes.into_iter().collect();
-    unique_codes.sort();
-    unique_codes
-}
-
 #[cfg(test)]
 mod tests {
     #![allow(clippy::unwrap_used, clippy::expect_used)]
@@ -287,17 +241,6 @@ mod tests {
     fn test_get_name_ids_from_string() {
         let string_id = get_string_id_from_string("TYPOGRAPHIC_FAMILY_NAME");
         assert_eq!(string_id.unwrap(), StringId::TYPOGRAPHIC_FAMILY_NAME);
-    }
-
-    #[test]
-    fn test_get_name_PEL_codes() {
-        let contents = include_bytes!(
-            "../../../../fontspector-py/data/test/montserrat/Montserrat-Regular.ttf"
-        );
-        let font = FontRef::new(contents).expect("Failed to create FontRef from contents");
-        let expected_codes = vec![(1, 0, 0), (3, 1, 1033)];
-        let name_PEL_codes = get_name_PEL_codes(font);
-        assert_eq!(name_PEL_codes, expected_codes);
     }
 
     #[test]
