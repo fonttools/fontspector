@@ -1,6 +1,3 @@
-#![allow(renamed_and_removed_lints, clippy::unwrap_used)]
-include!(concat!(env!("OUT_DIR"), "/protos/mod.rs"));
-
 use crate::checks::googlefonts::metadata::family_proto;
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
 

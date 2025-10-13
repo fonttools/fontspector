@@ -25,15 +25,10 @@ pub use reserved_font_name::reserved_font_name;
 pub use subsets_correct::subsets_correct;
 pub use validate::validate;
 
-mod protos {
-    #![allow(clippy::all, clippy::unwrap_used)]
-    include!(concat!(env!("OUT_DIR"), "/protos/mod.rs"));
-}
-#[allow(unused_imports)]
-pub(crate) use designers::DesignerInfoProto;
-pub(crate) use fonts_public::FamilyProto;
+pub(crate) use gf_metadata::DesignerInfoProto;
+pub(crate) use gf_metadata::FamilyProto;
+
 use fontspector_checkapi::{FontspectorError, Testable};
-use protos::{designers, fonts_public};
 
 pub(crate) fn family_proto(t: &Testable) -> Result<FamilyProto, FontspectorError> {
     let mdpb = std::str::from_utf8(&t.contents)?;

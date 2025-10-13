@@ -18,6 +18,7 @@ chrono = "0.4.38" # For metadata date checks
 fontspector-checkapi = { path = "../fontspector-checkapi", features = [
     "kurbo",
 ], version = "1.0.0" }
+gf-metadata = "0.2.0"
 google-fonts-axisregistry = { version = "0.4", git = "https://github.com/googlefonts/axisregistry" }
 google-fonts-languages = "0"
 google-fonts-subsets = { version = "0.202505" }
@@ -54,9 +55,6 @@ image = { version = "0.25.5", default-features = false, features = [
     "jpeg",
     "gif",
 ] }
-
-[build-dependencies]
-protobuf-codegen = "3.7.1"
 
 [lints]
 workspace = true
