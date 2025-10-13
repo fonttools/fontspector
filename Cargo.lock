@@ -1654,6 +1654,7 @@ dependencies = [
  "chrono",
  "fontations",
  "fontspector-checkapi",
+ "gf-metadata",
  "glob",
  "google-fonts-axisregistry",
  "google-fonts-glyphsets",
@@ -1667,7 +1668,6 @@ dependencies = [
  "log",
  "num-traits",
  "protobuf",
- "protobuf-codegen",
  "regex",
  "reqwest",
  "rustybuzz",
@@ -1947,6 +1947,18 @@ dependencies = [
  "libc",
  "r-efi",
  "wasi 0.14.7+wasi-0.2.4",
+]
+
+[[package]]
+name = "gf-metadata"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7e2f6403bb7739a103b4028565bbd74c2777f079cd2ed6437aba6d303114b843"
+dependencies = [
+ "google-fonts-languages",
+ "protobuf",
+ "regex",
+ "walkdir",
 ]
 
 [[package]]
@@ -3825,21 +3837,6 @@ checksum = "d65a1d4ddae7d8b5de68153b48f6aa3bba8cb002b243dbdbc55a5afbc98f99f4"
 dependencies = [
  "once_cell",
  "protobuf-support",
- "thiserror 1.0.69",
-]
-
-[[package]]
-name = "protobuf-codegen"
-version = "3.7.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5d3976825c0014bbd2f3b34f0001876604fe87e0c86cd8fa54251530f1544ace"
-dependencies = [
- "anyhow",
- "once_cell",
- "protobuf",
- "protobuf-parse",
- "regex",
- "tempfile",
  "thiserror 1.0.69",
 ]
 
