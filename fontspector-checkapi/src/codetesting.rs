@@ -7,6 +7,8 @@ use std::sync::LazyLock;
 // No bad thing if we panic in tests
 use crate::{prelude::*, Check, CheckResult, Context, FileTypeConvert, StatusCode};
 use fontations::skrifa::raw::{types::NameId, TableProvider};
+use fontations::skrifa::{GlyphNames, MetadataProvider};
+use fontations::write::tables::cmap::Cmap;
 use fontations::write::{
     tables::name::{Name, NameRecord},
     FontBuilder,
@@ -203,4 +205,42 @@ pub fn set_name_entry(
         .build();
 
     font.contents = new_bytes;
+}
+
+/// Manipulate a font by remapping a glyph (for testing purposes only)
+pub fn remap_glyph(
+    font: &mut Testable,
+    codepoint: u32,
+    glyphname: &str,
+) -> Result<(), FontspectorError> {
+    let f = TTF.from_testable(font).unwrap();
+    let names = GlyphNames::new(&f.font());
+    let Some(glyph) = names
+        .iter()
+        .find(|(_gid, name)| name.as_str() == glyphname)
+        .map(|(gid, _name)| gid)
+    else {
+        return Err(FontspectorError::General(format!(
+            "No glyph named '{}' in font",
+            glyphname
+        )));
+    };
+    let once = std::iter::once((codepoint, glyph));
+    let new_cmap = Cmap::from_mappings(
+        f.font()
+            .charmap()
+            .mappings()
+            .filter(|(cp, _gid)| *cp != codepoint) // Remove existing mapping if there is one
+            .chain(once)
+            .map(|(cp, gid)| (char::from_u32(cp).unwrap(), gid)),
+    )
+    .expect("Failed to create new cmap");
+    let new_bytes = FontBuilder::new()
+        .add_table(&new_cmap)
+        .unwrap()
+        .copy_missing_tables(f.font())
+        .build();
+
+    font.contents = new_bytes;
+    Ok(())
 }
