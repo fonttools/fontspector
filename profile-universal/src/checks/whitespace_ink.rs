@@ -27,12 +27,7 @@ fn whitespace_ink(t: &Testable, context: &Context) -> CheckFnResult {
         .filter(|cp| {
             (EXTRA_NON_DRAWING.contains(cp)
                 || (char::from_u32(*cp)
-                    .map(|c| {
-                        matches!(
-                            c.general_category(),
-                            GeneralCategory::SpaceSeparator | GeneralCategory::Format
-                        )
-                    })
+                    .map(|c| matches!(c.general_category(), GeneralCategory::SpaceSeparator))
                     .unwrap_or(false)))
                 && !BUT_NOT.contains(cp)
         })
@@ -60,5 +55,40 @@ fn whitespace_ink(t: &Testable, context: &Context) -> CheckFnResult {
                 bullet_list(context, inky)
             ),
         ))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use fontspector_checkapi::codetesting::{
+        assert_pass, assert_results_contain, remap_glyph, run_check, test_able,
+    };
+
+    use fontspector_checkapi::StatusCode;
+
+    use super::whitespace_ink;
+
+    #[allow(clippy::expect_used)]
+    #[test]
+    fn test_check_whitespace_ink() {
+        let testable = test_able("nunito/Nunito-Regular.ttf");
+        let results = run_check(whitespace_ink, testable);
+        assert_pass(&results);
+
+        // "because Ogham space mark does have ink."
+        let mut testable = test_able("nunito/Nunito-Regular.ttf");
+        remap_glyph(&mut testable, 0x1680, "a").expect("remap failed");
+        let results = run_check(whitespace_ink, testable);
+        assert_pass(&results);
+
+        let mut testable = test_able("nunito/Nunito-Regular.ttf");
+        remap_glyph(&mut testable, 0x0020, "uni1E17").expect("remap failed");
+        let results = run_check(whitespace_ink, testable);
+        assert_results_contain(&results, StatusCode::Fail, Some("has-ink".to_string()));
+
+        let mut testable = test_able("nunito/Nunito-Regular.ttf");
+        remap_glyph(&mut testable, 0x0020, "scedilla").expect("remap failed");
+        let results = run_check(whitespace_ink, testable);
+        assert_results_contain(&results, StatusCode::Fail, Some("has-ink".to_string()));
     }
 }
