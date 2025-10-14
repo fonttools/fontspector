@@ -5,7 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.4.1 (2025-10-14)
+
+### Chore
+
+ - <csr-id-244233ddd1a33b6279eec07324a77d3c4d14af6c/> Use gf-metadata crate for protobuf access
+   * chore: Use gf-metadata crate instead of compiling our own protos
+   
+   * chore(ci): By rights we no longer need protoc, let's see if that's true
+ - <csr-id-53fa4d31e4ac2c24d7f0a06ad18d2b8750776240/> Update reserved_font_name_exceptions.txt
+   Added Zalando Sans
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 2 commits contributed to the release over the course of 1 calendar day.
+ - 29 days passed between releases.
+ - 2 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 2 unique issues were worked on: [#317](https://github.com/fonttools/fontspector/issues/317), [#489](https://github.com/fonttools/fontspector/issues/489)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#317](https://github.com/fonttools/fontspector/issues/317)**
+    - Update reserved_font_name_exceptions.txt ([`53fa4d3`](https://github.com/fonttools/fontspector/commit/53fa4d31e4ac2c24d7f0a06ad18d2b8750776240))
+ * **[#489](https://github.com/fonttools/fontspector/issues/489)**
+    - Use gf-metadata crate for protobuf access ([`244233d`](https://github.com/fonttools/fontspector/commit/244233ddd1a33b6279eec07324a77d3c4d14af6c))
+</details>
+
 ## v1.4.0 (2025-09-15)
+
+<csr-id-90205a8089d1394f957cdf13cdcc461b73824425/>
+<csr-id-abd4d4cf426666d0dac52706a763fb01d0e85d2c/>
 
 ### New Features
 
@@ -20,8 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - <csr-id-dc046deddb76c9aec8e0cfba84fb69d3e5cf397b/> Correctl deserialize remote_styles
  - <csr-id-525b27b4f24d91acad5ad0c0c101135592698b95/> Only check for regressions if we have the font already
    * fix(googlefonts/cjk_vertical_metrics_regressions): Only check for regressions if we have the font already
-   
-   * chore(ci): apt-get update before installing
+* chore(ci): apt-get update before installing
 
 ### Other
 
@@ -56,7 +90,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 10 commits contributed to the release over the course of 66 calendar days.
+ - 11 commits contributed to the release over the course of 68 calendar days.
  - 9 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 8 unique issues were worked on: [#313](https://github.com/fonttools/fontspector/issues/313), [#325](https://github.com/fonttools/fontspector/issues/325), [#327](https://github.com/fonttools/fontspector/issues/327), [#339](https://github.com/fonttools/fontspector/issues/339), [#357](https://github.com/fonttools/fontspector/issues/357), [#394](https://github.com/fonttools/fontspector/issues/394), [#399](https://github.com/fonttools/fontspector/issues/399), [#418](https://github.com/fonttools/fontspector/issues/418)
 
@@ -83,6 +117,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  * **[#418](https://github.com/fonttools/fontspector/issues/418)**
     - Move the tests from Python to Rust ([`abd4d4c`](https://github.com/fonttools/fontspector/commit/abd4d4cf426666d0dac52706a763fb01d0e85d2c))
  * **Uncategorized**
+    - Release fontspector-checkapi v1.2.0, fontspector-profile-fontwerk v1.2.0, fontspector-profile-googlefonts v1.4.0, fontspector-profile-opentype v1.3.0, fontspector-profile-universal v1.2.0, fontspector-profile-iso15008 v1.0.4, fontspector v1.5.0 ([`de4a966`](https://github.com/fonttools/fontspector/commit/de4a966105bea222ea98da69793ddbfbdd590f9d))
     - Fontspector-checkapi v1.1.2, fontspector-fontbakery-bridge v1.2.0, fontspector-profile-fontwerk v1.1.0, fontspector-profile-googlefonts v1.3.0, fontspector-profile-opentype v1.2.1, fontspector-profile-universal v1.1.2, fontspector v1.4.0 ([`90205a8`](https://github.com/fonttools/fontspector/commit/90205a8089d1394f957cdf13cdcc461b73824425))
     - Release fontspector-fontbakery-bridge v1.1.0, fontspector-profile-googlefonts v1.2.0, fontspector v1.3.0 ([`05adc63`](https://github.com/fonttools/fontspector/commit/05adc636ddf710008076985ab8c2a03ea19a0f6c))
 </details>

@@ -5,7 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.5.1 (2025-10-14)
+
+### Bug Fixes
+
+ - <csr-id-b15cec883493376f19d280c6f24a3e2e9a742de4/> configuration file type: TOML/JSON
+   * fix(--help):  configuration file type: TOML/JSON
+   
+   * fix(--help): configuration file type: TOML/JSON
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 1 commit contributed to the release over the course of 9 calendar days.
+ - 29 days passed between releases.
+ - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
+ - 1 unique issue was worked on: [#477](https://github.com/fonttools/fontspector/issues/477)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#477](https://github.com/fonttools/fontspector/issues/477)**
+    - Configuration file type: TOML/JSON ([`b15cec8`](https://github.com/fonttools/fontspector/commit/b15cec883493376f19d280c6f24a3e2e9a742de4))
+</details>
+
 ## v1.5.0 (2025-09-15)
+
+<csr-id-0c6365a1d3383dad9d12de3984989ee5747b35cf/>
+<csr-id-90205a8089d1394f957cdf13cdcc461b73824425/>
 
 ### Chore
 
@@ -33,7 +64,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 6 commits contributed to the release over the course of 70 calendar days.
+ - 7 commits contributed to the release over the course of 72 calendar days.
  - 5 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 4 unique issues were worked on: [#314](https://github.com/fonttools/fontspector/issues/314), [#326](https://github.com/fonttools/fontspector/issues/326), [#340](https://github.com/fonttools/fontspector/issues/340), [#371](https://github.com/fonttools/fontspector/issues/371)
 
@@ -52,6 +83,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  * **[#371](https://github.com/fonttools/fontspector/issues/371)**
     - Get working again ([`0c6365a`](https://github.com/fonttools/fontspector/commit/0c6365a1d3383dad9d12de3984989ee5747b35cf))
  * **Uncategorized**
+    - Release fontspector-checkapi v1.2.0, fontspector-profile-fontwerk v1.2.0, fontspector-profile-googlefonts v1.4.0, fontspector-profile-opentype v1.3.0, fontspector-profile-universal v1.2.0, fontspector-profile-iso15008 v1.0.4, fontspector v1.5.0 ([`de4a966`](https://github.com/fonttools/fontspector/commit/de4a966105bea222ea98da69793ddbfbdd590f9d))
     - Fontspector-checkapi v1.1.2, fontspector-fontbakery-bridge v1.2.0, fontspector-profile-fontwerk v1.1.0, fontspector-profile-googlefonts v1.3.0, fontspector-profile-opentype v1.2.1, fontspector-profile-universal v1.1.2, fontspector v1.4.0 ([`90205a8`](https://github.com/fonttools/fontspector/commit/90205a8089d1394f957cdf13cdcc461b73824425))
     - Release fontspector-fontbakery-bridge v1.1.0, fontspector-profile-googlefonts v1.2.0, fontspector v1.3.0 ([`05adc63`](https://github.com/fonttools/fontspector/commit/05adc636ddf710008076985ab8c2a03ea19a0f6c))
 </details>

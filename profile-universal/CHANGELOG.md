@@ -5,7 +5,82 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.3.0 (2025-10-14)
+
+### New Features
+
+ - <csr-id-008b6fa8eab5ed5e9bb9cff5a6d4e51f822ce0be/> Adding new check
+   * feat(family/uniqueness_first_31_characters): Adding new check (#472)
+   
+   * fix: some typos
+   
+   * fix: some formatting and panic issues
+   
+   * refactor: moving get_name_entry_string and get_name_pel_codes to font.rs
+   
+   * refactor: rename get_name_pel_codes -> get_name_platform_tuples
+   
+   * refactor: get_name_platform_tuples (return set, not sorted list)
+   
+   * refactor: remove redundant first_31_char_collection.contains_key
+   
+   * refactor: add struct PlatformSelector
+   
+   * refactor(family_uniqueness_first_31_characters): unittest
+
+### Bug Fixes
+
+ - <csr-id-a059bae9570e98cffe2f6596edb752feba568731/> Fix typo in codepoint
+   * fix(arabic_high_hamza): Typo in high hamza codepoint
+   
+   * test(arabic_high_hamza): Add tests
+ - <csr-id-7a7f2a6fe346597071b8099a481023b24afa094d/> Don't check for whitespace ink in format characters
+   * fix(whitespace_ink): Don't check for whitespace ink in format characters
+   
+   * chore: Update Cargo.lock
+ - <csr-id-523021c7fbf321d5f3b715955f1f59ea81b8749f/> We can now dehint glyf tables
+   * fix(hinting_impact): We can now dehint glyf tables
+   
+   * chore: Change Rust CI workflow
+
+### Test
+
+ - <csr-id-56e2f3f9167f15b2cb8cba8377403b8472514a7c/> Allow testing of collections
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 5 commits contributed to the release over the course of 15 calendar days.
+ - 29 days passed between releases.
+ - 5 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 6 unique issues were worked on: [#471](https://github.com/fonttools/fontspector/issues/471), [#472](https://github.com/fonttools/fontspector/issues/472), [#473](https://github.com/fonttools/fontspector/issues/473), [#478](https://github.com/fonttools/fontspector/issues/478), [#486](https://github.com/fonttools/fontspector/issues/486), [#494](https://github.com/fonttools/fontspector/issues/494)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#471](https://github.com/fonttools/fontspector/issues/471)**
+    - We can now dehint glyf tables ([`523021c`](https://github.com/fonttools/fontspector/commit/523021c7fbf321d5f3b715955f1f59ea81b8749f))
+ * **[#472](https://github.com/fonttools/fontspector/issues/472)**
+    - Adding new check ([`008b6fa`](https://github.com/fonttools/fontspector/commit/008b6fa8eab5ed5e9bb9cff5a6d4e51f822ce0be))
+ * **[#473](https://github.com/fonttools/fontspector/issues/473)**
+    - Adding new check ([`008b6fa`](https://github.com/fonttools/fontspector/commit/008b6fa8eab5ed5e9bb9cff5a6d4e51f822ce0be))
+ * **[#478](https://github.com/fonttools/fontspector/issues/478)**
+    - Allow testing of collections ([`56e2f3f`](https://github.com/fonttools/fontspector/commit/56e2f3f9167f15b2cb8cba8377403b8472514a7c))
+ * **[#486](https://github.com/fonttools/fontspector/issues/486)**
+    - Don't check for whitespace ink in format characters ([`7a7f2a6`](https://github.com/fonttools/fontspector/commit/7a7f2a6fe346597071b8099a481023b24afa094d))
+ * **[#494](https://github.com/fonttools/fontspector/issues/494)**
+    - Fix typo in codepoint ([`a059bae`](https://github.com/fonttools/fontspector/commit/a059bae9570e98cffe2f6596edb752feba568731))
+</details>
+
 ## v1.2.0 (2025-09-15)
+
+<csr-id-0c6365a1d3383dad9d12de3984989ee5747b35cf/>
+<csr-id-90205a8089d1394f957cdf13cdcc461b73824425/>
+<csr-id-abd4d4cf426666d0dac52706a763fb01d0e85d2c/>
 
 ### Chore
 
@@ -18,24 +93,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New Features
 
+<csr-id-fe2405db54f4da13ae03673150e91163f4f6d889/>
+<csr-id-74f8cf3206b0b74227b9e22a5f0071a016ad9973/>
+
  - <csr-id-36399a0f334f5348bf7c5dc951c3d03fb1fe0afe/> New check
  - <csr-id-6726d1fc9f61577ad6020127b0135146abfe507b/> colr_glyph_entry_with_no_layers
    * test: Add testdata –> color font with glyph entry within the COLR table with no layers (modified with ttx)
-   
-   * Update .gitignore
-   
-   * feat: colr_glyph_entry_with_no_layers
-   
-   * refactor: remove comment
-   
-   * refactor: run cargo fmt
-   
-   * fix: this `if let` can be collapsed into the outer `if let`
- - <csr-id-fe2405db54f4da13ae03673150e91163f4f6d889/> New check
- - <csr-id-74f8cf3206b0b74227b9e22a5f0071a016ad9973/> New check
-   * feat(opentype/field_values): New check
-   
-   * chore: improve fvar serialization
+* Update .gitignore
+* feat: colr_glyph_entry_with_no_layers
+* refactor: remove comment
+* refactor: run cargo fmt
+* fix: this `if let` can be collapsed into the outer `if let`
+* feat(opentype/field_values): New check
+* chore: improve fvar serialization
 
 ### Bug Fixes
 
@@ -76,7 +146,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 10 commits contributed to the release over the course of 57 calendar days.
+ - 11 commits contributed to the release over the course of 59 calendar days.
  - 10 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 9 unique issues were worked on: [#348](https://github.com/fonttools/fontspector/issues/348), [#349](https://github.com/fonttools/fontspector/issues/349), [#357](https://github.com/fonttools/fontspector/issues/357), [#371](https://github.com/fonttools/fontspector/issues/371), [#405](https://github.com/fonttools/fontspector/issues/405), [#407](https://github.com/fonttools/fontspector/issues/407), [#409](https://github.com/fonttools/fontspector/issues/409), [#417](https://github.com/fonttools/fontspector/issues/417), [#418](https://github.com/fonttools/fontspector/issues/418)
 
@@ -105,8 +175,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  * **[#418](https://github.com/fonttools/fontspector/issues/418)**
     - Move the tests from Python to Rust ([`abd4d4c`](https://github.com/fonttools/fontspector/commit/abd4d4cf426666d0dac52706a763fb01d0e85d2c))
  * **Uncategorized**
+    - Release fontspector-checkapi v1.2.0, fontspector-profile-fontwerk v1.2.0, fontspector-profile-googlefonts v1.4.0, fontspector-profile-opentype v1.3.0, fontspector-profile-universal v1.2.0, fontspector-profile-iso15008 v1.0.4, fontspector v1.5.0 ([`de4a966`](https://github.com/fonttools/fontspector/commit/de4a966105bea222ea98da69793ddbfbdd590f9d))
     - Fontspector-checkapi v1.1.2, fontspector-fontbakery-bridge v1.2.0, fontspector-profile-fontwerk v1.1.0, fontspector-profile-googlefonts v1.3.0, fontspector-profile-opentype v1.2.1, fontspector-profile-universal v1.1.2, fontspector v1.4.0 ([`90205a8`](https://github.com/fonttools/fontspector/commit/90205a8089d1394f957cdf13cdcc461b73824425))
 </details>
+
+<csr-unknown>
+ New check New check<csr-unknown/>
 
 ## v1.1.2 (2025-08-11)
 

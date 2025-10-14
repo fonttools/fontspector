@@ -5,7 +5,70 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.3.0 (2025-10-14)
+
+### New Features
+
+ - <csr-id-008b6fa8eab5ed5e9bb9cff5a6d4e51f822ce0be/> Adding new check
+   * feat(family/uniqueness_first_31_characters): Adding new check (#472)
+   
+   * fix: some typos
+   
+   * fix: some formatting and panic issues
+   
+   * refactor: moving get_name_entry_string and get_name_pel_codes to font.rs
+   
+   * refactor: rename get_name_pel_codes -> get_name_platform_tuples
+   
+   * refactor: get_name_platform_tuples (return set, not sorted list)
+   
+   * refactor: remove redundant first_31_char_collection.contains_key
+   
+   * refactor: add struct PlatformSelector
+   
+   * refactor(family_uniqueness_first_31_characters): unittest
+
+### Bug Fixes
+
+ - <csr-id-7a7f2a6fe346597071b8099a481023b24afa094d/> Don't check for whitespace ink in format characters
+   * fix(whitespace_ink): Don't check for whitespace ink in format characters
+   
+   * chore: Update Cargo.lock
+
+### Test
+
+ - <csr-id-56e2f3f9167f15b2cb8cba8377403b8472514a7c/> Allow testing of collections
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 3 commits contributed to the release over the course of 8 calendar days.
+ - 29 days passed between releases.
+ - 3 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 4 unique issues were worked on: [#472](https://github.com/fonttools/fontspector/issues/472), [#473](https://github.com/fonttools/fontspector/issues/473), [#478](https://github.com/fonttools/fontspector/issues/478), [#486](https://github.com/fonttools/fontspector/issues/486)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#472](https://github.com/fonttools/fontspector/issues/472)**
+    - Adding new check ([`008b6fa`](https://github.com/fonttools/fontspector/commit/008b6fa8eab5ed5e9bb9cff5a6d4e51f822ce0be))
+ * **[#473](https://github.com/fonttools/fontspector/issues/473)**
+    - Adding new check ([`008b6fa`](https://github.com/fonttools/fontspector/commit/008b6fa8eab5ed5e9bb9cff5a6d4e51f822ce0be))
+ * **[#478](https://github.com/fonttools/fontspector/issues/478)**
+    - Allow testing of collections ([`56e2f3f`](https://github.com/fonttools/fontspector/commit/56e2f3f9167f15b2cb8cba8377403b8472514a7c))
+ * **[#486](https://github.com/fonttools/fontspector/issues/486)**
+    - Don't check for whitespace ink in format characters ([`7a7f2a6`](https://github.com/fonttools/fontspector/commit/7a7f2a6fe346597071b8099a481023b24afa094d))
+</details>
+
 ## v1.2.0 (2025-09-15)
+
+<csr-id-0c6365a1d3383dad9d12de3984989ee5747b35cf/>
+<csr-id-90205a8089d1394f957cdf13cdcc461b73824425/>
+<csr-id-abd4d4cf426666d0dac52706a763fb01d0e85d2c/>
 
 ### Chore
 
@@ -20,8 +83,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
  - <csr-id-dacd8d5d49e1c85774957133df73fa5112351bda/> Add per-font inclusions and exclusions
    * feat(cli): Add per-font inclusions and exclusions
-   
-   * docs: Start a 'using' doc
+* docs: Start a 'using' doc
 
 ### Bug Fixes
 
@@ -60,7 +122,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 5 commits contributed to the release over the course of 35 calendar days.
+ - 6 commits contributed to the release over the course of 37 calendar days.
  - 5 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 4 unique issues were worked on: [#371](https://github.com/fonttools/fontspector/issues/371), [#399](https://github.com/fonttools/fontspector/issues/399), [#403](https://github.com/fonttools/fontspector/issues/403), [#418](https://github.com/fonttools/fontspector/issues/418)
 
@@ -79,6 +141,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  * **[#418](https://github.com/fonttools/fontspector/issues/418)**
     - Move the tests from Python to Rust ([`abd4d4c`](https://github.com/fonttools/fontspector/commit/abd4d4cf426666d0dac52706a763fb01d0e85d2c))
  * **Uncategorized**
+    - Release fontspector-checkapi v1.2.0, fontspector-profile-fontwerk v1.2.0, fontspector-profile-googlefonts v1.4.0, fontspector-profile-opentype v1.3.0, fontspector-profile-universal v1.2.0, fontspector-profile-iso15008 v1.0.4, fontspector v1.5.0 ([`de4a966`](https://github.com/fonttools/fontspector/commit/de4a966105bea222ea98da69793ddbfbdd590f9d))
     - Fontspector-checkapi v1.1.2, fontspector-fontbakery-bridge v1.2.0, fontspector-profile-fontwerk v1.1.0, fontspector-profile-googlefonts v1.3.0, fontspector-profile-opentype v1.2.1, fontspector-profile-universal v1.1.2, fontspector v1.4.0 ([`90205a8`](https://github.com/fonttools/fontspector/commit/90205a8089d1394f957cdf13cdcc461b73824425))
 </details>
 
