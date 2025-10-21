@@ -130,12 +130,13 @@ which is reported with the result. For example, when the
 `mandatory_glyphs` check reports that the `.notdef`
 glyph does not contain any outlines, it reports the message ID `empty` and
 a `WARN` status. To replace this status and have it return a `FAIL` instead,
-place this in the configuration file (if you are using YAML format):
+place this in the configuration file (if you are using the TOML format):
 
-```
-overrides:
-  mandatory_glyphs:
-    empty: FAIL
+```toml
+[[overrides]]
+code = "empty"
+status = "FAIL"
+reason = "Because I think this would be really bad, actually"
 ```
 
 ## Providing options to checks
