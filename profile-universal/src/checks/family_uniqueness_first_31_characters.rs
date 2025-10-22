@@ -48,15 +48,13 @@ fn family_uniqueness_first_31_characters(
                 if let Some(name_string) = get_name_entry_string(&font.font(), selector, *name_id) {
                     full_name.push_str(&name_string.to_string());
                     full_name.push(' ');
-                } else {
-                    if *name_id == StringId::TYPOGRAPHIC_FAMILY_NAME {
-                        has_name_id_16 = false;
-                    } else if *name_id == StringId::TYPOGRAPHIC_SUBFAMILY_NAME {
-                        has_name_id_17 = false;
-                    }
+                } else if *name_id == StringId::TYPOGRAPHIC_FAMILY_NAME {
+                    has_name_id_16 = false;
+                } else if *name_id == StringId::TYPOGRAPHIC_SUBFAMILY_NAME {
+                    has_name_id_17 = false;
                 }
             }
-            if (has_name_id_16 == false) && (has_name_id_17 == false) {
+            if !has_name_id_16 && !has_name_id_17 {
                 // skip if both name IDs are missing
                 continue;
             }
