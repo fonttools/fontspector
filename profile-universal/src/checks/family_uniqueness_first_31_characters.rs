@@ -37,6 +37,8 @@ fn family_uniqueness_first_31_characters(
                 StringId::TYPOGRAPHIC_FAMILY_NAME,
                 StringId::TYPOGRAPHIC_SUBFAMILY_NAME,
             ];
+            let mut has_name_id_16 = true;
+            let mut has_name_id_17 = true;
             for name_id in id_pair.iter() {
                 let selector = PlatformSelector {
                     platform_id: platform_tuple.0,
@@ -46,8 +48,19 @@ fn family_uniqueness_first_31_characters(
                 if let Some(name_string) = get_name_entry_string(&font.font(), selector, *name_id) {
                     full_name.push_str(&name_string.to_string());
                     full_name.push(' ');
+                } else {
+                    if *name_id == StringId::TYPOGRAPHIC_FAMILY_NAME {
+                        has_name_id_16 = false;
+                    } else if *name_id == StringId::TYPOGRAPHIC_SUBFAMILY_NAME {
+                        has_name_id_17 = false;
+                    }
                 }
             }
+            if (has_name_id_16 == false) && (has_name_id_17 == false) {
+                // skip if both name IDs are missing
+                continue;
+            }
+
             let first_31_char = full_name.chars().take(31).collect::<String>();
             if let Some(existing) = first_31_char_collection.get(&platform_tuple) {
                 if existing.contains(&first_31_char) {
