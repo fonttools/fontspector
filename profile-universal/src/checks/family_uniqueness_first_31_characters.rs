@@ -97,6 +97,7 @@ mod tests {
 
     use fontspector_checkapi::codetesting::{
         assert_messages_contain, assert_pass, assert_results_contain, run_check_with_config,
+        test_able,
     };
 
     #[test]
@@ -171,5 +172,22 @@ mod tests {
             assert_messages_contain(&results, expected_message.as_deref().unwrap_or(""));
         }
         assert_results_contain(&results, expected_severity, expected_code);
+    }
+
+    #[test]
+    fn test_family_uniqueness_first_31_characters_mada() {
+        let testable_reg = test_able("mada/Mada-Regular.ttf");
+        let testable_bold = test_able("mada/Mada-Bold.ttf");
+        let testables: Vec<Testable> = vec![testable_reg, testable_bold];
+        let collection = TestableCollection {
+            testables,
+            directory: "".to_string(),
+        };
+        let results = run_check_with_config(
+            family_uniqueness_first_31_characters,
+            TestableType::Collection(&collection),
+            HashMap::new(),
+        );
+        assert_results_contain(&results, StatusCode::Pass, None);
     }
 }
