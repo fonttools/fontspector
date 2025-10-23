@@ -37,6 +37,8 @@ fn family_uniqueness_first_31_characters(
                 StringId::TYPOGRAPHIC_FAMILY_NAME,
                 StringId::TYPOGRAPHIC_SUBFAMILY_NAME,
             ];
+            let mut has_name_id_16 = true;
+            let mut has_name_id_17 = true;
             for name_id in id_pair.iter() {
                 let selector = PlatformSelector {
                     platform_id: platform_tuple.0,
@@ -46,8 +48,17 @@ fn family_uniqueness_first_31_characters(
                 if let Some(name_string) = get_name_entry_string(&font.font(), selector, *name_id) {
                     full_name.push_str(&name_string.to_string());
                     full_name.push(' ');
+                } else if *name_id == StringId::TYPOGRAPHIC_FAMILY_NAME {
+                    has_name_id_16 = false;
+                } else if *name_id == StringId::TYPOGRAPHIC_SUBFAMILY_NAME {
+                    has_name_id_17 = false;
                 }
             }
+            if !has_name_id_16 && !has_name_id_17 {
+                // skip if both name IDs are missing
+                continue;
+            }
+
             let first_31_char = full_name.chars().take(31).collect::<String>();
             if let Some(existing) = first_31_char_collection.get(&platform_tuple) {
                 if existing.contains(&first_31_char) {
@@ -97,6 +108,7 @@ mod tests {
 
     use fontspector_checkapi::codetesting::{
         assert_messages_contain, assert_pass, assert_results_contain, run_check_with_config,
+        test_able,
     };
 
     #[test]
@@ -171,5 +183,22 @@ mod tests {
             assert_messages_contain(&results, expected_message.as_deref().unwrap_or(""));
         }
         assert_results_contain(&results, expected_severity, expected_code);
+    }
+
+    #[test]
+    fn test_family_uniqueness_first_31_characters_mada() {
+        let testable_reg = test_able("mada/Mada-Regular.ttf");
+        let testable_bold = test_able("mada/Mada-Bold.ttf");
+        let testables: Vec<Testable> = vec![testable_reg, testable_bold];
+        let collection = TestableCollection {
+            testables,
+            directory: "".to_string(),
+        };
+        let results = run_check_with_config(
+            family_uniqueness_first_31_characters,
+            TestableType::Collection(&collection),
+            HashMap::new(),
+        );
+        assert_results_contain(&results, StatusCode::Pass, None);
     }
 }
