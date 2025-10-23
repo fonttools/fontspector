@@ -2,7 +2,9 @@ use fontations::{
     read::{tables::os2::SelectionFlags, TableProvider},
     write::from_obj::ToOwnedTable,
 };
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
+use fontspector_checkapi::{
+    prelude::*, skip, source::find_or_add_cp, testfont, FileTypeConvert, Source, SourceFile,
+};
 
 #[check(
     id = "googlefonts/use_typo_metrics",
@@ -28,6 +30,7 @@ use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
     proposal = "https://github.com/fonttools/fontbakery/issues/3241",
     title = "OS/2.fsSelection bit 7 (USE_TYPO_METRICS) is set in all fonts.",
     hotfix = fix_use_typo_metrics,
+    fix_source = sourcefix_use_typo_metrics,
 )]
 fn use_typo_metrics(t: &Testable, context: &Context) -> CheckFnResult {
     let f = testfont!(t);
@@ -55,4 +58,37 @@ fn fix_use_typo_metrics(t: &mut Testable) -> FixFnResult {
     os2.fs_selection |= SelectionFlags::USE_TYPO_METRICS;
     t.set(f.rebuild_with_new_table(&os2)?);
     Ok(true)
+}
+
+fn sourcefix_use_typo_metrics(s: &mut SourceFile) -> FixFnResult {
+    fn fix_a_ufo(font: &mut norad::Font) -> FixFnResult {
+        if let Some(selection) = font.font_info.open_type_os2_selection.as_mut() {
+            if !selection.contains(&7) {
+                log::info!("Adding OS/2.fsSelection bit 7 (USE_TYPO_METRICS) to UFO font.");
+                selection.push(7);
+                Ok(true)
+            } else {
+                Ok(false)
+            }
+        } else {
+            log::info!("Setting OS/2.fsSelection bit 7 (USE_TYPO_METRICS) in UFO font.");
+            font.font_info.open_type_os2_selection = Some(vec![7]);
+            Ok(true)
+        }
+    }
+    fn fix_custom_parameters(cps: &mut Vec<glyphslib::common::CustomParameter>) -> FixFnResult {
+        find_or_add_cp(cps, "Use Typo Metrics", glyphslib::Plist::Integer(1))
+    }
+    match s.source {
+        Source::Ufo(ref mut font) => fix_a_ufo(font),
+        Source::Designspace(ref mut ds) => ds.apply_fix(&fix_a_ufo),
+        Source::Glyphs(ref mut font) => match &mut **font {
+            glyphslib::Font::Glyphs2(glyphs2) => {
+                fix_custom_parameters(&mut glyphs2.custom_parameters)
+            }
+            glyphslib::Font::Glyphs3(glyphs3) => {
+                fix_custom_parameters(&mut glyphs3.custom_parameters)
+            }
+        },
+    }
 }

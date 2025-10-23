@@ -59,7 +59,7 @@ impl Reporter for TerminalReporter {
                     }
 
                     if self.succinct {
-                        let _ = writeln!(
+                        let _ = write!(
                             std::io::stdout(),
                             "{:}: {:} {:} [{}]",
                             Path::new(filename)
@@ -73,6 +73,13 @@ impl Reporter for TerminalReporter {
                                 .map(|r| colored_status(r.severity, r.code.as_deref()))
                                 .join(" ")
                         );
+                        if result.hotfix_result == Some(FixResult::Fixed) {
+                            termimad::print_inline(" [hotfixed]");
+                        }
+                        if result.sourcefix_result == Some(FixResult::Fixed) {
+                            termimad::print_inline(" [source fixed]");
+                        }
+                        let _ = writeln!(std::io::stdout());
                         continue;
                     }
 
