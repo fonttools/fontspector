@@ -262,10 +262,28 @@ mod tests {
             test_able("shantell/ShantellSans[BNCE,INFM,SPAC,wght].ttf"),
             test_able("shantell/ShantellSans-Italic[BNCE,INFM,SPAC,wght].ttf"),
         ];
+    #![allow(clippy::unwrap_used)]
+
+    use super::*;
+    use fontspector_checkapi::StatusCode;
+    use fontspector_checkapi::{Testable, TestableType};
+
+    use fontspector_checkapi::codetesting::{
+        assert_results_contain, run_check_with_config,
+        test_able,
+    };
+    use std::{collections::HashMap};
+
+    #[test]
+    fn test_ital_axis_static_fonts() {
+        let testable_reg = test_able("notosans/NotoSans-Black.ttf");
+        let testable_bold = test_able("notosans/NotoSans-BlackItalic.ttf");
+        let testables: Vec<Testable> = vec![testable_reg, testable_bold];
         let collection = TestableCollection {
             testables,
             directory: "".to_string(),
         };
+
         let result = run_check_with_config(
             super::ital_axis,
             TestableType::Collection(&collection),
