@@ -45,6 +45,12 @@ fn weightclass(t: &Testable, _context: &Context) -> CheckFnResult {
     let style_name_parts = style_name.split(' ').collect::<Vec<_>>();
     let expected_weight_names = get_expected_weight_name(value);
 
+    if value == 400 && style_name == "Italic" {
+        // Special case: Italic style with Regular weight class is acceptable,
+        // even though it doesn't explicitly contain "Regular" in the style name.
+        return Ok(Status::just_one_pass());
+    }
+
     if let Some(expected_names) = expected_weight_names {
         for weight_name in expected_names {
             if style_name_parts.contains(weight_name) {
