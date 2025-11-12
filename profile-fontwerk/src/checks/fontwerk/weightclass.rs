@@ -109,6 +109,7 @@ mod tests {
             (1000, "Black", Some("For OS/2 usWeightClass 1000 we expect [\"XBlack\", \"ExtraBlack\"], but got 'Black'. Either usWeightClass is wrong or style name. Please investigate.".to_string())),
             (950, "XBlack", None),
             (1000, "XBlack", None),
+            (400, "Italic", None),
             ];
         for (weight_class_value, style_name, expected_result) in weight_tests {
             let mut font_builder = FontBuilder::new();
