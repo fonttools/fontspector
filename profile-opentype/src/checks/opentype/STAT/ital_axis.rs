@@ -264,9 +264,9 @@ mod tests {
 
     #[test]
     fn test_ital_axis_skip_static_fonts() {
-        let testable_reg = test_able("notosans/NotoSans-Black.ttf");
-        let testable_bold = test_able("notosans/NotoSans-BlackItalic.ttf");
-        let testables: Vec<Testable> = vec![testable_reg, testable_bold];
+        let testable_1 = test_able("notosans/NotoSans-Black.ttf");
+        let testable_2 = test_able("notosans/NotoSans-BlackItalic.ttf");
+        let testables: Vec<Testable> = vec![testable_1, testable_2];
         let collection = TestableCollection {
             testables,
             directory: "".to_string(),
