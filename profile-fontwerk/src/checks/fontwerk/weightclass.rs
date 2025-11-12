@@ -7,6 +7,7 @@ fn get_expected_weight_name(weight_class: u16) -> Option<&'static [&'static str]
         100 => Some(&["Thin"]),
         200 => Some(&["XLight", "ExtraLight"]),
         300 => Some(&["Light"]),
+        350 => Some(&["SemiLight"]),
         400 => Some(&["Regular"]),
         500 => Some(&["Medium"]),
         600 => Some(&["SemiBold"]),
@@ -116,6 +117,8 @@ mod tests {
             (950, "XBlack", None),
             (1000, "XBlack", None),
             (400, "Italic", None),
+            (350, "SemiLight", None),
+            (350, "SemiLight Italic", None),
             ];
         for (weight_class_value, style_name, expected_result) in weight_tests {
             let mut font_builder = FontBuilder::new();
