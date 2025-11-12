@@ -223,6 +223,7 @@ fn ital_axis(c: &TestableCollection, _context: &Context) -> CheckFnResult {
         "no-variable-fonts",
         "No variable fonts in the collection"
     );
+
     let mut problems = vec![];
 
     for pair in segment_vf_collection(fonts).into_iter() {
@@ -269,13 +270,12 @@ mod tests {
     use fontspector_checkapi::{Testable, TestableType};
 
     use fontspector_checkapi::codetesting::{
-        assert_results_contain, run_check_with_config,
-        test_able,
+        assert_results_contain, run_check_with_config, test_able,
     };
-    use std::{collections::HashMap};
+    use std::collections::HashMap;
 
     #[test]
-    fn test_ital_axis_static_fonts() {
+    fn test_ital_axis_skip_static_fonts() {
         let testable_reg = test_able("notosans/NotoSans-Black.ttf");
         let testable_bold = test_able("notosans/NotoSans-BlackItalic.ttf");
         let testables: Vec<Testable> = vec![testable_reg, testable_bold];
@@ -289,7 +289,7 @@ mod tests {
             TestableType::Collection(&collection),
             HashMap::new(),
         );
-        assert_pass(&result);
+        assert_results_contain(&results, StatusCode::Skip, Some("no-variable-fonts".to_string()));
     }
 
     #[test]
