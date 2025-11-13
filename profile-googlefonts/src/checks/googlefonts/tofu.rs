@@ -45,7 +45,7 @@ impl OurLang<'_> {
             .as_ref()
             .map_or(HashSet::new(), |e| parse_chars(e.base()));
         let samples = lang.sample_text.as_ref().map_or(vec![], |s| {
-            vec![
+            [
                 ("masthead full", s.masthead_full().to_string()),
                 ("masthead partial", s.masthead_partial().to_string()),
                 ("poster lg", s.poster_lg().to_string()),
