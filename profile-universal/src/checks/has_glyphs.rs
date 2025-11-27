@@ -50,17 +50,21 @@ fn has_glyphs(t: &Testable, context: &Context) -> CheckFnResult {
         .iter()
         .map(|(_, glyphname)| glyphname.to_string())
         .collect::<HashSet<String>>();
+    let mut missing = vec![];
     if let Some(config_for_this_font) = font_config.as_array() {
         let mut problems = vec![];
         for glyph in config_for_this_font {
             if let Some(glyph) = glyph.as_str() {
                 if !glyphnames.contains(glyph) {
-                    problems.push(Status::fail(
-                        "missing-glyph",
-                        &format!("Font is missing required glyph {}", glyph),
-                    ));
+                    missing.push(glyph.to_string());
                 }
             }
+        }
+        if !missing.is_empty() {
+            problems.push(Status::fail(
+                "missing-glyphs",
+                &format!("Font is missing required glyphs: {}", missing.join(", ")),
+            ));
         }
         return_result(problems)
     } else {
