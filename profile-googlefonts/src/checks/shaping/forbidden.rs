@@ -3,9 +3,9 @@ use super::{
     ShapingCheck,
 };
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use harfrust::{GlyphBuffer, Shaper};
 use hashbrown::HashSet;
 use itertools::Itertools;
-use rustybuzz::{Face, GlyphBuffer};
 
 #[check(
     id = "shaping/forbidden",
@@ -48,11 +48,11 @@ fn forbidden(t: &Testable, context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
-fn serialize(buffer: &GlyphBuffer, face: &Face) -> String {
-    let flags = rustybuzz::SerializeFlags::NO_POSITIONS
-        | rustybuzz::SerializeFlags::NO_ADVANCES
-        | rustybuzz::SerializeFlags::NO_CLUSTERS;
-    buffer.serialize(face, flags)
+fn serialize(buffer: &GlyphBuffer, shaper: &Shaper) -> String {
+    let flags = harfrust::SerializeFlags::NO_POSITIONS
+        | harfrust::SerializeFlags::NO_ADVANCES
+        | harfrust::SerializeFlags::NO_CLUSTERS;
+    buffer.serialize(shaper, flags)
 }
 
 struct ForbiddenTest;
@@ -63,9 +63,9 @@ impl ShapingCheck for ForbiddenTest {
         _test: &ShapingTest,
         configuration: &ShapingConfig,
         buffer: &GlyphBuffer,
-        face: &Face,
+        shaper: &Shaper,
     ) -> Option<String> {
-        let serialized = serialize(buffer, face);
+        let serialized = serialize(buffer, shaper);
         let glyphs: HashSet<&str> = serialized.split('|').collect();
         let forbidden_glyphs: HashSet<&str> = configuration
             .forbidden_glyphs
