@@ -2,7 +2,7 @@ use fontations::skrifa::MetadataProvider;
 use fontspector_checkapi::{
     pens::BezGlyph, prelude::*, skip, testfont, FileTypeConvert, DEFAULT_LOCATION,
 };
-use rustybuzz::{Face, UnicodeBuffer};
+use harfrust::UnicodeBuffer;
 use unicode_canonical_combining_class::{get_canonical_combining_class, CanonicalCombiningClass};
 use yeslogic_unicode_blocks::{
     COMBINING_DIACRITICAL_MARKS, COMBINING_DIACRITICAL_MARKS_EXTENDED,
@@ -115,13 +115,15 @@ fn soft_dotted(t: &Testable, context: &Context) -> CheckFnResult {
         );
     }
 
-    let face = Face::from_slice(&t.contents, 0).ok_or(FontspectorError::Shaping(
-        "Failed to load font file".to_string(),
-    ))?;
-    let plan = rustybuzz::ShapePlan::new(
-        &face,
-        rustybuzz::Direction::LeftToRight,
-        Some(rustybuzz::script::LATIN),
+    let face = harfrust::FontRef::new(&t.contents)
+        .map_err(|e| FontspectorError::Shaping(format!("Failed to load font file: {e}")))?;
+    let shaper_data = harfrust::ShaperData::new(&face);
+    let shaper_builder = shaper_data.shaper(&face);
+    let shaper = shaper_builder.build();
+    let plan = harfrust::ShapePlan::new(
+        &shaper,
+        harfrust::Direction::LeftToRight,
+        Some(harfrust::script::LATIN),
         None,
         &[],
     );
@@ -153,7 +155,7 @@ fn soft_dotted(t: &Testable, context: &Context) -> CheckFnResult {
                     (
                         format!("{soft}{above}"),
                         format!(
-                            "{}|{}",
+                            "[{}|{}]",
                             f.font().charmap().map(soft).unwrap_or_default().to_u32(),
                             f.font().charmap().map(above).unwrap_or_default().to_u32()
                         ),
@@ -161,12 +163,14 @@ fn soft_dotted(t: &Testable, context: &Context) -> CheckFnResult {
                 };
                 let mut buffer = UnicodeBuffer::new();
                 buffer.push_str(&text);
-                let buffer = rustybuzz::shape_with_plan(&face, &plan, buffer);
-                let flags = rustybuzz::SerializeFlags::NO_POSITIONS
-                    | rustybuzz::SerializeFlags::NO_ADVANCES
-                    | rustybuzz::SerializeFlags::NO_CLUSTERS
-                    | rustybuzz::SerializeFlags::NO_GLYPH_NAMES;
-                let output = buffer.serialize(&face, flags);
+                buffer.set_direction(harfrust::Direction::LeftToRight);
+                buffer.set_script(harfrust::script::LATIN);
+                let buffer = shaper.shape_with_plan(&plan, buffer, &[]);
+                let flags = harfrust::SerializeFlags::NO_POSITIONS
+                    | harfrust::SerializeFlags::NO_ADVANCES
+                    | harfrust::SerializeFlags::NO_CLUSTERS
+                    | harfrust::SerializeFlags::NO_GLYPH_NAMES;
+                let output = buffer.serialize(&shaper, flags);
                 if output == unchanged {
                     if ORTHO_SOFT_DOTTED_STRINGS.contains(&text.as_str()) {
                         fail_unchanged_strings.push(text);

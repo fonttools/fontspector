@@ -7,7 +7,7 @@ use fontspector_checkapi::{Context, FontspectorError, Testable};
 pub use forbidden::forbidden;
 pub use regression::regression;
 
-use rustybuzz::{ttf_parser, Face, GlyphBuffer, UnicodeBuffer};
+use harfrust::{GlyphBuffer, Shaper, ShaperData, UnicodeBuffer};
 use schema::{ShapingConfig, ShapingInput, ShapingOptions, ShapingTest};
 
 pub(crate) struct FailedCheck {
@@ -16,27 +16,28 @@ pub(crate) struct FailedCheck {
 }
 
 pub(crate) fn create_buffer_and_run(
-    face: &mut Face,
+    shaper: &harfrust::Shaper,
     input: &str,
     options: &ShapingOptions,
 ) -> Result<GlyphBuffer, FontspectorError> {
     let mut buffer = UnicodeBuffer::new();
     buffer.push_str(input);
+    buffer.guess_segment_properties();
     if let Some(script) = options.script.as_deref() {
         buffer.set_script(
-            rustybuzz::Script::from_str(script)
+            harfrust::Script::from_str(script)
                 .map_err(|e| FontspectorError::Shaping(format!("Bad 'script' argument {e}")))?,
         );
     }
     if let Some(language) = options.language.as_deref() {
         buffer.set_language(
-            rustybuzz::Language::from_str(language)
+            harfrust::Language::from_str(language)
                 .map_err(|e| FontspectorError::Shaping(format!("Bad 'language' argument {e}")))?,
         );
     }
     if let Some(direction) = options.direction.as_deref() {
         buffer.set_direction(
-            rustybuzz::Direction::from_str(direction)
+            harfrust::Direction::from_str(direction)
                 .map_err(|e| FontspectorError::Shaping(format!("Bad 'direction' argument {e}")))?,
         );
     }
@@ -46,27 +47,13 @@ pub(crate) fn create_buffer_and_run(
         .unwrap_or_default()
         .iter()
         .map(|(tag, value)| {
-            rustybuzz::Feature::new(
-                ttf_parser::Tag::from_bytes_lossy(tag.as_bytes()),
-                *value as u32,
-                ..,
-            )
+            harfrust::Tag::new_checked(tag.as_bytes())
+                .map(|tag| harfrust::Feature::new(tag, *value as u32, ..))
         })
-        .collect::<Vec<_>>();
-    if let Some(ref variations) = options.variations {
-        let rb_variations: Vec<_> = variations
-            .iter()
-            .map(|(tag, value)| rustybuzz::Variation {
-                tag: ttf_parser::Tag::from_bytes_lossy(tag.as_bytes()),
-                value: *value,
-            })
-            .collect();
-        face.set_variations(&rb_variations);
-    } else {
-        face.set_variations(&[]);
-    };
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| FontspectorError::Shaping(format!("Bad feature tag: {e}")))?;
 
-    Ok(rustybuzz::shape(face, &features, buffer))
+    Ok(shaper.shape(buffer, &features))
 }
 
 pub(crate) trait ShapingCheck {
@@ -75,9 +62,8 @@ pub(crate) trait ShapingCheck {
         t: &Testable,
         context: &Context,
     ) -> Result<Vec<(String, Vec<FailedCheck>)>, FontspectorError> {
-        let mut face = Face::from_slice(&t.contents, 0).ok_or(FontspectorError::Shaping(
-            "Failed to load font file".to_string(),
-        ))?;
+        let fontref = harfrust::FontRef::new(&t.contents)
+            .map_err(|e| FontspectorError::Shaping(format!("Failed to load font file: {e}")))?;
 
         let basename = t.basename().unwrap_or_default();
         let mut results = vec![];
@@ -107,9 +93,29 @@ pub(crate) trait ShapingCheck {
                     continue;
                 }
                 let options = test.options.fill_from_defaults(&config);
+
+                // Create shaper (we can't make this a separate function because of lifetime horrors)
+                let shaper_data = ShaperData::new(&fontref);
+                let mut shaper_builder = shaper_data.shaper(&fontref);
+                let hr_variations: Vec<_> = if let Some(ref variations) = options.variations {
+                    variations
+                        .iter()
+                        .map(|(tag, value)| {
+                            harfrust::Tag::new_checked(tag.as_bytes())
+                                .map(|tag| harfrust::Variation { tag, value: *value })
+                        })
+                        .collect::<Result<Vec<_>, _>>()
+                        .map_err(|e| FontspectorError::Shaping(format!("Bad variation tag: {e}")))?
+                } else {
+                    vec![]
+                };
+                let shaper_instance =
+                    harfrust::ShaperInstance::from_variations(&fontref, hr_variations);
+                shaper_builder = shaper_builder.instance(Some(&shaper_instance));
+                let shaper = shaper_builder.build();
                 // Run the test
-                let glyph_buffer = create_buffer_and_run(&mut face, &test.input, &options)?;
-                if let Some(res) = self.pass_fail(&test, &config, &glyph_buffer, &face) {
+                let glyph_buffer = create_buffer_and_run(&shaper, &test.input, &options)?;
+                if let Some(res) = self.pass_fail(&test, &config, &glyph_buffer, &shaper) {
                     failed_checks.push(FailedCheck {
                         test: test.clone(),
                         detail: res,
@@ -128,6 +134,6 @@ pub(crate) trait ShapingCheck {
         test: &ShapingTest,
         configuration: &ShapingConfig,
         buffer: &GlyphBuffer,
-        face: &Face,
+        shaper: &Shaper,
     ) -> Option<String>;
 }
