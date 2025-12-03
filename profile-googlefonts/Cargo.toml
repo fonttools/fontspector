@@ -36,7 +36,6 @@ kurbo = { workspace = true }
 log = { workspace = true }
 num-traits = "0.2.19"
 similar = "2.7.0" # For shaping check reports, OFL body diff
-rustybuzz = { workspace = true }
 
 unicode-normalization = "0"
 unicode-properties = { workspace = true }
@@ -55,6 +54,7 @@ image = { version = "0.25.5", default-features = false, features = [
     "jpeg",
     "gif",
 ] }
+harfrust = "0.4.0"
 
 [lints]
 workspace = true
