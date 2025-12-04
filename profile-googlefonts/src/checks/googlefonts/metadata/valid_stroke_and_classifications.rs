@@ -28,12 +28,10 @@ const VALID_STROKES: &[&str] = &["Serif", "Slab Serif", "Sans Serif"];
     proposal = "https://github.com/fonttools/fontspector/issues/XXXX"
 )]
 fn valid_stroke_and_classifications(t: &Testable, _context: &Context) -> CheckFnResult {
-    // Accéder au metadata via la fonction helper du module parent
     let metadata = super::family_proto(t)?;
-    
+
     let mut statuses = vec![];
-    
-    // Vérifier stroke
+
     if let Some(stroke) = metadata.stroke.as_ref() {
         if !stroke.is_empty() && !VALID_STROKES.contains(&stroke.as_str()) {
             statuses.push(Status::fail(
@@ -46,8 +44,7 @@ fn valid_stroke_and_classifications(t: &Testable, _context: &Context) -> CheckFn
             ));
         }
     }
-    
-    // Vérifier classifications
+
     for classification in &metadata.classifications {
         if !VALID_CLASSIFICATIONS.contains(&classification.as_str()) {
             statuses.push(Status::fail(
@@ -60,12 +57,10 @@ fn valid_stroke_and_classifications(t: &Testable, _context: &Context) -> CheckFn
             ));
         }
     }
-    
-    // Si on a trouvé des problèmes, retourner les erreurs
+
     if !statuses.is_empty() {
         return Ok(Box::new(statuses.into_iter()));
     }
-    
-    // Tout est OK
+
     Ok(Box::new(std::iter::once(Status::pass())))
 }
