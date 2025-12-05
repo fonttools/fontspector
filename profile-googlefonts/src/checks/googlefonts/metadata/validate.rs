@@ -246,6 +246,57 @@ fn validate(c: &Testable, _context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
+#[check(
+    id = "googlefonts/metadata/valid_stroke_and_classifications",
+    title = "METADATA.pb stroke and classifications have valid values",
+    rationale = "
+        The METADATA.pb file can only contain specific predefined values for the
+        'stroke' and 'classifications' fields:
+        
+        Valid stroke values: Serif, Slab Serif, Sans Serif
+        Valid classifications values: Display, Handwriting, Monospace, Symbols
+        
+        Any other values are invalid and will cause issues with the Google Fonts API.
+    ",
+    proposal = "https://github.com/fonttools/fontspector/issues/XXXX",
+    applies_to = "MDPB"
+)]
+fn valid_stroke_and_classifications(t: &Testable, _context: &Context) -> CheckFnResult {
+    const VALID_CLASSIFICATIONS: &[&str] = &["Display", "Handwriting", "Monospace", "Symbols"];
+    const VALID_STROKES: &[&str] = &["Serif", "Slab Serif", "Sans Serif"];
+    
+    let metadata = family_proto(t)?;
+    let mut problems = vec![];
+    
+    if let Some(stroke) = metadata.stroke.as_ref() {
+        if !stroke.is_empty() && !VALID_STROKES.contains(&stroke.as_str()) {
+            problems.push(Status::fail(
+                "invalid-stroke",
+                &format!(
+                    "METADATA.pb stroke field contains invalid value '{}'. Valid values are: {}",
+                    stroke,
+                    VALID_STROKES.join(", ")
+                ),
+            ));
+        }
+    }
+    
+    for classification in &metadata.classifications {
+        if !VALID_CLASSIFICATIONS.contains(&classification.as_str()) {
+            problems.push(Status::fail(
+                "invalid-classification",
+                &format!(
+                    "METADATA.pb classifications field contains invalid value '{}'. Valid values are: {}",
+                    classification,
+                    VALID_CLASSIFICATIONS.join(", ")
+                ),
+            ));
+        }
+    }
+    
+    return_result(problems)
+}
+
 #[cfg(test)]
 mod tests {
     #![allow(clippy::unwrap_used)]
