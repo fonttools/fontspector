@@ -258,7 +258,7 @@ fn validate(c: &Testable, _context: &Context) -> CheckFnResult {
         
         Any other values are invalid and will cause issues with the Google Fonts API.
     ",
-    proposal = "https://github.com/fonttools/fontspector/issues/XXXX",
+    proposal = "https://github.com/fonttools/fontspector/pull/533",
     applies_to = "MDPB"
 )]
 fn valid_stroke_and_classifications(t: &Testable, _context: &Context) -> CheckFnResult {
