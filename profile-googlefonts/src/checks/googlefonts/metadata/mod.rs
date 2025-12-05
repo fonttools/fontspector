@@ -11,7 +11,6 @@ mod regular_is_400;
 mod reserved_font_name;
 mod subsets_correct;
 mod validate;
-mod valid_stroke_and_classifications;
 pub use axes::axes;
 pub use can_render_samples::can_render_samples;
 pub use category::category;
