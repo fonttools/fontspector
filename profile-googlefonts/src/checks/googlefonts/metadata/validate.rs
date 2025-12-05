@@ -264,10 +264,10 @@ fn validate(c: &Testable, _context: &Context) -> CheckFnResult {
 fn valid_stroke_and_classifications(t: &Testable, _context: &Context) -> CheckFnResult {
     const VALID_CLASSIFICATIONS: &[&str] = &["Display", "Handwriting", "Monospace", "Symbols"];
     const VALID_STROKES: &[&str] = &["Serif", "Slab Serif", "Sans Serif"];
-    
+
     let metadata = family_proto(t)?;
     let mut problems = vec![];
-    
+
     if let Some(stroke) = metadata.stroke.as_ref() {
         if !stroke.is_empty() && !VALID_STROKES.contains(&stroke.as_str()) {
             problems.push(Status::fail(
@@ -280,7 +280,7 @@ fn valid_stroke_and_classifications(t: &Testable, _context: &Context) -> CheckFn
             ));
         }
     }
-    
+
     for classification in &metadata.classifications {
         if !VALID_CLASSIFICATIONS.contains(&classification.as_str()) {
             problems.push(Status::fail(
@@ -293,7 +293,7 @@ fn valid_stroke_and_classifications(t: &Testable, _context: &Context) -> CheckFn
             ));
         }
     }
-    
+
     return_result(problems)
 }
 
