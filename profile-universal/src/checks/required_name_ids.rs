@@ -1,0 +1,136 @@
+use fontations::skrifa::string::StringId;
+use fontspector_checkapi::{
+    get_name_entry_string, get_name_platform_tuples, prelude::*, skip, testfont, FileTypeConvert,
+    PlatformSelector,
+};
+
+use std::vec;
+
+#[check(
+    id = "required_name_ids",
+    rationale = "
+        Check required name ids based on given list.
+    ",
+    title = "Required name ids in name table"
+)]
+fn required_name_ids(t: &Testable, context: &Context) -> CheckFnResult {
+    print!("required_name_ids check running...");
+    let font = testfont!(t);
+    if !font.has_table(b"name") {
+        return Ok(Status::just_one_fail("lacks-table", "No name table."));
+    }
+    let local_config = context.local_config("required_name_ids");
+    let required_ids: Vec<u16> = if let Some(config_map) = local_config.as_object() {
+        if let Some(name_ids) = config_map.get("required_name_ids") {
+            if let Some(name_ids_array) = name_ids.as_array() {
+                let mut ids = vec![];
+                for id in name_ids_array {
+                    if let Some(id) = id.as_u64() {
+                        ids.push(id as u16);
+                    }
+                }
+                ids
+            } else {
+                vec![]
+            }
+        } else {
+            skip!(
+                "context-not-list",
+                "Configuration for required_name_ids must be list of name IDs"
+            );
+        }
+    } else {
+        skip!("no-context", "No configuration found for required_name_ids");
+    };
+
+    let mut bad_names: Vec<String> = vec![];
+
+    let platform_tuples = get_name_platform_tuples(font.font());
+    for platform_tuple in platform_tuples {
+        let mut missing_name_ids: Vec<_> = vec![];
+        for id in required_ids.clone().into_iter() {
+            let selector = PlatformSelector {
+                platform_id: platform_tuple.0,
+                encoding_id: platform_tuple.1,
+                language_id: platform_tuple.2,
+            };
+            let name_id = StringId::from(id);
+            if let Some(_name_string) = get_name_entry_string(&font.font(), selector, name_id) {
+                continue;
+            } else {
+                if id == 25 && !font.is_variable_font() {
+                    // Skip Variations PostScript Name Prefix if not a variable font
+                    continue;
+                }
+                missing_name_ids.push(id);
+            }
+        }
+        if !missing_name_ids.is_empty() {
+            bad_names.push(format!(
+                "Missing required name IDs {missing_name_ids:?} for {platform_tuple:?}.",
+            ));
+        }
+    }
+
+    Ok(if bad_names.is_empty() {
+        Status::just_one_pass()
+    } else {
+        Status::just_one_fail(
+            "missing-name-table-ids",
+            &format!(
+                "The following issues have been found:\n\n{}",
+                bullet_list(context, bad_names)
+            ),
+        )
+    })
+}
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
+    use super::*;
+    use fontspector_checkapi::StatusCode;
+    use serde_json::json;
+    use std::collections::HashMap;
+
+    use fontspector_checkapi::codetesting::{
+        assert_messages_contain, assert_pass, assert_results_contain, run_check_with_config,
+        test_able,
+    };
+
+    #[test]
+    fn test_required_name_ids_fail() {
+        let conf = HashMap::from([(
+            "required_name_ids".to_string(),
+            serde_json::json!(json!([0, 1, 1234])),
+        )]);
+        let testable = test_able("varfont/inter/Inter[slnt,wght].ttf");
+        let results = run_check_with_config(
+            super::required_name_ids,
+            TestableType::Single(&testable),
+            conf,
+        );
+        assert_messages_contain(&results, "Missing required name IDs [1234]");
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("missing-name-table-ids".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_required_name_ids_pass() {
+        let conf = HashMap::from([(
+            "required_name_ids".to_string(),
+            serde_json::json!(json!([260])), // name ID exists in all platforms
+        )]);
+        let testable = test_able("varfont/inter/Inter[slnt,wght].ttf");
+        let results = run_check_with_config(
+            super::required_name_ids,
+            TestableType::Single(&testable),
+            conf,
+        );
+        assert_pass(&results);
+    }
+}
