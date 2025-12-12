@@ -45,7 +45,7 @@ impl fontspector_checkapi::Plugin for Fontwerk {
             // .add_and_register_check("fontwerk/names_match_default_fvar")
             .include_profile("universal")
             .with_configuration_defaults(
-                "required_name_ids",
+                "universal/required_name_ids",
                 HashMap::from([
                     ("required_name_ids".to_string(), json!([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 25])),
                 ]),

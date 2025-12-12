@@ -1,13 +1,13 @@
 use fontations::skrifa::string::StringId;
 use fontspector_checkapi::{
-    get_name_entry_string, get_name_platform_tuples, prelude::*, skip, testfont, FileTypeConvert,
+    get_name_entry_string, get_name_platform_tuples, prelude::*, testfont, FileTypeConvert,
     PlatformSelector,
 };
 
 use std::vec;
 
 #[check(
-    id = "required_name_ids",
+    id = "universal/required_name_ids",
     rationale = "
         Check required name ids based on given list.
     ",
@@ -19,29 +19,22 @@ fn required_name_ids(t: &Testable, context: &Context) -> CheckFnResult {
     if !font.has_table(b"name") {
         return Ok(Status::just_one_fail("lacks-table", "No name table."));
     }
-    let local_config = context.local_config("required_name_ids");
-    let required_ids: Vec<u16> = if let Some(config_map) = local_config.as_object() {
-        if let Some(name_ids) = config_map.get("required_name_ids") {
-            if let Some(name_ids_array) = name_ids.as_array() {
-                let mut ids = vec![];
-                for id in name_ids_array {
-                    if let Some(id) = id.as_u64() {
-                        ids.push(id as u16);
-                    }
-                }
-                ids
-            } else {
-                vec![]
-            }
-        } else {
-            skip!(
-                "context-not-list",
-                "Configuration for required_name_ids must be list of name IDs"
-            );
-        }
-    } else {
-        skip!("no-context", "No configuration found for required_name_ids");
-    };
+
+    let config = context.local_config("universal/required_name_ids");
+    let required_ids: Vec<u16> = config
+        .get("required_name_ids")
+        .ok_or(FontspectorError::skip(
+            "no-required-name-ids",
+            "Add the `required_name_ids` key to a `fontspector.toml` file.",
+        ))?
+        .as_array()
+        .ok_or(FontspectorError::skip(
+            "invalid-required-name-ids",
+            "The `required_name_ids` key in the configuration file must be an array.",
+        ))?
+        .iter()
+        .filter_map(|v| v.as_u64().map(|n| n as u16))
+        .collect();
 
     let mut bad_names: Vec<String> = vec![];
 
