@@ -19,7 +19,7 @@ use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
     \"Foo-Regular.ttf\" = [0x0020, 0x0041, 0x1F60A, 0x1F680]
     ",
     proposal = "https://github.com/fonttools/fontspector/issues/526",
-    title = "Ensure that the font contains the unicodes specified in the configuration file."
+    title = "Check required unicodes"
 )]
 fn has_unicodes(t: &Testable, context: &Context) -> CheckFnResult {
     let font = testfont!(t);
