@@ -32,10 +32,10 @@ tabled = { workspace = true }
 log = { workspace = true }
 humansize = "2.1.3"
 serde_json = { workspace = true }
-hashbrown = "0.15.2"
+hashbrown = { workspace = true }
 kurbo = { workspace = true }
 stringcase = "0.4.0"
-fontdrasil = "0.2.2"
+fontdrasil = "0.4.0"
 
 [lints]
 workspace = true

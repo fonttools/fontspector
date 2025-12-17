@@ -304,16 +304,36 @@ fn group_inputs(args: &mut Args) -> Vec<TestableCollection> {
     #[allow(clippy::indexing_slicing)] // We know this is a single file
     if args.inputs.len() == 1
         && (args.inputs[0].ends_with(".glyphs")
-            || args.inputs[0].ends_with(".designspace")
-            || args.inputs[0].ends_with(".ufo")
+            // || args.inputs[0].ends_with(".designspace")
+            // || args.inputs[0].ends_with(".ufo")
             || args.inputs[0].ends_with(".glyphspackage"))
     {
         let path = PathBuf::from(&args.inputs[0]);
         if let Ok(input) = fontc::Input::new(&path) {
+            use fontc::Input;
+
             log::info!("Compiling {}", &path.display());
             let flags = fontc::Flags::default();
+            #[allow(clippy::expect_used)] // You are on your own
+            let source = match input {
+                // Input::DesignSpacePath(path) => Ok(Box::new(DesignSpaceIrSource::new(path)?)),
+                Input::GlyphsPath(path) => {
+                    use fontir::source::Source as _;
+
+                    Ok(Box::new(
+                        glyphs2fontir::source::GlyphsIrSource::new(&path)
+                            .expect("Could not create GlyphsIrSource from Glyphs file"),
+                    ))
+                }
+                // Input::FontraPath(path) => Ok(Box::new(FontraIrSource::new(path)?)),
+                _ => Err(format!(
+                    "Input file {} has unsupported format for compilation",
+                    path.display()
+                )),
+            }
+            .expect("Could not create fontir source from input file");
             match fontc::generate_font(
-                &input,
+                source,
                 &PathBuf::from("build/"),
                 Some(&PathBuf::from("font.ttf")),
                 flags,
