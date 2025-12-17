@@ -87,75 +87,6 @@ fn name_entries(f: &Testable, context: &Context) -> CheckFnResult {
 }
 
 #[check(
-    id = "fontwerk/required_name_ids",
-    rationale = "
-        Required names for Fontwerk fonts:
-        - Copyright (0)
-        - Family Name (1)
-        - Subfamily Name (2)
-        - Unique ID (3)
-        - Full Name (4)
-        - Version String (5)
-        - PostScript Name (6)
-        - Trademark (7)
-        - Manufacturer (8)
-        - Designer(s) (9)
-        - Description (10)
-        - Vendor URL (11)
-        - Designer URL (12)
-        - License Description (13)
-        - License URL (14)
-        - Typographic Family Name (16)
-        - Typographic Subfamily Name (17)
-        - Variations PostScript Name Prefix (25) (if variable font)
-    ",
-    title = "Required name ids in name table"
-)]
-fn required_name_ids(t: &Testable, context: &Context) -> CheckFnResult {
-    let font = testfont!(t);
-    if !font.has_table(b"name") {
-        return Ok(Status::just_one_fail("lacks-table", "No name table."));
-    }
-    let mut bad_names: Vec<String> = vec![];
-
-    let name_PEL_codes = get_name_PEL_codes(font.font());
-    for code in name_PEL_codes {
-        let mut missing_name_ids: Vec<_> = vec![];
-        for id in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 25] {
-            let name_id = StringId::from(id);
-            if let Some(_name_string) =
-                get_name_entry_string(&font.font(), code.0, code.1, code.2, name_id)
-            {
-                continue;
-            } else {
-                if id == 25 && !font.is_variable_font() {
-                    // Skip Variations PostScript Name Prefix if not a variable font
-                    continue;
-                }
-                missing_name_ids.push(id);
-            }
-        }
-        if !missing_name_ids.is_empty() {
-            bad_names.push(format!(
-                "Missing required name IDs {missing_name_ids:?} for {code:?}.",
-            ));
-        }
-    }
-
-    Ok(if bad_names.is_empty() {
-        Status::just_one_pass()
-    } else {
-        Status::just_one_fail(
-            "bad-name-table-entries",
-            &format!(
-                "The following issues have been found:\n\n{}",
-                bullet_list(context, bad_names)
-            ),
-        )
-    })
-}
-
-#[check(
     id = "fontwerk/name_consistency",
     rationale = "
         Check if names are consistently written throughout the name table:
@@ -518,22 +449,5 @@ mod tests {
             assert_eq!(result.message, *expected_message);
             assert_eq!(result.severity, *expected_severity);
         }
-    }
-
-    #[test]
-    fn test_required_name_ids() {
-        let contents = include_bytes!(
-            "../../../../fontspector-py/data/test/montserrat/Montserrat-Regular.ttf"
-        );
-        let testable = Testable::new_with_contents("demo.ttf", contents.to_vec());
-        let context = Context {
-            ..Default::default()
-        };
-        let result = required_name_ids_impl(&testable, &context)
-            .unwrap()
-            .next()
-            .unwrap();
-        let expected_message = "The following issues have been found:\n\n* Missing required name IDs [7, 10, 16, 17] for (1, 0, 0).\n* Missing required name IDs [7, 10, 16, 17] for (3, 1, 1033).";
-        assert_eq!(result.message, Some(expected_message.to_string()));
     }
 }
