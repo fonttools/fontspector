@@ -3,8 +3,8 @@ use super::{
     ShapingCheck,
 };
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use harfrust::{GlyphBuffer, Shaper};
 use itertools::Itertools;
-use rustybuzz::{Face, GlyphBuffer};
 
 #[check(
     id = "shaping/regression",
@@ -50,15 +50,21 @@ fn regression(t: &Testable, context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
-fn serialize_appropriately(buffer: &GlyphBuffer, face: &Face, test: &ShapingTest) -> String {
-    let mut flags = rustybuzz::SerializeFlags::default();
+fn serialize_appropriately(buffer: &GlyphBuffer, shaper: &Shaper, test: &ShapingTest) -> String {
+    let mut flags = harfrust::SerializeFlags::default();
     #[allow(clippy::unwrap_used)] // the .applies filter ensures there's an expectation
     if !test.expectation.as_ref().unwrap().contains("=") {
-        flags |= rustybuzz::SerializeFlags::NO_POSITIONS
-            | rustybuzz::SerializeFlags::NO_ADVANCES
-            | rustybuzz::SerializeFlags::NO_CLUSTERS;
+        flags |= harfrust::SerializeFlags::NO_POSITIONS
+            | harfrust::SerializeFlags::NO_ADVANCES
+            | harfrust::SerializeFlags::NO_CLUSTERS;
     }
-    buffer.serialize(face, flags)
+    let serialized = buffer.serialize(shaper, flags);
+    // harfrust serializes as "[a|b|c]", but test expectations are written as "a|b|c"
+    if serialized.starts_with('[') && serialized.ends_with(']') {
+        serialized[1..serialized.len() - 1].to_string()
+    } else {
+        serialized
+    }
 }
 
 struct RegressionTest;
@@ -69,12 +75,11 @@ impl ShapingCheck for RegressionTest {
         test: &ShapingTest,
         _configuration: &ShapingConfig,
         buffer: &GlyphBuffer,
-        face: &Face,
+        shaper: &Shaper,
     ) -> Option<String> {
-        let serialized = serialize_appropriately(buffer, face, test);
+        let serialized = serialize_appropriately(buffer, shaper, test);
         #[allow(clippy::unwrap_used)] // the .applies filter ensures there's an expectation
         let expected = test.expectation.as_ref().unwrap();
-        println!("Expected: {expected}\nGot     : {serialized}\n");
         if &serialized == expected {
             return None;
         }
