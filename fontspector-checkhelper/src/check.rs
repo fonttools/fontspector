@@ -16,6 +16,7 @@ enum Implementation {
     CheckAll,
 }
 
+/// An error indicating that an invalid implementation type was provided.
 #[derive(Debug)]
 struct ImplementationParseError;
 
@@ -112,6 +113,7 @@ struct CheckParams {
     metadata: Option<String>,
 }
 
+/// The main implementation of the `#[check(...)]` macro.
 pub(crate) fn check_impl(args: TokenStream, input: TokenStream) -> TokenStream {
     // Parse argument tokens as a list of NestedMeta items
     let attr_args = match NestedMeta::parse_meta_list(args.into()) {
