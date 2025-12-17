@@ -1,29 +1,39 @@
-use fontations::skrifa::raw::{
-    tables::stat::{AxisValue, AxisValueTableFlags},
-    ReadError, TableProvider,
+use fontations::skrifa::MetadataProvider;
+use fontations::{
+    skrifa::raw::{
+        tables::stat::{AxisValue, AxisValueTableFlags},
+        ReadError, TableProvider,
+    },
+    types::NameId,
 };
 use fontspector_checkapi::{prelude::*, FileTypeConvert, TestFont};
 
-fn segment_vf_collection(fonts: Vec<TestFont>) -> Vec<(Option<TestFont>, Option<TestFont>)> {
+fn segment_collection(fonts: Vec<TestFont>) -> Vec<(Option<TestFont>, Option<TestFont>)> {
     let mut roman_italic = vec![];
     let (italics, mut non_italics): (Vec<_>, Vec<_>) = fonts
         .into_iter()
-        .partition(|f| f.filename.to_str().unwrap_or_default().contains("-Italic["));
+        .partition(|f| f.filename.to_str().unwrap_or_default().contains("Italic"));
     for italic in italics.into_iter() {
         // Find a matching roman
-        let suspected_roman = italic
-            .filename
-            .to_str()
-            .unwrap_or_default()
-            .replace("-Italic[", "[");
-        if let Some(index) = non_italics
-            .iter()
-            .position(|f| f.filename.to_str().unwrap_or_default() == suspected_roman)
+        if let Some(name) = italic
+            .font()
+            .localized_strings(NameId::FAMILY_NAME)
+            .english_or_first()
         {
-            let roman = non_italics.swap_remove(index);
-            roman_italic.push((Some(roman), Some(italic)));
-        } else {
-            roman_italic.push((None, Some(italic)));
+            let suspected_roman_family_name = name.to_string();
+            if let Some(index) = non_italics.iter().position(|f| {
+                f.font()
+                    .localized_strings(NameId::FAMILY_NAME)
+                    .english_or_first()
+                    .expect("No Family Name")
+                    .to_string()
+                    == suspected_roman_family_name
+            }) {
+                let roman = non_italics.swap_remove(index);
+                roman_italic.push((Some(roman), Some(italic)));
+            } else {
+                roman_italic.push((None, Some(italic)));
+            }
         }
     }
     // Now add all the remaining non-italic fonts
@@ -190,7 +200,7 @@ fn check_ital_is_binary_and_last(t: &TestFont, is_italic: bool) -> Result<Vec<St
 #[check(
     id = "opentype/STAT/ital_axis",
     rationale = "
-        Check that related Upright and Italic VFs have an
+        Check that related Upright and Italic have an
         'ital' axis in the STAT table.
         
         Since the STAT table can be used to create new instances, it is
@@ -209,13 +219,29 @@ fn check_ital_is_binary_and_last(t: &TestFont, is_italic: bool) -> Result<Vec<St
     proposal = "https://github.com/fonttools/fontbakery/issues/3668",
     proposal = "https://github.com/fonttools/fontbakery/issues/3669",
     implementation = "all",
-    title = "Ensure VFs have 'ital' STAT axis."
+    title = "Ensure Fonts have 'ital' STAT axis."
 )]
 fn ital_axis(c: &TestableCollection, _context: &Context) -> CheckFnResult {
     let fonts = TTF.from_collection(c);
+    for font in fonts.iter() {
+        if font.has_table(b"gvar") && !font.has_table(b"STAT") {
+            // variable font must have a STAT table
+            return Ok(Status::just_one_fail(
+                "no-stat-table",
+                &format!("Variable font is missing the 'STAT' table."),
+            ));
+        } else if !font.has_table(b"gvar") && !font.has_table(b"STAT") {
+            // static font is recommend to have a STAT table
+            return Ok(Status::just_one_warn(
+                "no-stat-table",
+                &format!("Static font is missing the 'STAT' table."),
+            ));
+        }
+    }
     let mut problems = vec![];
 
-    for pair in segment_vf_collection(fonts).into_iter() {
+    for pair in segment_collection(fonts).into_iter() {
+        print!("Pair: {:?}\n", pair);
         match pair {
             (Some(roman), Some(italic)) => {
                 // These should definitely both have an ital axis
@@ -240,4 +266,98 @@ fn ital_axis(c: &TestableCollection, _context: &Context) -> CheckFnResult {
         }
     }
     return_result(problems)
+}
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used)]
+
+    use super::*;
+    use fontspector_checkapi::StatusCode;
+    use fontspector_checkapi::{Testable, TestableType};
+
+    use fontspector_checkapi::codetesting::{
+        assert_results_contain, run_check_with_config, test_able,
+    };
+    use std::collections::HashMap;
+
+    #[test]
+    fn test_segment_collection_var() {
+        let testable_1 = test_able("notosans/NotoSans-VariableFont_wdth,wght.ttf");
+        let testable_2 = test_able("notosans/NotoSans-Italic-VariableFont_wdth,wght.ttf");
+        let testables: Vec<Testable> = vec![testable_1, testable_2];
+        let collection = TestableCollection {
+            testables,
+            directory: "".to_string(),
+        };
+        let fonts = TTF.from_collection(&collection);
+        let pairs = segment_collection(fonts);
+        assert_eq!(pairs.len(), 1);
+        for (roman, italic) in pairs.into_iter() {
+            assert!(roman.is_some());
+            assert!(italic.is_some());
+        }
+    }
+
+    #[test]
+    fn test_segment_collection_static() {
+        let testable_1 = test_able("montserrat/Montserrat-Regular.ttf");
+        let testable_2 = test_able("montserrat/Montserrat-Italic.ttf");
+        let testable_3 = test_able("montserrat/Montserrat-Bold.ttf");
+        let testable_4 = test_able("montserrat/Montserrat-BoldItalic.ttf");
+        let testable_5 = test_able("montserrat/Montserrat-Light.ttf");
+        let testable_6 = test_able("montserrat/Montserrat-LightItalic.ttf");
+        let testables: Vec<Testable> = vec![
+            testable_1, testable_2, testable_3, testable_4, testable_5, testable_6,
+        ];
+        let collection = TestableCollection {
+            testables,
+            directory: "".to_string(),
+        };
+        let fonts = TTF.from_collection(&collection);
+        let pairs = segment_collection(fonts);
+        assert_eq!(pairs.len(), 3);
+        for (roman, italic) in pairs.into_iter() {
+            assert!(roman.is_some());
+            assert!(italic.is_some());
+        }
+    }
+
+    #[test]
+    fn test_ital_axis_static_fonts_missing_stat() {
+        let testable_1 = test_able("montserrat/Montserrat-Regular.ttf");
+        let testable_2 = test_able("montserrat/Montserrat-Italic.ttf");
+        let testables: Vec<Testable> = vec![testable_1, testable_2];
+        let collection = TestableCollection {
+            testables,
+            directory: "".to_string(),
+        };
+        let results = run_check_with_config(
+            ital_axis,
+            TestableType::Collection(&collection),
+            HashMap::new(),
+        );
+        assert_results_contain(
+            &results,
+            StatusCode::Warn,
+            Some("no-stat-table".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_ital_axis_skip_static_fonts() {
+        let testable_1 = test_able("notosans/static/NotoSans-Black.ttf");
+        let testable_2 = test_able("notosans/static/NotoSans-BlackItalic.ttf");
+        let testables: Vec<Testable> = vec![testable_1, testable_2];
+        let collection = TestableCollection {
+            testables,
+            directory: "".to_string(),
+        };
+        let results = run_check_with_config(
+            ital_axis,
+            TestableType::Collection(&collection),
+            HashMap::new(),
+        );
+        assert_results_contain(&results, StatusCode::Pass, None);
+    }
 }
