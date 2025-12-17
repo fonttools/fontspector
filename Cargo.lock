@@ -1448,7 +1448,7 @@ dependencies = [
  "fontdrasil",
  "fontir",
  "fontra2fontir",
- "glyphs2fontir",
+ "glyphs2fontir 0.6.0",
  "indexmap",
  "log",
  "rayon",
@@ -1529,6 +1529,7 @@ dependencies = [
  "duckdb",
  "env_logger",
  "fontc",
+ "fontir",
  "fontspector-checkapi",
  "fontspector-fontbakery-bridge",
  "fontspector-profile-fontwerk",
@@ -1536,6 +1537,7 @@ dependencies = [
  "fontspector-profile-iso15008",
  "fontspector-profile-opentype",
  "fontspector-profile-universal",
+ "glyphs2fontir 0.5.0",
  "homedir",
  "indexmap",
  "indicatif",
@@ -2004,6 +2006,28 @@ dependencies = [
 
 [[package]]
 name = "glyphs-reader"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "deddf1058f868676794eeab55511122b7ff1257ee4ad86a8523e4c86db320607"
+dependencies = [
+ "ascii_plist_derive",
+ "chrono",
+ "env_logger",
+ "fontdrasil",
+ "icu_properties",
+ "indexmap",
+ "kurbo 0.12.0",
+ "log",
+ "ordered-float",
+ "quick-xml",
+ "regex",
+ "serde",
+ "smol_str",
+ "thiserror 2.0.17",
+]
+
+[[package]]
+name = "glyphs-reader"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "28c8e651ada659aa00811baff00b5412d554e8493d1bb3d74002c70fc847e530"
@@ -2027,6 +2051,26 @@ dependencies = [
 
 [[package]]
 name = "glyphs2fontir"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6f834accdf74843abdfaf1a449779ddd8a779b59fbeaebbbaee50e3d65b1e568"
+dependencies = [
+ "chrono",
+ "env_logger",
+ "fontdrasil",
+ "fontir",
+ "glyphs-reader 0.4.0",
+ "indexmap",
+ "kurbo 0.12.0",
+ "log",
+ "ordered-float",
+ "smol_str",
+ "thiserror 2.0.17",
+ "write-fonts 0.44.1",
+]
+
+[[package]]
+name = "glyphs2fontir"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "529b103c7fe9be8c4b41e32a89af2ab037fc3b227b643f0c60b63490fc7045b1"
@@ -2035,7 +2079,7 @@ dependencies = [
  "env_logger",
  "fontdrasil",
  "fontir",
- "glyphs-reader",
+ "glyphs-reader 0.5.0",
  "indexmap",
  "kurbo 0.12.0",
  "log",
