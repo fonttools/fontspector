@@ -1621,7 +1621,7 @@ name = "fontspector-profile-designspace"
 version = "1.0.3"
 dependencies = [
  "fontspector-checkapi",
- "norad",
+ "norad 0.17.0",
  "pluginator",
  "quick-xml 0.38.4",
  "serde_json",
@@ -3257,6 +3257,24 @@ dependencies = [
  "serde_derive",
  "serde_repr",
  "thiserror 2.0.17",
+]
+
+[[package]]
+name = "norad"
+version = "0.17.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "df868796aec99b7bbaa3f7a4267c10d9145ff871c5692cdb7d760ed1a5d56591"
+dependencies = [
+ "base64",
+ "close_already",
+ "indexmap",
+ "log",
+ "plist",
+ "quick-xml 0.38.4",
+ "serde",
+ "serde_derive",
+ "serde_repr",
+ "thiserror 2.0.17",
  "uuid",
 ]
 
@@ -4791,7 +4809,7 @@ source = "git+https://github.com/googlefonts/shaperglot#ab96fb594dc81a00998f7926
 dependencies = [
  "ambassador",
  "google-fonts-languages",
- "harfrust 0.3.1",
+ "harfrust 0.3.2",
  "indexmap",
  "itertools 0.14.0",
  "log",
@@ -5533,7 +5551,7 @@ dependencies = [
  "indexmap",
  "kurbo 0.12.0",
  "log",
- "norad",
+ "norad 0.16.1",
  "ordered-float",
  "plist",
  "serde",
