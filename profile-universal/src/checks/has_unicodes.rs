@@ -80,7 +80,6 @@ mod tests {
 
     use super::*;
     use fontspector_checkapi::StatusCode;
-    use serde_json::json;
     use std::collections::HashMap;
 
     use fontspector_checkapi::codetesting::{
@@ -92,8 +91,10 @@ mod tests {
         let testable = test_able("varfont/inter/Inter[slnt,wght].ttf");
         let font_name = testable.basename().unwrap_or("<Unnamed Font>".to_string());
         let conf = HashMap::from([(
-            font_name,
-            serde_json::json!(json!([0x0020, 0x0041, 0x1F60A, 0x1F680])),
+            "has_unicodes".to_string(),
+            serde_json::json!({
+                &font_name: [0x0020, 0x0041, 0x1F60A, 0x1F680]
+            }),
         )]);
         let testable = test_able("varfont/inter/Inter[slnt,wght].ttf");
         let results =

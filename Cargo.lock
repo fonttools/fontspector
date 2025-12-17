@@ -1652,6 +1652,7 @@ dependencies = [
  "google-fonts-glyphsets",
  "google-fonts-languages",
  "google-fonts-subsets",
+ "harfrust 0.4.0",
  "hashbrown 0.15.5",
  "image",
  "indexmap",
@@ -1662,7 +1663,6 @@ dependencies = [
  "protobuf",
  "regex",
  "reqwest",
- "rustybuzz",
  "scraper",
  "semver",
  "serde",
@@ -2184,6 +2184,19 @@ dependencies = [
  "bytemuck",
  "core_maths",
  "read-fonts 0.35.0",
+ "smallvec",
+]
+
+[[package]]
+name = "harfrust"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bce3daf33117ca61b39b3452659f6206c76583cbc8b45f52a340469da58345b0"
+dependencies = [
+ "bitflags",
+ "bytemuck",
+ "core_maths",
+ "read-fonts 0.36.0",
  "smallvec",
 ]
 
@@ -4228,6 +4241,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "read-fonts"
+version = "0.36.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5eaa2941a4c05443ee3a7b26ab076a553c343ad5995230cc2b1d3e993bdc6345"
+dependencies = [
+ "bytemuck",
+ "core_maths",
+ "font-types 0.10.1",
+]
+
+[[package]]
 name = "redox_syscall"
 version = "0.5.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4767,7 +4791,7 @@ source = "git+https://github.com/googlefonts/shaperglot#ab96fb594dc81a00998f7926
 dependencies = [
  "ambassador",
  "google-fonts-languages",
- "harfrust",
+ "harfrust 0.3.1",
  "indexmap",
  "itertools 0.14.0",
  "log",

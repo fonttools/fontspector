@@ -76,35 +76,6 @@ def test_check_shaping_regression_with_variations(check):
         assert_PASS(check(font, config=config), "Oswald: A=0+453|V=1+505")
 
 
-@check_id("shaping/forbidden")
-def test_check_shaping_forbidden(check):
-    """Check that we can test for forbidden glyphs in output."""
-
-    shaping_test = {
-        "configuration": {"forbidden_glyphs": [".notdef"]},
-        "tests": [{"input": "日"}],
-    }
-
-    with tempfile.TemporaryDirectory() as tmp_gf_dir:
-        json.dump(
-            shaping_test,
-            open(os.path.join(tmp_gf_dir, "test.json"), "w", encoding="utf-8"),
-        )
-
-        config = {"shaping": {"test_directory": tmp_gf_dir}}
-
-        font = TEST_FILE("cjk/NotoSansJP[wght].ttf")
-        assert_PASS(check(font, config=config), "Noto Sans contains CJK")
-
-        font = TEST_FILE("slabo/Slabo13px.ttf")
-        assert_results_contain(
-            check(font, config=config),
-            FAIL,
-            "shaping-forbidden",
-            "Slabo shapes .notdef for CJK",
-        )
-
-
 @pytest.mark.skip("Check not ported yet")
 @check_id("shaping/collides")
 def test_check_shaping_collides(check):

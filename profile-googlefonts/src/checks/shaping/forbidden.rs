@@ -3,9 +3,9 @@ use super::{
     ShapingCheck,
 };
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use harfrust::{GlyphBuffer, Shaper};
 use hashbrown::HashSet;
 use itertools::Itertools;
-use rustybuzz::{Face, GlyphBuffer};
 
 #[check(
     id = "shaping/forbidden",
@@ -48,11 +48,11 @@ fn forbidden(t: &Testable, context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
-fn serialize(buffer: &GlyphBuffer, face: &Face) -> String {
-    let flags = rustybuzz::SerializeFlags::NO_POSITIONS
-        | rustybuzz::SerializeFlags::NO_ADVANCES
-        | rustybuzz::SerializeFlags::NO_CLUSTERS;
-    buffer.serialize(face, flags)
+fn serialize(buffer: &GlyphBuffer, shaper: &Shaper) -> String {
+    let flags = harfrust::SerializeFlags::NO_POSITIONS
+        | harfrust::SerializeFlags::NO_ADVANCES
+        | harfrust::SerializeFlags::NO_CLUSTERS;
+    buffer.serialize(shaper, flags)
 }
 
 struct ForbiddenTest;
@@ -63,9 +63,10 @@ impl ShapingCheck for ForbiddenTest {
         _test: &ShapingTest,
         configuration: &ShapingConfig,
         buffer: &GlyphBuffer,
-        face: &Face,
+        shaper: &Shaper,
     ) -> Option<String> {
-        let serialized = serialize(buffer, face);
+        let serialized = serialize(buffer, shaper);
+        let serialized = serialized.trim_start_matches('[').trim_end_matches(']');
         let glyphs: HashSet<&str> = serialized.split('|').collect();
         let forbidden_glyphs: HashSet<&str> = configuration
             .forbidden_glyphs
@@ -81,5 +82,42 @@ impl ShapingCheck for ForbiddenTest {
 
     fn applies(&self, configuration: &ShapingConfig, _test: &ShapingTest) -> bool {
         !configuration.forbidden_glyphs.is_empty()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+
+    use fontspector_checkapi::{
+        codetesting::{
+            assert_pass, assert_results_contain, run_check_with_config, test_able, test_file,
+        },
+        StatusCode,
+    };
+    use serde_json::json;
+
+    use super::*;
+
+    #[test]
+    fn test_forbidden() {
+        let testable = test_able("cjk/NotoSansJP[wght].ttf");
+        let config = HashMap::from([(
+            "shaping".to_string(),
+            json!({
+                "test_directory": test_file("shaping/forbidden")
+            }),
+        )]);
+        let results =
+            run_check_with_config(forbidden, TestableType::Single(&testable), config.clone());
+        assert_pass(&results);
+
+        let slabo = test_able("slabo/Slabo13px.ttf");
+        let results = run_check_with_config(forbidden, TestableType::Single(&slabo), config);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("shaping-forbidden".to_string()),
+        );
     }
 }
