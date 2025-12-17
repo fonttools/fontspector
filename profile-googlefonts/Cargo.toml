@@ -43,7 +43,7 @@ unicode-canonical-combining-class = "1.0.0"
 unicode-script = "0.5.7"
 yeslogic-unicode-blocks = "0.2.0"
 unicode_names2 = { workspace = true }
-hashbrown = "0.15.2"
+hashbrown = "0.16.0"
 
 scraper = { version = "0.25.0", default-features = false, features = [
     "errors",
