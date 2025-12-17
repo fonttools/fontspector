@@ -66,6 +66,7 @@ impl ShapingCheck for ForbiddenTest {
         shaper: &Shaper,
     ) -> Option<String> {
         let serialized = serialize(buffer, shaper);
+        let serialized = serialized.trim_start_matches('[').trim_end_matches(']');
         let glyphs: HashSet<&str> = serialized.split('|').collect();
         let forbidden_glyphs: HashSet<&str> = configuration
             .forbidden_glyphs
@@ -81,5 +82,42 @@ impl ShapingCheck for ForbiddenTest {
 
     fn applies(&self, configuration: &ShapingConfig, _test: &ShapingTest) -> bool {
         !configuration.forbidden_glyphs.is_empty()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+
+    use fontspector_checkapi::{
+        codetesting::{
+            assert_pass, assert_results_contain, run_check_with_config, test_able, test_file,
+        },
+        StatusCode,
+    };
+    use serde_json::json;
+
+    use super::*;
+
+    #[test]
+    fn test_forbidden() {
+        let testable = test_able("cjk/NotoSansJP[wght].ttf");
+        let config = HashMap::from([(
+            "shaping".to_string(),
+            json!({
+                "test_directory": test_file("shaping/forbidden")
+            }),
+        )]);
+        let results =
+            run_check_with_config(forbidden, TestableType::Single(&testable), config.clone());
+        assert_pass(&results);
+
+        let slabo = test_able("slabo/Slabo13px.ttf");
+        let results = run_check_with_config(forbidden, TestableType::Single(&slabo), config);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("shaping-forbidden".to_string()),
+        );
     }
 }

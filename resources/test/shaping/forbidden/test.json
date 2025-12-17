@@ -1,0 +1,4 @@
+{
+        "configuration": {"forbidden_glyphs": [".notdef"]},
+        "tests": [{"input": "日"}]
+}

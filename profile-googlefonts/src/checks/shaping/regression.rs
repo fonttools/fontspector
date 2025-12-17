@@ -80,7 +80,6 @@ impl ShapingCheck for RegressionTest {
         let serialized = serialize_appropriately(buffer, shaper, test);
         #[allow(clippy::unwrap_used)] // the .applies filter ensures there's an expectation
         let expected = test.expectation.as_ref().unwrap();
-        println!("Expected: {expected}\nGot     : {serialized}\n");
         if &serialized == expected {
             return None;
         }
