@@ -84,7 +84,6 @@ mod tests {
 
     use super::*;
     use fontspector_checkapi::StatusCode;
-    use serde_json::json;
     use std::collections::HashMap;
 
     use fontspector_checkapi::codetesting::{
@@ -95,8 +94,8 @@ mod tests {
     #[test]
     fn test_required_name_ids_fail() {
         let conf = HashMap::from([(
-            "required_name_ids".to_string(),
-            serde_json::json!(json!([0, 1, 1234])),
+            "universal/required_name_ids".to_string(),
+            serde_json::json!({ "required_name_ids": [0, 1, 1234] }),
         )]);
         let testable = test_able("varfont/inter/Inter[slnt,wght].ttf");
         let results = run_check_with_config(
@@ -115,8 +114,8 @@ mod tests {
     #[test]
     fn test_required_name_ids_pass() {
         let conf = HashMap::from([(
-            "required_name_ids".to_string(),
-            serde_json::json!(json!([260])), // name ID exists in all platforms
+            "universal/required_name_ids".to_string(),
+            serde_json::json!({ "required_name_ids": [260] }), // name ID exists in all platforms
         )]);
         let testable = test_able("varfont/inter/Inter[slnt,wght].ttf");
         let results = run_check_with_config(
