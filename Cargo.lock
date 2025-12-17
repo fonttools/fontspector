@@ -125,7 +125,7 @@ version = "1.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "40c48f72fd53cd289104fc64099abca73db4166ad86ea0b4341abe65af83dadc"
 dependencies = [
- "windows-sys 0.61.2",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -136,7 +136,7 @@ checksum = "291e6a250ff86cd4a820112fb8898808a366d8f9f58ce16d1f538353ad55747d"
 dependencies = [
  "anstyle",
  "once_cell_polyfill",
- "windows-sys 0.61.2",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -1263,7 +1263,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -1448,7 +1448,7 @@ dependencies = [
  "fontdrasil",
  "fontir",
  "fontra2fontir",
- "glyphs2fontir 0.6.0",
+ "glyphs2fontir",
  "indexmap",
  "log",
  "rayon",
@@ -1537,7 +1537,7 @@ dependencies = [
  "fontspector-profile-iso15008",
  "fontspector-profile-opentype",
  "fontspector-profile-universal",
- "glyphs2fontir 0.5.0",
+ "glyphs2fontir",
  "homedir",
  "indexmap",
  "indicatif",
@@ -2006,28 +2006,6 @@ dependencies = [
 
 [[package]]
 name = "glyphs-reader"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "deddf1058f868676794eeab55511122b7ff1257ee4ad86a8523e4c86db320607"
-dependencies = [
- "ascii_plist_derive",
- "chrono",
- "env_logger",
- "fontdrasil",
- "icu_properties",
- "indexmap",
- "kurbo 0.12.0",
- "log",
- "ordered-float",
- "quick-xml",
- "regex",
- "serde",
- "smol_str",
- "thiserror 2.0.17",
-]
-
-[[package]]
-name = "glyphs-reader"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "28c8e651ada659aa00811baff00b5412d554e8493d1bb3d74002c70fc847e530"
@@ -2051,26 +2029,6 @@ dependencies = [
 
 [[package]]
 name = "glyphs2fontir"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6f834accdf74843abdfaf1a449779ddd8a779b59fbeaebbbaee50e3d65b1e568"
-dependencies = [
- "chrono",
- "env_logger",
- "fontdrasil",
- "fontir",
- "glyphs-reader 0.4.0",
- "indexmap",
- "kurbo 0.12.0",
- "log",
- "ordered-float",
- "smol_str",
- "thiserror 2.0.17",
- "write-fonts 0.44.1",
-]
-
-[[package]]
-name = "glyphs2fontir"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "529b103c7fe9be8c4b41e32a89af2ab037fc3b227b643f0c60b63490fc7045b1"
@@ -2079,7 +2037,7 @@ dependencies = [
  "env_logger",
  "fontdrasil",
  "fontir",
- "glyphs-reader 0.5.0",
+ "glyphs-reader",
  "indexmap",
  "kurbo 0.12.0",
  "log",
@@ -2461,7 +2419,7 @@ dependencies = [
  "js-sys",
  "log",
  "wasm-bindgen",
- "windows-core 0.62.2",
+ "windows-core",
 ]
 
 [[package]]
@@ -4525,7 +4483,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys 0.11.0",
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -5218,7 +5176,7 @@ dependencies = [
  "getrandom 0.3.4",
  "once_cell",
  "rustix 1.1.2",
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -6031,7 +5989,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -6047,7 +6005,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9babd3a767a4c1aef6900409f85f5d53ce2544ccdfaa86dad48c91782c6d6893"
 dependencies = [
  "windows-collections",
- "windows-core 0.61.2",
+ "windows-core",
  "windows-future",
  "windows-link 0.1.3",
  "windows-numerics",
@@ -6059,7 +6017,7 @@ version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3beeceb5e5cfd9eb1d76b381630e82c4241ccd0d27f1a39ed41b2760b255c5e8"
 dependencies = [
- "windows-core 0.61.2",
+ "windows-core",
 ]
 
 [[package]]
@@ -6076,25 +6034,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "windows-core"
-version = "0.62.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b8e83a14d34d0623b51dce9581199302a221863196a1dde71a7663a4c2be9deb"
-dependencies = [
- "windows-implement",
- "windows-interface",
- "windows-link 0.2.1",
- "windows-result 0.4.1",
- "windows-strings 0.5.1",
-]
-
-[[package]]
 name = "windows-future"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fc6a41e98427b19fe4b73c550f060b59fa592d7d686537eebf9385621bfbad8e"
 dependencies = [
- "windows-core 0.61.2",
+ "windows-core",
  "windows-link 0.1.3",
  "windows-threading",
 ]
@@ -6139,7 +6084,7 @@ version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9150af68066c4c5c07ddc0ce30421554771e528bde427614c61038bc2c92c2b1"
 dependencies = [
- "windows-core 0.61.2",
+ "windows-core",
  "windows-link 0.1.3",
 ]
 
