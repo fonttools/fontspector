@@ -54,17 +54,20 @@ pub fn file_size(t: &Testable, context: &Context) -> CheckFnResult {
 mod tests {
     use std::collections::HashMap;
 
-    use fontspector_checkapi::codetesting::{
-        assert_pass, assert_results_contain, run_check_with_config, test_able,
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check_with_config, test_able},
+        StatusCode, TestableType,
     };
-    use fontspector_checkapi::{StatusCode, TestableType};
     use serde_json::json;
 
     fn get_config() -> HashMap<String, serde_json::Value> {
-        HashMap::from([
-            ("WARN_SIZE".to_string(), json!(1048576)), // 1Mb
-            ("FAIL_SIZE".to_string(), json!(9437184)), // 9Mb
-        ])
+        HashMap::from([(
+            "file_size".to_string(),
+            json!({
+                "WARN_SIZE": 1048576, // 1Mb
+                "FAIL_SIZE": 9437184, // 9Mb
+            }),
+        )])
     }
 
     #[test]

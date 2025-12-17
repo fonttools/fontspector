@@ -1,17 +1,25 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use std::collections::HashMap;
-use std::path::{Path, PathBuf};
-use std::sync::LazyLock;
+use std::{
+    collections::HashMap,
+    path::{Path, PathBuf},
+    sync::LazyLock,
+};
 
 // No bad thing if we panic in tests
 use crate::{prelude::*, Check, CheckResult, Context, FileTypeConvert, StatusCode};
-use fontations::skrifa::raw::{types::NameId, TableProvider};
-use fontations::skrifa::{GlyphNames, MetadataProvider};
-use fontations::write::tables::cmap::Cmap;
-use fontations::write::{
-    tables::name::{Name, NameRecord},
-    FontBuilder,
+use fontations::{
+    skrifa::{
+        raw::{types::NameId, TableProvider},
+        GlyphNames, MetadataProvider,
+    },
+    write::{
+        tables::{
+            cmap::Cmap,
+            name::{Name, NameRecord},
+        },
+        FontBuilder,
+    },
 };
 
 /// The root of the workspace, used to locate test resources
@@ -57,19 +65,10 @@ pub fn run_check_with_config(
     things: TestableType<'_>,
     config: HashMap<String, serde_json::Value>,
 ) -> Option<CheckResult> {
-    let mut configuration = HashMap::new();
-    let mut check_config = serde_json::Map::new();
-    for (k, v) in config {
-        check_config.insert(k, v);
-    }
-    configuration.insert(
-        check.id.to_string(),
-        serde_json::Value::Object(check_config),
-    );
     let ctx: Context = Context {
         skip_network: false,
         network_timeout: Some(10),
-        configuration,
+        configuration: config,
         check_metadata: check.metadata(),
         full_lists: true,
         cache: Default::default(),
