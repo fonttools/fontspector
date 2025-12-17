@@ -5,61 +5,73 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.2.1 (2025-12-17)
+
+### Bug Fixes
+
+ - <csr-id-e4722fef242bc3554263a87e2b67599312e4dc14/> fontwerk/weightclass
+   * fix(fontwerk/weightclass): make unittest fail
+   
+   * fix(fontwerk/weightclass): cover special case 'Italic' weight 400
+   
+   * fix(fontwerk/weightclass): add SemiLight 350 to get_expected_weight_name
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 2 commits contributed to the release over the course of 30 calendar days.
+ - 93 days passed between releases.
+ - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
+ - 2 unique issues were worked on: [#520](https://github.com/fonttools/fontspector/issues/520), [#535](https://github.com/fonttools/fontspector/issues/535)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#520](https://github.com/fonttools/fontspector/issues/520)**
+    - Fontwerk/weightclass ([`e4722fe`](https://github.com/fonttools/fontspector/commit/e4722fef242bc3554263a87e2b67599312e4dc14))
+ * **[#535](https://github.com/fonttools/fontspector/issues/535)**
+    - Fix(required_name_ids): make universal (fixes #534) ([`ad73d4c`](https://github.com/fonttools/fontspector/commit/ad73d4cf0a8e9627723b25e2861057e7d75ad49b))
+</details>
+
 ## v1.2.0 (2025-09-15)
+
+<csr-id-90205a8089d1394f957cdf13cdcc461b73824425/>
+<csr-id-abd4d4cf426666d0dac52706a763fb01d0e85d2c/>
 
 ### New Features
 
  - <csr-id-6f7ee1248bf877b8a563cbbee7e8cc54d68b85a9/> Extend profile
    * feat(fontwerk/name_consistency): Check if names are consistent within name table
-   
-   * feat(fontwerk/name_consistency): Refactor code
-   
-   * feat(fontwerk/name_consistency): formatting issues
-   
-   * feat(fontwerk/name_consistency): Remove unused imports
-   
-   * feat(fontwerk/required_name_ids): New test required_name_ids
-   
-   * feat(fontwerk/required_name_ids): Fix formatting issues
-   
-   * feat: Refactoring code Fontwerk
-   
-   * feat(register): extend exclude_check()
-   
-   * feat(fontwerk/soft_hyphen): soft-hyphen not allowed + update lib.rs and mod.rs
-   
-   * feat(fontwerk/embedding_bit): Add embedding test for Fontwerk fonts
-   
-   * Fix formatting fstype check
-   
-   * feat(fontwerk/glyph_coverage): add new check fontwerk/glyph_coverage
-   
-   * fix(fontwerk/glyph_coverage): move null character to encoded glyph list
-   
-   * fix(fontwerk/glyph_coverage): fix const lengths
-   
-   * fix(fontwerk/glyph_coverage): fix unitest (moved NULL to encoded glyphs)
-   
-   * feat(fontwerk/name_entries): allow to check against regex
-   
-   * fix(name_entries): make lint happy
-   
-   * feat: override valid_glyphnames found-invalid-names to StatusCode::Warn
-   
-   * refactor: Undo version of Fontwerk-profile
-   
-   Don't bump the version number manually, this will happen automatically on release
-   
-   * refactor: remove soft_hyphen from Fontwerk, use with_overrides instead.
-   
-   * Update CONTRIBUTORS.txt
+* feat(fontwerk/name_consistency): Refactor code
+* feat(fontwerk/name_consistency): formatting issues
+* feat(fontwerk/name_consistency): Remove unused imports
+* feat(fontwerk/required_name_ids): New test required_name_ids
+* feat(fontwerk/required_name_ids): Fix formatting issues
+* feat: Refactoring code Fontwerk
+* feat(register): extend exclude_check()
+* feat(fontwerk/soft_hyphen): soft-hyphen not allowed + update lib.rs and mod.rs
+* feat(fontwerk/embedding_bit): Add embedding test for Fontwerk fonts
+* Fix formatting fstype check
+* feat(fontwerk/glyph_coverage): add new check fontwerk/glyph_coverage
+* fix(fontwerk/glyph_coverage): move null character to encoded glyph list
+* fix(fontwerk/glyph_coverage): fix const lengths
+* fix(fontwerk/glyph_coverage): fix unitest (moved NULL to encoded glyphs)
+* feat(fontwerk/name_entries): allow to check against regex
+* fix(name_entries): make lint happy
+* feat: override valid_glyphnames found-invalid-names to StatusCode::Warn
+* refactor: Undo version of Fontwerk-profile
+* refactor: remove soft_hyphen from Fontwerk, use with_overrides instead.
+* Update CONTRIBUTORS.txt
 
 ### Bug Fixes
 
  - <csr-id-b635bd4c1b503c03db57ea4d07c7555c1aa5c731/> Update Fontwerk profile
    * fix(fontwerk/glyph_coverage): removing .case glyphs from minimum character set.
-   
-   * feat(fontwerk/weightclass): new test to meet fontwerk standards + .exclude_check("googlefonts/weightclass")
+* feat(fontwerk/weightclass): new test to meet fontwerk standards + .exclude_check("googlefonts/weightclass")
 
 ### Other
 
@@ -94,7 +106,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 4 commits contributed to the release over the course of 51 calendar days.
+ - 5 commits contributed to the release over the course of 54 calendar days.
  - 4 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 3 unique issues were worked on: [#356](https://github.com/fonttools/fontspector/issues/356), [#410](https://github.com/fonttools/fontspector/issues/410), [#418](https://github.com/fonttools/fontspector/issues/418)
 
@@ -111,8 +123,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  * **[#418](https://github.com/fonttools/fontspector/issues/418)**
     - Move the tests from Python to Rust ([`abd4d4c`](https://github.com/fonttools/fontspector/commit/abd4d4cf426666d0dac52706a763fb01d0e85d2c))
  * **Uncategorized**
+    - Release fontspector-checkapi v1.2.0, fontspector-profile-fontwerk v1.2.0, fontspector-profile-googlefonts v1.4.0, fontspector-profile-opentype v1.3.0, fontspector-profile-universal v1.2.0, fontspector-profile-iso15008 v1.0.4, fontspector v1.5.0 ([`de4a966`](https://github.com/fonttools/fontspector/commit/de4a966105bea222ea98da69793ddbfbdd590f9d))
     - Fontspector-checkapi v1.1.2, fontspector-fontbakery-bridge v1.2.0, fontspector-profile-fontwerk v1.1.0, fontspector-profile-googlefonts v1.3.0, fontspector-profile-opentype v1.2.1, fontspector-profile-universal v1.1.2, fontspector v1.4.0 ([`90205a8`](https://github.com/fonttools/fontspector/commit/90205a8089d1394f957cdf13cdcc461b73824425))
 </details>
+
+<csr-unknown>
+Don’t bump the version number manually, this will happen automatically on release<csr-unknown/>
 
 ## v1.1.0 (2025-08-11)
 
@@ -142,7 +158,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Update CONTRIBUTORS.txt
 
 <csr-unknown>
+<csr-unknown>
 Don’t bump the version number manually, this will happen automatically on release<csr-unknown/>
+<csr-unknown/>
 
 ## v1.0.0 (2025-07-02)
 

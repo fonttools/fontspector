@@ -5,20 +5,56 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.5.2 (2025-12-17)
+
+### Chore
+
+ - <csr-id-3aff895fb75d510fa826e19339424347b5d3ff61/> Refresh dependencies
+   * chore: Refresh dependencies
+   
+   * chore: Fixup fontc API
+
+### Bug Fixes
+
+ - <csr-id-b0ec2575807031228c1e31817946ccb30e654dee/> update rust crate glyphs2fontir to 0.6.0
+ - <csr-id-493060df23b11e3c44816f2542502134fcc8ec5c/> update rust crate zip to v6
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 3 commits contributed to the release over the course of 55 calendar days.
+ - 64 days passed between releases.
+ - 3 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 3 unique issues were worked on: [#497](https://github.com/fonttools/fontspector/issues/497), [#552](https://github.com/fonttools/fontspector/issues/552), [#554](https://github.com/fonttools/fontspector/issues/554)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#497](https://github.com/fonttools/fontspector/issues/497)**
+    - Update rust crate zip to v6 ([`493060d`](https://github.com/fonttools/fontspector/commit/493060df23b11e3c44816f2542502134fcc8ec5c))
+ * **[#552](https://github.com/fonttools/fontspector/issues/552)**
+    - Refresh dependencies ([`3aff895`](https://github.com/fonttools/fontspector/commit/3aff895fb75d510fa826e19339424347b5d3ff61))
+ * **[#554](https://github.com/fonttools/fontspector/issues/554)**
+    - Update rust crate glyphs2fontir to 0.6.0 ([`b0ec257`](https://github.com/fonttools/fontspector/commit/b0ec2575807031228c1e31817946ccb30e654dee))
+</details>
+
 ## v1.5.1 (2025-10-14)
 
 ### Bug Fixes
 
  - <csr-id-b15cec883493376f19d280c6f24a3e2e9a742de4/> configuration file type: TOML/JSON
    * fix(--help):  configuration file type: TOML/JSON
-   
-   * fix(--help): configuration file type: TOML/JSON
+* fix(--help): configuration file type: TOML/JSON
 
 ### Commit Statistics
 
 <csr-read-only-do-not-edit/>
 
- - 1 commit contributed to the release over the course of 9 calendar days.
+ - 2 commits contributed to the release over the course of 9 calendar days.
  - 29 days passed between releases.
  - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
  - 1 unique issue was worked on: [#477](https://github.com/fonttools/fontspector/issues/477)
@@ -31,6 +67,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
  * **[#477](https://github.com/fonttools/fontspector/issues/477)**
     - Configuration file type: TOML/JSON ([`b15cec8`](https://github.com/fonttools/fontspector/commit/b15cec883493376f19d280c6f24a3e2e9a742de4))
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.3.0, fontspector-profile-googlefonts v1.4.1, fontspector-profile-universal v1.3.0, fontspector v1.5.1 ([`7b3d29e`](https://github.com/fonttools/fontspector/commit/7b3d29e9dab0c4bf11506345219e59b378291be2))
 </details>
 
 ## v1.5.0 (2025-09-15)

@@ -5,35 +5,68 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.3.1 (2025-12-17)
+
+### Chore
+
+ - <csr-id-4befd6c88900e2e06c363a8a6b1cdfc9518e9c91/> More from rustybuzz to harfrust
+   * chore: Move from rustybuzz to harfrust
+   
+   * test(googlefonts/shaping/forbidden): Move tests to Rust
+   
+   * test: Pass full config to tests
+   
+   * chore: Missing docstrings
+   
+   * chore: not my fail
+
+### Bug Fixes
+
+ - <csr-id-adc935eb2c6ef03e239cff57af2b2adc9344295d/> update rust crate scraper to 0.25.0
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 2 commits contributed to the release.
+ - 64 days passed between releases.
+ - 2 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 2 unique issues were worked on: [#531](https://github.com/fonttools/fontspector/issues/531), [#551](https://github.com/fonttools/fontspector/issues/551)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#531](https://github.com/fonttools/fontspector/issues/531)**
+    - More from rustybuzz to harfrust ([`4befd6c`](https://github.com/fonttools/fontspector/commit/4befd6c88900e2e06c363a8a6b1cdfc9518e9c91))
+ * **[#551](https://github.com/fonttools/fontspector/issues/551)**
+    - Update rust crate scraper to 0.25.0 ([`adc935e`](https://github.com/fonttools/fontspector/commit/adc935eb2c6ef03e239cff57af2b2adc9344295d))
+</details>
+
 ## v1.3.0 (2025-10-14)
+
+<csr-id-56e2f3f9167f15b2cb8cba8377403b8472514a7c/>
 
 ### New Features
 
  - <csr-id-008b6fa8eab5ed5e9bb9cff5a6d4e51f822ce0be/> Adding new check
    * feat(family/uniqueness_first_31_characters): Adding new check (#472)
-   
-   * fix: some typos
-   
-   * fix: some formatting and panic issues
-   
-   * refactor: moving get_name_entry_string and get_name_pel_codes to font.rs
-   
-   * refactor: rename get_name_pel_codes -> get_name_platform_tuples
-   
-   * refactor: get_name_platform_tuples (return set, not sorted list)
-   
-   * refactor: remove redundant first_31_char_collection.contains_key
-   
-   * refactor: add struct PlatformSelector
-   
-   * refactor(family_uniqueness_first_31_characters): unittest
+* fix: some typos
+* fix: some formatting and panic issues
+* refactor: moving get_name_entry_string and get_name_pel_codes to font.rs
+* refactor: rename get_name_pel_codes -> get_name_platform_tuples
+* refactor: get_name_platform_tuples (return set, not sorted list)
+* refactor: remove redundant first_31_char_collection.contains_key
+* refactor: add struct PlatformSelector
+* refactor(family_uniqueness_first_31_characters): unittest
 
 ### Bug Fixes
 
  - <csr-id-7a7f2a6fe346597071b8099a481023b24afa094d/> Don't check for whitespace ink in format characters
    * fix(whitespace_ink): Don't check for whitespace ink in format characters
-   
-   * chore: Update Cargo.lock
+* chore: Update Cargo.lock
 
 ### Test
 
@@ -43,7 +76,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 3 commits contributed to the release over the course of 8 calendar days.
+ - 4 commits contributed to the release over the course of 8 calendar days.
  - 29 days passed between releases.
  - 3 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 4 unique issues were worked on: [#472](https://github.com/fonttools/fontspector/issues/472), [#473](https://github.com/fonttools/fontspector/issues/473), [#478](https://github.com/fonttools/fontspector/issues/478), [#486](https://github.com/fonttools/fontspector/issues/486)
@@ -62,6 +95,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Allow testing of collections ([`56e2f3f`](https://github.com/fonttools/fontspector/commit/56e2f3f9167f15b2cb8cba8377403b8472514a7c))
  * **[#486](https://github.com/fonttools/fontspector/issues/486)**
     - Don't check for whitespace ink in format characters ([`7a7f2a6`](https://github.com/fonttools/fontspector/commit/7a7f2a6fe346597071b8099a481023b24afa094d))
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.3.0, fontspector-profile-googlefonts v1.4.1, fontspector-profile-universal v1.3.0, fontspector v1.5.1 ([`7b3d29e`](https://github.com/fonttools/fontspector/commit/7b3d29e9dab0c4bf11506345219e59b378291be2))
 </details>
 
 ## v1.2.0 (2025-09-15)

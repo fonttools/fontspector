@@ -1,6 +1,6 @@
 [package]
 name = "fontspector"
-version = "1.5.1"
+version = "1.5.2"
 authors = ["Simon Cozens <simon@simon-cozens.org>"]
 edition = "2021"
 description = "Quality control for OpenType fonts"

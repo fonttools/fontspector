@@ -5,43 +5,105 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.4.0 (2025-12-17)
+
+### Chore
+
+ - <csr-id-3aff895fb75d510fa826e19339424347b5d3ff61/> Refresh dependencies
+   * chore: Refresh dependencies
+   
+   * chore: Fixup fontc API
+ - <csr-id-fe45168dca4d0764eb65dfddb75b2a8013bd6326/> Not my fail
+ - <csr-id-4befd6c88900e2e06c363a8a6b1cdfc9518e9c91/> More from rustybuzz to harfrust
+   * chore: Move from rustybuzz to harfrust
+   
+   * test(googlefonts/shaping/forbidden): Move tests to Rust
+   
+   * test: Pass full config to tests
+   
+   * chore: Missing docstrings
+   
+   * chore: not my fail
+
+### New Features
+
+ - <csr-id-6d1aa3c5839e5c76fe8510c029ab0c89eda81327/> check required unicodes (fixes #526)
+   * feat(has_unicodes): a new universal check for required unicodes
+   
+   * style(has_unicodes): make title shorter for better UX
+   
+   ---------
+
+### Bug Fixes
+
+ - <csr-id-79be9c4d732825e2158ad9a1ff9c98b184eba7d4/> Improve output (fixes #527)
+ - <csr-id-19710dd4360d090522da6d68387067988103f9c2/> ignore fonts without name ID 16 and 17
+   * fix(family/uniqueness_first_31_characters): first add failing unittest
+   
+   * fix(family/uniqueness_first_31_characters): skip if font has no name ID 16 and 17
+   
+   * fix(family/uniqueness_first_31_characters): make lint happy
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 7 commits contributed to the release over the course of 55 calendar days.
+ - 64 days passed between releases.
+ - 6 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 6 unique issues were worked on: [#503](https://github.com/fonttools/fontspector/issues/503), [#528](https://github.com/fonttools/fontspector/issues/528), [#531](https://github.com/fonttools/fontspector/issues/531), [#535](https://github.com/fonttools/fontspector/issues/535), [#536](https://github.com/fonttools/fontspector/issues/536), [#552](https://github.com/fonttools/fontspector/issues/552)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#503](https://github.com/fonttools/fontspector/issues/503)**
+    - Ignore fonts without name ID 16 and 17 ([`19710dd`](https://github.com/fonttools/fontspector/commit/19710dd4360d090522da6d68387067988103f9c2))
+ * **[#528](https://github.com/fonttools/fontspector/issues/528)**
+    - Improve output (fixes #527) ([`79be9c4`](https://github.com/fonttools/fontspector/commit/79be9c4d732825e2158ad9a1ff9c98b184eba7d4))
+ * **[#531](https://github.com/fonttools/fontspector/issues/531)**
+    - More from rustybuzz to harfrust ([`4befd6c`](https://github.com/fonttools/fontspector/commit/4befd6c88900e2e06c363a8a6b1cdfc9518e9c91))
+ * **[#535](https://github.com/fonttools/fontspector/issues/535)**
+    - Fix(required_name_ids): make universal (fixes #534) ([`ad73d4c`](https://github.com/fonttools/fontspector/commit/ad73d4cf0a8e9627723b25e2861057e7d75ad49b))
+ * **[#536](https://github.com/fonttools/fontspector/issues/536)**
+    - Check required unicodes (fixes #526) ([`6d1aa3c`](https://github.com/fonttools/fontspector/commit/6d1aa3c5839e5c76fe8510c029ab0c89eda81327))
+ * **[#552](https://github.com/fonttools/fontspector/issues/552)**
+    - Refresh dependencies ([`3aff895`](https://github.com/fonttools/fontspector/commit/3aff895fb75d510fa826e19339424347b5d3ff61))
+ * **Uncategorized**
+    - Not my fail ([`fe45168`](https://github.com/fonttools/fontspector/commit/fe45168dca4d0764eb65dfddb75b2a8013bd6326))
+</details>
+
 ## v1.3.0 (2025-10-14)
+
+<csr-id-56e2f3f9167f15b2cb8cba8377403b8472514a7c/>
 
 ### New Features
 
  - <csr-id-008b6fa8eab5ed5e9bb9cff5a6d4e51f822ce0be/> Adding new check
    * feat(family/uniqueness_first_31_characters): Adding new check (#472)
-   
-   * fix: some typos
-   
-   * fix: some formatting and panic issues
-   
-   * refactor: moving get_name_entry_string and get_name_pel_codes to font.rs
-   
-   * refactor: rename get_name_pel_codes -> get_name_platform_tuples
-   
-   * refactor: get_name_platform_tuples (return set, not sorted list)
-   
-   * refactor: remove redundant first_31_char_collection.contains_key
-   
-   * refactor: add struct PlatformSelector
-   
-   * refactor(family_uniqueness_first_31_characters): unittest
+* fix: some typos
+* fix: some formatting and panic issues
+* refactor: moving get_name_entry_string and get_name_pel_codes to font.rs
+* refactor: rename get_name_pel_codes -> get_name_platform_tuples
+* refactor: get_name_platform_tuples (return set, not sorted list)
+* refactor: remove redundant first_31_char_collection.contains_key
+* refactor: add struct PlatformSelector
+* refactor(family_uniqueness_first_31_characters): unittest
 
 ### Bug Fixes
 
+<csr-id-7a7f2a6fe346597071b8099a481023b24afa094d/>
+<csr-id-523021c7fbf321d5f3b715955f1f59ea81b8749f/>
+
  - <csr-id-a059bae9570e98cffe2f6596edb752feba568731/> Fix typo in codepoint
    * fix(arabic_high_hamza): Typo in high hamza codepoint
-   
-   * test(arabic_high_hamza): Add tests
- - <csr-id-7a7f2a6fe346597071b8099a481023b24afa094d/> Don't check for whitespace ink in format characters
-   * fix(whitespace_ink): Don't check for whitespace ink in format characters
-   
-   * chore: Update Cargo.lock
- - <csr-id-523021c7fbf321d5f3b715955f1f59ea81b8749f/> We can now dehint glyf tables
-   * fix(hinting_impact): We can now dehint glyf tables
-   
-   * chore: Change Rust CI workflow
+* test(arabic_high_hamza): Add tests
+* fix(whitespace_ink): Don't check for whitespace ink in format characters
+* chore: Update Cargo.lock
+* fix(hinting_impact): We can now dehint glyf tables
+* chore: Change Rust CI workflow
 
 ### Test
 
@@ -51,7 +113,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 5 commits contributed to the release over the course of 15 calendar days.
+ - 6 commits contributed to the release over the course of 15 calendar days.
  - 29 days passed between releases.
  - 5 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 6 unique issues were worked on: [#471](https://github.com/fonttools/fontspector/issues/471), [#472](https://github.com/fonttools/fontspector/issues/472), [#473](https://github.com/fonttools/fontspector/issues/473), [#478](https://github.com/fonttools/fontspector/issues/478), [#486](https://github.com/fonttools/fontspector/issues/486), [#494](https://github.com/fonttools/fontspector/issues/494)
@@ -74,7 +136,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Don't check for whitespace ink in format characters ([`7a7f2a6`](https://github.com/fonttools/fontspector/commit/7a7f2a6fe346597071b8099a481023b24afa094d))
  * **[#494](https://github.com/fonttools/fontspector/issues/494)**
     - Fix typo in codepoint ([`a059bae`](https://github.com/fonttools/fontspector/commit/a059bae9570e98cffe2f6596edb752feba568731))
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.3.0, fontspector-profile-googlefonts v1.4.1, fontspector-profile-universal v1.3.0, fontspector v1.5.1 ([`7b3d29e`](https://github.com/fonttools/fontspector/commit/7b3d29e9dab0c4bf11506345219e59b378291be2))
 </details>
+
+<csr-unknown>
+ Don’t check for whitespace ink in format characters We can now dehint glyf tables<csr-unknown/>
 
 ## v1.2.0 (2025-09-15)
 
@@ -178,9 +245,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Release fontspector-checkapi v1.2.0, fontspector-profile-fontwerk v1.2.0, fontspector-profile-googlefonts v1.4.0, fontspector-profile-opentype v1.3.0, fontspector-profile-universal v1.2.0, fontspector-profile-iso15008 v1.0.4, fontspector v1.5.0 ([`de4a966`](https://github.com/fonttools/fontspector/commit/de4a966105bea222ea98da69793ddbfbdd590f9d))
     - Fontspector-checkapi v1.1.2, fontspector-fontbakery-bridge v1.2.0, fontspector-profile-fontwerk v1.1.0, fontspector-profile-googlefonts v1.3.0, fontspector-profile-opentype v1.2.1, fontspector-profile-universal v1.1.2, fontspector v1.4.0 ([`90205a8`](https://github.com/fonttools/fontspector/commit/90205a8089d1394f957cdf13cdcc461b73824425))
 </details>
-
-<csr-unknown>
- New check New check<csr-unknown/>
 
 ## v1.1.2 (2025-08-11)
 
