@@ -42,6 +42,8 @@ fn category_hints(family_name: &str) -> Option<&'static str> {
     }
     None
 }
+const VALID_CLASSIFICATIONS: &[&str] = &["Display", "Handwriting", "Monospace", "Symbols"];
+const VALID_STROKES: &[&str] = &["Serif", "Slab Serif", "Sans Serif"];
 
 fn clean_url(url: &str) -> String {
     let mut cleaned = url.trim().to_string();
@@ -241,6 +243,40 @@ fn validate(c: &Testable, _context: &Context) -> CheckFnResult {
             "language",
             "Non-Noto families should not have any language fields in METADATA.pb",
         ));
+    }
+
+    // The METADATA.pb file can only contain specific predefined values for the
+    // 'stroke' and 'classifications' fields:
+
+    // Valid stroke values: Serif, Slab Serif, Sans Serif
+    // Valid classifications values: Display, Handwriting, Monospace, Symbols
+
+    // Any other values are invalid and will cause issues with the Google Fonts API.
+
+    if let Some(stroke) = msg.stroke.as_ref() {
+        if !stroke.is_empty() && !VALID_STROKES.contains(&stroke.as_str()) {
+            problems.push(Status::fail(
+                "invalid-stroke",
+                &format!(
+                    "METADATA.pb stroke field contains invalid value '{}'. Valid values are: {}",
+                    stroke,
+                    VALID_STROKES.join(", ")
+                ),
+            ));
+        }
+    }
+
+    for classification in &msg.classifications {
+        if !VALID_CLASSIFICATIONS.contains(&classification.as_str()) {
+            problems.push(Status::fail(
+                "invalid-classification",
+                &format!(
+                    "METADATA.pb classifications field contains invalid value '{}'. Valid values are: {}",
+                    classification,
+                    VALID_CLASSIFICATIONS.join(", ")
+                ),
+            ));
+        }
     }
 
     return_result(problems)

@@ -38,12 +38,18 @@ impl fontspector_checkapi::Plugin for Fontwerk {
             .add_section("Fontwerk Checks")
             .add_and_register_check(checks::fontwerk::name_entries)
             .add_and_register_check(checks::fontwerk::name_consistency)
-            .add_and_register_check(checks::fontwerk::required_name_ids)
             .add_and_register_check(checks::fontwerk::fstype)
             .add_and_register_check(checks::fontwerk::glyph_coverage)
             .add_and_register_check(checks::fontwerk::weightclass)
             // TODO: implement other Fontwerk checks
             // .add_and_register_check("fontwerk/names_match_default_fvar")
+            .include_profile("universal")
+            .with_configuration_defaults(
+                "universal/required_name_ids",
+                HashMap::from([
+                    ("required_name_ids".to_string(), json!([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 25])),
+                ]),
+            )
             .with_configuration_defaults(
                 "opentype/vendor_id",
                 HashMap::from([

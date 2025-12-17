@@ -96,6 +96,8 @@ impl fontspector_checkapi::Plugin for Universal {
             .add_and_register_check(checks::field_values)
             .add_and_register_check(checks::has_features)
             .add_and_register_check(checks::has_glyphs)
+            .add_and_register_check(checks::has_unicodes)
+            .add_and_register_check(checks::required_name_ids)
             .build("universal", cr)
 
         //  Checks which don't make sense any more

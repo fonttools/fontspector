@@ -7,6 +7,7 @@ fn get_expected_weight_name(weight_class: u16) -> Option<&'static [&'static str]
         100 => Some(&["Thin"]),
         200 => Some(&["XLight", "ExtraLight"]),
         300 => Some(&["Light"]),
+        350 => Some(&["SemiLight"]),
         400 => Some(&["Regular"]),
         500 => Some(&["Medium"]),
         600 => Some(&["SemiBold"]),
@@ -44,6 +45,12 @@ fn weightclass(t: &Testable, _context: &Context) -> CheckFnResult {
     let style_name = f.best_subfamilyname().unwrap_or("Regular".to_string());
     let style_name_parts = style_name.split(' ').collect::<Vec<_>>();
     let expected_weight_names = get_expected_weight_name(value);
+
+    if value == 400 && style_name == "Italic" {
+        // Special case: Italic style with Regular weight class is acceptable,
+        // even though it doesn't explicitly contain "Regular" in the style name.
+        return Ok(Status::just_one_pass());
+    }
 
     if let Some(expected_names) = expected_weight_names {
         for weight_name in expected_names {
@@ -109,6 +116,9 @@ mod tests {
             (1000, "Black", Some("For OS/2 usWeightClass 1000 we expect [\"XBlack\", \"ExtraBlack\"], but got 'Black'. Either usWeightClass is wrong or style name. Please investigate.".to_string())),
             (950, "XBlack", None),
             (1000, "XBlack", None),
+            (400, "Italic", None),
+            (350, "SemiLight", None),
+            (350, "SemiLight Italic", None),
             ];
         for (weight_class_value, style_name, expected_result) in weight_tests {
             let mut font_builder = FontBuilder::new();
