@@ -42,6 +42,8 @@ fn category_hints(family_name: &str) -> Option<&'static str> {
     }
     None
 }
+const VALID_CLASSIFICATIONS: &[&str] = &["Display", "Handwriting", "Monospace", "Symbols"];
+const VALID_STROKES: &[&str] = &["Serif", "Slab Serif", "Sans Serif"];
 
 fn clean_url(url: &str) -> String {
     let mut cleaned = url.trim().to_string();
@@ -243,32 +245,15 @@ fn validate(c: &Testable, _context: &Context) -> CheckFnResult {
         ));
     }
 
-    return_result(problems)
-}
+    // The METADATA.pb file can only contain specific predefined values for the
+    // 'stroke' and 'classifications' fields:
 
-#[check(
-    id = "googlefonts/metadata/valid_stroke_and_classifications",
-    title = "METADATA.pb stroke and classifications have valid values",
-    rationale = "
-        The METADATA.pb file can only contain specific predefined values for the
-        'stroke' and 'classifications' fields:
-        
-        Valid stroke values: Serif, Slab Serif, Sans Serif
-        Valid classifications values: Display, Handwriting, Monospace, Symbols
-        
-        Any other values are invalid and will cause issues with the Google Fonts API.
-    ",
-    proposal = "https://github.com/fonttools/fontspector/pull/533",
-    applies_to = "MDPB"
-)]
-fn valid_stroke_and_classifications(t: &Testable, _context: &Context) -> CheckFnResult {
-    const VALID_CLASSIFICATIONS: &[&str] = &["Display", "Handwriting", "Monospace", "Symbols"];
-    const VALID_STROKES: &[&str] = &["Serif", "Slab Serif", "Sans Serif"];
+    // Valid stroke values: Serif, Slab Serif, Sans Serif
+    // Valid classifications values: Display, Handwriting, Monospace, Symbols
 
-    let metadata = family_proto(t)?;
-    let mut problems = vec![];
+    // Any other values are invalid and will cause issues with the Google Fonts API.
 
-    if let Some(stroke) = metadata.stroke.as_ref() {
+    if let Some(stroke) = msg.stroke.as_ref() {
         if !stroke.is_empty() && !VALID_STROKES.contains(&stroke.as_str()) {
             problems.push(Status::fail(
                 "invalid-stroke",
@@ -281,7 +266,7 @@ fn valid_stroke_and_classifications(t: &Testable, _context: &Context) -> CheckFn
         }
     }
 
-    for classification in &metadata.classifications {
+    for classification in &msg.classifications {
         if !VALID_CLASSIFICATIONS.contains(&classification.as_str()) {
             problems.push(Status::fail(
                 "invalid-classification",
