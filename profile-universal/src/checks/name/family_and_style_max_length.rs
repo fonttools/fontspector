@@ -42,16 +42,18 @@ fn family_and_style_max_length(t: &Testable, context: &Context) -> CheckFnResult
     if !f.has_table(b"name") {
         return Ok(Status::just_one_fail("lacks-table", "No name table."));
     }
+    let mut name_ids = vec![];
     let config = context.local_config("name/family_and_style_max_length");
-    let full_name_length: usize = config
-        .get("FULL_NAME")
+    let family_name_length: usize = config
+        .get("FAMILY_NAME")
         .and_then(|v| v.as_u64())
         .unwrap_or(32) as usize;
-
+    name_ids.push((1, NameId::FAMILY_NAME, family_name_length));
     let postscript_name_length: usize = config
         .get("POSTSCRIPT_NAME")
         .and_then(|v| v.as_u64())
         .unwrap_or(27) as usize;
+    name_ids.push((6, NameId::POSTSCRIPT_NAME, postscript_name_length));
 
     let instance_name_length: usize = config
         .get("INSTANCE_NAME")
@@ -59,34 +61,26 @@ fn family_and_style_max_length(t: &Testable, context: &Context) -> CheckFnResult
         .unwrap_or(32) as usize;
 
     let mut problems = vec![];
-    for name in f.get_name_entry_strings(NameId::FULL_NAME) {
-        if strip_ribbi(&name).len() > full_name_length {
-            let chars_too_long_count = strip_ribbi(&name).len() - full_name_length;
-            let chars_too_long = chars_too_long_count.to_string();
-            problems.push(Status::fail(
-            "nameid4-too-long",
-            &format!(
-                "Name ID 4 'Full Font Name' exceeds {} characters ({} characters too long). This has been found to cause problems with the dropdown menu in old versions of Microsoft Word as well as shaping issues for some accented letters in Microsoft Word on Windows 10 and 11.",
-                full_name_length,
-                chars_too_long
-            ),
-        ));
+
+    for (id, name_id, name_length) in name_ids {
+        for name in f.get_name_entry_strings(name_id) {
+            if name.len() > name_length {
+                let chars_too_long_count = name.len() - name_length;
+                let chars_too_long = chars_too_long_count.to_string();
+                problems.push(Status::fail(
+                    &format!("nameid{}-too-long", id),
+                    &format!(
+                        "Name ID {} '{}' exceeds {} characters ({} characters too long). This has been found to cause problems with PostScript printers, especially on Mac platforms.",
+                        id,
+                        name_id,
+                        name_length,
+                        chars_too_long
+                    ),
+                ));
+            }
         }
     }
-    for name in f.get_name_entry_strings(NameId::POSTSCRIPT_NAME) {
-        if name.len() > postscript_name_length {
-            let chars_too_long_count = name.len() - postscript_name_length;
-            let chars_too_long = chars_too_long_count.to_string();
-            problems.push(Status::warn(
-                "nameid6-too-long",
-                &format!(
-                    "Name ID 6 'PostScript Name' exceeds {} characters ({} characters too long). This has been found to cause problems with PostScript printers, especially on Mac platforms.",
-                    postscript_name_length,
-                    chars_too_long
-                ),
-            ));
-        }
-    }
+
     let name = f.font().name()?;
     let typo_family_names: HashMap<(u16, u16, u16), String> =
         low_level_names(&name, NameId::TYPOGRAPHIC_FAMILY_NAME);
@@ -137,10 +131,10 @@ mod tests {
     use std::collections::HashMap;
 
     #[test]
-    fn test_family_and_style_max_length_fail_nid4() {
+    fn test_family_and_style_max_length_fail_nid1() {
         let conf = HashMap::from([(
             "name/family_and_style_max_length".to_string(),
-            serde_json::json!({ "FULL_NAME": 3}),
+            serde_json::json!({ "FAMILY_NAME": 3}),
         )]);
         let testable = test_able("varfont/inter/Inter[slnt,wght].ttf");
         let results = run_check_with_config(
@@ -152,7 +146,7 @@ mod tests {
         assert_results_contain(
             &results,
             StatusCode::Fail,
-            Some("nameid4-too-long".to_string()),
+            Some("nameid1-too-long".to_string()),
         );
     }
 
@@ -171,7 +165,7 @@ mod tests {
         assert_messages_contain(&results, "(2 characters too long)");
         assert_results_contain(
             &results,
-            StatusCode::Warn,
+            StatusCode::Fail,
             Some("nameid6-too-long".to_string()),
         );
     }
