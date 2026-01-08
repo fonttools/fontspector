@@ -14,7 +14,6 @@ use std::vec;
     title = "Required name ids in name table"
 )]
 fn required_name_ids(t: &Testable, context: &Context) -> CheckFnResult {
-    print!("required_name_ids check running...");
     let font = testfont!(t);
     if !font.has_table(b"name") {
         return Ok(Status::just_one_fail("lacks-table", "No name table."));
