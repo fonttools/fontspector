@@ -37,30 +37,46 @@ fn low_level_names(name: &Name<'_>, name_id: NameId) -> HashMap<(u16, u16, u16),
     proposal = "https://github.com/fonttools/fontbakery/issues/2179",
     title = "Combined length of family and style must not exceed 32 characters."
 )]
-fn family_and_style_max_length(t: &Testable, _context: &Context) -> CheckFnResult {
+fn family_and_style_max_length(t: &Testable, context: &Context) -> CheckFnResult {
     let f = testfont!(t);
+    if !f.has_table(b"name") {
+        return Ok(Status::just_one_fail("lacks-table", "No name table."));
+    }
+    let config = context.local_config("name/family_and_style_max_length");
+    let full_name_length: usize = config
+        .get("FULL_NAME")
+        .and_then(|v| v.as_u64())
+        .unwrap_or(32) as usize;
+
+    let postscript_name_length: usize = config
+        .get("POSTSCRIPT_NAME")
+        .and_then(|v| v.as_u64())
+        .unwrap_or(27) as usize;
+
     let mut problems = vec![];
     for name in f.get_name_entry_strings(NameId::FULL_NAME) {
-        if strip_ribbi(&name).len() > 32 {
-            let chars_too_long_count = strip_ribbi(&name).len() - 32;
+        if strip_ribbi(&name).len() > full_name_length {
+            let chars_too_long_count = strip_ribbi(&name).len() - full_name_length;
             let chars_too_long = chars_too_long_count.to_string();
             problems.push(Status::fail(
             "nameid4-too-long",
             &format!(
-                "Name ID 4 'Full Font Name' exceeds 32 characters ({} characters too long). This has been found to cause problems with the dropdown menu in old versions of Microsoft Word as well as shaping issues for some accented letters in Microsoft Word on Windows 10 and 11.",
+                "Name ID 4 'Full Font Name' exceeds {} characters ({} characters too long). This has been found to cause problems with the dropdown menu in old versions of Microsoft Word as well as shaping issues for some accented letters in Microsoft Word on Windows 10 and 11.",
+                full_name_length,
                 chars_too_long
             ),
         ));
         }
     }
     for name in f.get_name_entry_strings(NameId::POSTSCRIPT_NAME) {
-        if name.len() > 27 {
-            let chars_too_long_count = name.len() - 27;
+        if name.len() > postscript_name_length {
+            let chars_too_long_count = name.len() - postscript_name_length;
             let chars_too_long = chars_too_long_count.to_string();
             problems.push(Status::warn(
                 "nameid6-too-long",
                 &format!(
-                    "Name ID 6 'PostScript Name' exceeds 27 characters ({} characters too long). This has been found to cause problems with PostScript printers, especially on Mac platforms.",
+                    "Name ID 6 'PostScript Name' exceeds {} characters ({} characters too long). This has been found to cause problems with PostScript printers, especially on Mac platforms.",
+                    postscript_name_length,
                     chars_too_long
                 ),
             ));
@@ -99,4 +115,69 @@ fn family_and_style_max_length(t: &Testable, _context: &Context) -> CheckFnResul
     }
 
     return_result(problems)
+}
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
+    use fontspector_checkapi::{
+        codetesting::{
+            assert_messages_contain, assert_pass, assert_results_contain, run_check_with_config,
+            test_able,
+        },
+        StatusCode, TestableType,
+    };
+    use std::collections::HashMap;
+
+    #[test]
+    fn test_family_and_style_max_length_fail_nid4() {
+        let conf = HashMap::from([(
+            "name/family_and_style_max_length".to_string(),
+            serde_json::json!({ "FULL_NAME": 3}),
+        )]);
+        let testable = test_able("varfont/inter/Inter[slnt,wght].ttf");
+        let results = run_check_with_config(
+            super::family_and_style_max_length,
+            TestableType::Single(&testable),
+            conf,
+        );
+        assert_messages_contain(&results, "(2 characters too long)");
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("nameid4-too-long".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_family_and_style_max_length_fail_nid6() {
+        let conf = HashMap::from([(
+            "name/family_and_style_max_length".to_string(),
+            serde_json::json!({ "POSTSCRIPT_NAME": 11}),
+        )]);
+        let testable = test_able("varfont/inter/Inter[slnt,wght].ttf");
+        let results = run_check_with_config(
+            super::family_and_style_max_length,
+            TestableType::Single(&testable),
+            conf,
+        );
+        assert_messages_contain(&results, "(2 characters too long)");
+        assert_results_contain(
+            &results,
+            StatusCode::Warn,
+            Some("nameid6-too-long".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_family_and_style_max_length_pass_no_config() {
+        let testable = test_able("varfont/inter/Inter[slnt,wght].ttf");
+        let results = run_check_with_config(
+            super::family_and_style_max_length,
+            TestableType::Single(&testable),
+            HashMap::new(),
+        );
+        assert_pass(&results);
+    }
 }
