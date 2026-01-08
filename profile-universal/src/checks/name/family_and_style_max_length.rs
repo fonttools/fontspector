@@ -53,6 +53,11 @@ fn family_and_style_max_length(t: &Testable, context: &Context) -> CheckFnResult
         .and_then(|v| v.as_u64())
         .unwrap_or(27) as usize;
 
+    let instance_name_length: usize = config
+        .get("INSTANCE_NAME")
+        .and_then(|v| v.as_u64())
+        .unwrap_or(32) as usize;
+
     let mut problems = vec![];
     for name in f.get_name_entry_strings(NameId::FULL_NAME) {
         if strip_ribbi(&name).len() > full_name_length {
@@ -95,16 +100,17 @@ fn family_and_style_max_length(t: &Testable, context: &Context) -> CheckFnResult
                     // Use typo if present, nameid=1 otherwise
                     let family_name = typo_family_names.get(key).unwrap_or(string);
                     let full_instance_name = format!("{family_name} {instance_name}");
-                    if full_instance_name.len() > 32 {
-                        let chars_too_long_count = full_instance_name.len() - 32;
+                    if full_instance_name.len() > instance_name_length {
+                        let chars_too_long_count = full_instance_name.len() - instance_name_length;
                         let chars_too_long = chars_too_long_count.to_string();
                         problems.push(Status::fail(
                         "instance-too-long",
                         &format!(
-                            "Variable font instance name '{}' formed by space-separated concatenation of font family name (nameID {}) and instance subfamily nameID {} exceeds 32 characterss ({} characters too long).\n\nThis has been found to cause shaping issues for some accented letters in Microsoft Word on Windows 10 and 11.",
+                            "Variable font instance name '{}' formed by space-separated concatenation of font family name (nameID {}) and instance subfamily nameID {} exceeds {} characterss ({} characters too long).\n\nThis has been found to cause shaping issues for some accented letters in Microsoft Word on Windows 10 and 11.",
                             full_instance_name,
                             NameId::FAMILY_NAME,
                             instance_name,
+                            instance_name_length,
                             chars_too_long
                         ),
                     ));
@@ -167,6 +173,26 @@ mod tests {
             &results,
             StatusCode::Warn,
             Some("nameid6-too-long".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_family_and_style_max_length_fail_instance_name() {
+        let conf = HashMap::from([(
+            "name/family_and_style_max_length".to_string(),
+            serde_json::json!({ "INSTANCE_NAME": 11}),
+        )]);
+        let testable = test_able("varfont/inter/Inter[slnt,wght].ttf");
+        let results = run_check_with_config(
+            super::family_and_style_max_length,
+            TestableType::Single(&testable),
+            conf,
+        );
+        assert_messages_contain(&results, "(6 characters too long)");
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("instance-too-long".to_string()),
         );
     }
 
