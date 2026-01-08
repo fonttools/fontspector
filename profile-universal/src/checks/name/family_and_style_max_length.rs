@@ -40,21 +40,31 @@ fn low_level_names(name: &Name<'_>, name_id: NameId) -> HashMap<(u16, u16, u16),
 fn family_and_style_max_length(t: &Testable, _context: &Context) -> CheckFnResult {
     let f = testfont!(t);
     let mut problems = vec![];
-    if f.get_name_entry_strings(NameId::FULL_NAME)
-        .any(|name| strip_ribbi(&name).len() > 32)
-    {
-        problems.push(Status::fail(
+    for name in f.get_name_entry_strings(NameId::FULL_NAME) {
+        if strip_ribbi(&name).len() > 32 {
+            let chars_too_long_count = strip_ribbi(&name).len() - 32;
+            let chars_too_long = chars_too_long_count.to_string();
+            problems.push(Status::fail(
             "nameid4-too-long",
-            "Name ID 4 'Full Font Name' exceeds 32 characters. This has been found to cause problems with the dropdown menu in old versions of Microsoft Word as well as shaping issues for some accented letters in Microsoft Word on Windows 10 and 11.",
+            &format!(
+                "Name ID 4 'Full Font Name' exceeds 32 characters ({} characters too long). This has been found to cause problems with the dropdown menu in old versions of Microsoft Word as well as shaping issues for some accented letters in Microsoft Word on Windows 10 and 11.",
+                chars_too_long
+            ),
         ));
+        }
     }
-    if f.get_name_entry_strings(NameId::POSTSCRIPT_NAME)
-        .any(|name| name.len() > 27)
-    {
-        problems.push(Status::warn(
-            "nameid6-too-long",
-            "Name ID 6 'PostScript Name' exceeds 27 characters. This has been found to cause problems with PostScript printers, especially on Mac platforms.",
-        ));
+    for name in f.get_name_entry_strings(NameId::POSTSCRIPT_NAME) {
+        if name.len() > 27 {
+            let chars_too_long_count = name.len() - 27;
+            let chars_too_long = chars_too_long_count.to_string();
+            problems.push(Status::warn(
+                "nameid6-too-long",
+                &format!(
+                    "Name ID 6 'PostScript Name' exceeds 27 characters ({} characters too long). This has been found to cause problems with PostScript printers, especially on Mac platforms.",
+                    chars_too_long
+                ),
+            ));
+        }
     }
     let name = f.font().name()?;
     let typo_family_names: HashMap<(u16, u16, u16), String> =
@@ -70,13 +80,16 @@ fn family_and_style_max_length(t: &Testable, _context: &Context) -> CheckFnResul
                     let family_name = typo_family_names.get(key).unwrap_or(string);
                     let full_instance_name = format!("{family_name} {instance_name}");
                     if full_instance_name.len() > 32 {
+                        let chars_too_long_count = full_instance_name.len() - 32;
+                        let chars_too_long = chars_too_long_count.to_string();
                         problems.push(Status::fail(
                         "instance-too-long",
                         &format!(
-                            "Variable font instance name '{}' formed by space-separated concatenation of font family name (nameID {}) and instance subfamily nameID {} exceeds 32 characters.\n\nThis has been found to cause shaping issues for some accented letters in Microsoft Word on Windows 10 and 11.",
+                            "Variable font instance name '{}' formed by space-separated concatenation of font family name (nameID {}) and instance subfamily nameID {} exceeds 32 characterss ({} characters too long).\n\nThis has been found to cause shaping issues for some accented letters in Microsoft Word on Windows 10 and 11.",
                             full_instance_name,
                             NameId::FAMILY_NAME,
-                            instance_name
+                            instance_name,
+                            chars_too_long
                         ),
                     ));
                     }
