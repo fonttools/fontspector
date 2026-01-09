@@ -16,5 +16,4 @@ subsets: "menu"
 subsets: "khudawadi"
 primary_script: "Sind"
 is_noto: true
-languages: "sa_Sind"  # Sanskrit, Khudawadi
 languages: "sd_Sind"  # Sindhi, Khudawadi

@@ -45,5 +45,60 @@ fn valid_primary_script_language(t: &Testable, _context: &Context) -> CheckFnRes
         ));
     }
 
+    // Let's validate all the languages while we're here
+    for lang in msg.languages {
+        if !lang.is_empty() && !LANGUAGES.contains_key(&lang) {
+            problems.push(Status::fail(
+                "invalid-language",
+                &format!(
+                    "METADATA.pb language '{}' is not a valid language ID. \
+                     Expected format: 'lang_Script' (e.g., 'en_Latn'). \
+                     See https://github.com/googlefonts/lang for valid values.",
+                    lang
+                ),
+            ));
+        }
+    }
+
     return_result(problems)
+}
+
+#[cfg(test)]
+mod tests {
+    use fontspector_checkapi::codetesting::{
+        assert_pass, assert_results_contain, run_check, test_able,
+    };
+
+    use fontspector_checkapi::StatusCode;
+
+    use super::valid_primary_script_language;
+
+    #[allow(clippy::expect_used)]
+    #[test]
+    fn test_check_valid_primary_script_language() {
+        let mut testable = test_able("notosanskhudawadi/METADATA.pb");
+        let results = run_check(valid_primary_script_language, testable.clone());
+        assert_pass(&results);
+        testable.contents = String::from_utf8_lossy(&testable.contents)
+            .replace("primary_script: \"Sind\"", "primary_script: \"Zinh\"")
+            .into_bytes();
+        // Test with invalid primary_script
+        let results = run_check(valid_primary_script_language, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("invalid-primary-script".to_string()),
+        );
+
+        let mut testable = test_able("notosanskhudawadi/METADATA.pb");
+        testable.contents = String::from_utf8_lossy(&testable.contents)
+            .replace("languages: \"sd_Sind\"", "languages: \"en_Taml\"")
+            .into_bytes();
+        let results = run_check(valid_primary_script_language, testable.clone());
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("invalid-language".to_string()),
+        );
+    }
 }
