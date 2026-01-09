@@ -51,6 +51,8 @@ mod consistent_repo_urls;
 pub use consistent_repo_urls::consistent_repo_urls;
 mod primary_script;
 pub use primary_script::primary_script;
+mod valid_primary_script_language;
+pub use valid_primary_script_language::valid_primary_script_language;
 #[cfg(not(target_family = "wasm"))]
 mod designer_profiles;
 #[cfg(not(target_family = "wasm"))]
