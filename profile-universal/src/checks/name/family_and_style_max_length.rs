@@ -3,13 +3,6 @@ use std::collections::HashMap;
 use fontations::skrifa::raw::{tables::name::Name, types::NameId, TableProvider};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
 
-fn strip_ribbi(name: &str) -> String {
-    name.replace(" Regular", "")
-        .replace(" Bold Italic", "")
-        .replace(" Bold", "")
-        .replace(" Italic", "")
-}
-
 // We are matching name entries with the same platform/language/encoding, so we
 // need to use low-level APIS here
 fn low_level_names(name: &Name<'_>, name_id: NameId) -> HashMap<(u16, u16, u16), String> {
