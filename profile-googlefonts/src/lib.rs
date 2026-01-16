@@ -164,6 +164,7 @@ impl fontspector_checkapi::Plugin for GoogleFonts {
 
         let builder = builder
             .add_and_register_check(checks::googlefonts::axisregistry::fvar_axis_defaults)
+            .add_and_register_check(checks::googlefonts::axisregistry::fvar_axis_ranges)
             .add_and_register_check(checks::googlefonts::canonical_filename)
             .add_and_register_check(checks::googlefonts::cjk_vertical_metrics)
             .add_and_register_check(checks::googlefonts::color_fonts)
