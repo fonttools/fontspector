@@ -1,7 +1,11 @@
 use fontations::{
-    skrifa::raw::{
-        tables::{head::MacStyle, os2::SelectionFlags},
-        TableProvider,
+    skrifa::{
+        raw::{
+            tables::{head::MacStyle, os2::SelectionFlags},
+            TableProvider,
+        },
+        string::StringId,
+        MetadataProvider,
     },
     write::from_obj::ToOwnedTable,
 };
@@ -24,6 +28,7 @@ use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
         the bold and italic bits in head.macStyle per the OpenType spec.
     ",
     proposal = "https://github.com/fonttools/fontbakery/issues/4829",  // legacy check
+    proposal = "https://github.com/fonttools/fontspector/issues/577",
     hotfix = fix_fsselection,
 )]
 fn fsselection(f: &Testable, _context: &Context) -> CheckFnResult {
@@ -66,6 +71,22 @@ fn fsselection(f: &Testable, _context: &Context) -> CheckFnResult {
             ));
         }
     }
+
+    let wws_seen = fs_flags.contains(SelectionFlags::WWS);
+    let has_name_id_21 = font
+        .font()
+        .localized_strings(StringId::WWS_FAMILY_NAME)
+        .english_or_first();
+    let has_name_id_22 = font
+        .font()
+        .localized_strings(StringId::WWS_SUBFAMILY_NAME)
+        .english_or_first();
+    if has_name_id_21.is_none() && has_name_id_22.is_none() && !wws_seen {
+        problems.push(Status::warn(
+            "bad-fsSelection-wws-bit",
+            "If no name id 21 and 22 (WWS Family Name/WWS Subfamily Name), 'OS/2' fsSelection flag for WWS should be set.",
+        ));
+    }
     return_result(problems)
 }
 
@@ -91,4 +112,33 @@ fn fix_fsselection(t: &mut Testable) -> FixFnResult {
 
     t.set(f.rebuild_with_new_table(&os2)?);
     Ok(true)
+}
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
+    use fontspector_checkapi::{
+        codetesting::{
+            assert_messages_contain, assert_results_contain, run_check_with_config, test_able,
+        },
+        StatusCode, TestableType,
+    };
+    use std::collections::HashMap;
+
+    #[test]
+    fn test_fsselection() {
+        let testable = test_able("mada/Mada-Regular.ttf");
+        let results = run_check_with_config(
+            super::fsselection,
+            TestableType::Single(&testable),
+            HashMap::new(),
+        );
+        assert_messages_contain(&results, "fsSelection flag for WWS should be set.");
+        assert_results_contain(
+            &results,
+            StatusCode::Warn,
+            Some("bad-fsSelection-wws-bit".to_string()),
+        );
+    }
 }
