@@ -54,7 +54,7 @@ image = { version = "0.25.5", default-features = false, features = [
     "jpeg",
     "gif",
 ] }
-harfrust = "0.4.0"
+harfrust = { workspace = true }
 
 [lints]
 workspace = true
