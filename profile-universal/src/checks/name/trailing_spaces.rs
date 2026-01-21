@@ -16,7 +16,8 @@ fn trailing_spaces(f: &Testable, _context: &Context) -> CheckFnResult {
 
     if let Ok(name_table) = testfont!(f).font().name() {
         for name_record in name_table.name_record().iter() {
-            let name_rec_info = format!("{:}/{:}/{:}/{:}",
+            let name_rec_info = format!(
+                "{:}/{:}/{:}/{:}",
                 name_record.platform_id,
                 name_record.encoding_id,
                 name_record.language_id,
@@ -39,10 +40,15 @@ fn trailing_spaces(f: &Testable, _context: &Context) -> CheckFnResult {
                 .map(|s| s.contains("  "))
                 .unwrap_or(false)
             {
-                problems.push(Status::warn("double-spaces",&format!(
-                    "Name table record {name_rec_info} has double spaces:\n`{:}`",
-                    name_record.string(name_table.string_data()).map_err(|_| FontspectorError::General("Error reading string".to_string()))?,
-                )))
+                problems.push(Status::warn(
+                    "double-spaces",
+                    &format!(
+                        "Name table record {name_rec_info} has double spaces:\n`{:}`",
+                        name_record.string(name_table.string_data()).map_err(|_| {
+                            FontspectorError::General("Error reading string".to_string())
+                        })?,
+                    ),
+                ))
             }
         }
     }
@@ -57,18 +63,16 @@ fn fix_trailing_spaces(_f: &mut Testable) -> FixFnResult {
 mod tests {
     #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-    use fontspector_checkapi::{
-        codetesting::{
-            assert_messages_contain, assert_results_contain, run_check_with_config,
-        },
-        StatusCode, TestableType,
-    };
-    use fontspector_checkapi::{Testable};
     use fontations::skrifa::raw::types::NameId;
     use fontations::write::{
         tables::maxp::Maxp,
         tables::name::{Name, NameRecord},
         FontBuilder,
+    };
+    use fontspector_checkapi::Testable;
+    use fontspector_checkapi::{
+        codetesting::{assert_messages_contain, assert_results_contain, run_check_with_config},
+        StatusCode, TestableType,
     };
     use std::collections::HashMap;
 
@@ -78,9 +82,7 @@ mod tests {
         builder.add_table(&Maxp::default()).unwrap();
         let mut name_table = Name::default();
         let mut new_records = Vec::new();
-        let nids = [
-            (0, "Copyright 2026 Foundry Name.  With double spaces.",),
-        ];
+        let nids = [(0, "Copyright 2026 Foundry Name.  With double spaces.")];
         for (nid, s) in nids.iter() {
             let name_rec = NameRecord::new(3, 1, 1033, NameId::new(*nid), (*s).to_string().into());
             new_records.push(name_rec);
