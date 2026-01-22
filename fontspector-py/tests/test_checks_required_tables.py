@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 from fontTools.ttLib import TTFont
 
 from conftest import check_id
-from fontbakery.status import FAIL, INFO
+from fontbakery.status import FAIL, INFO, WARN
 from fontbakery.codetesting import (
     assert_PASS,
     assert_results_contain,
@@ -123,3 +123,25 @@ def test_check_required_tables(check):
 
         # remove the one we've just inserted before trying the next one:
         del ttFont.reader.tables[optional]
+
+    # Test for VVAR table in variable fonts with vmtx
+    # https://github.com/fonttools/fontspector/issues/516
+    # Variable font with vmtx but no VVAR should WARN
+    vf_no_vvar = TTFont(TEST_FILE("cjk/NotoSansJP[wght].ttf"))
+    assert "fvar" in vf_no_vvar
+    assert "vmtx" in vf_no_vvar
+    assert "VVAR" not in vf_no_vvar
+    msg = assert_results_contain(
+        check(vf_no_vvar),
+        WARN,
+        "missing-vvar",
+        "with a variable font with vmtx but no VVAR...",
+    )
+    assert "vmtx" in msg
+
+    # Variable font with vmtx AND VVAR should PASS
+    vf_with_vvar = TTFont(TEST_FILE("shantell/ShantellSans[BNCE,INFM,SPAC,wght].ttf"))
+    assert "fvar" in vf_with_vvar
+    assert "vmtx" in vf_with_vvar
+    assert "VVAR" in vf_with_vvar
+    assert_PASS(check(vf_with_vvar), "with a variable font with vmtx and VVAR...")

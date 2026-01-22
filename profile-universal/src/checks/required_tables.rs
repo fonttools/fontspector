@@ -39,6 +39,7 @@ const OPTIONAL_TABLE_TAGS: [&[u8; 4]; 20] = [
           at which grayscaling is used under Windows. Etc.
     ",
     proposal = "https://github.com/fonttools/fontbakery/issues/4829",  // legacy check
+    proposal = "https://github.com/fonttools/fontspector/issues/516"  // vmtx + VVAR
 )]
 fn required_tables(t: &Testable, _context: &Context) -> CheckFnResult {
     let f = testfont!(t);
@@ -113,6 +114,17 @@ fn required_tables(t: &Testable, _context: &Context) -> CheckFnResult {
                 "This font is missing the following required tables:\n\n    {}",
                 missing.join("\n    ")
             ),
+        ))
+    }
+
+    // Variable fonts with vmtx should also have VVAR for performance.
+    // https://github.com/fonttools/fontspector/issues/516
+    if f.is_variable_font() && f.has_table(b"vmtx") && !f.has_table(b"VVAR") {
+        problems.push(Status::warn(
+            "missing-vvar",
+            "Font has a vmtx table but no VVAR table. \
+             Adding a VVAR table speeds up processing of vertical typesetting \
+             significantly with only a minor file size increase.",
         ))
     }
 
