@@ -130,3 +130,39 @@ fn required_tables(t: &Testable, _context: &Context) -> CheckFnResult {
 
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    use fontspector_checkapi::codetesting::{
+        assert_messages_contain, assert_results_contain, run_check, test_able,
+    };
+    use fontspector_checkapi::StatusCode;
+
+    use super::required_tables;
+
+    #[test]
+    fn test_vvar_missing() {
+        // Variable font with vmtx but no VVAR should WARN
+        // NotoSansJP has fvar and vmtx but no VVAR
+        let testable = test_able("cjk/NotoSansJP[wght].ttf");
+        let results = run_check(required_tables, testable);
+        assert_results_contain(&results, StatusCode::Warn, Some("missing-vvar".to_string()));
+        assert_messages_contain(&results, "vmtx");
+    }
+
+    #[test]
+    fn test_vvar_present() {
+        // Variable font with vmtx AND VVAR should not trigger warning
+        // ShantellSans has fvar, vmtx, and VVAR
+        let testable = test_able("shantell/ShantellSans[BNCE,INFM,SPAC,wght].ttf");
+        let results = run_check(required_tables, testable);
+        if let Some(result) = &results {
+            for status in &result.subresults {
+                assert!(
+                    status.code.as_deref() != Some("missing-vvar"),
+                    "Should not warn about missing VVAR when VVAR is present"
+                );
+            }
+        }
+    }
+}
