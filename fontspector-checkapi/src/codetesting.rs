@@ -1,4 +1,4 @@
-#![allow(clippy::unwrap_used, clippy::expect_used, clippy::indexing_slicing)]
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::{
     collections::HashMap,
@@ -246,224 +246,49 @@ pub fn remap_glyph(
 
 /// Remove a table from a font (for testing purposes only)
 ///
-/// This rebuilds the font without the specified table by manipulating raw bytes.
-/// We use raw byte manipulation to preserve the original font structure.
+/// This rebuilds the font without the specified table using write-fonts FontBuilder.
 pub fn remove_table(font: &mut Testable, table_tag: &[u8; 4]) {
-    let data = &font.contents;
+    use fontations::skrifa::{font::FontRef, Tag};
 
-    // Parse the table directory header
-    let sfnt_version = &data[0..4];
-    let num_tables = u16::from_be_bytes([data[4], data[5]]) as usize;
+    let f = FontRef::new(&font.contents).unwrap();
+    let tag_to_remove = Tag::new(table_tag);
 
-    // Find tables to keep (all except the one we're removing)
-    let mut tables_to_keep = Vec::new();
-    for i in 0..num_tables {
-        let record_offset = 12 + i * 16;
-        let tag = &data[record_offset..record_offset + 4];
-        if tag != table_tag {
-            let checksum = u32::from_be_bytes([
-                data[record_offset + 4],
-                data[record_offset + 5],
-                data[record_offset + 6],
-                data[record_offset + 7],
-            ]);
-            let offset = u32::from_be_bytes([
-                data[record_offset + 8],
-                data[record_offset + 9],
-                data[record_offset + 10],
-                data[record_offset + 11],
-            ]) as usize;
-            let length = u32::from_be_bytes([
-                data[record_offset + 12],
-                data[record_offset + 13],
-                data[record_offset + 14],
-                data[record_offset + 15],
-            ]) as usize;
-
-            tables_to_keep.push((tag.to_vec(), checksum, offset, length));
+    let mut builder = FontBuilder::new();
+    for table_record in f.table_directory.table_records() {
+        let tag = table_record.tag.get();
+        if tag != tag_to_remove {
+            if let Some(table_data) = f.table_data(tag) {
+                builder.add_raw(tag, table_data);
+            }
         }
     }
 
-    let new_num_tables = tables_to_keep.len() as u16;
-
-    // Calculate search range, entry selector, range shift
-    let mut search_range = 1u16;
-    let mut entry_selector = 0u16;
-    while search_range * 2 <= new_num_tables {
-        search_range *= 2;
-        entry_selector += 1;
-    }
-    search_range *= 16;
-    let range_shift = new_num_tables * 16 - search_range;
-
-    // Build new font
-    let mut new_data = Vec::new();
-
-    // Write header
-    new_data.extend_from_slice(sfnt_version);
-    new_data.extend_from_slice(&new_num_tables.to_be_bytes());
-    new_data.extend_from_slice(&search_range.to_be_bytes());
-    new_data.extend_from_slice(&entry_selector.to_be_bytes());
-    new_data.extend_from_slice(&range_shift.to_be_bytes());
-
-    // Calculate new offsets - table data starts after header and table records
-    let header_size = 12 + tables_to_keep.len() * 16;
-    let mut current_offset = header_size;
-
-    // Pad to 4-byte boundary
-    while current_offset % 4 != 0 {
-        current_offset += 1;
-    }
-
-    // Write table records with updated offsets
-    let mut table_data_with_offsets = Vec::new();
-    for (tag, checksum, old_offset, length) in &tables_to_keep {
-        new_data.extend_from_slice(tag);
-        new_data.extend_from_slice(&checksum.to_be_bytes());
-        new_data.extend_from_slice(&(current_offset as u32).to_be_bytes());
-        new_data.extend_from_slice(&(*length as u32).to_be_bytes());
-
-        // Store table data for later
-        table_data_with_offsets.push((&data[*old_offset..*old_offset + *length], current_offset));
-
-        // Update offset for next table, with 4-byte padding
-        current_offset += length;
-        while current_offset % 4 != 0 {
-            current_offset += 1;
-        }
-    }
-
-    // Pad header to table data start
-    while new_data.len()
-        < table_data_with_offsets
-            .first()
-            .map(|(_, o)| *o)
-            .unwrap_or(header_size)
-    {
-        new_data.push(0);
-    }
-
-    // Write table data
-    for (table_bytes, offset) in table_data_with_offsets {
-        // Pad to correct offset
-        while new_data.len() < offset {
-            new_data.push(0);
-        }
-        new_data.extend_from_slice(table_bytes);
-    }
-
-    font.contents = new_data;
+    font.contents = builder.build();
 }
 
 /// Add a dummy table to a font (for testing purposes only)
 ///
-/// This adds a table with minimal dummy data. The table won't be valid
-/// but will be detected by has_table().
+/// This adds a table with minimal dummy data using write-fonts FontBuilder.
+/// The table won't be valid but will be detected by has_table().
 pub fn add_table(font: &mut Testable, table_tag: &[u8; 4]) {
-    let data = &font.contents;
+    use fontations::skrifa::{font::FontRef, Tag};
 
-    // Parse existing tables
-    let sfnt_version = &data[0..4];
-    let num_tables = u16::from_be_bytes([data[4], data[5]]) as usize;
+    let f = FontRef::new(&font.contents).unwrap();
+    let new_tag = Tag::new(table_tag);
 
-    let mut existing_tables = Vec::new();
-    for i in 0..num_tables {
-        let record_offset = 12 + i * 16;
-        let tag = data[record_offset..record_offset + 4].to_vec();
-        let checksum = u32::from_be_bytes([
-            data[record_offset + 4],
-            data[record_offset + 5],
-            data[record_offset + 6],
-            data[record_offset + 7],
-        ]);
-        let offset = u32::from_be_bytes([
-            data[record_offset + 8],
-            data[record_offset + 9],
-            data[record_offset + 10],
-            data[record_offset + 11],
-        ]) as usize;
-        let length = u32::from_be_bytes([
-            data[record_offset + 12],
-            data[record_offset + 13],
-            data[record_offset + 14],
-            data[record_offset + 15],
-        ]) as usize;
+    let mut builder = FontBuilder::new();
 
-        existing_tables.push((tag, checksum, offset, length));
-    }
-
-    // Add new dummy table (4 bytes of zeros)
-    let dummy_data = [0u8; 4];
-    existing_tables.push((table_tag.to_vec(), 0, 0, 4)); // offset will be recalculated
-
-    let new_num_tables = existing_tables.len() as u16;
-
-    // Calculate search range, entry selector, range shift
-    let mut search_range = 1u16;
-    let mut entry_selector = 0u16;
-    while search_range * 2 <= new_num_tables {
-        search_range *= 2;
-        entry_selector += 1;
-    }
-    search_range *= 16;
-    let range_shift = new_num_tables * 16 - search_range;
-
-    // Build new font
-    let mut new_data = Vec::new();
-
-    // Write header
-    new_data.extend_from_slice(sfnt_version);
-    new_data.extend_from_slice(&new_num_tables.to_be_bytes());
-    new_data.extend_from_slice(&search_range.to_be_bytes());
-    new_data.extend_from_slice(&entry_selector.to_be_bytes());
-    new_data.extend_from_slice(&range_shift.to_be_bytes());
-
-    // Calculate new offsets
-    let header_size = 12 + existing_tables.len() * 16;
-    let mut current_offset = header_size;
-    while current_offset % 4 != 0 {
-        current_offset += 1;
-    }
-
-    // Write table records with updated offsets
-    let mut table_data_list: Vec<(Vec<u8>, usize)> = Vec::new();
-    for (tag, checksum, old_offset, length) in &existing_tables {
-        new_data.extend_from_slice(tag);
-        new_data.extend_from_slice(&checksum.to_be_bytes());
-        new_data.extend_from_slice(&(current_offset as u32).to_be_bytes());
-        new_data.extend_from_slice(&(*length as u32).to_be_bytes());
-
-        // Get table data (either from original font or dummy data for new table)
-        let table_bytes = if tag == table_tag {
-            dummy_data.to_vec()
-        } else {
-            data[*old_offset..*old_offset + *length].to_vec()
-        };
-        table_data_list.push((table_bytes, current_offset));
-
-        current_offset += length;
-        while current_offset % 4 != 0 {
-            current_offset += 1;
+    // Copy all existing tables
+    for table_record in f.table_directory.table_records() {
+        let tag = table_record.tag.get();
+        if let Some(table_data) = f.table_data(tag) {
+            builder.add_raw(tag, table_data);
         }
     }
 
-    // Pad header
-    while new_data.len()
-        < table_data_list
-            .first()
-            .map(|(_, o)| *o)
-            .unwrap_or(header_size)
-    {
-        new_data.push(0);
-    }
+    // Add the new dummy table (4 bytes of zeros)
+    let dummy_data: &[u8] = &[0u8; 4];
+    builder.add_raw(new_tag, dummy_data);
 
-    // Write table data
-    for (table_bytes, offset) in table_data_list {
-        while new_data.len() < offset {
-            new_data.push(0);
-        }
-        new_data.extend_from_slice(&table_bytes);
-    }
-
-    font.contents = new_data;
+    font.contents = builder.build();
 }
