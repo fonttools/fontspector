@@ -1,5 +1,5 @@
 //! The google fonts profile for Fontspector
-mod checks;
+pub mod checks;
 
 pub(crate) mod constants;
 use fontspector_checkapi::{prelude::*, ProfileBuilder, Registry};
