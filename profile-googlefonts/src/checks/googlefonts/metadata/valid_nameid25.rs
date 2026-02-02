@@ -1,5 +1,10 @@
-use fontations::skrifa::string::StringId;
+use fontations::{
+    read::TableProvider,
+    skrifa::string::StringId,
+    write::{from_obj::ToOwnedTable, tables::name::Name},
+};
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
+use google_fonts_axisregistry::build_variations_ps_name;
 
 // This is not actually googlefonts/metadata (in the sense of METADATA.pb) related, but we
 // keep the check ID for legacy reasons.
@@ -14,7 +19,8 @@ use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
     
     ",
     proposal = "https://github.com/fonttools/fontbakery/issues/3024 and https://github.com/googlefonts/gftools/issues/297 and https://typo.social/@arrowtype/110430680157544757",
-    title = "Check name ID 25 to end with \"Italic\" for Italic VFs."
+    title = "Check name ID 25 to end with \"Italic\" for Italic VFs.",
+    hotfix = fix_nameid25,
 )]
 fn valid_nameid25(t: &Testable, _context: &Context) -> CheckFnResult {
     let f = testfont!(t);
@@ -43,4 +49,15 @@ fn valid_nameid25(t: &Testable, _context: &Context) -> CheckFnResult {
         }
     }
     return_result(problems)
+}
+
+fn fix_nameid25(t: &mut Testable) -> FixFnResult {
+    let f = testfont!(t);
+    if !f.is_variable_font() {
+        return Ok(false);
+    }
+    let mut name_table: Name = f.font().name()?.to_owned_table();
+    build_variations_ps_name(&mut name_table, &f.font(), None);
+    f.rebuild_with_new_table(&name_table)?;
+    Ok(true)
 }

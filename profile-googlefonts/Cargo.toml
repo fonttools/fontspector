@@ -19,7 +19,7 @@ fontspector-checkapi = { path = "../fontspector-checkapi", features = [
     "kurbo",
 ], version = "1.0.0" }
 gf-metadata = "0.2.0"
-google-fonts-axisregistry = { version = "0.4", git = "https://github.com/googlefonts/axisregistry" }
+google-fonts-axisregistry = { version = "0.4", git = "https://github.com/googlefonts/axisregistry", features = ["fontations"] }
 google-fonts-languages = "0"
 google-fonts-subsets = { version = "0.202505" }
 google-fonts-glyphsets = { version = "1.1.0", git = "https://github.com/googlefonts/glyphsets" }
