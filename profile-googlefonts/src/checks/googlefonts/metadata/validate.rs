@@ -42,8 +42,8 @@ fn category_hints(family_name: &str) -> Option<&'static str> {
     }
     None
 }
-const VALID_CLASSIFICATIONS: &[&str] = &["Display", "Handwriting", "Monospace", "Symbols"];
-const VALID_STROKES: &[&str] = &["Serif", "Slab Serif", "Sans Serif"];
+const VALID_CLASSIFICATIONS: &[&str] = &["DISPLAY", "HANDWRITING", "MONOSPACE", "SYMBOLS"];
+const VALID_STROKES: &[&str] = &["SERIF", "SLAB_SERIF", "SANS_SERIF"];
 
 fn clean_url(url: &str) -> String {
     let mut cleaned = url.trim().to_string();
