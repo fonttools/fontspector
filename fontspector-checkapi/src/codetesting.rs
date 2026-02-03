@@ -243,3 +243,52 @@ pub fn remap_glyph(
     font.contents = new_bytes;
     Ok(())
 }
+
+/// Remove a table from a font (for testing purposes only)
+///
+/// This rebuilds the font without the specified table using write-fonts FontBuilder.
+pub fn remove_table(font: &mut Testable, table_tag: &[u8; 4]) {
+    use fontations::skrifa::{font::FontRef, Tag};
+
+    let f = FontRef::new(&font.contents).unwrap();
+    let tag_to_remove = Tag::new(table_tag);
+
+    let mut builder = FontBuilder::new();
+    for table_record in f.table_directory.table_records() {
+        let tag = table_record.tag.get();
+        if tag != tag_to_remove {
+            if let Some(table_data) = f.table_data(tag) {
+                builder.add_raw(tag, table_data);
+            }
+        }
+    }
+
+    font.contents = builder.build();
+}
+
+/// Add a dummy table to a font (for testing purposes only)
+///
+/// This adds a table with minimal dummy data using write-fonts FontBuilder.
+/// The table won't be valid but will be detected by has_table().
+pub fn add_table(font: &mut Testable, table_tag: &[u8; 4]) {
+    use fontations::skrifa::{font::FontRef, Tag};
+
+    let f = FontRef::new(&font.contents).unwrap();
+    let new_tag = Tag::new(table_tag);
+
+    let mut builder = FontBuilder::new();
+
+    // Copy all existing tables
+    for table_record in f.table_directory.table_records() {
+        let tag = table_record.tag.get();
+        if let Some(table_data) = f.table_data(tag) {
+            builder.add_raw(tag, table_data);
+        }
+    }
+
+    // Add the new dummy table (4 bytes of zeros)
+    let dummy_data: &[u8] = &[0u8; 4];
+    builder.add_raw(new_tag, dummy_data);
+
+    font.contents = builder.build();
+}
