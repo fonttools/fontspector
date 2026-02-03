@@ -96,6 +96,8 @@ jobs:
         with:
           submodules: recursive
       - run: rustup toolchain install stable --profile minimal
+      - if: matrix.os.target == 'x86_64-apple-darwin'
+        run: rustup target add x86_64-apple-darwin
       - uses: Swatinem/rust-cache@v2
         with:
           cache-workspace-crates: true
