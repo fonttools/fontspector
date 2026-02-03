@@ -46,9 +46,7 @@ fn weightclass(t: &Testable, _context: &Context) -> CheckFnResult {
     let style_name_parts = style_name.split(' ').collect::<Vec<_>>();
     let expected_weight_names = get_expected_weight_name(value);
 
-    if value == 400 && style_name == "Italic" {
-        // Special case: Italic style with Regular weight class is acceptable,
-        // even though it doesn't explicitly contain "Regular" in the style name.
+    if value == 400 && is_regular_weight(&style_name) {
         return Ok(Status::just_one_pass());
     }
 
@@ -72,6 +70,27 @@ fn weightclass(t: &Testable, _context: &Context) -> CheckFnResult {
             )
         ))
     }
+}
+
+fn is_regular_weight(style_name: &str) -> bool {
+    let style_name_lower = style_name.to_lowercase();
+    if style_name_lower.contains("regular") {
+        return true;
+    }
+
+    // if any weight (light, bold, black etc) is in the style name, it's not regular
+    let non_regular_indicators = [
+        "hair", // includes hairline
+        "thin", "light", // includes extralight, xlight, semilight
+        "medium", "bold",  // includes extrabold, xbold, semibold, demibold
+        "black", // includes extrablack, xblack
+    ];
+    for indicator in non_regular_indicators.iter() {
+        if style_name_lower.contains(indicator) {
+            return false;
+        }
+    }
+    true
 }
 
 #[cfg(test)]
@@ -119,6 +138,8 @@ mod tests {
             (400, "Italic", None),
             (350, "SemiLight", None),
             (350, "SemiLight Italic", None),
+            (400, "Cond Italic", None),
+            (400, "Cond Regular Italic", None),
             ];
         for (weight_class_value, style_name, expected_result) in weight_tests {
             let mut font_builder = FontBuilder::new();
