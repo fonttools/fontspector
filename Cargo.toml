@@ -54,6 +54,10 @@ kurbo = "0.11"                                     # For italic angle check
 
 regex = "1.10.6"
 
+# Source fixes
+norad = "0.16.0"
+glyphslib = { git = "https://github.com/simoncozens/glyphslib-rs" }
+
 [workspace.lints.clippy]
 unwrap_used = "deny"
 expect_used = "deny"

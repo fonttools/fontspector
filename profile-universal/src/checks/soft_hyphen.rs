@@ -1,4 +1,4 @@
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Source, SourceFile};
 
 #[check(
     id = "soft_hyphen",
@@ -21,7 +21,8 @@ use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
     ",
     proposal = "https://github.com/fonttools/fontbakery/issues/4046",
     proposal = "https://github.com/fonttools/fontbakery/issues/3486",
-    title = "Does the font contain a soft hyphen?"
+    title = "Does the font contain a soft hyphen?",
+    fix_source = sourcefix_softhyphen,
 )]
 fn soft_hyphen(t: &Testable, context: &Context) -> CheckFnResult {
     let f = testfont!(t);
@@ -31,9 +32,47 @@ fn soft_hyphen(t: &Testable, context: &Context) -> CheckFnResult {
         Status::just_one_pass()
     })
 }
-// def check_soft_hyphen(ttFont):
-//     """Does the font contain a soft hyphen?"""
-//     if 0x00AD in ttFont["cmap"].getBestCmap().keys():
-//         yield WARN, Message("softhyphen", "This font has a 'Soft Hyphen' character.")
-//     else:
-//         yield PASS, "Looks good!"
+
+fn sourcefix_softhyphen(s: &mut SourceFile) -> FixFnResult {
+    fn fix_a_ufo(font: &mut norad::Font) -> FixFnResult {
+        let soft_hyphen_glyph = font
+            .default_layer()
+            .iter()
+            .find(|g| g.codepoints.contains(0xAD as char))
+            .map(|g| g.name().to_string());
+        if let Some(name) = soft_hyphen_glyph {
+            log::info!("Removing soft hyphen glyph '{name}' from UFO file.");
+            font.default_layer_mut().remove_glyph(&name);
+            Ok(true)
+        } else {
+            log::info!("No soft hyphen glyph found in UFO file.");
+            Ok(false)
+        }
+    }
+    match s.source {
+        Source::Ufo(ref mut font) => fix_a_ufo(font),
+        Source::Designspace(ref mut ds) => ds.apply_fix(&fix_a_ufo),
+        Source::Glyphs(ref mut font) => match &mut **font {
+            glyphslib::Font::Glyphs2(glyphs2) => {
+                let had_one = glyphs2.glyphs.iter().any(|g| g.unicode.contains(&0xAD));
+                if !had_one {
+                    log::info!("No soft hyphen glyph found in Glyphs file.");
+                    return Ok(false);
+                }
+                glyphs2.glyphs.retain(|g| !g.unicode.contains(&0xAD));
+                log::info!("Removing soft hyphen glyph from Glyphs file.");
+                Ok(true)
+            }
+            glyphslib::Font::Glyphs3(glyphs3) => {
+                let had_one = glyphs3.glyphs.iter().any(|g| g.unicode.contains(&0xAD));
+                if !had_one {
+                    log::info!("No soft hyphen glyph found in Glyphs file.");
+                    return Ok(false);
+                }
+                glyphs3.glyphs.retain(|g| !g.unicode.contains(&0xAD));
+                log::info!("Removing soft hyphen glyph from Glyphs file.");
+                Ok(true)
+            }
+        },
+    }
+}

@@ -16,8 +16,8 @@ use args::Args;
 use clap::{CommandFactory, FromArgMatches};
 
 use fontspector_checkapi::{
-    Check, CheckResult, Context, FixResult, HotfixFunction, Registry, StatusCode, Testable,
-    TestableCollection, TestableType,
+    Check, CheckResult, Context, FixResult, FixSourceFunction, HotfixFunction, Registry,
+    SourceFile, StatusCode, Testable, TestableCollection, TestableType,
 };
 
 #[cfg(not(debug_assertions))]
@@ -146,6 +146,10 @@ fn main() {
     if let Some(more_excludes) = configuration.exclude_checks.as_ref() {
         excludes.extend(more_excludes.iter().cloned());
     }
+    let mut source_map = configuration.source_map.clone();
+    for (key, val) in args.source_map.clone() {
+        source_map.insert(key, val);
+    }
 
     // Establish a check order
     let checkorder: Vec<(String, &TestableType, &Check, Context)> = profile.check_order(
@@ -169,7 +173,7 @@ fn main() {
     let count_of_files = testables.iter().filter(|x| x.is_single()).count();
     let count_of_families = testables.len() - count_of_files;
 
-    if !any_reports_to_stdout {
+    if !any_reports_to_stdout && !args.quiet && !args.succinct {
         let _ = writeln!(
             std::io::stdout(),
             "Running {:} check{} on {} file{} in {} famil{}",
@@ -211,7 +215,7 @@ fn main() {
         .into();
 
     if args.hotfix || args.fix_sources {
-        try_fixing_stuff(&mut results, &args, &registry);
+        try_fixing_stuff(&mut results, &args, &registry, &source_map);
     }
 
     let worst_status = results.worst_status();
@@ -226,7 +230,7 @@ fn main() {
         reporter.report(&results, &args, &registry);
     }
 
-    if !args.quiet && !any_reports_to_stdout {
+    if !args.quiet && !args.succinct && !any_reports_to_stdout {
         let _ = writeln!(
             std::io::stdout(),
             "Ran {} checks in {:.3}s",
@@ -263,7 +267,14 @@ fn list_checks(args: &Args, registry: &Registry<'static>, profile: &fontspector_
         let checks: Vec<_> = checks
             .iter()
             .flat_map(|check| registry.checks.get(check))
-            .map(|check| json!({ "id": check.id, "title": check.title }))
+            .map(|check| {
+                json!({
+                    "id": check.id,
+                    "title": check.title,
+                    "hotfix": check.hotfix.is_some(),
+                    "source_fix": check.fix_source.is_some(),
+                })
+            })
             .collect();
         if checks.is_empty() {
             continue;
@@ -280,13 +291,20 @@ fn list_checks(args: &Args, registry: &Registry<'static>, profile: &fontspector_
         for (section, checks) in checks_per_section.iter() {
             termimad::print_text(&format!("\n# {section:}\n\n"));
             let mut table = "|Check ID|Title|\n|---|---|\n".to_string();
+            #[allow(clippy::indexing_slicing, clippy::unwrap_used)]
+            // We know these keys are present, we made them
             for check in checks {
-                #[allow(clippy::unwrap_used)] // We know these keys are present, we made them
-                table.push_str(&format!(
-                    "|{}|{}|\n",
-                    check.get("id").unwrap().as_str().unwrap(),
-                    check.get("title").unwrap().as_str().unwrap()
-                ));
+                let mut id = check["id"].as_str().unwrap().to_string();
+                let can_hotfix = check["hotfix"].as_bool().unwrap_or(false);
+                let can_source_fix = check["source_fix"].as_bool().unwrap_or(false);
+                if can_hotfix && can_source_fix {
+                    id = format!("{id} [H,S]");
+                } else if can_hotfix {
+                    id = format!("{id} [H]");
+                } else if can_source_fix {
+                    id = format!("{id} [S]");
+                }
+                table.push_str(&format!("|{}|{}|\n", id, check["title"].as_str().unwrap()));
             }
             termimad::print_text(&table);
         }
@@ -391,15 +409,27 @@ fn group_inputs(args: &mut Args) -> Vec<TestableCollection> {
         .collect()
 }
 
-fn try_fixing_stuff(results: &mut RunResults, args: &Args, registry: &Registry) {
+// We have to consider sources and binaries together, because we're borrowing the
+// CheckResult mutably, and we can't have two mutable borrows of the same thing.
+struct FixJob<'a> {
+    hotfix: Option<&'a HotfixFunction>, // The hotfix function, if any
+    source_fix: Option<&'a FixSourceFunction>, // The source fix function, if any
+    result: &'a mut CheckResult,        // The result to fix
+}
+
+fn try_fixing_stuff(
+    results: &mut RunResults,
+    args: &Args,
+    registry: &Registry,
+    source_map: &HashMap<String, String>,
+) {
     let failed_checks = results
         .iter_mut()
         .filter(|x| x.worst_status() >= StatusCode::Warn)
         .collect::<Vec<_>>();
     // Group the fixes by filename because we want to provide testables
-    // // let mut fix_sources = HashMap::new();
-    let mut fix_binaries: HashMap<String, Vec<(String, &HotfixFunction, &mut CheckResult)>> =
-        HashMap::new();
+    let mut fix_jobs: HashMap<String, Vec<FixJob>> = HashMap::new();
+
     for result in failed_checks.into_iter() {
         let Some(check) = registry.checks.get(&result.check_id) else {
             log::warn!(
@@ -408,39 +438,94 @@ fn try_fixing_stuff(results: &mut RunResults, args: &Args, registry: &Registry) 
             );
             continue;
         };
-        if let (Some(hotfix), Some(filename)) = (check.hotfix, result.filename.as_ref()) {
-            if args.hotfix {
-                fix_binaries.entry(filename.clone()).or_default().push((
-                    check.id.to_string(),
-                    hotfix,
-                    result,
-                ));
-            }
-        }
+        let Some(result_file) = result.filename.clone() else {
+            continue;
+        };
+        let fix_job = FixJob {
+            hotfix: if args.hotfix { check.hotfix } else { None },
+            source_fix: if args.fix_sources {
+                check.fix_source
+            } else {
+                None
+            },
+            result,
+        };
+        fix_jobs
+            .entry(result_file.clone())
+            .or_default()
+            .push(fix_job);
     }
 
-    for (file, fixes) in fix_binaries.into_iter() {
-        let mut testable = Testable::new(&file).unwrap_or_else(|e| {
-            log::error!("Could not load files from {file:?}: {e:}");
-            std::process::exit(1)
-        });
-        let mut modified = false;
-        for (id, fix, result) in fixes.into_iter() {
-            log::info!("Trying to fix {file} with {id}");
-            result.hotfix_result = match fix(&mut testable) {
-                Ok(hotfix_behaviour) => {
-                    modified |= hotfix_behaviour;
-                    Some(FixResult::Fixed)
+    for (file, fixes) in fix_jobs.into_iter() {
+        let Ok(mut testable) = Testable::new(&file) else {
+            continue;
+        };
+        let mut source: Option<SourceFile> = if !args.fix_sources {
+            None
+        } else {
+            find_source(&file, source_map)
+        };
+        let mut source_modified = false;
+        let mut binary_modified = false;
+        for fix_job in fixes.into_iter() {
+            if let Some(hotfix_fn) = fix_job.hotfix {
+                log::info!("Trying to hoxfix {file} with {}", fix_job.result.check_id);
+                fix_job.result.hotfix_result = match hotfix_fn(&mut testable) {
+                    Ok(hotfix_behaviour) => {
+                        binary_modified |= hotfix_behaviour;
+                        Some(FixResult::Fixed)
+                    }
+                    Err(e) => Some(FixResult::FixError(e.to_string())),
                 }
-                Err(e) => Some(FixResult::FixError(e.to_string())),
+            }
+            if let Some(sourcefix_fn) = fix_job.source_fix {
+                if let Some(ref mut source) = &mut source {
+                    log::info!(
+                        "Trying to fix source {} with {}",
+                        source.filename(),
+                        fix_job.result.check_id
+                    );
+                    fix_job.result.sourcefix_result = match sourcefix_fn(source) {
+                        Ok(hotfix_behaviour) => {
+                            source_modified |= hotfix_behaviour;
+                            Some(FixResult::Fixed)
+                        }
+                        Err(e) => Some(FixResult::FixError(e.to_string())),
+                    }
+                }
             }
         }
-        if modified {
+        if binary_modified {
             // save it
             testable.save().unwrap_or_else(|e| {
                 log::error!("Could not save file {file:?}: {e:}");
                 std::process::exit(1)
             });
         }
+        if source_modified {
+            // save it
+            #[allow(clippy::unwrap_used)] // We know this is Some
+            source.unwrap().save().unwrap_or_else(|e| {
+                log::error!("Could not save file {file:?}: {e:}");
+                std::process::exit(1)
+            });
+        }
     }
+}
+
+fn find_source(file: &str, source_map: &HashMap<String, String>) -> Option<SourceFile> {
+    // Find the source in the source map
+    let source_path_str = if let Some(source) = source_map.get(file) {
+        source
+    } else {
+        log::warn!("No source file found for {file:?} in source map; cannot fix sources");
+        log::warn!("Specify --source-map=binary_file.ttf:source.glyphs on command line or in configuration file to fix sources");
+        return None;
+    };
+    let source_path = PathBuf::from(source_path_str);
+    // Now load it
+    Some(SourceFile::new(&source_path).unwrap_or_else(|e| {
+        log::error!("Could not load source file {source_path:?}: {e:}");
+        std::process::exit(1)
+    }))
 }

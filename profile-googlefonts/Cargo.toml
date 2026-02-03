@@ -55,6 +55,8 @@ image = { version = "0.25.5", default-features = false, features = [
     "gif",
 ] }
 harfrust = { workspace = true }
+norad.workspace = true
+glyphslib.workspace = true
 
 [lints]
 workspace = true
