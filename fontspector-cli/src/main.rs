@@ -408,12 +408,14 @@ fn try_fixing_stuff(results: &mut RunResults, args: &Args, registry: &Registry) 
             );
             continue;
         };
-        if args.hotfix && result.filename.is_some() && check.hotfix.is_some() {
-            #[allow(clippy::unwrap_used)] // We know this is Some
-            fix_binaries
-                .entry(result.filename.clone().unwrap())
-                .or_default()
-                .push((check.id.to_string(), check.hotfix.unwrap(), result));
+        if let (Some(hotfix), Some(filename)) = (check.hotfix, result.filename.as_ref()) {
+            if args.hotfix {
+                fix_binaries.entry(filename.clone()).or_default().push((
+                    check.id.to_string(),
+                    hotfix,
+                    result,
+                ));
+            }
         }
     }
 
