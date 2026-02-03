@@ -15,7 +15,8 @@ fontspector-checkapi = { path = "../fontspector-checkapi", features = [
 fontations = { workspace = true }
 kurbo = { workspace = true }
 itertools = { workspace = true }
-rustybuzz = { workspace = true }
+harfrust = { workspace = true }
+
 
 [lints]
 workspace = true
