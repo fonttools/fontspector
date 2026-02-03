@@ -2,18 +2,18 @@ use std::collections::HashMap;
 
 use fontations::skrifa::GlyphId;
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
-use rustybuzz::{ttf_parser, Face, UnicodeBuffer};
+use harfrust::{Shaper, ShaperData, UnicodeBuffer};
 
-fn verify_widths(face: &Face, text: &str) -> HashMap<i32, Vec<GlyphId>> {
+fn verify_widths(shaper: &Shaper, text: &str) -> HashMap<i32, Vec<GlyphId>> {
     let mut buffer = UnicodeBuffer::new();
     buffer.push_str(text);
-    let features = vec![rustybuzz::Feature::new(
-        ttf_parser::Tag::from_bytes_lossy(b"tnum"),
+    let features = vec![harfrust::Feature::new(
+        harfrust::Tag::new(b"tnum"),
         1_u32,
         ..,
     )];
     buffer.guess_segment_properties();
-    let glyph_buffer = rustybuzz::shape(face, &features, buffer);
+    let glyph_buffer = shaper.shape(buffer, &features);
     glyph_buffer
         .glyph_infos()
         .iter()
@@ -40,9 +40,10 @@ fn tnum_glyphs_equal_widths(t: &Testable, context: &Context) -> CheckFnResult {
     let f = testfont!(t);
     let mut problems = vec![];
 
-    let mut face = Face::from_slice(&t.contents, 0).ok_or(FontspectorError::General(
-        "Failed to load font file".to_string(),
-    ))?;
+    let fontref = harfrust::FontRef::new(&t.contents)
+        .map_err(|e| FontspectorError::General(format!("Failed to load font file: {e}")))?;
+    let shaper_data = ShaperData::new(&fontref);
+
     let check_text = context
         .configuration
         .get("TEST_STR")
@@ -72,13 +73,13 @@ fn tnum_glyphs_equal_widths(t: &Testable, context: &Context) -> CheckFnResult {
             .join("\n")
     };
 
-    let variations_to_test: Vec<Vec<rustybuzz::Variation>> = if f.is_variable_font() {
+    let variations_to_test: Vec<Vec<harfrust::Variation>> = if f.is_variable_font() {
         f.named_instances()
             .map(|(_name, coordinates)| {
                 coordinates
                     .iter()
-                    .map(|(tag, value)| rustybuzz::Variation {
-                        tag: ttf_parser::Tag::from_bytes_lossy(tag.as_bytes()),
+                    .map(|(tag, value)| harfrust::Variation {
+                        tag: harfrust::Tag::new(tag.as_bytes().try_into().unwrap()),
                         value: *value,
                     })
                     .collect()
@@ -89,8 +90,12 @@ fn tnum_glyphs_equal_widths(t: &Testable, context: &Context) -> CheckFnResult {
     };
 
     for variation in variations_to_test {
-        face.set_variations(&variation);
-        let glyphs_with_width = verify_widths(&face, check_text);
+        let shaper_instance = harfrust::ShaperInstance::from_variations(&fontref, variation);
+        let shaper = shaper_data
+            .shaper(&fontref)
+            .instance(Some(&shaper_instance))
+            .build();
+        let glyphs_with_width = verify_widths(&shaper, check_text);
         if glyphs_with_width.len() > 1 {
             problems.push(Status::fail(
                 "tnum_glyphs_equal_widths",
