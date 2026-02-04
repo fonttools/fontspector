@@ -5,22 +5,49 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.2.2 (2026-02-04)
+
+### Refactor
+
+ - <csr-id-a755d98f2dcb10c675c0084588ca16eee2a5f313/> Regular weight fonts often don't have 'Regular' in its name, fix edge cases
+ - <csr-id-c69d124501d4251aee6a0d54233a3cc627d5f325/> replace get_name_PEL_codes and get_name_entry_string
+   + fix uniitest (because of different sorting of platform _tuples)
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 2 commits contributed to the release over the course of 25 calendar days.
+ - 47 days passed between releases.
+ - 2 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 2 unique issues were worked on: [#480](https://github.com/fonttools/fontspector/issues/480), [#583](https://github.com/fonttools/fontspector/issues/583)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#480](https://github.com/fonttools/fontspector/issues/480)**
+    - Replace get_name_PEL_codes and get_name_entry_string ([`c69d124`](https://github.com/fonttools/fontspector/commit/c69d124501d4251aee6a0d54233a3cc627d5f325))
+ * **[#583](https://github.com/fonttools/fontspector/issues/583)**
+    - Regular weight fonts often don't have 'Regular' in its name, fix edge cases ([`a755d98`](https://github.com/fonttools/fontspector/commit/a755d98f2dcb10c675c0084588ca16eee2a5f313))
+</details>
+
 ## v1.2.1 (2025-12-17)
 
 ### Bug Fixes
 
  - <csr-id-e4722fef242bc3554263a87e2b67599312e4dc14/> fontwerk/weightclass
    * fix(fontwerk/weightclass): make unittest fail
-   
-   * fix(fontwerk/weightclass): cover special case 'Italic' weight 400
-   
-   * fix(fontwerk/weightclass): add SemiLight 350 to get_expected_weight_name
+* fix(fontwerk/weightclass): cover special case 'Italic' weight 400
+* fix(fontwerk/weightclass): add SemiLight 350 to get_expected_weight_name
 
 ### Commit Statistics
 
 <csr-read-only-do-not-edit/>
 
- - 2 commits contributed to the release over the course of 30 calendar days.
+ - 3 commits contributed to the release over the course of 30 calendar days.
  - 93 days passed between releases.
  - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
  - 2 unique issues were worked on: [#520](https://github.com/fonttools/fontspector/issues/520), [#535](https://github.com/fonttools/fontspector/issues/535)
@@ -35,6 +62,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Fontwerk/weightclass ([`e4722fe`](https://github.com/fonttools/fontspector/commit/e4722fef242bc3554263a87e2b67599312e4dc14))
  * **[#535](https://github.com/fonttools/fontspector/issues/535)**
     - Fix(required_name_ids): make universal (fixes #534) ([`ad73d4c`](https://github.com/fonttools/fontspector/commit/ad73d4cf0a8e9627723b25e2861057e7d75ad49b))
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.3.1, fontspector-profile-fontwerk v1.2.1, fontspector-profile-googlefonts v1.5.0, fontspector-profile-universal v1.4.0, fontspector v1.5.2 ([`2779526`](https://github.com/fonttools/fontspector/commit/2779526c00f235ea93e95882b4ebd2b41786c715))
 </details>
 
 ## v1.2.0 (2025-09-15)
@@ -127,9 +156,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Fontspector-checkapi v1.1.2, fontspector-fontbakery-bridge v1.2.0, fontspector-profile-fontwerk v1.1.0, fontspector-profile-googlefonts v1.3.0, fontspector-profile-opentype v1.2.1, fontspector-profile-universal v1.1.2, fontspector v1.4.0 ([`90205a8`](https://github.com/fonttools/fontspector/commit/90205a8089d1394f957cdf13cdcc461b73824425))
 </details>
 
-<csr-unknown>
-Don’t bump the version number manually, this will happen automatically on release<csr-unknown/>
-
 ## v1.1.0 (2025-08-11)
 
 ### New Features
@@ -159,7 +185,9 @@ Don’t bump the version number manually, this will happen automatically on rele
 
 <csr-unknown>
 <csr-unknown>
+<csr-unknown>
 Don’t bump the version number manually, this will happen automatically on release<csr-unknown/>
+<csr-unknown/>
 <csr-unknown/>
 
 ## v1.0.0 (2025-07-02)

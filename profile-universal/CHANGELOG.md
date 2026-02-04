@@ -5,7 +5,122 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.5.0 (2026-02-04)
+
+### New Features
+
+ - <csr-id-1680b05ab268e7acabf4444823585128ed36e2e6/> warn when variable font with vmtx lacks VVAR table
+   * feat(universal): warn when variable font with vmtx lacks VVAR table
+   
+   Variable fonts that include a vmtx (vertical metrics) table should also
+   include a VVAR table.
+   
+   As noted by Behdad (at https://github.com/notofonts/noto-cjk/issues/307),
+   inclusion of the VVAR table speeds up processing of vertical typesetting
+   significantly with only a minor file size increase, even in cases where
+   there is no variation in the vertical metrics (vmtx) across the
+   designspace. Fonttools automatically adds this table if the vmtx table
+   exists, and it isn't on the exclude list, but other build systems do
+   not at present.
+   
+   (Closes #516)
+   
+   * test(universal): add Rust tests for VVAR table check
+   
+   Add unit tests for the missing-vvar warning in required_tables check:
+   - test_vvar_missing: variable font with vmtx but no VVAR triggers WARN
+     and message contains "vmtx"
+   - test_vvar_present: variable font with vmtx AND VVAR has no warning
+   
+   Add ShantellSans test font to resources/test/ for VVAR present case.
+   Remove equivalent Python tests in favor of Rust implementation.
+   
+   ---------
+
+### Refactor
+
+ - <csr-id-905b344c2702bc78927fd7407978959c32dabbfe/> add context and improve report
+   * refactor(family_and_style_max_length): add info '({} characters too long)'
+   
+   * refactor(required_name_ids): removing leftover print
+   
+   * refactor(family_and_style_max_length): adding unittest + context
+   
+   * refactor(family_and_style_max_length): add missing context "INSTANCE_NAME"
+   
+   ---------
+
+### Test
+
+ - <csr-id-c8bc460e7ee09451e8cb86ce9463fcbea3703c86/> Port all remaining `required_table` tests to rust
+   * feat(universal): warn when variable font with vmtx lacks VVAR table
+   
+   Variable fonts that include a vmtx (vertical metrics) table should also
+   include a VVAR table.
+   
+   As noted by Behdad (at https://github.com/notofonts/noto-cjk/issues/307),
+   inclusion of the VVAR table speeds up processing of vertical typesetting
+   significantly with only a minor file size increase, even in cases where
+   there is no variation in the vertical metrics (vmtx) across the
+   designspace. Fonttools automatically adds this table if the vmtx table
+   exists, and it isn't on the exclude list, but other build systems do
+   not at present.
+   
+   (Closes #516)
+   
+   * test(universal): add Rust tests for VVAR table check
+   
+   Add unit tests for the missing-vvar warning in required_tables check:
+   - test_vvar_missing: variable font with vmtx but no VVAR triggers WARN
+     and message contains "vmtx"
+   - test_vvar_present: variable font with vmtx AND VVAR has no warning
+   
+   Add ShantellSans test font to resources/test/ for VVAR present case.
+   Remove equivalent Python tests in favor of Rust implementation.
+   
+   * test(universal): complete required_tables Python to Rust test port
+   
+   - Add remove_table and add_table helpers to codetesting.rs
+   - Port remaining Python tests for required_tables check
+   - Tests cover TrueType, CFF, and CFF2 fonts
+   - Tests validate required tables, optional tables detection, and VVAR check
+   - Remove Python test file since Rust tests are now complete
+   - Note: maxp removal test skipped as it causes TestFont initialization to fail
+   
+   * refactor(check-api): use skrifa/write-fonts for table manipulation helpers
+   
+   Replace raw byte manipulation in remove_table and add_table test helpers
+   with skrifa FontRef and write-fonts FontBuilder APIs. This reduces code
+   from ~110 lines each to ~15 lines while maintaining the same functionality.
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 3 commits contributed to the release over the course of 25 calendar days.
+ - 47 days passed between releases.
+ - 3 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 3 unique issues were worked on: [#566](https://github.com/fonttools/fontspector/issues/566), [#585](https://github.com/fonttools/fontspector/issues/585), [#586](https://github.com/fonttools/fontspector/issues/586)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#566](https://github.com/fonttools/fontspector/issues/566)**
+    - Add context and improve report ([`905b344`](https://github.com/fonttools/fontspector/commit/905b344c2702bc78927fd7407978959c32dabbfe))
+ * **[#585](https://github.com/fonttools/fontspector/issues/585)**
+    - Warn when variable font with vmtx lacks VVAR table ([`1680b05`](https://github.com/fonttools/fontspector/commit/1680b05ab268e7acabf4444823585128ed36e2e6))
+ * **[#586](https://github.com/fonttools/fontspector/issues/586)**
+    - Port all remaining `required_table` tests to rust ([`c8bc460`](https://github.com/fonttools/fontspector/commit/c8bc460e7ee09451e8cb86ce9463fcbea3703c86))
+</details>
+
 ## v1.4.0 (2025-12-17)
+
+<csr-id-3aff895fb75d510fa826e19339424347b5d3ff61/>
+<csr-id-fe45168dca4d0764eb65dfddb75b2a8013bd6326/>
+<csr-id-4befd6c88900e2e06c363a8a6b1cdfc9518e9c91/>
 
 ### Chore
 
@@ -29,26 +144,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
  - <csr-id-6d1aa3c5839e5c76fe8510c029ab0c89eda81327/> check required unicodes (fixes #526)
    * feat(has_unicodes): a new universal check for required unicodes
-   
-   * style(has_unicodes): make title shorter for better UX
-   
-   ---------
+* style(has_unicodes): make title shorter for better UX
 
 ### Bug Fixes
 
  - <csr-id-79be9c4d732825e2158ad9a1ff9c98b184eba7d4/> Improve output (fixes #527)
  - <csr-id-19710dd4360d090522da6d68387067988103f9c2/> ignore fonts without name ID 16 and 17
    * fix(family/uniqueness_first_31_characters): first add failing unittest
-   
-   * fix(family/uniqueness_first_31_characters): skip if font has no name ID 16 and 17
-   
-   * fix(family/uniqueness_first_31_characters): make lint happy
+* fix(family/uniqueness_first_31_characters): skip if font has no name ID 16 and 17
+* fix(family/uniqueness_first_31_characters): make lint happy
 
 ### Commit Statistics
 
 <csr-read-only-do-not-edit/>
 
- - 7 commits contributed to the release over the course of 55 calendar days.
+ - 8 commits contributed to the release over the course of 55 calendar days.
  - 64 days passed between releases.
  - 6 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 6 unique issues were worked on: [#503](https://github.com/fonttools/fontspector/issues/503), [#528](https://github.com/fonttools/fontspector/issues/528), [#531](https://github.com/fonttools/fontspector/issues/531), [#535](https://github.com/fonttools/fontspector/issues/535), [#536](https://github.com/fonttools/fontspector/issues/536), [#552](https://github.com/fonttools/fontspector/issues/552)
@@ -72,6 +182,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  * **[#552](https://github.com/fonttools/fontspector/issues/552)**
     - Refresh dependencies ([`3aff895`](https://github.com/fonttools/fontspector/commit/3aff895fb75d510fa826e19339424347b5d3ff61))
  * **Uncategorized**
+    - Release fontspector-checkapi v1.3.1, fontspector-profile-fontwerk v1.2.1, fontspector-profile-googlefonts v1.5.0, fontspector-profile-universal v1.4.0, fontspector v1.5.2 ([`2779526`](https://github.com/fonttools/fontspector/commit/2779526c00f235ea93e95882b4ebd2b41786c715))
     - Not my fail ([`fe45168`](https://github.com/fonttools/fontspector/commit/fe45168dca4d0764eb65dfddb75b2a8013bd6326))
 </details>
 
@@ -139,9 +250,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  * **Uncategorized**
     - Release fontspector-checkapi v1.3.0, fontspector-profile-googlefonts v1.4.1, fontspector-profile-universal v1.3.0, fontspector v1.5.1 ([`7b3d29e`](https://github.com/fonttools/fontspector/commit/7b3d29e9dab0c4bf11506345219e59b378291be2))
 </details>
-
-<csr-unknown>
- Don’t check for whitespace ink in format characters We can now dehint glyf tables<csr-unknown/>
 
 ## v1.2.0 (2025-09-15)
 

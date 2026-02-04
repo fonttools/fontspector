@@ -5,7 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.5.3 (2026-02-04)
+
+### Chore
+
+ - <csr-id-aa254545247ac69244c3710c0c967785b567682c/> Thanks clippy
+
+### Bug Fixes
+
+ - <csr-id-8a2e23bdb26811288444323d9804981e5250d20b/> update rust crate zip to v7
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 2 commits contributed to the release over the course of 25 calendar days.
+ - 47 days passed between releases.
+ - 2 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 2 unique issues were worked on: [#559](https://github.com/fonttools/fontspector/issues/559), [#591](https://github.com/fonttools/fontspector/issues/591)
+
+### Thanks Clippy
+
+<csr-read-only-do-not-edit/>
+
+[Clippy](https://github.com/rust-lang/rust-clippy) helped 1 time to make code idiomatic. 
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#559](https://github.com/fonttools/fontspector/issues/559)**
+    - Update rust crate zip to v7 ([`8a2e23b`](https://github.com/fonttools/fontspector/commit/8a2e23bdb26811288444323d9804981e5250d20b))
+ * **[#591](https://github.com/fonttools/fontspector/issues/591)**
+    - Thanks clippy ([`aa25454`](https://github.com/fonttools/fontspector/commit/aa254545247ac69244c3710c0c967785b567682c))
+</details>
+
 ## v1.5.2 (2025-12-17)
+
+<csr-id-3aff895fb75d510fa826e19339424347b5d3ff61/>
 
 ### Chore
 
@@ -23,7 +62,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 3 commits contributed to the release over the course of 55 calendar days.
+ - 4 commits contributed to the release over the course of 55 calendar days.
  - 64 days passed between releases.
  - 3 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 3 unique issues were worked on: [#497](https://github.com/fonttools/fontspector/issues/497), [#552](https://github.com/fonttools/fontspector/issues/552), [#554](https://github.com/fonttools/fontspector/issues/554)
@@ -40,6 +79,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Refresh dependencies ([`3aff895`](https://github.com/fonttools/fontspector/commit/3aff895fb75d510fa826e19339424347b5d3ff61))
  * **[#554](https://github.com/fonttools/fontspector/issues/554)**
     - Update rust crate glyphs2fontir to 0.6.0 ([`b0ec257`](https://github.com/fonttools/fontspector/commit/b0ec2575807031228c1e31817946ccb30e654dee))
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.3.1, fontspector-profile-fontwerk v1.2.1, fontspector-profile-googlefonts v1.5.0, fontspector-profile-universal v1.4.0, fontspector v1.5.2 ([`2779526`](https://github.com/fonttools/fontspector/commit/2779526c00f235ea93e95882b4ebd2b41786c715))
 </details>
 
 ## v1.5.1 (2025-10-14)

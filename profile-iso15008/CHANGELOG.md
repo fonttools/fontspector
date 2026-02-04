@@ -5,7 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.0.5 (2026-02-04)
+
+### Chore
+
+ - <csr-id-67faec64118db1aa7f5ef5399ea543a89494a872/> Move from rustybuzz to harfrust
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 1 commit contributed to the release.
+ - 141 days passed between releases.
+ - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
+ - 1 unique issue was worked on: [#581](https://github.com/fonttools/fontspector/issues/581)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#581](https://github.com/fonttools/fontspector/issues/581)**
+    - Move from rustybuzz to harfrust ([`67faec6`](https://github.com/fonttools/fontspector/commit/67faec64118db1aa7f5ef5399ea543a89494a872))
+</details>
+
 ## v1.0.4 (2025-09-15)
+
+<csr-id-f9682839c4d940f0bedc7891029e22f5e0a3df29/>
 
 ### Chore
 
@@ -15,7 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 1 commit contributed to the release.
+ - 2 commits contributed to the release.
  - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
  - 1 unique issue was worked on: [#376](https://github.com/fonttools/fontspector/issues/376)
 
@@ -27,6 +54,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
  * **[#376](https://github.com/fonttools/fontspector/issues/376)**
     - Bump version number ([`f968283`](https://github.com/fonttools/fontspector/commit/f9682839c4d940f0bedc7891029e22f5e0a3df29))
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.2.0, fontspector-profile-fontwerk v1.2.0, fontspector-profile-googlefonts v1.4.0, fontspector-profile-opentype v1.3.0, fontspector-profile-universal v1.2.0, fontspector-profile-iso15008 v1.0.4, fontspector v1.5.0 ([`de4a966`](https://github.com/fonttools/fontspector/commit/de4a966105bea222ea98da69793ddbfbdd590f9d))
 </details>
 
 ## v1.0.2 (2025-07-02)
