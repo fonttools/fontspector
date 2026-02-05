@@ -1,5 +1,8 @@
-use fontations::skrifa::raw::{tables::fvar::VariationAxisRecord, ReadError, TableProvider};
-use fontations::skrifa::{setting::VariationSetting, FontRef, GlyphId};
+use fontations::skrifa::{
+    raw::{tables::fvar::VariationAxisRecord, ReadError, TableProvider},
+    setting::VariationSetting,
+    FontRef, GlyphId,
+};
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
 use interpolatable::{run_tests, Problem, ProblemDetails};
 

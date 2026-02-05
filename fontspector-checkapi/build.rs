@@ -3,11 +3,7 @@
 //!  parses the HTML to extract the tags, and writes them to Rust source files.
 //!  The generated files are then included in the crate for use in the API.
 use scraper::{Html, Selector};
-use std::env;
-use std::fs::File;
-use std::io::Write;
-use std::path::PathBuf;
-use std::sync::LazyLock;
+use std::{env, fs::File, io::Write, path::PathBuf, sync::LazyLock};
 
 #[allow(clippy::unwrap_used)] // it's a constant!
 static TAG_RE: LazyLock<regex::Regex> =

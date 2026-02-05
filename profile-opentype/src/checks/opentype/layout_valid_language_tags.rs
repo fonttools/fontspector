@@ -53,10 +53,10 @@ pub fn layout_valid_language_tags(f: &Testable, _context: &Context) -> CheckFnRe
 
 #[cfg(test)]
 mod tests {
-    use fontspector_checkapi::codetesting::{
-        assert_pass, assert_results_contain, run_check, test_able,
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        StatusCode,
     };
-    use fontspector_checkapi::StatusCode;
 
     #[test]
     fn test_layout_valid_language_tags_pass() {

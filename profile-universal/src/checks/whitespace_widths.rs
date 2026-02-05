@@ -1,5 +1,4 @@
-use fontations::skrifa::raw::TableProvider;
-use fontations::skrifa::MetadataProvider;
+use fontations::skrifa::{raw::TableProvider, MetadataProvider};
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
 
 #[check(

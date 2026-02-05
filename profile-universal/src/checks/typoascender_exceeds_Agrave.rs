@@ -1,6 +1,6 @@
-use fontations::skrifa::raw::TableProvider;
 use fontations::skrifa::{
     prelude::{LocationRef, Size},
+    raw::TableProvider,
     MetadataProvider,
 };
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};

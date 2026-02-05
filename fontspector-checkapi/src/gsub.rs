@@ -1,16 +1,18 @@
 // Code to make GSUB tables easier to work with
-use fontations::skrifa::raw::{
-    tables::{
-        gsub::{
-            AlternateSubstFormat1, ExtensionSubstFormat1, LigatureSubstFormat1,
-            MultipleSubstFormat1, ReverseChainSingleSubstFormat1, SingleSubst,
-            SubstitutionSubtables,
+use fontations::skrifa::{
+    raw::{
+        tables::{
+            gsub::{
+                AlternateSubstFormat1, ExtensionSubstFormat1, LigatureSubstFormat1,
+                MultipleSubstFormat1, ReverseChainSingleSubstFormat1, SingleSubst,
+                SubstitutionSubtables,
+            },
+            layout::Subtables,
         },
-        layout::Subtables,
+        ReadError,
     },
-    ReadError,
+    GlyphId16,
 };
-use fontations::skrifa::GlyphId16;
 
 /// A map of substitutions, input glyphs on the left, output glyphs on the right
 pub type SubstitutionMap = Vec<(Vec<GlyphId16>, Vec<GlyphId16>)>;

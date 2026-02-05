@@ -56,14 +56,14 @@ fn fvar_axis_ranges(t: &Testable, _context: &Context) -> CheckFnResult {
 
 #[cfg(test)]
 mod tests {
-    use fontations::skrifa::raw::TableProvider;
-    use fontations::write::from_obj::ToOwnedTable;
-    use fontations::write::tables::fvar::Fvar;
-    use fontations::write::FontBuilder;
-    use fontspector_checkapi::codetesting::{
-        assert_pass, assert_results_contain, assert_skip, run_check, test_able,
+    use fontations::{
+        skrifa::raw::TableProvider,
+        write::{from_obj::ToOwnedTable, tables::fvar::Fvar, FontBuilder},
     };
-    use fontspector_checkapi::{FileTypeConvert, StatusCode, TTF};
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, assert_skip, run_check, test_able},
+        FileTypeConvert, StatusCode, TTF,
+    };
 
     use super::fvar_axis_ranges;
 

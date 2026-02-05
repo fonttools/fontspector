@@ -1,17 +1,19 @@
 use std::collections::{HashMap, HashSet};
 
-use fontations::skrifa::raw::{
-    tables::{
-        glyf::Glyph,
-        gpos::{
-            DeviceOrVariationIndex::{Device, VariationIndex},
-            PairPosFormat1, PairPosFormat2,
+use fontations::skrifa::{
+    raw::{
+        tables::{
+            glyf::Glyph,
+            gpos::{
+                DeviceOrVariationIndex::{Device, VariationIndex},
+                PairPosFormat1, PairPosFormat2,
+            },
+            variations::ItemVariationStore,
         },
-        variations::ItemVariationStore,
+        FontData, ReadError, TableProvider,
     },
-    FontData, ReadError, TableProvider,
+    GlyphId, MetadataProvider,
 };
-use fontations::skrifa::{GlyphId, MetadataProvider};
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
 use itertools::Itertools;
 

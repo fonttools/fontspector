@@ -99,9 +99,11 @@ mod tests {
 
     use super::*;
     use fontations::write::{
-        tables::maxp::Maxp,
-        tables::name::{Name, NameRecord},
-        tables::os2::Os2,
+        tables::{
+            maxp::Maxp,
+            name::{Name, NameRecord},
+            os2::Os2,
+        },
         types::NameId,
         FontBuilder,
     };

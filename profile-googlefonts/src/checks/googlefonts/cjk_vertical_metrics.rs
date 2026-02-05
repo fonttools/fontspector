@@ -12,9 +12,10 @@ use fontations::{
     types::{BigEndian, GlyphId, Tag},
     write::{
         from_obj::ToOwnedTable,
-        tables::base::{self as write_base, BaseScript},
-        tables::hhea as write_hhea,
-        tables::os2 as write_os2,
+        tables::{
+            base::{self as write_base, BaseScript},
+            hhea as write_hhea, os2 as write_os2,
+        },
         FontBuilder,
     },
 };

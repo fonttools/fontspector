@@ -1,8 +1,9 @@
 use std::collections::HashMap;
 
-use fontations::skrifa::raw::tables::gdef::GlyphClassDef;
-use fontations::skrifa::raw::TableProvider;
-use fontations::skrifa::{GlyphId, MetadataProvider};
+use fontations::skrifa::{
+    raw::{tables::gdef::GlyphClassDef, TableProvider},
+    GlyphId, MetadataProvider,
+};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
 use unicode_properties::{GeneralCategory, UnicodeGeneralCategory};
 

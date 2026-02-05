@@ -1,7 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use fontations::skrifa::raw::TableProvider;
-use fontations::skrifa::{GlyphId, MetadataProvider};
+use fontations::skrifa::{raw::TableProvider, GlyphId, MetadataProvider};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
 use itertools::Itertools;
 
@@ -85,10 +84,10 @@ fn math_signs_width(f: &Testable, _context: &Context) -> CheckFnResult {
 
 #[cfg(test)]
 mod tests {
-    use fontspector_checkapi::codetesting::{
-        assert_pass, assert_results_contain, run_check, test_able,
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        StatusCode,
     };
-    use fontspector_checkapi::StatusCode;
 
     #[test]
     fn test_check_math_signs_width_pass() {

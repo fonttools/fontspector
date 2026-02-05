@@ -1,15 +1,19 @@
-use fontations::skrifa::raw::{
-    tables::glyf::{Anchor, CurvePoint, Glyph, Transform},
-    types::F2Dot14,
-    FontData, TableProvider,
-};
-use fontations::skrifa::GlyphId;
-use fontations::write::{
-    from_obj::ToOwnedObj,
-    tables::glyf::{
-        Component, CompositeGlyph, Contour, GlyfLocaBuilder, Glyph as WriteGlyph, SimpleGlyph,
+use fontations::{
+    skrifa::{
+        raw::{
+            tables::glyf::{Anchor, CurvePoint, Glyph, Transform},
+            types::F2Dot14,
+            FontData, TableProvider,
+        },
+        GlyphId,
     },
-    FontBuilder,
+    write::{
+        from_obj::ToOwnedObj,
+        tables::glyf::{
+            Component, CompositeGlyph, Contour, GlyfLocaBuilder, Glyph as WriteGlyph, SimpleGlyph,
+        },
+        FontBuilder,
+    },
 };
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
 use hashbrown::HashMap;

@@ -1,10 +1,12 @@
 use hashbrown::{HashMap, HashSet};
 
-use fontations::skrifa::raw::{
-    tables::gpos::{PairPosFormat1, PairPosFormat2},
-    ReadError, TableProvider,
+use fontations::skrifa::{
+    raw::{
+        tables::gpos::{PairPosFormat1, PairPosFormat2},
+        ReadError, TableProvider,
+    },
+    GlyphId, MetadataProvider,
 };
-use fontations::skrifa::{GlyphId, MetadataProvider};
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, GetSubstitutionMap};
 use itertools::Itertools;
 use unicode_properties::{GeneralCategory, UnicodeGeneralCategory};
@@ -257,10 +259,10 @@ fn involved_pairs_format2(pp2: PairPosFormat2) -> Result<Vec<PairSlot>, ReadErro
 
 #[cfg(test)]
 mod tests {
-    use fontspector_checkapi::codetesting::{
-        assert_pass, assert_results_contain, run_check, test_able,
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        StatusCode,
     };
-    use fontspector_checkapi::StatusCode;
 
     #[test]
     fn test_check_tabular_kerning_no_numerals() {

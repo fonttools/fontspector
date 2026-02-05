@@ -1,8 +1,10 @@
-use fontations::skrifa::raw::{
-    tables::{gdef::GlyphClassDef, gpos::PositionSubtables},
-    TableProvider,
+use fontations::skrifa::{
+    raw::{
+        tables::{gdef::GlyphClassDef, gpos::PositionSubtables},
+        TableProvider,
+    },
+    GlyphId, MetadataProvider,
 };
-use fontations::skrifa::{GlyphId, MetadataProvider};
 use fontspector_checkapi::{
     constants::{INDIC_SCRIPT_TAGS, USE_SCRIPT_TAGS},
     prelude::*,
@@ -149,10 +151,10 @@ fn dotted_circle(t: &Testable, context: &Context) -> CheckFnResult {
 #[cfg(test)]
 mod tests {
     use super::dotted_circle;
-    use fontspector_checkapi::codetesting::{
-        assert_pass, assert_results_contain, run_check, test_able,
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        StatusCode,
     };
-    use fontspector_checkapi::StatusCode;
 
     #[test]
     fn test_check_dotted_circle_pass() {

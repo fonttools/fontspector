@@ -1,5 +1,4 @@
-use fontations::skrifa::raw::TableProvider;
-use fontations::skrifa::GlyphId;
+use fontations::skrifa::{raw::TableProvider, GlyphId};
 use fontspector_checkapi::{
     pens::AreaPen, prelude::*, testfont, FileTypeConvert, DEFAULT_LOCATION,
 };

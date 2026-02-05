@@ -1,7 +1,9 @@
 use std::collections::HashSet;
 
-use fontations::skrifa::raw::{tables::gdef::GlyphClassDef, TableProvider};
-use fontations::skrifa::GlyphId;
+use fontations::skrifa::{
+    raw::{tables::gdef::GlyphClassDef, TableProvider},
+    GlyphId,
+};
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
 
 #[check(
@@ -70,8 +72,10 @@ pub fn ligature_carets(t: &Testable, context: &Context) -> CheckFnResult {
 
 #[cfg(test)]
 mod tests {
-    use fontspector_checkapi::codetesting::{assert_results_contain, run_check, test_able};
-    use fontspector_checkapi::StatusCode;
+    use fontspector_checkapi::{
+        codetesting::{assert_results_contain, run_check, test_able},
+        StatusCode,
+    };
 
     #[test]
     fn test_ligature_carets_no_ligatures() {

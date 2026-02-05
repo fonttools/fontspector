@@ -41,10 +41,10 @@ pub fn gpos_kerning_info(f: &Testable, _context: &Context) -> CheckFnResult {
 
 #[cfg(test)]
 mod tests {
-    use fontspector_checkapi::codetesting::{
-        assert_pass, assert_results_contain, run_check, test_able,
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        StatusCode,
     };
-    use fontspector_checkapi::StatusCode;
 
     #[test]
     fn test_gpos_kerning_info_monospaced() {

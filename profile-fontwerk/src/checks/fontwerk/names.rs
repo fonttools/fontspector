@@ -227,14 +227,17 @@ mod tests {
     #![allow(clippy::unwrap_used, clippy::expect_used)]
 
     use super::*;
-    use fontations::skrifa::raw::types::NameId;
-    use fontations::write::{
-        tables::maxp::Maxp,
-        tables::name::{Name, NameRecord},
-        FontBuilder,
+    use fontations::{
+        skrifa::raw::types::NameId,
+        write::{
+            tables::{
+                maxp::Maxp,
+                name::{Name, NameRecord},
+            },
+            FontBuilder,
+        },
     };
-    use fontspector_checkapi::StatusCode;
-    use fontspector_checkapi::{Context, Testable};
+    use fontspector_checkapi::{Context, StatusCode, Testable};
     use serde_json::json;
 
     #[test]

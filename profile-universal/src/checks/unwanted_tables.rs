@@ -1,5 +1,4 @@
-use fontations::skrifa::raw::types::Tag;
-use fontations::write::FontBuilder;
+use fontations::{skrifa::raw::types::Tag, write::FontBuilder};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
 
 const UNWANTED_TABLES: [(Tag, &str); 17] = [

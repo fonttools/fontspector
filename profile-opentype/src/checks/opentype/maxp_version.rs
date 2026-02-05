@@ -91,7 +91,10 @@ fn fix_maxp_version(t: &mut Testable) -> FixFnResult {
 
 #[cfg(test)]
 mod tests {
-    use fontspector_checkapi::{codetesting::run_check, codetesting::test_able, StatusCode};
+    use fontspector_checkapi::{
+        codetesting::{run_check, test_able},
+        StatusCode,
+    };
 
     use super::*;
 

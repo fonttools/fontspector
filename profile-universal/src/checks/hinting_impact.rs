@@ -1,9 +1,14 @@
-use fontations::skrifa::raw::{tables::glyf::Glyf, ReadError, TableProvider};
-use fontations::skrifa::{raw, FontRef, GlyphId, Tag};
-use fontations::write::{
-    from_obj::FromTableRef,
-    tables::glyf::{GlyfLocaBuilder, Glyph},
-    FontBuilder,
+use fontations::{
+    skrifa::{
+        raw,
+        raw::{tables::glyf::Glyf, ReadError, TableProvider},
+        FontRef, GlyphId, Tag,
+    },
+    write::{
+        from_obj::FromTableRef,
+        tables::glyf::{GlyfLocaBuilder, Glyph},
+        FontBuilder,
+    },
 };
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, TestFont};
 
@@ -111,8 +116,10 @@ pub fn hinting_impact(f: &Testable, _context: &Context) -> CheckFnResult {
 
 #[cfg(test)]
 mod tests {
-    use fontspector_checkapi::codetesting::{assert_results_contain, run_check, test_able};
-    use fontspector_checkapi::StatusCode;
+    use fontspector_checkapi::{
+        codetesting::{assert_results_contain, run_check, test_able},
+        StatusCode,
+    };
 
     #[test]
     fn test_hinting_impact_unhinted() {

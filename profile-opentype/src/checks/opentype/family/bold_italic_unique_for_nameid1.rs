@@ -1,7 +1,6 @@
 use std::collections::HashSet;
 
-use fontations::skrifa::raw::tables::os2::SelectionFlags;
-use fontations::skrifa::string::StringId;
+use fontations::skrifa::{raw::tables::os2::SelectionFlags, string::StringId};
 use fontspector_checkapi::{prelude::*, FileTypeConvert};
 
 #[check(

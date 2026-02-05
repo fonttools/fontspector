@@ -1,5 +1,7 @@
-use fontations::skrifa::raw::{tables::gdef::GlyphClassDef, TableProvider};
-use fontations::skrifa::MetadataProvider;
+use fontations::skrifa::{
+    raw::{tables::gdef::GlyphClassDef, TableProvider},
+    MetadataProvider,
+};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
 
 const LEGACY_ACCENTS: [u32; 13] = [

@@ -97,14 +97,17 @@ mod tests {
     #![allow(clippy::unwrap_used, clippy::expect_used)]
 
     use super::*;
-    use fontations::skrifa::raw::types::NameId;
-    use fontations::write::{
-        tables::maxp::Maxp,
-        tables::name::{Name, NameRecord},
-        FontBuilder,
+    use fontations::{
+        skrifa::raw::types::NameId,
+        write::{
+            tables::{
+                maxp::Maxp,
+                name::{Name, NameRecord},
+            },
+            FontBuilder,
+        },
     };
-    use fontspector_checkapi::StatusCode;
-    use fontspector_checkapi::{Testable, TestableType};
+    use fontspector_checkapi::{StatusCode, Testable, TestableType};
 
     use fontspector_checkapi::codetesting::{
         assert_messages_contain, assert_pass, assert_results_contain, run_check_with_config,
