@@ -27,9 +27,12 @@ fn get_primary_script(font: &TestFont, context: &Context) -> String {
 }
 
 fn siblings(script: &str) -> Option<Vec<&'static str>> {
+    // What's in the METADATA -> acceptable guesses
     match script {
         "Kore" => Some(vec!["Kore", "Hang"]),
         "Jpan" => Some(vec!["Jpan", "Hani", "Hant", "Hans"]),
+        "Hans" => Some(vec!["Hani"]),
+        "Hant" => Some(vec!["Hani"]),
         "Hira" => Some(vec!["Hira", "Kana"]),
         _ => None,
     }
@@ -74,6 +77,11 @@ fn primary_script(c: &TestableCollection, context: &Context) -> CheckFnResult {
         if guessed_primary_script == "Latn" {
             continue;
         }
+        log::debug!(
+            "Guessed primary script for {:?} is {}",
+            font.filename,
+            guessed_primary_script
+        );
         if metadata_primary_script.is_empty() {
             let mut message = format!(
                 "METADATA.pb: primary_script field should be '{guessed_primary_script}' but is missing."
@@ -97,4 +105,30 @@ fn primary_script(c: &TestableCollection, context: &Context) -> CheckFnResult {
         }
     }
     return_result(problems)
+}
+
+#[cfg(test)]
+mod tests {
+    use fontspector_checkapi::codetesting::{assert_pass, run_check_with_config, test_able};
+
+    use fontspector_checkapi::TestableCollection;
+    use std::collections::HashMap;
+
+    use super::primary_script;
+
+    #[allow(clippy::expect_used)]
+    #[test]
+    fn test_check_primary_script() {
+        let testable = test_able("resources/cjk/NotoSansJP[wght].ttf");
+        let md = test_able("resources/cjk/METADATA.pb");
+        let results = run_check_with_config(
+            primary_script,
+            fontspector_checkapi::TestableType::Collection(&TestableCollection::from_testables(
+                vec![testable, md],
+                None,
+            )),
+            HashMap::new(),
+        );
+        assert_pass(&results);
+    }
 }
