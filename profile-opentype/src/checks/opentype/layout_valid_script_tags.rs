@@ -51,10 +51,10 @@ pub fn layout_valid_script_tags(f: &Testable, _context: &Context) -> CheckFnResu
 
 #[cfg(test)]
 mod tests {
-    use fontspector_checkapi::codetesting::{
-        assert_pass, assert_results_contain, run_check, test_able,
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        StatusCode,
     };
-    use fontspector_checkapi::StatusCode;
 
     #[test]
     fn test_layout_valid_script_tags_pass() {

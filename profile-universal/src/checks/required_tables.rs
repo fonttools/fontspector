@@ -134,11 +134,13 @@ fn required_tables(t: &Testable, _context: &Context) -> CheckFnResult {
 #[cfg(test)]
 mod tests {
     use super::{required_tables, OPTIONAL_TABLE_TAGS};
-    use fontspector_checkapi::codetesting::{
-        add_table, assert_messages_contain, assert_results_contain, remove_table, run_check,
-        test_able,
+    use fontspector_checkapi::{
+        codetesting::{
+            add_table, assert_messages_contain, assert_results_contain, remove_table, run_check,
+            test_able,
+        },
+        StatusCode,
     };
-    use fontspector_checkapi::StatusCode;
 
     #[test]
     fn test_truetype_font_pass() {

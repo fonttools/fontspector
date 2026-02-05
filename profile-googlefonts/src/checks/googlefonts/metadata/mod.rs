@@ -25,8 +25,7 @@ pub use reserved_font_name::reserved_font_name;
 pub use subsets_correct::subsets_correct;
 pub use validate::validate;
 
-pub(crate) use gf_metadata::DesignerInfoProto;
-pub(crate) use gf_metadata::FamilyProto;
+pub(crate) use gf_metadata::{DesignerInfoProto, FamilyProto};
 
 use fontspector_checkapi::{FontspectorError, Testable};
 

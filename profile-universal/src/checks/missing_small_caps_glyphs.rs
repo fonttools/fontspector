@@ -1,7 +1,9 @@
 use std::collections::HashSet;
 
-use fontations::skrifa::raw::{tables::gsub::SubstitutionLookupList, ReadError, TableProvider};
-use fontations::skrifa::{GlyphId16, MetadataProvider};
+use fontations::skrifa::{
+    raw::{tables::gsub::SubstitutionLookupList, ReadError, TableProvider},
+    GlyphId16, MetadataProvider,
+};
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, GetSubstitutionMap};
 use unicode_properties::{GeneralCategory, UnicodeGeneralCategory};
 

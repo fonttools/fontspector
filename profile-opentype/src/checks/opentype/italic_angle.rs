@@ -1,6 +1,6 @@
-use fontations::skrifa::raw::{types::BoundingBox, TableProvider};
 use fontations::skrifa::{
     prelude::{LocationRef, Size},
+    raw::{types::BoundingBox, TableProvider},
     MetadataProvider,
 };
 use fontspector_checkapi::{

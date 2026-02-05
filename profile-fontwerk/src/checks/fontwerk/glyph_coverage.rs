@@ -1,7 +1,6 @@
 use fontations::skrifa::{GlyphId, MetadataProvider};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, TestFont, Testable};
-use std::collections::HashSet;
-use std::vec;
+use std::{collections::HashSet, vec};
 
 const FW_LAT_STD_ENCODED_GLYPHS: [u32; 414] = [
     0x0000, 0x000D, 0x0020, 0x0041, 0x00C1, 0x0102, 0x00C2, 0x00C4, 0x00C0, 0x0100, 0x0104, 0x00C5,

@@ -204,10 +204,12 @@ fn soft_dotted(t: &Testable, context: &Context) -> CheckFnResult {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use fontspector_checkapi::codetesting::{
-        assert_messages_contain, assert_pass, assert_results_contain, run_check, test_able,
+    use fontspector_checkapi::{
+        codetesting::{
+            assert_messages_contain, assert_pass, assert_results_contain, run_check, test_able,
+        },
+        StatusCode,
     };
-    use fontspector_checkapi::StatusCode;
 
     #[test]
     fn test_check_soft_dotted_abeezee() {

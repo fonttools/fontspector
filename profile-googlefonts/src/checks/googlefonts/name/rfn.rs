@@ -1,7 +1,9 @@
 use std::sync::LazyLock;
 
-use fontations::skrifa::raw::{types::NameId, TableProvider};
-use fontations::skrifa::MetadataProvider;
+use fontations::skrifa::{
+    raw::{types::NameId, TableProvider},
+    MetadataProvider,
+};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
 use regex::Regex;
 

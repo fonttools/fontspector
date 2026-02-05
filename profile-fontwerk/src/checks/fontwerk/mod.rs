@@ -1,7 +1,6 @@
 #[allow(non_snake_case)]
 mod names;
-pub use names::name_consistency;
-pub use names::name_entries;
+pub use names::{name_consistency, name_entries};
 mod fstype;
 pub use fstype::fstype;
 mod glyph_coverage;

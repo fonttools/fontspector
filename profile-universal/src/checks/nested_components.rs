@@ -1,13 +1,15 @@
 use std::collections::HashMap;
 
-use fontations::skrifa::raw::{
-    tables::{
-        glyf::{Glyf, Glyph},
-        loca::Loca,
+use fontations::skrifa::{
+    raw::{
+        tables::{
+            glyf::{Glyf, Glyph},
+            loca::Loca,
+        },
+        TableProvider,
     },
-    TableProvider,
+    GlyphId,
 };
-use fontations::skrifa::GlyphId;
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
 
 use super::transformed_components::decompose_components_impl;

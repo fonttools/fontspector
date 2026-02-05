@@ -1,9 +1,11 @@
-use fontations::skrifa::raw::{
-    tables::glyf::{Glyph, PointFlags},
-    types::Point,
-    TableProvider,
+use fontations::skrifa::{
+    raw::{
+        tables::glyf::{Glyph, PointFlags},
+        types::Point,
+        TableProvider,
+    },
+    GlyphId,
 };
-use fontations::skrifa::GlyphId;
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
 
 #[check(

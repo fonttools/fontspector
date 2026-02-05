@@ -7,8 +7,7 @@ use profile_googlefonts::GoogleFonts;
 use profile_iso15008::Iso15008;
 use profile_opentype::OpenType;
 use profile_universal::Universal;
-use std::io::Read;
-use std::path::PathBuf;
+use std::{io::Read, path::PathBuf};
 
 use crate::args::Args;
 

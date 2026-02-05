@@ -1,13 +1,16 @@
 use std::collections::HashSet;
 
-use fontations::skrifa::raw::{
-    tables::{
-        colr::Paint,
-        glyf::Glyph::{Composite, Simple},
+use fontations::skrifa::{
+    charmap::MapVariant,
+    raw::{
+        tables::{
+            colr::Paint,
+            glyf::Glyph::{Composite, Simple},
+        },
+        TableProvider,
     },
-    TableProvider,
+    GlyphId, MetadataProvider,
 };
-use fontations::skrifa::{charmap::MapVariant, GlyphId, MetadataProvider};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, GetSubstitutionMap};
 use itertools::Itertools;
 
@@ -139,11 +142,13 @@ fn unreachable_glyphs(t: &Testable, context: &Context) -> CheckFnResult {
 
 #[cfg(test)]
 mod tests {
-    use fontspector_checkapi::codetesting::{
-        assert_messages_contain, assert_messages_dont_contain, assert_pass, assert_results_contain,
-        run_check, test_able,
+    use fontspector_checkapi::{
+        codetesting::{
+            assert_messages_contain, assert_messages_dont_contain, assert_pass,
+            assert_results_contain, run_check, test_able,
+        },
+        StatusCode,
     };
-    use fontspector_checkapi::StatusCode;
 
     #[test]
     fn test_check_unreachable_glyphs_pass() {

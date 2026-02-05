@@ -1,5 +1,4 @@
-use fontations::skrifa::raw::tables::name::NameId;
-use fontations::skrifa::MetadataProvider;
+use fontations::skrifa::{raw::tables::name::NameId, MetadataProvider};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
 
 #[check(

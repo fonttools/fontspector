@@ -3,9 +3,7 @@ use crate::{reporters::Reporter, Args};
 use colored::{ColoredString, Colorize};
 use fontspector_checkapi::{FixResult, Registry, StatusCode};
 use itertools::Itertools;
-use std::collections::BTreeMap;
-use std::io::Write;
-use std::path::Path;
+use std::{collections::BTreeMap, io::Write, path::Path};
 use termimad::MadSkin;
 
 pub(crate) struct TerminalReporter {

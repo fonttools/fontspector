@@ -1,8 +1,10 @@
-use fontations::skrifa::raw::{
-    tables::glyf::{Anchor, Glyph},
-    TableProvider,
+use fontations::skrifa::{
+    raw::{
+        tables::glyf::{Anchor, Glyph},
+        TableProvider,
+    },
+    GlyphId,
 };
-use fontations::skrifa::GlyphId;
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
 use std::collections::HashSet;
 

@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
-use fontations::skrifa::raw::tables::glyf::Glyph;
-use fontations::skrifa::MetadataProvider;
+use fontations::skrifa::{raw::tables::glyf::Glyph, MetadataProvider};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
 
 const CARON_CODEPOINTS: [u32; 4] = [
@@ -112,10 +111,10 @@ fn alt_caron(t: &Testable, context: &Context) -> CheckFnResult {
 
 #[cfg(test)]
 mod tests {
-    use fontspector_checkapi::codetesting::{
-        assert_pass, assert_results_contain, run_check, test_able,
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        StatusCode,
     };
-    use fontspector_checkapi::StatusCode;
 
     #[test]
     fn test_check_alt_caron_bad_and_wrong() {

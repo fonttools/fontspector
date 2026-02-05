@@ -1,5 +1,4 @@
-use fontations::skrifa::raw::TableProvider;
-use fontations::skrifa::Tag;
+use fontations::skrifa::{raw::TableProvider, Tag};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
 use std::cmp::Ordering;
 

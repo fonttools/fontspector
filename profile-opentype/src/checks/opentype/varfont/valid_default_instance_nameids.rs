@@ -1,5 +1,7 @@
-use fontations::skrifa::raw::types::{F2Dot14, NameId};
-use fontations::skrifa::MetadataProvider;
+use fontations::skrifa::{
+    raw::types::{F2Dot14, NameId},
+    MetadataProvider,
+};
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
 
 #[check(

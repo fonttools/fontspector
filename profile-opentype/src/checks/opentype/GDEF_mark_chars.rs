@@ -1,5 +1,4 @@
-use fontations::skrifa::raw::tables::gdef::GlyphClassDef;
-use fontations::skrifa::MetadataProvider;
+use fontations::skrifa::{raw::tables::gdef::GlyphClassDef, MetadataProvider};
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
 use unicode_properties::{GeneralCategory, UnicodeGeneralCategory};
 

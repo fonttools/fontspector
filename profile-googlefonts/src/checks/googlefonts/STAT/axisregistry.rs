@@ -1,5 +1,8 @@
-use fontations::skrifa::raw::{tables::stat::AxisValue, TableProvider};
-use fontations::skrifa::{string::StringId, Tag};
+use fontations::skrifa::{
+    raw::{tables::stat::AxisValue, TableProvider},
+    string::StringId,
+    Tag,
+};
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, TestFont};
 use google_fonts_axisregistry::AxisRegistry;
 use hashbrown::HashMap;
