@@ -28,6 +28,6 @@ fn mandatory_avar_table(t: &Testable, _context: &Context) -> CheckFnResult {
     Ok(if f.has_table(b"avar") {
         Status::just_one_pass()
     } else {
-        Status::just_one_warn("missing-avar", "The font does not include an avar table.")
+        Status::just_one_warn("missing-avar", "The font does not include an avar table.  If the progression rates of axes is linear and no user-mapping is expected, this is fine, and this check can be ignored or excluded.")
     })
 }
