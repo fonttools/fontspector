@@ -101,6 +101,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           cache-workspace-crates: true
+          add-job-id-key: false
+
       # - name: Set up python
       #   uses: actions/setup-python@v5
       #   with:
