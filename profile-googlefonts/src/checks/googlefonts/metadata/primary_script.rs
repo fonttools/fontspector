@@ -119,8 +119,8 @@ mod tests {
     #[allow(clippy::expect_used)]
     #[test]
     fn test_check_primary_script() {
-        let testable = test_able("resources/cjk/NotoSansJP[wght].ttf");
-        let md = test_able("resources/cjk/METADATA.pb");
+        let testable = test_able("cjk/NotoSansJP[wght].ttf");
+        let md = test_able("cjk/METADATA.pb");
         let results = run_check_with_config(
             primary_script,
             fontspector_checkapi::TestableType::Collection(&TestableCollection::from_testables(
