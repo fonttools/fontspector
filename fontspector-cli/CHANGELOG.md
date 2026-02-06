@@ -5,7 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.5.4 (2026-02-06)
+
+### Chore
+
+ - <csr-id-19b91cdf15a6d8ea7e60b616199d28e03c76ba4d/> Reformat
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 1 commit contributed to the release over the course of 1 calendar day.
+ - 2 days passed between releases.
+ - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
+ - 1 unique issue was worked on: [#611](https://github.com/fonttools/fontspector/issues/611)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#611](https://github.com/fonttools/fontspector/issues/611)**
+    - Reformat ([`19b91cd`](https://github.com/fonttools/fontspector/commit/19b91cdf15a6d8ea7e60b616199d28e03c76ba4d))
+</details>
+
 ## v1.5.3 (2026-02-04)
+
+<csr-id-aa254545247ac69244c3710c0c967785b567682c/>
 
 ### Chore
 
@@ -19,8 +46,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 2 commits contributed to the release over the course of 25 calendar days.
- - 47 days passed between releases.
+ - 3 commits contributed to the release over the course of 25 calendar days.
+ - 48 days passed between releases.
  - 2 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 2 unique issues were worked on: [#559](https://github.com/fonttools/fontspector/issues/559), [#591](https://github.com/fonttools/fontspector/issues/591)
 
@@ -40,6 +67,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Update rust crate zip to v7 ([`8a2e23b`](https://github.com/fonttools/fontspector/commit/8a2e23bdb26811288444323d9804981e5250d20b))
  * **[#591](https://github.com/fonttools/fontspector/issues/591)**
     - Thanks clippy ([`aa25454`](https://github.com/fonttools/fontspector/commit/aa254545247ac69244c3710c0c967785b567682c))
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.3.2, fontspector-profile-fontwerk v1.2.2, fontspector-profile-googlefonts v1.6.0, fontspector-profile-universal v1.5.0, fontspector-profile-iso15008 v1.0.5, fontspector v1.5.3 ([`43eb125`](https://github.com/fonttools/fontspector/commit/43eb125ce74b3424af90f5f9aa8082fdb4e2e742))
 </details>
 
 ## v1.5.2 (2025-12-17)

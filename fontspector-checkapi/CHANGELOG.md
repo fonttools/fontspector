@@ -5,7 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.4.0 (2026-02-06)
+
+### Chore
+
+ - <csr-id-19b91cdf15a6d8ea7e60b616199d28e03c76ba4d/> Reformat
+
+### New Features
+
+ - <csr-id-04a449bd24ff2519f5c0300cd013ffcdbf363bf7/> Add check (implements #557)
+   * chore(checkapi): Add fontdrasil and axes function
+   
+   * feat(suspicious_sidebearings): Add check (implements #557)
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 2 commits contributed to the release over the course of 1 calendar day.
+ - 2 days passed between releases.
+ - 2 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 2 unique issues were worked on: [#611](https://github.com/fonttools/fontspector/issues/611), [#618](https://github.com/fonttools/fontspector/issues/618)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#611](https://github.com/fonttools/fontspector/issues/611)**
+    - Reformat ([`19b91cd`](https://github.com/fonttools/fontspector/commit/19b91cdf15a6d8ea7e60b616199d28e03c76ba4d))
+ * **[#618](https://github.com/fonttools/fontspector/issues/618)**
+    - Add check (implements #557) ([`04a449b`](https://github.com/fonttools/fontspector/commit/04a449bd24ff2519f5c0300cd013ffcdbf363bf7))
+</details>
+
 ## v1.3.2 (2026-02-04)
+
+<csr-id-c8bc460e7ee09451e8cb86ce9463fcbea3703c86/>
 
 ### Test
 
@@ -54,8 +90,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 1 commit contributed to the release.
- - 47 days passed between releases.
+ - 2 commits contributed to the release.
+ - 48 days passed between releases.
  - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
  - 1 unique issue was worked on: [#586](https://github.com/fonttools/fontspector/issues/586)
 
@@ -67,6 +103,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
  * **[#586](https://github.com/fonttools/fontspector/issues/586)**
     - Port all remaining `required_table` tests to rust ([`c8bc460`](https://github.com/fonttools/fontspector/commit/c8bc460e7ee09451e8cb86ce9463fcbea3703c86))
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.3.2, fontspector-profile-fontwerk v1.2.2, fontspector-profile-googlefonts v1.6.0, fontspector-profile-universal v1.5.0, fontspector-profile-iso15008 v1.0.5, fontspector v1.5.3 ([`43eb125`](https://github.com/fonttools/fontspector/commit/43eb125ce74b3424af90f5f9aa8082fdb4e2e742))
 </details>
 
 ## v1.3.1 (2025-12-17)

@@ -5,37 +5,67 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.6.0 (2026-02-06)
+
+### Chore
+
+ - <csr-id-19b91cdf15a6d8ea7e60b616199d28e03c76ba4d/> Reformat
+
+### New Features
+
+ - <csr-id-04a449bd24ff2519f5c0300cd013ffcdbf363bf7/> Add check (implements #557)
+   * chore(checkapi): Add fontdrasil and axes function
+   
+   * feat(suspicious_sidebearings): Add check (implements #557)
+ - <csr-id-5ee341e08c41001139a7914f346bfe70a875cc3a/> Improve warning message, fixes #609
+
+### Refactor
+
+ - <csr-id-275df045d7ee4ba95e8183c48982201531dad633/> check for double spaces
+   * refactor(name/trailing_spaces): check for double spaces
+   
+   * refactor: format, make lint happy
+   
+   ---------
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 4 commits contributed to the release over the course of 1 calendar day.
+ - 2 days passed between releases.
+ - 4 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 4 unique issues were worked on: [#582](https://github.com/fonttools/fontspector/issues/582), [#611](https://github.com/fonttools/fontspector/issues/611), [#612](https://github.com/fonttools/fontspector/issues/612), [#618](https://github.com/fonttools/fontspector/issues/618)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#582](https://github.com/fonttools/fontspector/issues/582)**
+    - Check for double spaces ([`275df04`](https://github.com/fonttools/fontspector/commit/275df045d7ee4ba95e8183c48982201531dad633))
+ * **[#611](https://github.com/fonttools/fontspector/issues/611)**
+    - Reformat ([`19b91cd`](https://github.com/fonttools/fontspector/commit/19b91cdf15a6d8ea7e60b616199d28e03c76ba4d))
+ * **[#612](https://github.com/fonttools/fontspector/issues/612)**
+    - Improve warning message, fixes #609 ([`5ee341e`](https://github.com/fonttools/fontspector/commit/5ee341e08c41001139a7914f346bfe70a875cc3a))
+ * **[#618](https://github.com/fonttools/fontspector/issues/618)**
+    - Add check (implements #557) ([`04a449b`](https://github.com/fonttools/fontspector/commit/04a449bd24ff2519f5c0300cd013ffcdbf363bf7))
+</details>
+
 ## v1.5.0 (2026-02-04)
+
+<csr-id-905b344c2702bc78927fd7407978959c32dabbfe/>
+<csr-id-c8bc460e7ee09451e8cb86ce9463fcbea3703c86/>
 
 ### New Features
 
  - <csr-id-1680b05ab268e7acabf4444823585128ed36e2e6/> warn when variable font with vmtx lacks VVAR table
    * feat(universal): warn when variable font with vmtx lacks VVAR table
-   
-   Variable fonts that include a vmtx (vertical metrics) table should also
-   include a VVAR table.
-   
-   As noted by Behdad (at https://github.com/notofonts/noto-cjk/issues/307),
-   inclusion of the VVAR table speeds up processing of vertical typesetting
-   significantly with only a minor file size increase, even in cases where
-   there is no variation in the vertical metrics (vmtx) across the
-   designspace. Fonttools automatically adds this table if the vmtx table
-   exists, and it isn't on the exclude list, but other build systems do
-   not at present.
-   
-   (Closes #516)
-   
-   * test(universal): add Rust tests for VVAR table check
-   
-   Add unit tests for the missing-vvar warning in required_tables check:
-   - test_vvar_missing: variable font with vmtx but no VVAR triggers WARN
+* test(universal): add Rust tests for VVAR table check
+- test_vvar_missing: variable font with vmtx but no VVAR triggers WARN
      and message contains "vmtx"
-   - test_vvar_present: variable font with vmtx AND VVAR has no warning
-   
-   Add ShantellSans test font to resources/test/ for VVAR present case.
-   Remove equivalent Python tests in favor of Rust implementation.
-   
-   ---------
+- test_vvar_present: variable font with vmtx AND VVAR has no warning
 
 ### Refactor
 
@@ -97,8 +127,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 3 commits contributed to the release over the course of 25 calendar days.
- - 47 days passed between releases.
+ - 4 commits contributed to the release over the course of 25 calendar days.
+ - 48 days passed between releases.
  - 3 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 3 unique issues were worked on: [#566](https://github.com/fonttools/fontspector/issues/566), [#585](https://github.com/fonttools/fontspector/issues/585), [#586](https://github.com/fonttools/fontspector/issues/586)
 
@@ -114,7 +144,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Warn when variable font with vmtx lacks VVAR table ([`1680b05`](https://github.com/fonttools/fontspector/commit/1680b05ab268e7acabf4444823585128ed36e2e6))
  * **[#586](https://github.com/fonttools/fontspector/issues/586)**
     - Port all remaining `required_table` tests to rust ([`c8bc460`](https://github.com/fonttools/fontspector/commit/c8bc460e7ee09451e8cb86ce9463fcbea3703c86))
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.3.2, fontspector-profile-fontwerk v1.2.2, fontspector-profile-googlefonts v1.6.0, fontspector-profile-universal v1.5.0, fontspector-profile-iso15008 v1.0.5, fontspector v1.5.3 ([`43eb125`](https://github.com/fonttools/fontspector/commit/43eb125ce74b3424af90f5f9aa8082fdb4e2e742))
 </details>
+
+<csr-unknown>
+Variable fonts that include a vmtx (vertical metrics) table should alsoinclude a VVAR table.As noted by Behdad (at https://github.com/notofonts/noto-cjk/issues/307),inclusion of the VVAR table speeds up processing of vertical typesettingsignificantly with only a minor file size increase, even in cases wherethere is no variation in the vertical metrics (vmtx) across thedesignspace. Fonttools automatically adds this table if the vmtx tableexists, and it isn’t on the exclude list, but other build systems donot at present.(Closes #516)Add unit tests for the missing-vvar warning in required_tables check:Add ShantellSans test font to resources/test/ for VVAR present case.Remove equivalent Python tests in favor of Rust implementation.<csr-unknown/>
 
 ## v1.4.0 (2025-12-17)
 

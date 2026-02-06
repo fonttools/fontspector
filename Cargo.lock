@@ -1529,7 +1529,7 @@ dependencies = [
 
 [[package]]
 name = "fontspector"
-version = "1.5.3"
+version = "1.5.4"
 dependencies = [
  "chrono",
  "clap",
@@ -1567,7 +1567,7 @@ dependencies = [
 
 [[package]]
 name = "fontspector-checkapi"
-version = "1.3.2"
+version = "1.4.0"
 dependencies = [
  "clap",
  "fontations",
@@ -1636,7 +1636,7 @@ dependencies = [
 
 [[package]]
 name = "fontspector-profile-fontwerk"
-version = "1.2.2"
+version = "1.2.3"
 dependencies = [
  "fontations",
  "fontspector-checkapi",
@@ -1648,7 +1648,7 @@ dependencies = [
 
 [[package]]
 name = "fontspector-profile-googlefonts"
-version = "1.6.0"
+version = "1.6.1"
 dependencies = [
  "chrono",
  "fontations",
@@ -1709,7 +1709,7 @@ dependencies = [
 
 [[package]]
 name = "fontspector-profile-opentype"
-version = "1.3.0"
+version = "1.3.1"
 dependencies = [
  "fontations",
  "fontspector-checkapi",
@@ -1731,7 +1731,7 @@ dependencies = [
 
 [[package]]
 name = "fontspector-profile-universal"
-version = "1.5.0"
+version = "1.6.0"
 dependencies = [
  "fontations",
  "fontdrasil",

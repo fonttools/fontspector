@@ -5,7 +5,47 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.6.1 (2026-02-06)
+
+### Chore
+
+ - <csr-id-3438162c5cfdb317cef761c251bb64fbe805985a/> publicize checks module
+ - <csr-id-19b91cdf15a6d8ea7e60b616199d28e03c76ba4d/> Reformat
+
+### Bug Fixes
+
+ - <csr-id-85b736903fe5f9e042ab18883262f553612bdcca/> Allow Hani as synonym for Hans/Hant
+   * fix(googlefonts/metadata/primary_script): Allow Hani as synonym for Hans/Hant (#17)
+   
+   * test(googlefonts/metadata/primary_script): Test file for above
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 3 commits contributed to the release over the course of 1 calendar day.
+ - 2 days passed between releases.
+ - 3 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 3 unique issues were worked on: [#610](https://github.com/fonttools/fontspector/issues/610), [#611](https://github.com/fonttools/fontspector/issues/611), [#616](https://github.com/fonttools/fontspector/issues/616)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#610](https://github.com/fonttools/fontspector/issues/610)**
+    - Allow Hani as synonym for Hans/Hant ([`85b7369`](https://github.com/fonttools/fontspector/commit/85b736903fe5f9e042ab18883262f553612bdcca))
+ * **[#611](https://github.com/fonttools/fontspector/issues/611)**
+    - Reformat ([`19b91cd`](https://github.com/fonttools/fontspector/commit/19b91cdf15a6d8ea7e60b616199d28e03c76ba4d))
+ * **[#616](https://github.com/fonttools/fontspector/issues/616)**
+    - Publicize checks module ([`3438162`](https://github.com/fonttools/fontspector/commit/3438162c5cfdb317cef761c251bb64fbe805985a))
+</details>
+
 ## v1.6.0 (2026-02-04)
+
+<csr-id-67faec64118db1aa7f5ef5399ea543a89494a872/>
+<csr-id-3ec28c2864447022ed246cb04cfeb514889dc72d/>
 
 ### Chore
 
@@ -17,17 +57,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - <csr-id-09d3d5fe9eaa141aaf938cbc256fe6afc8ede513/> add check to validate fvar axis ranges against GF Axis Registry
  - <csr-id-4c3a73b87c64b01d7deea104960c36e3100c1f29/> add check to validate primary_script and primary_language
    * feat(googlefonts): add check to validate primary_script and primary_language
-   
-   Adds a new check `googlefonts/metadata/valid_primary_script_language` that
-   validates METADATA.pb primary_script and primary_language fields against
-   the google-fonts-languages data.
-   
-   - primary_script must be a valid ISO 15924 script code
-   - primary_language must be a valid language ID in format 'lang_Script'
-   
-   * test(googlefonts): Tests for valid_primary_script_language
-   
-   ---------
+- primary_script must be a valid ISO 15924 script code
+- primary_language must be a valid language ID in format 'lang_Script'
+* test(googlefonts): Tests for valid_primary_script_language
 
 ### Bug Fixes
 
@@ -37,8 +69,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 5 commits contributed to the release over the course of 25 calendar days.
- - 47 days passed between releases.
+ - 6 commits contributed to the release over the course of 25 calendar days.
+ - 48 days passed between releases.
  - 5 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 5 unique issues were worked on: [#567](https://github.com/fonttools/fontspector/issues/567), [#570](https://github.com/fonttools/fontspector/issues/570), [#576](https://github.com/fonttools/fontspector/issues/576), [#581](https://github.com/fonttools/fontspector/issues/581), [#589](https://github.com/fonttools/fontspector/issues/589)
 
@@ -58,7 +90,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Move from rustybuzz to harfrust ([`67faec6`](https://github.com/fonttools/fontspector/commit/67faec64118db1aa7f5ef5399ea543a89494a872))
  * **[#589](https://github.com/fonttools/fontspector/issues/589)**
     - Add 'Allkin' to reserved font name exceptions ([`3ec28c2`](https://github.com/fonttools/fontspector/commit/3ec28c2864447022ed246cb04cfeb514889dc72d))
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.3.2, fontspector-profile-fontwerk v1.2.2, fontspector-profile-googlefonts v1.6.0, fontspector-profile-universal v1.5.0, fontspector-profile-iso15008 v1.0.5, fontspector v1.5.3 ([`43eb125`](https://github.com/fonttools/fontspector/commit/43eb125ce74b3424af90f5f9aa8082fdb4e2e742))
 </details>
+
+<csr-unknown>
+Adds a new check googlefonts/metadata/valid_primary_script_language thatvalidates METADATA.pb primary_script and primary_language fields againstthe google-fonts-languages data.<csr-unknown/>
 
 ## v1.5.0 (2025-12-17)
 
