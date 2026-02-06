@@ -27,6 +27,7 @@ use fontations::{
     },
     write::{validate::Validate, FontWrite},
 };
+use fontdrasil::coords::{CoordConverter, DesignCoord, NormalizedCoord, UserCoord};
 use itertools::Either;
 use std::{
     collections::{BTreeMap, HashMap, HashSet},
@@ -518,6 +519,73 @@ impl TestFont<'_> {
         new_font.add_table(table)?;
         new_font.copy_missing_tables(self.font());
         Ok(new_font.build())
+    }
+
+    /// Returns a set of fontdrasil `Axes` for the font
+    ///
+    /// This is useful because fontdrasil has lots of nice coordinate conversion
+    /// functions. Use me for all your denormalization needs!
+    pub fn fontdrasil_axes(&self) -> Result<Option<fontdrasil::types::Axes>, FontspectorError> {
+        if !self.is_variable_font() {
+            return Ok(None);
+        }
+        let per_axis_maps = if let Ok(segments) = self.font().avar().map(|x| x.axis_segment_maps())
+        {
+            segments.iter().collect::<Result<Vec<_>, _>>()?
+        } else {
+            vec![]
+        };
+        Ok(Some(
+            self.font()
+                .axes()
+                .iter()
+                .enumerate()
+                .map(|(ix, axis)| {
+                    let min = UserCoord::new(axis.min_value() as f64);
+                    let default = UserCoord::new(axis.default_value() as f64);
+                    let max = UserCoord::new(axis.max_value() as f64);
+                    #[allow(clippy::unwrap_used)]
+                    let mut fd_axis = fontdrasil::types::Axis {
+                        converter: CoordConverter::default_normalization(min, default, max),
+                        hidden: axis.is_hidden(),
+                        // Argh version incompatibilities
+                        tag: fontdrasil::types::Tag::new_checked(axis.tag().to_string().as_bytes())
+                            .unwrap(),
+                        name: self.get_best_name(&[axis.name_id()]).unwrap_or_default(),
+                        min,
+                        default,
+                        max,
+                        localized_names: HashMap::new(), // Let's not
+                    };
+                    if let Some(map) = per_axis_maps.get(ix) {
+                        let desired_mapping: Vec<(
+                            fontdrasil::coords::Coord<fontdrasil::coords::UserSpace>,
+                            fontdrasil::coords::Coord<fontdrasil::coords::DesignSpace>,
+                        )> = map
+                            .axis_value_maps
+                            .iter()
+                            .map(|mapping| {
+                                let from = mapping.from_coordinate().to_f32();
+                                let to = mapping.to_coordinate().to_f32();
+                                // These are both normalized coordinates. Turn the `from` back into
+                                // userspace using default normalization
+                                let user_from =
+                                    NormalizedCoord::new(from as f64).to_user(&fd_axis.converter);
+                                // Let's pretend design space is just normalized space
+                                let design_to = DesignCoord::new(to as f64);
+                                (user_from, design_to)
+                            })
+                            .collect();
+                        let default_idx = desired_mapping
+                            .iter()
+                            .position(|(_, to)| to.to_f64() == 0.0)
+                            .unwrap_or(0);
+                        fd_axis.converter = CoordConverter::new(desired_mapping, default_idx)
+                    }
+                    fd_axis
+                })
+                .collect(),
+        ))
     }
 }
 
