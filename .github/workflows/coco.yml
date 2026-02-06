@@ -14,4 +14,5 @@ jobs:
       - name: Conventional commit check
         uses: cocogitto/cocogitto-action@v4
         with:
-          check-latest-tag-only: true
+          command: check
+          args: --from-latest-tag
