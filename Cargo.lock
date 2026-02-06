@@ -1571,6 +1571,7 @@ version = "1.3.2"
 dependencies = [
  "clap",
  "fontations",
+ "fontdrasil",
  "fontspector-checkhelper",
  "glob-match",
  "indexmap",
@@ -1743,6 +1744,7 @@ dependencies = [
  "itertools 0.14.0",
  "kurbo 0.11.3",
  "log",
+ "ordered-float",
  "reqwest",
  "serde_json",
  "stringcase",

@@ -24,6 +24,8 @@ pluginator = { workspace = true }
 
 [dependencies]
 fontations = { workspace = true }
+fontdrasil = { workspace = true }
+
 fontspector-checkhelper = { workspace = true }
 log = { workspace = true }
 indexmap = { workspace = true }
