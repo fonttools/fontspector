@@ -1614,6 +1614,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "fontspector-hotfix"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "env_logger",
+ "fontspector-checkapi",
+ "fontspector-profile-fontwerk",
+ "fontspector-profile-googlefonts",
+ "fontspector-profile-iso15008",
+ "fontspector-profile-opentype",
+ "fontspector-profile-universal",
+ "log",
+]
+
+[[package]]
 name = "fontspector-profile-adobe"
 version = "1.0.0"
 dependencies = [
