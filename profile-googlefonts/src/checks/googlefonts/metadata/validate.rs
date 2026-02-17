@@ -70,7 +70,15 @@ fn clean_url(url: &str) -> String {
     applies_to = "MDPB"
 )]
 fn validate(c: &Testable, _context: &Context) -> CheckFnResult {
-    let msg = family_proto(c)?;
+    let msg = match family_proto(c) {
+        Ok(msg) => msg,
+        Err(e) => {
+            return Ok(Status::just_one_fatal(
+                "parse-error",
+                &format!("Failed to parse METADATA.pb: {e}"),
+            ));
+        }
+    };
     let mut problems = vec![];
     if let Some(designer) = msg.designer.as_ref() {
         if designer.is_empty() {
