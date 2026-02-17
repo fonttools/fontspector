@@ -90,7 +90,9 @@ impl Reporter for BadgesReporter {
                 if checkresult.worst_status() == StatusCode::Skip {
                     continue;
                 }
-                if checkresult.worst_status() == StatusCode::Error {
+                if checkresult.worst_status() == StatusCode::Error
+                    || checkresult.worst_status() == StatusCode::Fatal
+                {
                     error_state = true;
                     break;
                 }

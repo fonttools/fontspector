@@ -6,7 +6,7 @@ export type FontInfo = {
   font: any;
 };
 
-export type StatusCode = "FAIL" | "WARN" | "INFO" | "ERROR" | "PASS" | "SKIP";
+export type StatusCode = "FAIL" | "FATAL" | "WARN" | "INFO" | "ERROR" | "PASS" | "SKIP";
 
 interface ErrorMessage {
   error: string;

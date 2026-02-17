@@ -18,13 +18,15 @@ pub enum StatusCode {
     Warn,
     /// Fail: a problem materially affects the correctness of the font
     Fail,
-    /// Error: something went wrong
+    /// Fatal: a critical font defect that would break font-serving infrastructure
+    Fatal,
+    /// Error: something went wrong with the check itself
     ///
     /// An Error is when something which returns a `Result<>` gave us
-    /// an `Err`` - for example a file couldn't be found or couldn't be
+    /// an `Err` - for example a file couldn't be found or couldn't be
     /// parsed, even though we did our best to check for things. In
-    /// other words, it's something so bad there's no point continuing
-    /// with the check; it's equivalent to a Fontbakery FATAL.
+    /// other words, something went wrong with the check infrastructure,
+    /// not the font itself.
     Error,
 }
 
@@ -38,6 +40,7 @@ impl FromStr for StatusCode {
             "PASS" => Ok(StatusCode::Pass),
             "WARN" => Ok(StatusCode::Warn),
             "FAIL" => Ok(StatusCode::Fail),
+            "FATAL" => Ok(StatusCode::Fatal),
             "ERROR" => Ok(StatusCode::Error),
             _ => Err(()),
         }
@@ -56,6 +59,7 @@ impl StatusCode {
             StatusCode::Pass,
             StatusCode::Warn,
             StatusCode::Fail,
+            StatusCode::Fatal,
             StatusCode::Error,
         ]
         .into_iter()
@@ -75,6 +79,7 @@ impl std::fmt::Display for StatusCode {
             StatusCode::Pass => write!(f, "PASS"),
             StatusCode::Skip => write!(f, "SKIP"),
             StatusCode::Fail => write!(f, "FAIL"),
+            StatusCode::Fatal => write!(f, "FATAL"),
             StatusCode::Warn => write!(f, "WARN"),
             StatusCode::Info => write!(f, "INFO"),
             StatusCode::Error => write!(f, "ERROR"),
@@ -135,6 +140,11 @@ impl Status {
         Box::new(vec![Status::fail(code, message)].into_iter())
     }
 
+    /// Return a single fatal result from a check
+    pub fn just_one_fatal(code: &str, message: &str) -> Box<dyn Iterator<Item = Status>> {
+        Box::new(vec![Status::fatal(code, message)].into_iter())
+    }
+
     /// Return a single skip result from a check
     pub fn just_one_skip(code: &str, message: &str) -> Box<dyn Iterator<Item = Status>> {
         Box::new(vec![Status::skip(code, message)].into_iter())
@@ -182,6 +192,15 @@ impl Status {
             message: Some(message.to_string()),
             code: Some(code.to_string()),
             severity: StatusCode::Info,
+            metadata: None,
+        }
+    }
+    /// Create a status with a fatal severity
+    pub fn fatal(code: &str, message: &str) -> Self {
+        Self {
+            message: Some(message.to_string()),
+            code: Some(code.to_string()),
+            severity: StatusCode::Fatal,
             metadata: None,
         }
     }

@@ -154,6 +154,7 @@ impl CheckTester {
                 StatusCode::Warn => status_module.getattr("WARN")?,
                 StatusCode::Pass => status_module.getattr("PASS")?,
                 StatusCode::Fail => status_module.getattr("FAIL")?,
+                StatusCode::Fatal => status_module.getattr("FATAL")?,
                 StatusCode::Error => status_module.getattr("ERROR")?,
             };
             let message = message_class.call1((

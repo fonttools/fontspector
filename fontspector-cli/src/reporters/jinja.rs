@@ -171,7 +171,7 @@ impl Reporter for JinjaTemplatedReporter {
                     .entry(filename)
                     .or_insert_with(Vec::new)
                     .push(result);
-            } else if result.is_error() {
+            } else if result.is_error() || result.is_fatal() {
                 fatal_checks
                     .entry(filename)
                     .or_insert_with(Vec::new)
