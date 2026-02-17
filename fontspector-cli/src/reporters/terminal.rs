@@ -23,6 +23,7 @@ fn colored_status(c: StatusCode, s: Option<&str>) -> ColoredString {
     };
     match c {
         StatusCode::Error => string.on_red(),
+        StatusCode::Fatal => string.bright_red(),
         StatusCode::Fail => string.red(),
         StatusCode::Warn => string.yellow(),
         StatusCode::Info => string.cyan(),

@@ -103,6 +103,11 @@ impl CheckResult {
             .unwrap_or(StatusCode::Pass)
     }
 
+    /// If this check detected a critical font defect that would break infrastructure
+    pub fn is_fatal(&self) -> bool {
+        self.worst_status() == StatusCode::Fatal
+    }
+
     /// If this check returned some kind of Rust error that we handled
     pub fn is_error(&self) -> bool {
         self.worst_status() == StatusCode::Error

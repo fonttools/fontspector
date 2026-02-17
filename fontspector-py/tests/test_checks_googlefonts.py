@@ -533,7 +533,7 @@ def test_check_metadata_validate(check):
     assert_PASS(check(good), "with a good METADATA.pb file...")
 
     bad = TEST_FILE("broken_metadata/METADATA.pb")
-    assert list(check(bad))[0].status == ERROR
+    assert list(check(bad))[0].status == FATAL
 
 
 @pytest.mark.skip("Check not ported yet.")
