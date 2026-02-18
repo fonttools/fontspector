@@ -1,5 +1,7 @@
 mod equal_codepoint_coverage;
 pub use equal_codepoint_coverage::equal_codepoint_coverage;
+mod file_size;
+pub use file_size::file_size;
 mod has_license;
 pub use has_license::has_license;
 mod italics_have_roman_counterparts;

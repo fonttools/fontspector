@@ -114,6 +114,7 @@ impl fontspector_checkapi::Plugin for GoogleFonts {
             .add_and_register_check(checks::googlefonts::description::valid_html)
             .add_section("Family Checks")
             .add_and_register_check(checks::googlefonts::family::equal_codepoint_coverage)
+            .add_and_register_check(checks::googlefonts::family::file_size)
             .add_and_register_check(checks::googlefonts::family::italics_have_roman_counterparts)
             .add_and_register_check(checks::googlefonts::family::tnum_horizontal_metrics)
             .add_section("Name table checks")
@@ -212,6 +213,12 @@ impl fontspector_checkapi::Plugin for GoogleFonts {
                     ("WARN_SIZE".to_string(), json!(1048576)), // 1Mb
                     ("FAIL_SIZE".to_string(), json!(9437184)), // 9Mb
                     ("FATAL_SIZE".to_string(), json!(10485760)), // 10Mb
+                ]),
+            )
+            .with_configuration_defaults(
+                "googlefonts/family/file_size",
+                HashMap::from([
+                    ("FATAL_SIZE".to_string(), json!(26214400)), // 25Mb
                 ]),
             );
 
