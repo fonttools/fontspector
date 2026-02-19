@@ -210,8 +210,8 @@ impl fontspector_checkapi::Plugin for GoogleFonts {
             .with_configuration_defaults(
                 "file_size",
                 HashMap::from([
-                    ("WARN_SIZE".to_string(), json!(1048576)), // 1Mb
-                    ("FAIL_SIZE".to_string(), json!(9437184)), // 9Mb
+                    ("WARN_SIZE".to_string(), json!(1048576)),   // 1Mb
+                    ("FAIL_SIZE".to_string(), json!(9437184)),   // 9Mb
                     ("FATAL_SIZE".to_string(), json!(10485760)), // 10Mb
                 ]),
             )

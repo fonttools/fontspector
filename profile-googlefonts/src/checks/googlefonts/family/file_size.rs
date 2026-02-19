@@ -70,8 +70,7 @@ mod tests {
     fn test_family_file_size_fatal() {
         let t1 = test_able("cjk/NotoSansJP[wght].ttf");
         let t2 = test_able("cjk/BpmfZihiKaiStd-Regular.ttf");
-        let collection =
-            TestableCollection::from_testables(vec![t1, t2], Some("cjk".to_string()));
+        let collection = TestableCollection::from_testables(vec![t1, t2], Some("cjk".to_string()));
         let results = run_check_with_config(
             super::file_size,
             TestableType::Collection(&collection),

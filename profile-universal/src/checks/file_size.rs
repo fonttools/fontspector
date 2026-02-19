@@ -127,11 +127,12 @@ mod tests {
                 "FATAL_SIZE": 10485760,
             }),
         )]);
-        let results = run_check_with_config(
-            super::file_size,
-            TestableType::Single(&testable),
-            config,
+        let results =
+            run_check_with_config(super::file_size, TestableType::Single(&testable), config);
+        assert_results_contain(
+            &results,
+            StatusCode::Fatal,
+            Some("enormous-font".to_string()),
         );
-        assert_results_contain(&results, StatusCode::Fatal, Some("enormous-font".to_string()));
     }
 }
