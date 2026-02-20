@@ -2,7 +2,8 @@ use fontations::skrifa::{
     raw::{types::NameId, TableProvider},
     MetadataProvider,
 };
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
 
 fn parse_version(v: impl Iterator<Item = char>) -> String {
     let mut result = String::new();
@@ -56,23 +57,41 @@ fn font_version(f: &Testable, _context: &Context) -> CheckFnResult {
     })?;
     let warn_tolerance = 1.0 / (0x10000 as f32);
     let fail_tolerance = 1.0 / 2000.0;
+    let mut problems = vec![];
     if (head_version - name_id_5_version).abs() > fail_tolerance {
-        return Ok(Status::just_one_fail(
-            "mismatch",
-            &format!(
-                "Font version mismatch: head table: {head_version}, name table: {name_id_5_version}"
-            ),
-        ));
+        let msg = format!(
+            "Font version mismatch: head table: {head_version}, name table: {name_id_5_version}"
+        );
+        let mut status = Status::fail("mismatch", &msg);
+        status.add_metadata(Metadata::TableProblem {
+            table_tag: "head/name".to_string(),
+            field_name: Some("fontRevision/version string".to_string()),
+            actual: Some(json!({
+                "head_version": head_version,
+                "name_version": name_id_5_version
+            })),
+            expected: Some(json!("Versions should match")),
+            message: msg,
+        });
+        problems.push(status);
+    } else if (head_version - name_id_5_version).abs() >= warn_tolerance {
+        let msg = format!(
+            "Font version mismatch: head table: {head_version}, name table: {name_id_5_version}"
+        );
+        let mut status = Status::warn("near-mismatch", &msg);
+        status.add_metadata(Metadata::TableProblem {
+            table_tag: "head/name".to_string(),
+            field_name: Some("fontRevision/version string".to_string()),
+            actual: Some(json!({
+                "head_version": head_version,
+                "name_version": name_id_5_version
+            })),
+            expected: Some(json!("Versions should match exactly")),
+            message: msg,
+        });
+        problems.push(status);
     }
-    if (head_version - name_id_5_version).abs() >= warn_tolerance {
-        return Ok(Status::just_one_warn(
-            "near-mismatch",
-            &format!(
-                "Font version mismatch: head table: {head_version}, name table: {name_id_5_version}"
-            ),
-        ));
-    }
-    Ok(Status::just_one_pass())
+    return_result(problems)
 }
 
 #[cfg(test)]

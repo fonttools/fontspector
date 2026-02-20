@@ -6,7 +6,8 @@ use fontations::skrifa::{
     },
     GlyphId,
 };
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
 
 #[check(
     id = "opentype/points_out_of_bounds",
@@ -19,13 +20,13 @@ use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
     proposal = "https://github.com/fonttools/fontbakery/issues/735",
     title = "Check for points out of bounds"
 )]
-fn points_out_of_bounds(t: &Testable, context: &Context) -> CheckFnResult {
+fn points_out_of_bounds(t: &Testable, _context: &Context) -> CheckFnResult {
     let ttf = testfont!(t);
     let font = ttf.font();
     skip!(!ttf.has_table(b"glyf"), "no-glyf", "No glyf table");
     let glyf = font.glyf()?;
     let loca = font.loca(None)?;
-    let mut messages = vec![];
+    let mut problems = vec![];
     for gid in 0..font.maxp()?.num_glyphs() {
         let gid = GlyphId::new(gid.into());
         if let Some(Glyph::Simple(glyph)) = loca.get_glyf(gid, &glyf)? {
@@ -37,34 +38,49 @@ fn points_out_of_bounds(t: &Testable, context: &Context) -> CheckFnResult {
             let x_max: i32 = glyph.x_max().into();
             let y_min: i32 = glyph.y_min().into();
             let y_max: i32 = glyph.y_max().into();
-            for point in points {
+            for point in &points {
                 if point.x < x_min || point.x > x_max {
-                    messages.push(format!(
+                    let msg = format!(
                         "{} (x={}, bounds are {}<->{})",
                         ttf.glyph_name_for_id_synthesise(gid),
                         point.x,
                         x_min,
                         x_max
-                    ));
+                    );
+                    let mut status = Status::warn("points-out-of-bounds", &msg);
+                    status.add_metadata(Metadata::GlyphProblem {
+                        glyph_name: ttf.glyph_name_for_id_synthesise(gid),
+                        glyph_id: gid.to_u32(),
+                        userspace_location: None,
+                        position: Some((point.x as f32, point.y as f32)),
+                        actual: Some(json!({"x_value": point.x, "x_min": x_min, "x_max": x_max})),
+                        expected: Some(json!({"x_between": [x_min, x_max]})),
+                        message: "Point is out of bounds horizontally.".to_string(),
+                    });
+                    problems.push(status);
                 }
                 if point.y < y_min || point.y > y_max {
-                    messages.push(format!(
+                    let msg = format!(
                         "{} (y={}, bounds are {}<->{})",
                         ttf.glyph_name_for_id_synthesise(gid),
                         point.y,
                         y_min,
                         y_max
-                    ));
+                    );
+                    let mut status = Status::warn("points-out-of-bounds", &msg);
+                    status.add_metadata(Metadata::GlyphProblem {
+                        glyph_name: ttf.glyph_name_for_id_synthesise(gid),
+                        glyph_id: gid.to_u32(),
+                        userspace_location: None,
+                        position: Some((point.x as f32, point.y as f32)),
+                        actual: Some(json!({"y_value": point.y, "y_min": y_min, "y_max": y_max})),
+                        expected: Some(json!({"y_between": [y_min, y_max]})),
+                        message: "Point is out of bounds vertically.".to_string(),
+                    });
+                    problems.push(status);
                 }
             }
         }
     }
-    if messages.is_empty() {
-        Ok(Status::just_one_pass())
-    } else {
-        Ok(Status::just_one_warn("points-out-of-bounds", 
-        &format!("The following glyphs have coordinates which are out of bounds:\n\n{}\n\nThis happens a lot when points are not extremes, which is usually bad. However, fixing this alert by adding points on extremes may do more harm than good, especially with italics, calligraphic-script, handwriting, rounded and other fonts. So it is common to ignore this message.",
-        bullet_list(context, messages)))
-        )
-    }
+    return_result(problems)
 }

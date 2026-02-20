@@ -1,5 +1,6 @@
 use fontations::skrifa::{raw::TableProvider, GlyphId, MetadataProvider};
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
 
 const AVG_CHAR_WEIGHTS: [(char, u32); 27] = [
     ('a', 64),
@@ -89,17 +90,35 @@ fn xavgcharwidth(f: &Testable, _context: &Context) -> CheckFnResult {
     };
     let actual = os2.x_avg_char_width();
     let difference = (expected as i16).abs_diff(actual);
-    Ok(match difference {
-        0 => Status::just_one_pass(),
-        1..=10 => Status::just_one_info(
-            "xAvgCharWidth-close",
-            &format!("OS/2 xAvgCharWidth is {actual} but it should be {expected} which corresponds to {rule}. These are similar values, which may be a symptom of the slightly different calculation of the xAvgCharWidth value in font editors. There's further discussion on this at https://github.com/fonttools/fontbakery/issues/1622"
-            )
-        ),
-        _ => Status::just_one_warn(
-            "xAvgCharWidth-wrong",
-            &format!("OS/2 xAvgCharWidth is {actual} but it should be {expected} which corresponds to {rule}. This may indicate a problem with the font editor or the font compiler."
-            )
-        )
-    })
+    let mut problems = vec![];
+    match difference {
+        0 => {
+            // Pass
+        }
+        1..=10 => {
+            let msg = format!("OS/2 xAvgCharWidth is {actual} but it should be {expected} which corresponds to {rule}. These are similar values, which may be a symptom of the slightly different calculation of the xAvgCharWidth value in font editors. There's further discussion on this at https://github.com/fonttools/fontbakery/issues/1622");
+            let mut status = Status::info("xAvgCharWidth-close", &msg);
+            status.add_metadata(Metadata::TableProblem {
+                table_tag: "OS/2".to_string(),
+                field_name: Some("xAvgCharWidth".to_string()),
+                actual: Some(json!(actual)),
+                expected: Some(json!(expected)),
+                message: msg,
+            });
+            problems.push(status);
+        }
+        _ => {
+            let msg = format!("OS/2 xAvgCharWidth is {actual} but it should be {expected} which corresponds to {rule}. This may indicate a problem with the font editor or the font compiler.");
+            let mut status = Status::warn("xAvgCharWidth-wrong", &msg);
+            status.add_metadata(Metadata::TableProblem {
+                table_tag: "OS/2".to_string(),
+                field_name: Some("xAvgCharWidth".to_string()),
+                actual: Some(json!(actual)),
+                expected: Some(json!(expected)),
+                message: msg,
+            });
+            problems.push(status);
+        }
+    }
+    return_result(problems)
 }

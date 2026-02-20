@@ -1,5 +1,5 @@
 use fontations::skrifa::MetadataProvider;
-use fontspector_checkapi::{pens::XDeltaPen, prelude::*, skip, testfont, FileTypeConvert};
+use fontspector_checkapi::{pens::XDeltaPen, prelude::*, skip, testfont};
 
 #[check(
     id = "opentype/slant_direction",
