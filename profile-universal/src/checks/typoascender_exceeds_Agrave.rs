@@ -3,7 +3,8 @@ use fontations::skrifa::{
     raw::TableProvider,
     MetadataProvider,
 };
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
 
 #[check(
     id = "typoascender_exceeds_Agrave",
@@ -46,15 +47,21 @@ fn typoascender_exceeds_Agrave(f: &Testable, _context: &Context) -> CheckFnResul
             "Error getting bounds of Agrave (maybe it's empty?)".to_string(),
         ))?;
     let typo_ascender = os2.s_typo_ascender();
-    Ok(if (typo_ascender as f32) < metrics.y_max {
-        Status::just_one_warn(
-            "typoAscender",
-            &format!(
-                "OS/2.sTypoAscender value should be greater than {}, but got {} instead",
-                metrics.y_max, typo_ascender
-            ),
-        )
-    } else {
-        Status::just_one_pass()
-    })
+    let mut problems = vec![];
+    if (typo_ascender as f32) < metrics.y_max {
+        let message = format!(
+            "OS/2.sTypoAscender value should be greater than {}, but got {} instead",
+            metrics.y_max, typo_ascender
+        );
+        let mut status = Status::warn("typoAscender", &message);
+        status.add_metadata(Metadata::TableProblem {
+            table_tag: "OS/2".to_string(),
+            field_name: Some("sTypoAscender".to_string()),
+            actual: Some(json!(typo_ascender)),
+            expected: Some(json!({ "min": metrics.y_max })),
+            message: message.clone(),
+        });
+        problems.push(status);
+    }
+    return_result(problems)
 }

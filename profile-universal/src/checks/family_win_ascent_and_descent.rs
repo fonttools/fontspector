@@ -2,7 +2,8 @@ use fontations::skrifa::raw::{
     tables::glyf::{Glyph, SimpleGlyph},
     TableProvider,
 };
-use fontspector_checkapi::{prelude::*, FileTypeConvert, TestFont};
+use fontspector_checkapi::{prelude::*, FileTypeConvert, Metadata, TestFont};
+use serde_json::json;
 
 #[derive(Debug, Default)]
 struct Metrics {
@@ -95,32 +96,62 @@ fn family_win_ascent_and_descent(c: &TestableCollection, _context: &Context) -> 
     for font in fonts.iter() {
         let os2 = font.font().os2()?;
         if (os2.us_win_ascent() as i16) < metrics.ymax {
-            problems.push(Status::fail(
-                "ascent",
-                &format!("OS/2.usWinAscent value should be equal or greater than {}, but got {} instead.",
-                            metrics.ymax, os2.us_win_ascent()),
-            ));
+            let message = format!(
+                "OS/2.usWinAscent value should be equal or greater than {}, but got {} instead.",
+                metrics.ymax,
+                os2.us_win_ascent()
+            );
+            let mut status = Status::fail("ascent", &message);
+            status.add_metadata(Metadata::TableProblem {
+                table_tag: "OS/2".to_string(),
+                field_name: Some("usWinAscent".to_string()),
+                actual: Some(json!(os2.us_win_ascent())),
+                expected: Some(json!({ "min": metrics.ymax })),
+                message: message.clone(),
+            });
+            problems.push(status);
         }
         if (os2.us_win_ascent() as i16) > 2 * metrics.ymax {
-            problems.push(Status::fail(
-                "ascent",
-                &format!("OS/2.usWinAscent value {} is too large. It should be less than double the yMax. Current yMax value is {}.",
-                os2.us_win_ascent(), metrics.ymax)
-            ));
+            let message = format!("OS/2.usWinAscent value {} is too large. It should be less than double the yMax. Current yMax value is {}.",
+                os2.us_win_ascent(), metrics.ymax);
+            let mut status = Status::fail("ascent", &message);
+            status.add_metadata(Metadata::TableProblem {
+                table_tag: "OS/2".to_string(),
+                field_name: Some("usWinAscent".to_string()),
+                actual: Some(json!(os2.us_win_ascent())),
+                expected: Some(json!({ "max": 2 * metrics.ymax })),
+                message: message.clone(),
+            });
+            problems.push(status);
         }
         if (os2.us_win_descent() as i16) < metrics.ymin.abs() {
-            problems.push(Status::fail(
-                "descent",
-                &format!("OS/2.usWinDescent value should be equal or greater than {}, but got {} instead.",
-                            metrics.ymin.abs(), os2.us_win_descent()),
-            ));
+            let message = format!(
+                "OS/2.usWinDescent value should be equal or greater than {}, but got {} instead.",
+                metrics.ymin.abs(),
+                os2.us_win_descent()
+            );
+            let mut status = Status::fail("descent", &message);
+            status.add_metadata(Metadata::TableProblem {
+                table_tag: "OS/2".to_string(),
+                field_name: Some("usWinDescent".to_string()),
+                actual: Some(json!(os2.us_win_descent())),
+                expected: Some(json!({ "min": metrics.ymin.abs() })),
+                message: message.clone(),
+            });
+            problems.push(status);
         }
         if (os2.us_win_descent() as i16) > 2 * metrics.ymin.abs() {
-            problems.push(Status::fail(
-                "descent",
-                &format!("OS/2.usWinDescent value {} is too large. It should be less than double the yMin. Current absolute yMin value is {}.",
-                os2.us_win_descent(), metrics.ymin.abs())
-            ));
+            let message = format!("OS/2.usWinDescent value {} is too large. It should be less than double the yMin. Current absolute yMin value is {}.",
+                os2.us_win_descent(), metrics.ymin.abs());
+            let mut status = Status::fail("descent", &message);
+            status.add_metadata(Metadata::TableProblem {
+                table_tag: "OS/2".to_string(),
+                field_name: Some("usWinDescent".to_string()),
+                actual: Some(json!(os2.us_win_descent())),
+                expected: Some(json!({ "max": 2 * metrics.ymin.abs() })),
+                message: message.clone(),
+            });
+            problems.push(status);
         }
     }
     return_result(problems)

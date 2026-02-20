@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 
 use fontations::skrifa::{raw::tables::glyf::Glyph, MetadataProvider};
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
 
 const CARON_CODEPOINTS: [u32; 4] = [
     0x013D, // LATIN CAPITAL LETTER L WITH CARON
@@ -69,34 +70,81 @@ fn alt_caron(t: &Testable, context: &Context) -> CheckFnResult {
                 match glyph {
                     Glyph::Simple(_) => {
                         let name = f.glyph_name_for_id_synthesise(gid);
-                        problems.push(Status::warn("decomposed-outline",&format!("{name} is decomposed and therefore could not be checked. Please check manually.")));
+                        let message = format!(
+                            "{name} is decomposed and therefore could not be checked. Please check manually."
+                        );
+                        let mut status = Status::warn("decomposed-outline", &message);
+                        status.add_metadata(Metadata::GlyphProblem {
+                            glyph_name: name,
+                            glyph_id: gid.to_u32(),
+                            userspace_location: None,
+                            position: None,
+                            actual: Some(json!({ "outline_type": "simple" })),
+                            expected: None,
+                            message,
+                        });
+                        problems.push(status);
                     }
                     Glyph::Composite(composite) => {
                         if composite.components().count() == 1 {
-                            problems.push(Status::warn("single-compoents", &format!("{} is composed of a single component and therefore could not be checked. Please check manually.", f.glyph_name_for_id_synthesise(gid))));
+                            let message = format!(
+                                "{} is composed of a single component and therefore could not be checked. Please check manually.",
+                                f.glyph_name_for_id_synthesise(gid)
+                            );
+                            let mut status = Status::warn("single-compoents", &message);
+                            status.add_metadata(Metadata::GlyphProblem {
+                                glyph_name: f.glyph_name_for_id_synthesise(gid),
+                                glyph_id: gid.to_u32(),
+                                userspace_location: None,
+                                position: None,
+                                actual: Some(json!({ "component_count": 1 })),
+                                expected: Some(json!({ "component_count_min": 2 })),
+                                message,
+                            });
+                            problems.push(status);
                         } else {
                             for component in composite.components() {
                                 let comp_name =
                                     mangle_name(&f.glyph_name_for_id_synthesise(component.glyph));
                                 if let Some(codepoint) = glyphname_to_codepoint.get(&comp_name) {
                                     if BAD_CARON_MARKS.contains(codepoint) {
-                                        problems.push(Status::warn(
-                                            "bad-mark",
-                                            &format!(
-                                                "{} uses component: {}",
-                                                f.glyph_name_for_id_synthesise(gid),
-                                                comp_name
+                                        let message = format!(
+                                            "{} uses component: {}",
+                                            f.glyph_name_for_id_synthesise(gid),
+                                            comp_name
+                                        );
+                                        let mut status = Status::warn("bad-mark", &message);
+                                        status.add_metadata(Metadata::GlyphProblem {
+                                            glyph_name: f.glyph_name_for_id_synthesise(gid),
+                                            glyph_id: gid.to_u32(),
+                                            userspace_location: None,
+                                            position: None,
+                                            actual: Some(json!({ "component": comp_name })),
+                                            expected: Some(
+                                                json!({ "component_not_in": "bad_caron_marks" }),
                                             ),
-                                        ));
+                                            message,
+                                        });
+                                        problems.push(status);
                                     } else if WRONG_CARON_MARKS.contains(codepoint) {
-                                        problems.push(Status::fail(
-                                            "wrong-mark",
-                                            &format!(
-                                                "{} uses component: {}",
-                                                f.glyph_name_for_id_synthesise(gid),
-                                                comp_name
+                                        let message = format!(
+                                            "{} uses component: {}",
+                                            f.glyph_name_for_id_synthesise(gid),
+                                            comp_name
+                                        );
+                                        let mut status = Status::fail("wrong-mark", &message);
+                                        status.add_metadata(Metadata::GlyphProblem {
+                                            glyph_name: f.glyph_name_for_id_synthesise(gid),
+                                            glyph_id: gid.to_u32(),
+                                            userspace_location: None,
+                                            position: None,
+                                            actual: Some(json!({ "component": comp_name })),
+                                            expected: Some(
+                                                json!({ "component_not_in": "wrong_caron_marks" }),
                                             ),
-                                        ));
+                                            message,
+                                        });
+                                        problems.push(status);
                                     }
                                 }
                             }

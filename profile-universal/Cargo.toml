@@ -22,7 +22,9 @@ reqwest = { version = "0.12", features = ["blocking"] } # For fontdata namecheck
 interpolatable = { version = "1.1", features = [
     "fontations",
 ], git = "https://github.com/simoncozens/interpolatable" } # For interpolation_issues
-fontspector-checkapi = { path = "../fontspector-checkapi", version = "1.0.0" }
+fontspector-checkapi = { path = "../fontspector-checkapi", version = "1.0.0", features = [
+    "kurbo",
+] }
 fontspector-checkhelper = { workspace = true }
 fontations = { workspace = true }
 itertools = { workspace = true }

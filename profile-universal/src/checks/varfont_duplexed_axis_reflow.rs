@@ -14,8 +14,9 @@ use fontations::skrifa::{
     },
     GlyphId, MetadataProvider,
 };
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
 use itertools::Itertools;
+use serde_json::json;
 
 #[check(
     id = "varfont/duplexed_axis_reflow",
@@ -112,13 +113,25 @@ fn varfont_duplexed_axis_reflow(t: &Testable, context: &Context) -> CheckFnResul
         let glyphs_list = glyphs
             .iter()
             .map(|(g, pos)| f.glyph_name_for_id_synthesise(*g) + " at position " + pos);
-        problems.push(Status::fail(
+        let mut status = Status::fail(
             &format!("{}-causes-reflow", tag.to_lowercase()),
             &format!(
                 "The following glyphs have variation in horizontal advance due to duplexed axis {}:\n{}",
                 tag, bullet_list(context, glyphs_list)
             ),
-        ));
+        );
+        for (glyph, position) in glyphs.iter() {
+            status.add_metadata(Metadata::GlyphProblem {
+                glyph_name: f.glyph_name_for_id_synthesise(*glyph),
+                glyph_id: glyph.to_u32(),
+                userspace_location: parse_userspace_location(position),
+                position: None,
+                actual: Some(json!({ "axis": tag, "advance_delta": "non-zero" })),
+                expected: Some(json!({ "advance_delta": 0 })),
+                message: format!("Advance width varies with duplexed axis {}", tag),
+            });
+        }
+        problems.push(status);
     }
 
     // Determine if any kerning rules vary the horizontal advance.
@@ -160,6 +173,21 @@ fn varfont_duplexed_axis_reflow(t: &Testable, context: &Context) -> CheckFnResul
         }
     }
     return_result(problems)
+}
+
+fn parse_userspace_location(position: &str) -> Option<HashMap<String, f32>> {
+    let mut map = HashMap::new();
+    for part in position.split(", ") {
+        let mut iter = part.split('=');
+        let tag = iter.next()?;
+        let value = iter.next()?;
+        if iter.next().is_some() {
+            return None;
+        }
+        let parsed = value.parse::<f32>().ok()?;
+        map.insert(tag.to_string(), parsed);
+    }
+    Some(map)
 }
 
 fn pairs_with_region_1(

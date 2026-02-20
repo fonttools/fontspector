@@ -4,7 +4,10 @@ use fontations::skrifa::{
     raw::{tables::gsub::SubstitutionLookupList, ReadError, TableProvider},
     GlyphId16, MetadataProvider,
 };
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, GetSubstitutionMap};
+use fontspector_checkapi::{
+    prelude::*, skip, testfont, FileTypeConvert, GetSubstitutionMap, Metadata,
+};
+use serde_json::json;
 use unicode_properties::{GeneralCategory, UnicodeGeneralCategory};
 
 #[check(
@@ -73,7 +76,7 @@ fn missing_small_caps_glyphs(t: &Testable, context: &Context) -> CheckFnResult {
         )?;
 
         if !glyphset.is_empty() {
-            problems.push(Status::fail(
+            let mut status = Status::fail(
                 error_code,
                 &format!(
                     "The following letters did not take part in {} substitutions:\n\n{}",
@@ -83,7 +86,19 @@ fn missing_small_caps_glyphs(t: &Testable, context: &Context) -> CheckFnResult {
                         glyphset.iter().map(|g| f.glyph_name_for_id_synthesise(*g))
                     )
                 ),
-            ));
+            );
+            for gid in glyphset.iter() {
+                status.add_metadata(Metadata::GlyphProblem {
+                    glyph_name: f.glyph_name_for_id_synthesise(*gid),
+                    glyph_id: gid.to_u16() as u32,
+                    userspace_location: None,
+                    position: None,
+                    actual: None,
+                    expected: Some(json!({ "feature": feature })),
+                    message: format!("Missing {} substitution", feature),
+                });
+            }
+            problems.push(status);
         }
     }
 

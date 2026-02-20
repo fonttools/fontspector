@@ -1,5 +1,6 @@
 use fontations::skrifa::raw::TableProvider;
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
 
 #[check(
     id = "no_mac_entries",
@@ -20,10 +21,16 @@ fn no_mac_entries(t: &Testable, _context: &Context) -> CheckFnResult {
     let mut problems = vec![];
     for rec in f.font().name()?.name_record() {
         if rec.platform_id() == 1 {
-            problems.push(Status::fail(
-                "mac-names",
-                &format!("Please remove name ID {}", rec.name_id()),
-            ))
+            let message = format!("Please remove name ID {}", rec.name_id());
+            let mut status = Status::fail("mac-names", &message);
+            status.add_metadata(Metadata::TableProblem {
+                table_tag: "name".to_string(),
+                field_name: Some(format!("nameID {} platform", rec.name_id())),
+                actual: Some(json!(rec.platform_id())),
+                expected: Some(json!("(not present)")),
+                message: message.clone(),
+            });
+            problems.push(status);
         }
     }
     return_result(problems)

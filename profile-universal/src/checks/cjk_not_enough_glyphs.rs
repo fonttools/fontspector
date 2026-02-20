@@ -1,5 +1,6 @@
 use fontations::skrifa::raw::TableProvider;
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, TestFont};
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata, TestFont};
+use serde_json::json;
 
 const CJK_CODEPAGE_BITS: [u8; 5] = [17, 18, 19, 20, 21];
 
@@ -53,21 +54,29 @@ fn cjk_not_enough_glyphs(f: &Testable, context: &Context) -> CheckFnResult {
     );
     let cjk_glyphs: Vec<_> = font.cjk_codepoints(Some(context)).collect();
     let cjk_glyph_count = cjk_glyphs.len();
-    Ok(if cjk_glyph_count > 0 && cjk_glyph_count < 150 {
+
+    if cjk_glyph_count > 0 && cjk_glyph_count < 150 {
         let num_cjk_glyphs = if cjk_glyph_count == 1 {
             "There is only one CJK glyph"
         } else {
             &format!("There are only {cjk_glyph_count} CJK glyphs")
         };
-        Status::just_one_warn(
-            "cjk-not-enough-glyphs",
-            &format!(
-                "{} when there needs to be at least 150 in order to support the smallest CJK writing system, Kana.\nThe following CJK glyphs were found:\n\n{}\nPlease check that these glyphs have the correct unicodes.",
-                num_cjk_glyphs,
-                bullet_list(context, cjk_glyphs)
-            ),
-        )
-    } else {
-        Status::just_one_pass()
-    })
+        let cjk_glyphs_str: Vec<String> = cjk_glyphs.iter().map(|s| s.to_string()).collect();
+        let message = format!(
+            "{} when there needs to be at least 150 in order to support the smallest CJK writing system, Kana.\nThe following CJK glyphs were found:\n\n{}\nPlease check that these glyphs have the correct unicodes.",
+            num_cjk_glyphs,
+            bullet_list(context, cjk_glyphs_str.clone())
+        );
+        let mut status = Status::warn("cjk-not-enough-glyphs", &message);
+        status.add_metadata(Metadata::FontProblem {
+            message: message.clone(),
+            context: Some(json!({
+                "cjk_glyph_count": cjk_glyph_count,
+                "required_minimum": 150,
+                "cjk_glyphs_found": cjk_glyphs_str,
+            })),
+        });
+        return return_result(vec![status]);
+    }
+    Ok(Status::just_one_pass())
 }

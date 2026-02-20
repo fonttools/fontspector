@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 
 use fontations::skrifa::raw::{tables::name::Name, types::NameId, TableProvider};
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
 
 fn strip_ribbi(name: &str) -> String {
     name.replace(" Regular", "")
@@ -63,28 +64,40 @@ fn family_and_style_max_length(t: &Testable, context: &Context) -> CheckFnResult
         if strip_ribbi(&name).len() > full_name_length {
             let chars_too_long_count = strip_ribbi(&name).len() - full_name_length;
             let chars_too_long = chars_too_long_count.to_string();
-            problems.push(Status::fail(
-            "nameid4-too-long",
-            &format!(
+            let message = format!(
                 "Name ID 4 'Full Font Name' exceeds {} characters ({} characters too long). This has been found to cause problems with the dropdown menu in old versions of Microsoft Word as well as shaping issues for some accented letters in Microsoft Word on Windows 10 and 11.",
                 full_name_length,
                 chars_too_long
-            ),
-        ));
+            );
+            let mut status = Status::fail("nameid4-too-long", &message);
+            status.add_metadata(Metadata::TableProblem {
+                table_tag: "name".to_string(),
+                field_name: Some("nameID 4".to_string()),
+                actual: Some(json!(strip_ribbi(&name).len())),
+                expected: Some(json!(full_name_length)),
+                message: message.clone(),
+            });
+            problems.push(status);
         }
     }
     for name in f.get_name_entry_strings(NameId::POSTSCRIPT_NAME) {
         if name.len() > postscript_name_length {
             let chars_too_long_count = name.len() - postscript_name_length;
             let chars_too_long = chars_too_long_count.to_string();
-            problems.push(Status::warn(
-                "nameid6-too-long",
-                &format!(
-                    "Name ID 6 'PostScript Name' exceeds {} characters ({} characters too long). This has been found to cause problems with PostScript printers, especially on Mac platforms.",
-                    postscript_name_length,
-                    chars_too_long
-                ),
-            ));
+            let message = format!(
+                "Name ID 6 'PostScript Name' exceeds {} characters ({} characters too long). This has been found to cause problems with PostScript printers, especially on Mac platforms.",
+                postscript_name_length,
+                chars_too_long
+            );
+            let mut status = Status::warn("nameid6-too-long", &message);
+            status.add_metadata(Metadata::TableProblem {
+                table_tag: "name".to_string(),
+                field_name: Some("nameID 6".to_string()),
+                actual: Some(json!(name.len())),
+                expected: Some(json!(postscript_name_length)),
+                message: message.clone(),
+            });
+            problems.push(status);
         }
     }
     let name = f.font().name()?;
@@ -103,17 +116,23 @@ fn family_and_style_max_length(t: &Testable, context: &Context) -> CheckFnResult
                     if full_instance_name.len() > instance_name_length {
                         let chars_too_long_count = full_instance_name.len() - instance_name_length;
                         let chars_too_long = chars_too_long_count.to_string();
-                        problems.push(Status::fail(
-                        "instance-too-long",
-                        &format!(
+                        let message = format!(
                             "Variable font instance name '{}' formed by space-separated concatenation of font family name (nameID {}) and instance subfamily nameID {} exceeds {} characterss ({} characters too long).\n\nThis has been found to cause shaping issues for some accented letters in Microsoft Word on Windows 10 and 11.",
                             full_instance_name,
                             NameId::FAMILY_NAME,
                             instance_name,
                             instance_name_length,
                             chars_too_long
-                        ),
-                    ));
+                        );
+                        let mut status = Status::fail("instance-too-long", &message);
+                        status.add_metadata(Metadata::TableProblem {
+                            table_tag: "fvar".to_string(),
+                            field_name: Some("instance name".to_string()),
+                            actual: Some(json!(full_instance_name.len())),
+                            expected: Some(json!(instance_name_length)),
+                            message: message.clone(),
+                        });
+                        problems.push(status);
                     }
                 }
             }

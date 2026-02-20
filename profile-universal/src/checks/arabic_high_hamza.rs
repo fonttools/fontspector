@@ -1,7 +1,8 @@
 use fontations::skrifa::{raw::tables::gdef::GlyphClassDef, MetadataProvider};
 use fontspector_checkapi::{
-    pens::AreaPen, prelude::*, skip, testfont, FileTypeConvert, DEFAULT_LOCATION,
+    pens::AreaPen, prelude::*, skip, testfont, FileTypeConvert, Metadata, DEFAULT_LOCATION,
 };
+use serde_json::json;
 
 const ARABIC_LETTER_HAMZA: u32 = 0x0621;
 const ARABIC_LETTER_HIGH_HAMZA: u32 = 0x0674;
@@ -34,14 +35,23 @@ fn arabic_high_hamza(t: &Testable, context: &Context) -> CheckFnResult {
 
     #[allow(clippy::unwrap_used)] // We just tested for it
     let high_hamza = f.font().charmap().map(ARABIC_LETTER_HIGH_HAMZA).unwrap();
+    let high_hamza_name = f.glyph_name_for_id_synthesise(high_hamza);
     if f.gdef_class(high_hamza) == GlyphClassDef::Mark {
-        problems.push(Status::fail(
-            "mark-in-gdef",
-            &format!(
-                "{} is defined in GDEF as a mark (class 3).",
-                f.glyph_name_for_id_synthesise(high_hamza)
-            ),
-        ))
+        let message = format!(
+            "{} is defined in GDEF as a mark (class 3).",
+            high_hamza_name
+        );
+        let mut status = Status::fail("mark-in-gdef", &message);
+        status.add_metadata(Metadata::GlyphProblem {
+            glyph_name: high_hamza_name.clone(),
+            glyph_id: high_hamza.to_u32(),
+            userspace_location: None,
+            position: None,
+            actual: Some(json!({ "gdef_class": "Mark" })),
+            expected: Some(json!({ "gdef_class": "not-Mark" })),
+            message,
+        });
+        problems.push(status);
     }
     let mut pen = AreaPen::new();
     f.draw_glyph(high_hamza, &mut pen, DEFAULT_LOCATION)?;
@@ -53,11 +63,28 @@ fn arabic_high_hamza(t: &Testable, context: &Context) -> CheckFnResult {
     f.draw_glyph(hamza, &mut pen, DEFAULT_LOCATION)?;
     let hamza_area = pen.area();
 
-    if ((high_hamza_area - hamza_area) / hamza_area).abs() > 0.1 {
-        problems.push(Status::fail(
-            "glyph-area",
-            "The arabic letter high hamza (U+0674) should have roughly the same size the arabic letter hamza (U+0621), but a different glyph outline area was detected.",
-        ))
+    let area_ratio = if hamza_area != 0.0 {
+        (high_hamza_area - hamza_area) / hamza_area
+    } else {
+        0.0
+    };
+    if area_ratio.abs() > 0.1 {
+        let message = "The arabic letter high hamza (U+0674) should have roughly the same size the arabic letter hamza (U+0621), but a different glyph outline area was detected.";
+        let mut status = Status::fail("glyph-area", message);
+        status.add_metadata(Metadata::GlyphProblem {
+            glyph_name: high_hamza_name,
+            glyph_id: high_hamza.to_u32(),
+            userspace_location: None,
+            position: None,
+            actual: Some(json!({
+                "high_hamza_area": high_hamza_area,
+                "hamza_area": hamza_area,
+                "area_ratio": area_ratio,
+            })),
+            expected: Some(json!({ "area_ratio_max_abs": 0.1 })),
+            message: message.to_string(),
+        });
+        problems.push(status);
     }
 
     return_result(problems)

@@ -4,7 +4,8 @@ use fontations::skrifa::{
     raw::{tables::stat::AxisValue, TableProvider},
     Tag,
 };
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
 
 #[check(
     id = "STAT_in_statics",
@@ -90,12 +91,24 @@ fn STAT_in_statics(t: &Testable, _context: &Context) -> CheckFnResult {
             }
         }
     }
-    let problems = counter
+    let problems: Vec<Status> = counter
         .into_iter()
         .filter(|&(_axis, count)| { count > 1 })
-        .map(|(axis, count)| { Status::fail(
-                "multiple-STAT-entries",
-                &format!("The STAT table has more than a single entry for the '{axis}' axis ({count}) on this static font which will causes problems on Windows.")
-            )}).collect();
+        .map(|(axis, count)| {
+            let message = format!(
+                "The STAT table has more than a single entry for the '{}' axis ({}) on this static font which will causes problems on Windows.",
+                axis, count
+            );
+            let mut status = Status::fail("multiple-STAT-entries", &message);
+            status.add_metadata(Metadata::TableProblem {
+                table_tag: "STAT".to_string(),
+                field_name: Some(format!("axis_{}", axis)),
+                actual: Some(json!(count)),
+                expected: Some(json!(1)),
+                message: message.clone(),
+            });
+            status
+        })
+        .collect();
     return_result(problems)
 }

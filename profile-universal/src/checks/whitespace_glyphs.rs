@@ -1,5 +1,6 @@
 use fontations::skrifa::MetadataProvider;
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
 
 #[check(
     id = "whitespace_glyphs",
@@ -24,10 +25,18 @@ fn whitespace_glyphs(t: &Testable, _context: &Context) -> CheckFnResult {
     let charmap = f.font().charmap();
     for c in [0x20u32, 0x0A0] {
         if charmap.map(c).is_none() {
-            problems.push(Status::fail(
-                &format!("missing-whitespace-glyph-0x{c:04X}"),
-                &format!("Whitespace glyph missing for codepoint 0x{c:04X}"),
-            ))
+            let message = format!("Whitespace glyph missing for codepoint 0x{c:04X}");
+            let mut status = Status::fail(&format!("missing-whitespace-glyph-0x{c:04X}"), &message);
+            status.add_metadata(Metadata::GlyphProblem {
+                glyph_name: format!("uni{c:04X}"),
+                glyph_id: 0,
+                userspace_location: None,
+                position: None,
+                actual: Some(json!(null)),
+                expected: Some(json!(format!("U+{c:04X}"))),
+                message: message.clone(),
+            });
+            problems.push(status);
         }
     }
     return_result(problems)

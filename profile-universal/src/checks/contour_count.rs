@@ -3,10 +3,11 @@ use std::{
     sync::LazyLock,
 };
 
-use fontations::skrifa::MetadataProvider;
+use fontations::skrifa::{GlyphId, MetadataProvider};
 use fontspector_checkapi::{
-    pens::ContourCountPen, prelude::*, testfont, FileTypeConvert, DEFAULT_LOCATION,
+    pens::ContourCountPen, prelude::*, testfont, FileTypeConvert, Metadata, DEFAULT_LOCATION,
 };
+use serde_json::json;
 
 const DATA_JSON: &str = include_str!("../../data/desired_glyph_data.json");
 
@@ -64,10 +65,18 @@ static GLYPHS_BY_UNICODE: LazyLock<HashMap<u32, HashSet<usize>>> = LazyLock::new
     title = "Check if each glyph has the recommended amount of contours."
 )]
 fn contour_count(t: &Testable, context: &Context) -> CheckFnResult {
+    struct ContourIssue {
+        glyph_id: GlyphId,
+        glyph_name: String,
+        codepoint: Option<u32>,
+        count: usize,
+        expected: Vec<usize>,
+    }
+
     let f = testfont!(t);
     let mut problems = vec![];
-    let mut bad_glyphs = vec![];
-    let mut zero_contours = vec![];
+    let mut bad_glyphs: Vec<ContourIssue> = vec![];
+    let mut zero_contours: Vec<ContourIssue> = vec![];
     let reverse_map = f
         .font()
         .charmap()
@@ -75,37 +84,46 @@ fn contour_count(t: &Testable, context: &Context) -> CheckFnResult {
         .map(|(k, v)| (v, k))
         .collect::<HashMap<_, _>>();
     for glyph in f.all_glyphs() {
-        if let Some(codepoint) = reverse_map.get(&glyph) {
-            if let Some(data) = GLYPHS_BY_UNICODE.get(codepoint) {
-                let name = f.glyph_name_for_id_synthesise(glyph);
-                let mut pen = ContourCountPen::new();
-                f.draw_glyph(glyph, &mut pen, DEFAULT_LOCATION)?;
-                let count = pen.contour_count();
-                if count == 0 && !data.contains(&count) {
-                    zero_contours.push(name);
-                } else if !data.contains(&count) {
-                    bad_glyphs.push(format!(
-                        "{name} (U+{codepoint:04X}): found {count}, expected one of: {data:?}"
-                    ));
-                }
-            }
-        } else {
-            let name = f.glyph_name_for_id_synthesise(glyph);
-            if let Some(data) = GLYPHS_BY_NAME.get(&name) {
-                let mut pen = ContourCountPen::new();
-                f.draw_glyph(glyph, &mut pen, DEFAULT_LOCATION)?;
-                let count = pen.contour_count();
-                if count == 0 && !data.contains(&count) {
-                    zero_contours.push(name);
-                } else if !data.contains(&count) {
-                    bad_glyphs.push(format!(
-                        "{name} (unencoded): found {count}, expected one of: {data:?}"
-                    ));
-                }
+        let codepoint = reverse_map.get(&glyph).copied();
+        let glyph_name = f.glyph_name_for_id_synthesise(glyph);
+        let expected = match codepoint {
+            Some(cp) => GLYPHS_BY_UNICODE.get(&cp),
+            None => GLYPHS_BY_NAME.get(&glyph_name),
+        };
+        if let Some(data) = expected {
+            let mut pen = ContourCountPen::new();
+            f.draw_glyph(glyph, &mut pen, DEFAULT_LOCATION)?;
+            let count = pen.contour_count();
+            let mut expected_counts: Vec<usize> = data.iter().copied().collect();
+            expected_counts.sort_unstable();
+            let issue = ContourIssue {
+                glyph_id: glyph,
+                glyph_name: glyph_name.clone(),
+                codepoint,
+                count,
+                expected: expected_counts,
+            };
+            if count == 0 && !data.contains(&count) {
+                zero_contours.push(issue);
+            } else if !data.contains(&count) {
+                bad_glyphs.push(issue);
             }
         }
     }
     if !bad_glyphs.is_empty() {
+        let bad_messages: Vec<String> = bad_glyphs
+            .iter()
+            .map(|issue| match issue.codepoint {
+                Some(cp) => format!(
+                    "{} (U+{cp:04X}): found {}, expected one of: {:?}",
+                    issue.glyph_name, issue.count, issue.expected
+                ),
+                None => format!(
+                    "{} (unencoded): found {}, expected one of: {:?}",
+                    issue.glyph_name, issue.count, issue.expected
+                ),
+            })
+            .collect();
         problems.push(Status::warn(
             "contour-count",
             &format!(
@@ -118,18 +136,63 @@ fn contour_count(t: &Testable, context: &Context) -> CheckFnResult {
      incorrect codepoint. Please consider reviewing the design and
      codepoint assignment of these to make sure they are correct.\n\n
     The following glyphs do not have the recommended number of contours:\n{}",
-                bullet_list(context, &bad_glyphs),
+                bullet_list(context, &bad_messages),
             ),
         ));
+        if let Some(status) = problems.last_mut() {
+            for issue in bad_glyphs {
+                status.add_metadata(Metadata::GlyphProblem {
+                    glyph_name: issue.glyph_name,
+                    glyph_id: issue.glyph_id.to_u32(),
+                    userspace_location: None,
+                    position: None,
+                    actual: Some(json!({
+                        "contour_count": issue.count,
+                        "codepoint": issue.codepoint,
+                    })),
+                    expected: Some(json!({ "allowed_counts": issue.expected })),
+                    message: "Unexpected contour count".to_string(),
+                });
+            }
+        }
     }
     if !zero_contours.is_empty() {
+        let zero_messages: Vec<String> = zero_contours
+            .iter()
+            .map(|issue| match issue.codepoint {
+                Some(cp) => format!(
+                    "{} (U+{cp:04X}): found {}, expected one of: {:?}",
+                    issue.glyph_name, issue.count, issue.expected
+                ),
+                None => format!(
+                    "{} (unencoded): found {}, expected one of: {:?}",
+                    issue.glyph_name, issue.count, issue.expected
+                ),
+            })
+            .collect();
         problems.push(Status::fail(
             "no-contour",
             &format!(
                 "The following glyphs have no contours even though they were expected to have some:\n{}",
-                bullet_list(context, &zero_contours),
+                bullet_list(context, &zero_messages),
             ),
         ));
+        if let Some(status) = problems.last_mut() {
+            for issue in zero_contours {
+                status.add_metadata(Metadata::GlyphProblem {
+                    glyph_name: issue.glyph_name,
+                    glyph_id: issue.glyph_id.to_u32(),
+                    userspace_location: None,
+                    position: None,
+                    actual: Some(json!({
+                        "contour_count": issue.count,
+                        "codepoint": issue.codepoint,
+                    })),
+                    expected: Some(json!({ "min_contours": 1 })),
+                    message: "No contours found".to_string(),
+                });
+            }
+        }
     }
     return_result(problems)
 }

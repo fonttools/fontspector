@@ -1,7 +1,8 @@
 use std::collections::HashSet;
 
 use fontations::skrifa::Tag;
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
 
 #[check(
     id = "cjk_chws_feature",
@@ -29,17 +30,33 @@ fn cjk_chws_feature(f: &Testable, context: &Context) -> CheckFnResult {
         .feature_records(false)
         .map(|(r, _)| r.feature_tag())
         .collect();
+
+    let mut missing_features = vec![];
     if !tags.contains(&Tag::new(b"chws")) {
-        problems.push(Status::warn(
-            "missing-chws-feature",
-            &format!("chws {message}"),
-        ));
+        let msg = format!("chws {message}");
+        let mut status = Status::warn("missing-chws-feature", &msg);
+        status.add_metadata(Metadata::FontProblem {
+            message: msg.clone(),
+            context: Some(json!({
+                "missing_feature": "chws",
+                "reason": "Enhances spacing of glyphs in CJK fonts for environments which do not fully support JLREQ layout rules"
+            })),
+        });
+        problems.push(status);
+        missing_features.push("chws");
     }
     if !tags.contains(&Tag::new(b"vchw")) {
-        problems.push(Status::warn(
-            "missing-vchw-feature",
-            &format!("vchw {message}"),
-        ));
+        let msg = format!("vchw {message}");
+        let mut status = Status::warn("missing-vchw-feature", &msg);
+        status.add_metadata(Metadata::FontProblem {
+            message: msg.clone(),
+            context: Some(json!({
+                "missing_feature": "vchw",
+                "reason": "Vertical variant of chws feature for vertical text layout"
+            })),
+        });
+        problems.push(status);
+        missing_features.push("vchw");
     }
     return_result(problems)
 }

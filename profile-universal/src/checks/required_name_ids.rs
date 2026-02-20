@@ -1,8 +1,9 @@
 use fontations::skrifa::string::StringId;
 use fontspector_checkapi::{
     get_name_entry_string, get_name_platform_tuples, prelude::*, testfont, FileTypeConvert,
-    PlatformSelector,
+    Metadata, PlatformSelector,
 };
+use serde_json::json;
 
 use std::vec;
 
@@ -64,17 +65,23 @@ fn required_name_ids(t: &Testable, context: &Context) -> CheckFnResult {
         }
     }
 
-    Ok(if bad_names.is_empty() {
-        Status::just_one_pass()
+    if bad_names.is_empty() {
+        Ok(Status::just_one_pass())
     } else {
-        Status::just_one_fail(
-            "missing-name-table-ids",
-            &format!(
-                "The following issues have been found:\n\n{}",
-                bullet_list(context, bad_names)
-            ),
-        )
-    })
+        let message = format!(
+            "The following issues have been found:\n\n{}",
+            bullet_list(context, bad_names.clone())
+        );
+        let mut status = Status::fail("missing-name-table-ids", &message);
+        status.add_metadata(Metadata::FontProblem {
+            message: message.clone(),
+            context: Some(json!({
+                "missing_name_ids_issues": bad_names,
+                "total_issues": bad_names.len(),
+            })),
+        });
+        return_result(vec![status])
+    }
 }
 
 #[cfg(test)]
