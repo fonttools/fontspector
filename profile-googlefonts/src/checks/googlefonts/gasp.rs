@@ -3,7 +3,8 @@ use fontations::{
     types::Tag,
     write::FontBuilder,
 };
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
 use tabled::builder::Builder;
 
 const NON_HINTING_MESSAGE: &str =  "If you are dealing with an unhinted font, it can be fixed by running the fonts through the command 'gftools fix-nonhinting'\nGFTools is available at https://pypi.org/project/gftools/";
@@ -56,27 +57,57 @@ fn gasp(t: &Testable, _context: &Context) -> CheckFnResult {
     );
     let mut problems = vec![];
     if !f.has_table(b"gasp") {
-        return Ok(Status::just_one_fail(
+        let msg = "Font is missing the 'gasp' table";
+        let mut status = Status::fail(
             "lacks-gasp",
             &format!("Font is missing the 'gasp' table. Try exporting the font with autohinting enabled.\n{NON_HINTING_MESSAGE}")
-        ));
+        );
+        status.add_metadata(Metadata::TableProblem {
+            table_tag: "gasp".to_string(),
+            field_name: None,
+            actual: Some(json!("missing")),
+            expected: Some(json!("gasp table present")),
+            message: msg.to_string(),
+        });
+        problems.push(status);
+        return return_result(problems);
     }
     let gasp_table = f.font().gasp()?;
     if gasp_table.gasp_ranges().is_empty() {
-        return Ok(Status::just_one_fail(
+        let msg = "The 'gasp' table has no values";
+        let mut status = Status::fail(
             "empty",
             &format!("The 'gasp' table has no values.\n{NON_HINTING_MESSAGE}"),
-        ));
+        );
+        status.add_metadata(Metadata::TableProblem {
+            table_tag: "gasp".to_string(),
+            field_name: Some("gasp_ranges".to_string()),
+            actual: Some(json!(0)),
+            expected: Some(json!("> 0")),
+            message: msg.to_string(),
+        });
+        problems.push(status);
+        return return_result(problems);
     }
     if !gasp_table
         .gasp_ranges()
         .iter()
         .any(|r| r.range_max_ppem == 0xFFFF)
     {
-        return Ok(Status::just_one_warn(
+        let msg = "The 'gasp' table does not have an entry that applies for all font sizes";
+        let mut status = Status::warn(
             "lacks-ffff-range",
             "The 'gasp' table does not have an entry that applies for all font sizes. The gaspRange value for such entry should be set to 0xFFFF.",
-        ));
+        );
+        status.add_metadata(Metadata::TableProblem {
+            table_tag: "gasp".to_string(),
+            field_name: Some("gasp_ranges".to_string()),
+            actual: Some(json!("no 0xFFFF range")),
+            expected: Some(json!("0xFFFF range required")),
+            message: msg.to_string(),
+        });
+        problems.push(status);
+        return return_result(problems);
     }
     let md_table = Builder::from_iter(gasp_table.gasp_ranges().iter().map(|r| {
         vec![
@@ -93,21 +124,34 @@ fn gasp(t: &Testable, _context: &Context) -> CheckFnResult {
     ));
     for range in gasp_table.gasp_ranges() {
         if range.range_max_ppem != 0xFFFF {
-            problems.push(Status::warn(
-                "non-ffff-range",
-                &format!(
-                    "The gasp table has a range of {} that may be unneccessary.",
-                    range.range_max_ppem
-                ),
-            ));
+            let msg = format!(
+                "The gasp table has a range of {} that may be unnecessary",
+                range.range_max_ppem
+            );
+            let mut status = Status::warn("non-ffff-range", &msg);
+            status.add_metadata(Metadata::TableProblem {
+                table_tag: "gasp".to_string(),
+                field_name: Some("range_max_ppem".to_string()),
+                actual: Some(json!(range.range_max_ppem.to_string())),
+                expected: Some(json!("0xFFFF")),
+                message: msg.clone(),
+            });
+            problems.push(status);
         } else if range.range_gasp_behavior.get().bits() != 0x0f {
-            problems.push(Status::warn(
-                "unset-flags",
-                &format!(
-                    "The gasp range 0xFFFF value 0x{:02X} should be set to 0x0F.",
-                    range.range_gasp_behavior.get().bits()
-                ),
-            ));
+            let bits = range.range_gasp_behavior.get().bits();
+            let msg = format!(
+                "The gasp range 0xFFFF value 0x{:02X} should be set to 0x0F",
+                bits
+            );
+            let mut status = Status::warn("unset-flags", &msg);
+            status.add_metadata(Metadata::TableProblem {
+                table_tag: "gasp".to_string(),
+                field_name: Some("gasp_behavior".to_string()),
+                actual: Some(json!(format!("0x{:02X}", bits))),
+                expected: Some(json!("0x0F")),
+                message: msg.clone(),
+            });
+            problems.push(status);
         }
     }
     return_result(problems)

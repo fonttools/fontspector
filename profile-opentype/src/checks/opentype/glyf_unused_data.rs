@@ -1,5 +1,6 @@
 use fontations::skrifa::{raw::TableProvider, Tag};
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
 use std::cmp::Ordering;
 
 #[check(
@@ -24,17 +25,38 @@ fn glyf_unused_data(t: &Testable, _context: &Context) -> CheckFnResult {
         .font()
         .loca(None)
         .map_err(|_| FontspectorError::General("No loca table".to_string()))?;
+    let mut problems = vec![];
     if let Some(last_index) = loca.get_raw(loca.len()) {
-        Ok(match glyf.len().cmp(&(last_index as usize)) {
-            Ordering::Greater => Status::just_one_fail(
-                "unreachable-data",
-                "Unused data at the end of the glyf table",
-            ),
-            Ordering::Less => {
-                Status::just_one_fail("missing-data", "Missing data at the end of the glyf table")
+        match glyf.len().cmp(&(last_index as usize)) {
+            Ordering::Greater => {
+                let msg = "Unused data at the end of the glyf table";
+                let mut status = Status::fail("unreachable-data", msg);
+                status.add_metadata(Metadata::TableProblem {
+                    table_tag: "glyf".to_string(),
+                    field_name: None,
+                    actual: Some(json!(glyf.len())),
+                    expected: Some(json!(last_index as usize)),
+                    message: msg.to_string(),
+                });
+                problems.push(status);
             }
-            Ordering::Equal => Status::just_one_pass(),
-        })
+            Ordering::Less => {
+                let msg = "Missing data at the end of the glyf table";
+                let mut status = Status::fail("missing-data", msg);
+                status.add_metadata(Metadata::TableProblem {
+                    table_tag: "glyf".to_string(),
+                    field_name: None,
+                    actual: Some(json!(glyf.len())),
+                    expected: Some(json!(last_index as usize)),
+                    message: msg.to_string(),
+                });
+                problems.push(status);
+            }
+            Ordering::Equal => {
+                // Pass
+            }
+        }
+        return_result(problems)
     } else {
         Err(FontspectorError::General("Invalid loca table".to_string()))
     }

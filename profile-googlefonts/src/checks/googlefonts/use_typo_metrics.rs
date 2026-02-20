@@ -2,7 +2,8 @@ use fontations::{
     read::{tables::os2::SelectionFlags, TableProvider},
     write::from_obj::ToOwnedTable,
 };
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
 
 #[check(
     id = "googlefonts/use_typo_metrics",
@@ -36,14 +37,20 @@ fn use_typo_metrics(t: &Testable, context: &Context) -> CheckFnResult {
         "cjk",
         "This check does not apply to CJK fonts."
     );
+    let mut problems = vec![];
     if !f.use_typo_metrics()? {
-        Ok(Status::just_one_fail(
-            "missing-os2-fsselection-bit7",
-            "OS/2.fsSelection bit 7 (USE_TYPO_METRICS) was NOT set.",
-        ))
-    } else {
-        Ok(Status::just_one_pass())
+        let msg = "OS/2.fsSelection bit 7 (USE_TYPO_METRICS) was NOT set.";
+        let mut status = Status::fail("missing-os2-fsselection-bit7", msg);
+        status.add_metadata(Metadata::TableProblem {
+            table_tag: "OS/2".to_string(),
+            field_name: Some("fsSelection".to_string()),
+            actual: Some(json!("bit 7 not set")),
+            expected: Some(json!("bit 7 set (USE_TYPO_METRICS)")),
+            message: msg.to_string(),
+        });
+        problems.push(status);
     }
+    return_result(problems)
 }
 
 fn fix_use_typo_metrics(t: &mut Testable) -> FixFnResult {

@@ -1,5 +1,6 @@
 use fontations::skrifa::raw::TableProvider;
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
 
 #[check(
     id = "name/trailing_spaces",
@@ -29,10 +30,23 @@ fn trailing_spaces(f: &Testable, _context: &Context) -> CheckFnResult {
                 .map(|s| s.trim_end() != s)
                 .unwrap_or(false)
             {
-                problems.push(Status::fail("trailing-space",&format!(
+                let string_value = name_record
+                    .string(name_table.string_data())
+                    .map_err(|_| FontspectorError::General("Error reading string".to_string()))?
+                    .to_string();
+                let message = format!(
                     "Name table record {name_rec_info} has trailing spaces that must be removed:\n`{:}`",
-                    name_record.string(name_table.string_data()).map_err(|_| FontspectorError::General("Error reading string".to_string()))?,
-                )))
+                    string_value
+                );
+                let mut status = Status::fail("trailing-space", &message);
+                status.add_metadata(Metadata::TableProblem {
+                    table_tag: "name".to_string(),
+                    field_name: Some(format!("nameID {}", name_record.name_id)),
+                    actual: Some(json!(string_value)),
+                    expected: Some(json!(string_value.trim_end())),
+                    message,
+                });
+                problems.push(status);
             }
             if name_record
                 .string(name_table.string_data())
@@ -40,15 +54,23 @@ fn trailing_spaces(f: &Testable, _context: &Context) -> CheckFnResult {
                 .map(|s| s.contains("  "))
                 .unwrap_or(false)
             {
-                problems.push(Status::warn(
-                    "double-spaces",
-                    &format!(
-                        "Name table record {name_rec_info} has double spaces:\n`{:}`",
-                        name_record.string(name_table.string_data()).map_err(|_| {
-                            FontspectorError::General("Error reading string".to_string())
-                        })?,
-                    ),
-                ))
+                let string_value = name_record
+                    .string(name_table.string_data())
+                    .map_err(|_| FontspectorError::General("Error reading string".to_string()))?
+                    .to_string();
+                let message = format!(
+                    "Name table record {name_rec_info} has double spaces:\n`{:}`",
+                    string_value
+                );
+                let mut status = Status::warn("double-spaces", &message);
+                status.add_metadata(Metadata::TableProblem {
+                    table_tag: "name".to_string(),
+                    field_name: Some(format!("nameID {}", name_record.name_id)),
+                    actual: Some(json!(string_value)),
+                    expected: Some(json!(string_value.replace("  ", " "))),
+                    message,
+                });
+                problems.push(status);
             }
         }
     }

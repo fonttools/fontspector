@@ -1,5 +1,6 @@
 use fontations::skrifa::raw::TableProvider;
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
 
 use crate::network_conditions::{is_listed_on_google_fonts, remote_styles};
 
@@ -40,15 +41,21 @@ fn version_bump(f: &Testable, context: &Context) -> CheckFnResult {
 
     let local_version = font.font().head()?.font_revision();
     let remote_version = a_remote_font.font().head()?.font_revision();
+    let mut problems = vec![];
     if local_version == remote_version {
-        Ok(Status::just_one_fail(
-            "same-version",
-            &format!(
-                "Version number {} is equal to version on Google fonts",
-                local_version.to_f32()
-            ),
-        ))
-    } else {
-        Ok(Status::just_one_pass())
+        let msg = format!(
+            "Version number {} is equal to version on Google fonts",
+            local_version.to_f32()
+        );
+        let mut status = Status::fail("same-version", &msg);
+        status.add_metadata(Metadata::TableProblem {
+            table_tag: "head".to_string(),
+            field_name: Some("fontRevision".to_string()),
+            actual: Some(json!(local_version.to_f32())),
+            expected: Some(json!(format!("> {}", remote_version.to_f32()))),
+            message: msg,
+        });
+        problems.push(status);
     }
+    return_result(problems)
 }

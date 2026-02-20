@@ -1,5 +1,6 @@
 use fontations::skrifa::raw::types::NameId;
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
 
 #[check(
     id = "name/italic_names",
@@ -24,18 +25,32 @@ fn italic_names(t: &Testable, _context: &Context) -> CheckFnResult {
     }
     if let Some(family_name) = font.get_name_entry_strings(NameId::FAMILY_NAME).next() {
         if family_name.contains("Italic") {
-            problems.push(Status::fail(
-                "bad-familyname",
-                "Name ID 1 (Family Name) must not contain 'Italic'.",
-            ));
+            let message = "Name ID 1 (Family Name) must not contain 'Italic'.";
+            let mut status = Status::fail("bad-familyname", message);
+            status.add_metadata(Metadata::TableProblem {
+                table_tag: "name".to_string(),
+                field_name: Some("nameID 1".to_string()),
+                actual: Some(json!(family_name)),
+                expected: Some(json!(family_name.replace("Italic", ""))),
+                message: message.to_string(),
+            });
+            problems.push(status);
         }
     }
     if let Some(subfamily_name) = font.get_name_entry_strings(NameId::SUBFAMILY_NAME).next() {
         if subfamily_name != "Italic" && subfamily_name != "Bold Italic" {
-            problems.push(Status::fail(
-                "bad-subfamilyname",
-                &format!("Name ID 2 (Subfamily Name) does not conform to specs. Only R/I/B/BI are allowed, found {subfamily_name}")
-            ));
+            let message = format!(
+                "Name ID 2 (Subfamily Name) does not conform to specs. Only R/I/B/BI are allowed, found {subfamily_name}"
+            );
+            let mut status = Status::fail("bad-subfamilyname", &message);
+            status.add_metadata(Metadata::TableProblem {
+                table_tag: "name".to_string(),
+                field_name: Some("nameID 2".to_string()),
+                actual: Some(json!(subfamily_name)),
+                expected: Some(json!("Italic | Bold Italic")),
+                message,
+            });
+            problems.push(status);
         }
     }
     if let Some(typo_family_name) = font
@@ -43,10 +58,16 @@ fn italic_names(t: &Testable, _context: &Context) -> CheckFnResult {
         .next()
     {
         if typo_family_name.contains("Italic") {
-            problems.push(Status::fail(
-                "bad-typographicfamilyname",
-                "Name ID 16 (Typographic Family Name) must not contain 'Italic'.",
-            ));
+            let message = "Name ID 16 (Typographic Family Name) must not contain 'Italic'.";
+            let mut status = Status::fail("bad-typographicfamilyname", message);
+            status.add_metadata(Metadata::TableProblem {
+                table_tag: "name".to_string(),
+                field_name: Some("nameID 16".to_string()),
+                actual: Some(json!(typo_family_name)),
+                expected: Some(json!(typo_family_name.replace("Italic", ""))),
+                message: message.to_string(),
+            });
+            problems.push(status);
         }
     }
     if let Some(typo_subfamily_name) = font
@@ -54,10 +75,16 @@ fn italic_names(t: &Testable, _context: &Context) -> CheckFnResult {
         .next()
     {
         if !typo_subfamily_name.ends_with("Italic") {
-            problems.push(Status::fail(
-                "bad-typographicsubfamilyname",
-                "Name ID 16 (Typographic Family Name) must contain 'Italic'.",
-            ));
+            let message = "Name ID 16 (Typographic Family Name) must contain 'Italic'.";
+            let mut status = Status::fail("bad-typographicsubfamilyname", message);
+            status.add_metadata(Metadata::TableProblem {
+                table_tag: "name".to_string(),
+                field_name: Some("nameID 17".to_string()),
+                actual: Some(json!(typo_subfamily_name)),
+                expected: Some(json!(format!("{}Italic", typo_subfamily_name))),
+                message: message.to_string(),
+            });
+            problems.push(status);
         }
     }
     return_result(problems)

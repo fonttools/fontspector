@@ -55,7 +55,7 @@ pub use font::{
 pub use gsub::{GetSubstitutionMap, SubstitutionMap};
 pub use profile::{Override, Profile, ProfileBuilder};
 pub use registry::Registry;
-pub use status::{CheckFnResult, Status, StatusCode, StatusList};
+pub use status::{CheckFnResult, Metadata, Status, StatusCode, StatusList};
 pub use testable::{Testable, TestableCollection, TestableType};
 
 /// The prelude module contains the most common items you will need when writing checks

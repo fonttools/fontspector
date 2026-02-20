@@ -1,5 +1,6 @@
 use fontations::{skrifa::raw::TableProvider, write::from_obj::ToOwnedTable};
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
 
 const FSTYPE_RESTRICTIONS: [(u16, &str); 5] = [
     (0x0002,
@@ -38,26 +39,34 @@ const FSTYPE_RESTRICTIONS: [(u16, &str); 5] = [
 fn fstype(t: &Testable, _context: &Context) -> CheckFnResult {
     let f = testfont!(t);
     let fstype_value = f.font().os2()?.fs_type();
-    if fstype_value == 0 {
-        return Ok(Status::just_one_pass());
-    }
-    let mut restrictions = FSTYPE_RESTRICTIONS
-        .iter()
-        .filter(|(bit_mask, _)| fstype_value & bit_mask != 0)
-        .map(|(_, restriction)| restriction.to_string())
-        .collect::<Vec<String>>();
-    if fstype_value & 0b1111110011110001 != 0 {
-        restrictions
-            .push("* There are reserved bits set, which indicates an invalid setting.".to_string());
-    }
-    Ok(Status::just_one_fail(
-        "drm",
-        &format!(
+    let mut problems = vec![];
+    if fstype_value != 0 {
+        let mut restrictions = FSTYPE_RESTRICTIONS
+            .iter()
+            .filter(|(bit_mask, _)| fstype_value & bit_mask != 0)
+            .map(|(_, restriction)| restriction.to_string())
+            .collect::<Vec<String>>();
+        if fstype_value & 0b1111110011110001 != 0 {
+            restrictions.push(
+                "* There are reserved bits set, which indicates an invalid setting.".to_string(),
+            );
+        }
+        let msg = format!(
             "In this font fsType is set to {} meaning that:\n{}\n\nNo such DRM restrictions can be enabled on the Google Fonts collection, so the fsType field must be set to zero (Installable Embedding) instead.",
             fstype_value,
             restrictions.join("\n")
-        ),
-    ))
+        );
+        let mut status = Status::fail("drm", &msg);
+        status.add_metadata(Metadata::TableProblem {
+            table_tag: "OS/2".to_string(),
+            field_name: Some("fsType".to_string()),
+            actual: Some(json!(fstype_value)),
+            expected: Some(json!(0)),
+            message: msg,
+        });
+        problems.push(status);
+    }
+    return_result(problems)
 }
 
 fn fix_fstype(t: &mut Testable) -> FixFnResult {

@@ -9,10 +9,11 @@ use fontations::{
     types::GlyphId,
 };
 use fontdrasil::types::Axes;
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, TestFont};
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata, TestFont};
 use hashbrown::HashMap;
 use itertools::Itertools;
 use ordered_float::OrderedFloat;
+use serde_json::json;
 
 fn denormalize_location(normalized_coords: &[NormalizedCoord], axes: &Axes) -> Vec<(String, f64)> {
     normalized_coords
@@ -158,18 +159,49 @@ fn detect_outliers(
             })
             .collect();
 
-        problems.push(Status::warn(
-            code,
-            &format!(
-                "Glyph {:?} has suspiciously high variation (z-score {:.2}) in {} at locations:\n    {}",
-                font.glyph_name_for_id_synthesise(glyph),
-                max_zscore,
-                measurement_name,
-                location_descriptions.join("\n    ")
-            ),
-        ));
+        let message = format!(
+            "Glyph {:?} has suspiciously high variation (z-score {:.2}) in {} at locations:\n    {}",
+            font.glyph_name_for_id_synthesise(glyph),
+            max_zscore,
+            measurement_name,
+            location_descriptions.join("\n    ")
+        );
+        let mut status = Status::warn(code, &message);
+        for (loc, z_score) in outliers {
+            let userspace_location = location_names
+                .get(loc)
+                .and_then(|name| parse_location_map(name));
+            status.add_metadata(Metadata::GlyphProblem {
+                glyph_name: font.glyph_name_for_id_synthesise(glyph),
+                glyph_id: glyph.to_u32(),
+                userspace_location,
+                position: None,
+                actual: Some(json!({ "z_score": z_score, "measurement": measurement_name })),
+                expected: Some(json!({ "z_score_max": z_score_threshold })),
+                message: format!("Suspicious variation in {}", measurement_name),
+            });
+        }
+        problems.push(status);
     }
     problems
+}
+
+fn parse_location_map(location_name: &str) -> Option<std::collections::HashMap<String, f32>> {
+    if location_name == "<unknown>" {
+        return None;
+    }
+    let mut map = std::collections::HashMap::new();
+    for part in location_name.split(", ") {
+        let mut iter = part.split('=');
+        let tag = iter.next()?;
+        let value = iter.next()?;
+        if iter.next().is_some() {
+            return None;
+        }
+        let parsed = value.parse::<f32>().ok()?;
+        map.insert(tag.to_string(), parsed);
+    }
+    Some(map)
 }
 
 fn right_side_bearing(glyph: GlyphId, metrics: &GlyphMetrics) -> f32 {

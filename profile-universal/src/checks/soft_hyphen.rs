@@ -1,4 +1,6 @@
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use fontations::{skrifa::MetadataProvider, types::GlyphId};
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
 
 #[check(
     id = "soft_hyphen",
@@ -25,11 +27,26 @@ use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
 )]
 fn soft_hyphen(t: &Testable, context: &Context) -> CheckFnResult {
     let f = testfont!(t);
-    Ok(if f.codepoints(Some(context)).contains(&0x00AD) {
-        Status::just_one_warn("softhyphen", "This font has a 'Soft Hyphen' character.")
-    } else {
-        Status::just_one_pass()
-    })
+    let mut problems = vec![];
+    if f.codepoints(Some(context)).contains(&0x00AD) {
+        let glyphid = f.font().charmap().map(0xad_u32).unwrap_or(GlyphId::new(0));
+        let glyphname = f.glyph_name_for_id_synthesise(glyphid);
+
+        let mut status = Status::warn("softhyphen", "This font has a 'Soft Hyphen' character.");
+        status.add_metadata(
+            Metadata::GlyphProblem {
+                glyph_name: glyphname.clone(),
+                glyph_id: glyphid.to_u32(),
+                userspace_location: None,
+                position: None,
+                actual: Some(json!({ "codepoint": "U+00AD", })),
+                expected: None,
+                message: "The 'Soft Hyphen' character is used to mark a hyphenation possibility within a word, but it is recommended to not include it in the font at all, because discretionary hyphenation should be handled at the level of the shaping engine, not the font. Also, even if present, the software would not display that character.".to_string(),
+            }
+        );
+        problems.push(status);
+    }
+    return_result(problems)
 }
 // def check_soft_hyphen(ttFont):
 //     """Does the font contain a soft hyphen?"""

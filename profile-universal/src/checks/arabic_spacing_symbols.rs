@@ -1,5 +1,6 @@
 use fontations::skrifa::{raw::tables::gdef::GlyphClassDef, MetadataProvider};
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
 
 const ARABIC_SPACING_SYMBOLS: [u16; 17] = [
     0xFBB2, // Dot Above
@@ -41,10 +42,18 @@ fn arabic_spacing_symbols(t: &Testable, _context: &Context) -> CheckFnResult {
     for codepoint in ARABIC_SPACING_SYMBOLS {
         if let Some(gid) = f.font().charmap().map(codepoint) {
             if f.gdef_class(gid) == GlyphClassDef::Mark {
-                problems.push(Status::fail(
-                    "gdef-mark",
-                    &format!("U+{codepoint:04X} is defined in GDEF as a mark (class 3)."),
-                ));
+                let message = format!("U+{codepoint:04X} is defined in GDEF as a mark (class 3).");
+                let mut status = Status::fail("gdef-mark", &message);
+                status.add_metadata(Metadata::GlyphProblem {
+                    glyph_name: f.glyph_name_for_id_synthesise(gid),
+                    glyph_id: gid.to_u32(),
+                    userspace_location: None,
+                    position: None,
+                    actual: Some(json!({ "gdef_class": "Mark" })),
+                    expected: Some(json!({ "gdef_class": "not-Mark" })),
+                    message,
+                });
+                problems.push(status);
             }
         }
     }

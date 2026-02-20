@@ -1,8 +1,10 @@
 use std::collections::HashSet;
 
 use fontations::skrifa::raw::{types::Version16Dot16, TableProvider};
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
+use fontations::skrifa::{GlyphId as SkrifaGlyphId, MetadataProvider};
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
 use itertools::Itertools;
+use serde_json::json;
 
 enum NameValidity {
     OK,
@@ -121,6 +123,8 @@ fn valid_glyphnames(f: &Testable, _context: &Context) -> CheckFnResult {
     }
     let spacename = font.glyph_name_for_unicode(0x20u32);
     let nbspname = font.glyph_name_for_unicode(0xa0u32);
+    let space_gid: Option<SkrifaGlyphId> = font.font().charmap().map(0x20u32);
+    let nbsp_gid: Option<SkrifaGlyphId> = font.font().charmap().map(0xa0u32);
 
     match nbspname.as_deref() {
         Some("space") | Some("uni00A0") | None => {}
@@ -131,19 +135,37 @@ fn valid_glyphnames(f: &Testable, _context: &Context) -> CheckFnResult {
         | Some("u000A0")
         | Some("u0000A0") => {
             #[allow(clippy::unwrap_used)]
-            problems.push(Status::warn(
-                "not-recommended-00A0",
-                &format!(
-                    "Glyph 0x00A0 is called {}; must be named 'uni00A0'.",
-                    nbspname.unwrap()
-                ),
-            ));
+            let name = nbspname.unwrap();
+            let message = format!("Glyph 0x00A0 is called {}; must be named 'uni00A0'.", name);
+            let mut status = Status::warn("not-recommended-00A0", &message);
+            if let Some(gid) = nbsp_gid {
+                status.add_metadata(Metadata::GlyphProblem {
+                    glyph_name: font.glyph_name_for_id_synthesise(gid),
+                    glyph_id: gid.to_u32(),
+                    userspace_location: None,
+                    position: None,
+                    actual: Some(json!({ "glyph_name": name })),
+                    expected: Some(json!({ "glyph_name": "uni00A0" })),
+                    message,
+                });
+            }
+            problems.push(status);
         }
         Some(other) => {
-            problems.push(Status::fail(
-                "non-compliant-00A0",
-                &format!("Glyph 0x00A0 is called {other}; must be named 'uni00A0'."),
-            ));
+            let message = format!("Glyph 0x00A0 is called {other}; must be named 'uni00A0'.");
+            let mut status = Status::fail("non-compliant-00A0", &message);
+            if let Some(gid) = nbsp_gid {
+                status.add_metadata(Metadata::GlyphProblem {
+                    glyph_name: font.glyph_name_for_id_synthesise(gid),
+                    glyph_id: gid.to_u32(),
+                    userspace_location: None,
+                    position: None,
+                    actual: Some(json!({ "glyph_name": other })),
+                    expected: Some(json!({ "glyph_name": "uni00A0" })),
+                    message,
+                });
+            }
+            problems.push(status);
         }
     }
 
@@ -151,19 +173,37 @@ fn valid_glyphnames(f: &Testable, _context: &Context) -> CheckFnResult {
         Some("space") | None => {}
         Some("uni0020") | Some("u0020") | Some("u00020") | Some("u000020") => {
             #[allow(clippy::unwrap_used)]
-            problems.push(Status::warn(
-                "not-recommended-0020",
-                &format!(
-                    "Glyph 0x0020 is called {}; must be named 'space'.",
-                    spacename.unwrap()
-                ),
-            ));
+            let name = spacename.unwrap();
+            let message = format!("Glyph 0x0020 is called {}; must be named 'space'.", name);
+            let mut status = Status::warn("not-recommended-0020", &message);
+            if let Some(gid) = space_gid {
+                status.add_metadata(Metadata::GlyphProblem {
+                    glyph_name: font.glyph_name_for_id_synthesise(gid),
+                    glyph_id: gid.to_u32(),
+                    userspace_location: None,
+                    position: None,
+                    actual: Some(json!({ "glyph_name": name })),
+                    expected: Some(json!({ "glyph_name": "space" })),
+                    message,
+                });
+            }
+            problems.push(status);
         }
         Some(other) => {
-            problems.push(Status::fail(
-                "non-compliant-0020",
-                &format!("Glyph 0x0020 is called {other}; must be named 'space'."),
-            ));
+            let message = format!("Glyph 0x0020 is called {other}; must be named 'space'.");
+            let mut status = Status::fail("non-compliant-0020", &message);
+            if let Some(gid) = space_gid {
+                status.add_metadata(Metadata::GlyphProblem {
+                    glyph_name: font.glyph_name_for_id_synthesise(gid),
+                    glyph_id: gid.to_u32(),
+                    userspace_location: None,
+                    position: None,
+                    actual: Some(json!({ "glyph_name": other })),
+                    expected: Some(json!({ "glyph_name": "space" })),
+                    message,
+                });
+            }
+            problems.push(status);
         }
     }
 

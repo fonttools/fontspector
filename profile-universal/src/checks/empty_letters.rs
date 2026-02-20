@@ -5,8 +5,9 @@ use fontspector_checkapi::{
     constants::{ALL_HANGUL_SYLLABLES_CODEPOINTS, MODERN_HANGUL_SYLLABLES_CODEPOINTS},
     pens::HasInkPen,
     prelude::*,
-    testfont, FileTypeConvert, TestFont, DEFAULT_LOCATION,
+    testfont, FileTypeConvert, Metadata, TestFont, DEFAULT_LOCATION,
 };
+use serde_json::json;
 use unicode_properties::{GeneralCategory, UnicodeGeneralCategory};
 
 const INVISIBLE_LETTERS: [u32; 4] = [0x115F, 0x1160, 0x3164, 0xFFA0];
@@ -51,6 +52,12 @@ fn is_letter(codepoint: u32) -> bool {
     title = "Letters in font have glyphs that are not empty?"
 )]
 fn empty_letters(t: &Testable, context: &Context) -> CheckFnResult {
+    struct EmptyIssue {
+        glyph_id: GlyphId,
+        glyph_name: String,
+        codepoint: u32,
+    }
+
     let f = testfont!(t);
     let blank_ok_set: HashSet<u32> = ALL_HANGUL_SYLLABLES_CODEPOINTS
         .collect::<HashSet<u32>>()
@@ -61,7 +68,7 @@ fn empty_letters(t: &Testable, context: &Context) -> CheckFnResult {
         )
         .copied()
         .collect();
-    let mut empties = vec![];
+    let mut empties: Vec<EmptyIssue> = vec![];
     let mut num_blank_hangul = 0;
     let mut problems = vec![];
     for (codepoint, gid) in f.font().charmap().mappings() {
@@ -73,15 +80,40 @@ fn empty_letters(t: &Testable, context: &Context) -> CheckFnResult {
             && is_letter(codepoint)
             && is_blank_glyph(&f, gid)?
         {
-            empties.push(format!(
-                "U+{:04X} should be visible, but its glyph ('{}') is empty.",
+            empties.push(EmptyIssue {
+                glyph_id: gid,
+                glyph_name: f.glyph_name_for_unicode_synthesise(codepoint),
                 codepoint,
-                f.glyph_name_for_unicode_synthesise(codepoint)
-            ));
+            });
         }
     }
     if !empties.is_empty() {
-        problems.push(Status::fail("empty-letter", &bullet_list(context, empties)));
+        let empty_messages: Vec<String> = empties
+            .iter()
+            .map(|issue| {
+                format!(
+                    "U+{:04X} should be visible, but its glyph ('{}') is empty.",
+                    issue.codepoint, issue.glyph_name
+                )
+            })
+            .collect();
+        problems.push(Status::fail(
+            "empty-letter",
+            &bullet_list(context, empty_messages),
+        ));
+        if let Some(status) = problems.last_mut() {
+            for issue in empties {
+                status.add_metadata(Metadata::GlyphProblem {
+                    glyph_name: issue.glyph_name,
+                    glyph_id: issue.glyph_id.to_u32(),
+                    userspace_location: None,
+                    position: None,
+                    actual: Some(json!({ "has_ink": false, "codepoint": issue.codepoint })),
+                    expected: Some(json!({ "has_ink": true })),
+                    message: "Glyph is empty".to_string(),
+                });
+            }
+        }
     }
     if num_blank_hangul > 0 {
         problems.push(Status::warn(

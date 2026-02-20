@@ -1,4 +1,6 @@
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use fontations::{skrifa::MetadataProvider, types::GlyphId};
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
 
 #[check(
     id = "control_chars",
@@ -15,22 +17,32 @@ use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
 pub fn control_chars(t: &Testable, context: &Context) -> CheckFnResult {
     let f = testfont!(t);
     let codepoints = f.codepoints(Some(context));
-    let bad_characters = (0x01..0x1F)
+    let mut problems = vec![];
+    let bad_codepoints: Vec<u32> = (0x01..0x1F)
         .filter(|&c| c != 0x0D)
         .filter(|c| codepoints.contains(c))
-        .map(|c| format!("U+{:04X} ({})", c, f.glyph_name_for_unicode_synthesise(c)))
-        .collect::<Vec<String>>();
-    if bad_characters.is_empty() {
-        Ok(Status::just_one_pass())
-    } else {
-        Ok(Status::just_one_fail(
-            "unacceptable",
-            &format!(
-                "The following unacceptable control characters were identified:\n\n{}",
-                bullet_list(context, &bad_characters)
-            ),
-        ))
+        .collect();
+
+    for codepoint in bad_codepoints {
+        let glyphid = f.font().charmap().map(codepoint).unwrap_or(GlyphId::new(0));
+        let glyphname = f.glyph_name_for_unicode_synthesise(codepoint);
+        let message = format!(
+            "Unacceptable control character U+{:04X} found in font",
+            codepoint
+        );
+        let mut status = Status::fail("unacceptable", &message);
+        status.add_metadata(Metadata::GlyphProblem {
+            glyph_name: glyphname,
+            glyph_id: glyphid.to_u32(),
+            userspace_location: None,
+            position: None,
+            actual: Some(json!(format!("U+{:04X}", codepoint))),
+            expected: None,
+            message: "This control character can lead to rendering issues on some platforms. Remove it from the font.".to_string(),
+        });
+        problems.push(status);
     }
+    return_result(problems)
 }
 
 #[cfg(test)]

@@ -1,5 +1,6 @@
 use fontations::write::FontBuilder;
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
 
 const UNWANTED_TABLES: [&[u8; 4]; 23] = [
     b"acnt", b"ankr", b"bdat", b"bhed", b"bloc", b"bmap", b"bsln", b"EBSC", b"fdsc", b"feat",
@@ -34,19 +35,25 @@ fn unwanted_aat_tables(t: &Testable, _context: &Context) -> CheckFnResult {
             })?);
         }
     }
-    Ok(if !found.is_empty() {
-        Status::just_one_fail(
-            "has-unwanted-tables",
-            &format!(
-                "Unwanted AAT tables were found in the font and should be removed,
-                       either by fonttools/ttx or by editing them using the tool
+    let mut problems = vec![];
+    if !found.is_empty() {
+        let message = format!(
+            "Unwanted AAT tables were found in the font and should be removed,\
+                       either by fonttools/ttx or by editing them using the tool\
                        they're built with:\n\n{}",
-                found.join("\n")
-            ),
-        )
-    } else {
-        Status::just_one_pass()
-    })
+            found.join("\n")
+        );
+        let mut status = Status::fail("has-unwanted-tables", &message);
+        status.add_metadata(Metadata::FontProblem {
+            message: message.clone(),
+            context: Some(json!({
+                "unwanted_tables": found,
+                "table_count": found.len(),
+            })),
+        });
+        problems.push(status);
+    }
+    return_result(problems)
 }
 
 fn delete_unwanted_aat_tables(t: &mut Testable) -> FixFnResult {

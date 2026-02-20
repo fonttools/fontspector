@@ -1,5 +1,6 @@
 use fontations::skrifa::raw::TableProvider;
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
 
 #[check(
     id = "opentype/maxadvancewidth",
@@ -22,14 +23,20 @@ fn maxadvancewidth(t: &Testable, _context: &Context) -> CheckFnResult {
         .map(|m| m.advance.get())
         .max()
         .unwrap_or_default();
-    Ok(if hmtx_advance_width_max != hhea_advance_width_max {
-        Status::just_one_fail(
-            "mismatch",
-            &format!(
-                "AdvanceWidthMax mismatch: expected {hmtx_advance_width_max} from hmtx; got {hhea_advance_width_max} for hhea"
-            ),
-        )
-    } else {
-        Status::just_one_pass()
-    })
+    let mut problems = vec![];
+    if hmtx_advance_width_max != hhea_advance_width_max {
+        let msg = format!(
+            "AdvanceWidthMax mismatch: expected {hmtx_advance_width_max} from hmtx; got {hhea_advance_width_max} for hhea"
+        );
+        let mut status = Status::fail("mismatch", &msg);
+        status.add_metadata(Metadata::TableProblem {
+            table_tag: "hhea".to_string(),
+            field_name: Some("advanceWidthMax".to_string()),
+            actual: Some(json!(hhea_advance_width_max)),
+            expected: Some(json!(hmtx_advance_width_max)),
+            message: msg,
+        });
+        problems.push(status);
+    }
+    return_result(problems)
 }

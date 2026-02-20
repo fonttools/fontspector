@@ -1,7 +1,8 @@
 use std::collections::HashSet;
 
 use fontations::skrifa::raw::{tables::cmap::CmapSubtable, TableProvider};
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
 
 #[check(
     id = "cmap/format_12",
@@ -39,23 +40,37 @@ fn cmap_format_12(t: &Testable, context: &Context) -> CheckFnResult {
         if let CmapSubtable::Format12(subtable) = subtable {
             skipped = false;
             if !subtable.iter().map(|(cp, _glyph)| cp).any(|cp| cp > 0x0FFF) {
-                problems.push(Status::fail(
-                    "pointless-format-12",
-                "A format 12 subtable did not contain any codepoints beyond the Basic Multilingual Plane (BMP)"
-                ))
+                let message = "A format 12 subtable did not contain any codepoints beyond the Basic Multilingual Plane (BMP)";
+                let mut status = Status::fail("pointless-format-12", message);
+                status.add_metadata(Metadata::TableProblem {
+                    table_tag: "cmap".to_string(),
+                    field_name: Some("format12".to_string()),
+                    actual: None,
+                    expected: Some(json!({ "contains_bmp_plus": true })),
+                    message: message.to_string(),
+                });
+                problems.push(status);
             }
             let cmap12_codepoints: HashSet<_> = subtable.iter().map(|(cp, _glyph)| cp).collect();
             let unmapped = format_4_codepoints
                 .difference(&cmap12_codepoints)
                 .collect::<Vec<_>>();
             if !unmapped.is_empty() {
-                problems.push(Status::warn(
-                    "missing-format-4",
-                    &format!(
-                        "The format 12 subtable did not contain all codepoints from the format 4 subtable:\n\n{}",
-                        bullet_list(context, unmapped)
-                    )
-                ))
+                let unmapped_list: Vec<String> =
+                    unmapped.iter().map(|cp| format!("U+{:04X}", cp)).collect();
+                let message = format!(
+                    "The format 12 subtable did not contain all codepoints from the format 4 subtable:\n\n{}",
+                    bullet_list(context, &unmapped_list)
+                );
+                let mut status = Status::warn("missing-format-4", &message);
+                status.add_metadata(Metadata::TableProblem {
+                    table_tag: "cmap".to_string(),
+                    field_name: Some("format12Coverage".to_string()),
+                    actual: Some(json!(unmapped_list.clone())),
+                    expected: Some(json!("All format 4 codepoints")),
+                    message,
+                });
+                problems.push(status);
             }
         }
     }

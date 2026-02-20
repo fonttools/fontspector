@@ -1,4 +1,5 @@
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
 
 #[check(
     id = "has_unicodes",
@@ -57,14 +58,24 @@ fn has_unicodes(t: &Testable, context: &Context) -> CheckFnResult {
             .iter()
             .filter(|&&c| !codepoints.contains(&c))
             .cloned()
-            .map(|c| format!("uni{c:04X}"))
-            .collect::<Vec<String>>();
+            .collect::<Vec<u32>>();
+        let missing_names: Vec<String> = missing.iter().map(|c| format!("uni{c:04X}")).collect();
 
         if !missing.is_empty() {
-            problems.push(Status::fail(
-                "missing-unicodes",
-                &format!("Font is missing required unicodes: {}", missing.join(", ")),
-            ));
+            let message = format!(
+                "Font is missing required unicodes: {}",
+                missing_names.join(", ")
+            );
+            let mut status = Status::fail("missing-unicodes", &message);
+            status.add_metadata(Metadata::FontProblem {
+                message: message.clone(),
+                context: Some(json!({
+                    "required_unicodes": missing.iter().map(|c| format!("U+{c:04X}")).collect::<Vec<_>>(),
+                    "total_required": required_unicodes.len(),
+                    "total_missing": missing.len(),
+                })),
+            });
+            problems.push(status);
         }
         return_result(problems)
     } else {

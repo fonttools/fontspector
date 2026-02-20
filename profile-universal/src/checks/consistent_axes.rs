@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 
 use fontations::skrifa::MetadataProvider;
-use fontspector_checkapi::{prelude::*, skip, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, skip, FileTypeConvert, Metadata};
+use serde_json::json;
 
 #[check(
     id = "varfont/consistent_axes",
@@ -35,28 +36,42 @@ fn consistent_axes(c: &TestableCollection, _context: &Context) -> CheckFnResult 
         for (axis, &(a_min, a_max)) in reference_ranges.iter() {
             if let Some(found_axis) = font.font().axes().iter().find(|a| a.tag() == *axis) {
                 if found_axis.min_value() != a_min || found_axis.max_value() != a_max {
-                    problems.push(Status::fail(
-                        "inconsistent-axis-range",
-                        &format!(
-                            "Font {} has inconsistent range for axis {}: expected [{}, {}], found [{}, {}]",
-                            font.filename.to_str().unwrap_or("Unknown font"),
-                            axis,
-                            a_min,
-                            a_max,
-                            found_axis.min_value(),
-                            found_axis.max_value()
+                    let message = format!(
+                        "Font {} has inconsistent range for axis {}: expected [{}, {}], found [{}, {}]",
+                        font.filename.to_str().unwrap_or("Unknown font"),
+                        axis,
+                        a_min,
+                        a_max,
+                        found_axis.min_value(),
+                        found_axis.max_value()
+                    );
+                    let mut status = Status::fail("inconsistent-axis-range", &message);
+                    status.add_metadata(Metadata::TableProblem {
+                        table_tag: "fvar".to_string(),
+                        field_name: Some(format!("axis {}", axis)),
+                        actual: Some(
+                            json!({ "min": found_axis.min_value(), "max": found_axis.max_value() }),
                         ),
-                    ));
+                        expected: Some(json!({ "min": a_min, "max": a_max })),
+                        message,
+                    });
+                    problems.push(status);
                 }
             } else {
-                problems.push(Status::fail(
-                    "missing-axis",
-                    &format!(
-                        "Font {} is missing axis {}",
-                        font.filename.to_str().unwrap_or("Unknown font"),
-                        axis
-                    ),
-                ));
+                let message = format!(
+                    "Font {} is missing axis {}",
+                    font.filename.to_str().unwrap_or("Unknown font"),
+                    axis
+                );
+                let mut status = Status::fail("missing-axis", &message);
+                status.add_metadata(Metadata::TableProblem {
+                    table_tag: "fvar".to_string(),
+                    field_name: Some(format!("axis {}", axis)),
+                    actual: None,
+                    expected: Some(json!({ "axis": axis.to_string() })),
+                    message,
+                });
+                problems.push(status);
             }
         }
     }

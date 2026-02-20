@@ -1,4 +1,5 @@
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
 
 const OPTIONAL_TABLE_TAGS: [&[u8; 4]; 20] = [
     b"cvt ", b"fpgm", b"loca", b"prep", b"VORG", b"EBDT", b"EBLC", b"EBSC", b"BASE", b"GPOS",
@@ -74,13 +75,16 @@ fn required_tables(t: &Testable, _context: &Context) -> CheckFnResult {
         }
     }
     if !optional.is_empty() {
-        problems.push(Status::info(
-            "optional-tables",
-            &format!(
-                "This font contains the following optional tables:\n\n    {}",
-                optional.join("\n    ")
-            ),
-        ))
+        let message = format!(
+            "This font contains the following optional tables:\n\n    {}",
+            optional.join("\n    ")
+        );
+        let mut status = Status::info("optional-tables", &message);
+        status.add_metadata(Metadata::FontProblem {
+            message: message.clone(),
+            context: Some(json!({ "optional_tables": optional })),
+        });
+        problems.push(status);
     }
 
     let mut missing = vec![];
@@ -108,29 +112,39 @@ fn required_tables(t: &Testable, _context: &Context) -> CheckFnResult {
     }
 
     if !missing.is_empty() {
-        problems.push(Status::fail(
-            "required-tables",
-            &format!(
-                "This font is missing the following required tables:\n\n    {}",
-                missing.join("\n    ")
-            ),
-        ))
+        let message = format!(
+            "This font is missing the following required tables:\n\n    {}",
+            missing.join("\n    ")
+        );
+        let mut status = Status::fail("required-tables", &message);
+        status.add_metadata(Metadata::FontProblem {
+            message: message.clone(),
+            context: Some(json!({ "missing_tables": missing })),
+        });
+        problems.push(status);
     }
 
     // Variable fonts with vmtx should also have VVAR for performance.
     // https://github.com/fonttools/fontspector/issues/516
     if f.is_variable_font() && f.has_table(b"vmtx") && !f.has_table(b"VVAR") {
-        problems.push(Status::warn(
-            "missing-vvar",
-            "Font has a vmtx table but no VVAR table. \
+        let message = "Font has a vmtx table but no VVAR table. \
              Adding a VVAR table speeds up processing of vertical typesetting \
-             significantly with only a minor file size increase.",
-        ))
+             significantly with only a minor file size increase.";
+        let mut status = Status::warn("missing-vvar", message);
+        status.add_metadata(Metadata::TableProblem {
+            table_tag: "VVAR".to_string(),
+            field_name: None,
+            actual: None,
+            expected: Some(json!({ "table_present": true, "reason": "vmtx present" })),
+            message: message.to_string(),
+        });
+        problems.push(status);
     }
 
     return_result(problems)
 }
 
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 #[cfg(test)]
 mod tests {
     use super::{required_tables, OPTIONAL_TABLE_TAGS};

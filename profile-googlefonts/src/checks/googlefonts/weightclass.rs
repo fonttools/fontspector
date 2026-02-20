@@ -1,5 +1,8 @@
 use fontations::skrifa::{raw::TableProvider, FontRef};
-use fontspector_checkapi::{constants::OutlineType, prelude::*, testfont, FileTypeConvert};
+use fontspector_checkapi::{
+    constants::OutlineType, prelude::*, testfont, FileTypeConvert, Metadata,
+};
+use serde_json::json;
 
 use crate::utils::build_expected_font;
 
@@ -35,56 +38,110 @@ fn weightclass(t: &Testable, _context: &Context) -> CheckFnResult {
     let style_name = f.best_subfamilyname().unwrap_or("Regular".to_string());
     if f.is_variable_font() {
         if value != expected_value {
-            problems.push(Status::fail(
+            let msg = "OS/2 usWeightClass does not match expected value for variable font";
+            let mut status = Status::fail(
                 "bad-value",
                 &format!(
                     "Best SubFamily name is '{style_name}'. Expected OS/2 usWeightClass is {expected_value}, got {value}."
                 ),
-            ))
+            );
+            status.add_metadata(Metadata::TableProblem {
+                table_tag: "OS/2".to_string(),
+                field_name: Some("usWeightClass".to_string()),
+                actual: Some(json!(value)),
+                expected: Some(json!(expected_value)),
+                message: msg.to_string(),
+            });
+            problems.push(status);
         }
     } else if style_name.contains("Thin") {
         if f.outline_type() == OutlineType::TrueType && ![100, 250].contains(&value) {
-            problems.push(Status::fail(
+            let msg = "OS/2 usWeightClass is invalid for Thin weight TrueType";
+            let mut status = Status::fail(
                 "bad-value",
                 &format!(
                     "Best SubFamily name is '{style_name}'. Expected OS/2 usWeightClass is {expected_value}, got {value}."
                 ),
-            ))
+            );
+            status.add_metadata(Metadata::TableProblem {
+                table_tag: "OS/2".to_string(),
+                field_name: Some("usWeightClass".to_string()),
+                actual: Some(json!(value)),
+                expected: Some(json!([100, 250])),
+                message: msg.to_string(),
+            });
+            problems.push(status);
         }
         if f.outline_type() == OutlineType::CFF && value != 250 {
-            problems.push(Status::fail(
+            let msg = "OS/2 usWeightClass is invalid for Thin weight CFF";
+            let mut status = Status::fail(
                 "bad-value",
                 &format!(
                     "Best SubFamily name is '{}'. Expected OS/2 usWeightClass is {}, got {}.",
                     style_name, 250, value
                 ),
-            ))
+            );
+            status.add_metadata(Metadata::TableProblem {
+                table_tag: "OS/2".to_string(),
+                field_name: Some("usWeightClass".to_string()),
+                actual: Some(json!(value)),
+                expected: Some(json!(250)),
+                message: msg.to_string(),
+            });
+            problems.push(status);
         }
     } else if style_name.contains("ExtraLight") {
         if f.outline_type() == OutlineType::TrueType && ![200, 275].contains(&value) {
-            problems.push(Status::fail(
+            let msg = "OS/2 usWeightClass is invalid for ExtraLight weight TrueType";
+            let mut status = Status::fail(
                 "bad-value",
                 &format!(
                     "Best SubFamily name is '{style_name}'. Expected OS/2 usWeightClass is {expected_value}, got {value}."
                 ),
-            ))
+            );
+            status.add_metadata(Metadata::TableProblem {
+                table_tag: "OS/2".to_string(),
+                field_name: Some("usWeightClass".to_string()),
+                actual: Some(json!(value)),
+                expected: Some(json!([200, 275])),
+                message: msg.to_string(),
+            });
+            problems.push(status);
         }
         if f.outline_type() == OutlineType::CFF && value != 275 {
-            problems.push(Status::fail(
+            let msg = "OS/2 usWeightClass is invalid for ExtraLight weight CFF";
+            let mut status = Status::fail(
                 "bad-value",
                 &format!(
                     "Best SubFamily name is '{}'. Expected OS/2 usWeightClass is {}, got {}.",
                     style_name, 275, value
                 ),
-            ))
+            );
+            status.add_metadata(Metadata::TableProblem {
+                table_tag: "OS/2".to_string(),
+                field_name: Some("usWeightClass".to_string()),
+                actual: Some(json!(value)),
+                expected: Some(json!(275)),
+                message: msg.to_string(),
+            });
+            problems.push(status);
         }
     } else if value != expected_value {
-        problems.push(Status::fail(
+        let msg = "OS/2 usWeightClass does not match subfamily name";
+        let mut status = Status::fail(
             "bad-value",
             &format!(
                 "Best SubFamily name is '{style_name}'. Expected OS/2 usWeightClass is {expected_value}, got {value}."
             ),
-        ))
+        );
+        status.add_metadata(Metadata::TableProblem {
+            table_tag: "OS/2".to_string(),
+            field_name: Some("usWeightClass".to_string()),
+            actual: Some(json!(value)),
+            expected: Some(json!(expected_value)),
+            message: msg.to_string(),
+        });
+        problems.push(status);
     }
     return_result(problems)
 }

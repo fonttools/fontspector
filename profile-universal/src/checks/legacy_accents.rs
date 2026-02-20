@@ -2,7 +2,8 @@ use fontations::skrifa::{
     raw::{tables::gdef::GlyphClassDef, TableProvider},
     MetadataProvider,
 };
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
 
 const LEGACY_ACCENTS: [u32; 13] = [
     0x00A8, // DIAERESIS
@@ -40,23 +41,40 @@ fn legacy_accents(f: &Testable, _context: &Context) -> CheckFnResult {
 
     let charmap = font.font().charmap();
     for gid in LEGACY_ACCENTS.iter().flat_map(|c| charmap.map(*c)) {
+        let glyph_name = font.glyph_name_for_id_synthesise(gid);
         if hmtx.advance(gid).unwrap_or(0) == 0 {
-            problems.push(Status::fail(
-                "legacy-accents-width",
-                &format!(
-                    "Width of legacy accent \"{}\" is zero; should be positive",
-                    font.glyph_name_for_id_synthesise(gid)
-                ),
-            ));
+            let message = format!(
+                "Width of legacy accent \"{}\" is zero; should be positive",
+                glyph_name
+            );
+            let mut status = Status::fail("legacy-accents-width", &message);
+            status.add_metadata(Metadata::GlyphProblem {
+                glyph_name: glyph_name.clone(),
+                glyph_id: gid.to_u32(),
+                userspace_location: None,
+                position: None,
+                actual: Some(json!({ "advance_width": 0 })),
+                expected: Some(json!({ "advance_width_min": 1 })),
+                message,
+            });
+            problems.push(status);
         }
         if font.gdef_class(gid) == GlyphClassDef::Mark {
-            problems.push(Status::fail(
-                "legacy-accents-gdef",
-                &format!(
-                    "Legacy accent \"{}\" is defined in GDEF as a mark (class 3).",
-                    font.glyph_name_for_id_synthesise(gid)
-                ),
-            ));
+            let message = format!(
+                "Legacy accent \"{}\" is defined in GDEF as a mark (class 3).",
+                glyph_name
+            );
+            let mut status = Status::fail("legacy-accents-gdef", &message);
+            status.add_metadata(Metadata::GlyphProblem {
+                glyph_name,
+                glyph_id: gid.to_u32(),
+                userspace_location: None,
+                position: None,
+                actual: Some(json!({ "gdef_class": "Mark" })),
+                expected: Some(json!({ "gdef_class": "not-Mark" })),
+                message,
+            });
+            problems.push(status);
         }
     }
     return_result(problems)

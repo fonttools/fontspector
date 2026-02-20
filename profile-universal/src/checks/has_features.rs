@@ -1,4 +1,5 @@
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
 
 #[check(
     id = "has_features",
@@ -48,10 +49,13 @@ fn has_features(t: &Testable, context: &Context) -> CheckFnResult {
         for feature in config_for_this_font {
             if let Some(feature) = feature.as_str() {
                 if !font.has_feature(false, feature) {
-                    problems.push(Status::fail(
-                        "missing-feature",
-                        &format!("Font is missing required feature {}", feature,),
-                    ));
+                    let message = format!("Font is missing required feature {}", feature);
+                    let mut status = Status::fail("missing-feature", &message);
+                    status.add_metadata(Metadata::FontProblem {
+                        message: message.clone(),
+                        context: Some(json!({ "required_feature": feature })),
+                    });
+                    problems.push(status);
                 }
             }
         }

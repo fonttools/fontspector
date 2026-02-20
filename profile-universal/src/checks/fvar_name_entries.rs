@@ -1,5 +1,6 @@
 use fontations::skrifa::MetadataProvider;
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
 
 #[check(
     id = "fvar_name_entries",
@@ -38,14 +39,20 @@ fn fvar_name_entries(t: &Testable, _context: &Context) -> CheckFnResult {
                     )
                 })
                 .collect::<Vec<String>>();
-            problems.push(Status::fail(
-                "missing-name",
-                &format!(
-                    "Named instance with coordinates '{}' lacks an entry on the name table (nameID={}).",
-                    loc.join(" "),
-                    name_id
-                ),
-            ));
+            let message = format!(
+                "Named instance with coordinates '{}' lacks an entry on the name table (nameID={}).",
+                loc.join(" "),
+                name_id
+            );
+            let mut status = Status::fail("missing-name", &message);
+            status.add_metadata(Metadata::TableProblem {
+                table_tag: "fvar".to_string(),
+                field_name: Some("instance nameID".to_string()),
+                actual: Some(json!({ "nameID": name_id.to_u16(), "coordinates": loc })),
+                expected: Some(json!("nameID should exist in name table")),
+                message: message.clone(),
+            });
+            problems.push(status);
         }
     }
     return_result(problems)

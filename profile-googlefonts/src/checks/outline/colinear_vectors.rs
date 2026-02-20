@@ -1,9 +1,28 @@
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
 use itertools::Itertools;
+use serde_json::json;
 
 use crate::checks::outline::name_and_bezglyph;
 
 const COLINEAR_EPSILON: f64 = 0.1; // Radians
+
+struct ColinearWarning {
+    glyph_name: String,
+    glyph_id: u32,
+    p0: kurbo::Point,
+    p1: kurbo::Point,
+    p2: kurbo::Point,
+}
+
+impl std::fmt::Display for ColinearWarning {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}: from {:?} to {:?} is colinear with segment from {:?} to {:?}",
+            self.glyph_name, self.p0, self.p1, self.p1, self.p2
+        )
+    }
+}
 
 #[check(
     id = "outline_colinear_vectors",
@@ -21,13 +40,13 @@ const COLINEAR_EPSILON: f64 = 0.1; // Radians
 )]
 fn colinear_vectors(t: &Testable, context: &Context) -> CheckFnResult {
     let f = testfont!(t);
-    let mut all_warnings = vec![];
+    let mut all_warnings: Vec<ColinearWarning> = vec![];
     skip!(
         f.is_variable_font(),
         "variable-font",
         "This check produces too many false positives with variable fonts."
     );
-    for (name, result) in name_and_bezglyph(&f) {
+    for (glyph_id, (name, result)) in name_and_bezglyph(&f).enumerate() {
         let pen = result?;
         for contour in pen.iter() {
             let segs = contour.segments().collect::<Vec<_>>();
@@ -36,7 +55,13 @@ fn colinear_vectors(t: &Testable, context: &Context) -> CheckFnResult {
                     let prev_angle = (prev.p1 - prev.p0).angle();
                     let next_angle = (next.p1 - next.p0).angle();
                     if (prev_angle - next_angle).abs() < COLINEAR_EPSILON {
-                        all_warnings.push(format!("{name}: {prev:?} -> {next:?}"));
+                        all_warnings.push(ColinearWarning {
+                            glyph_name: name.to_string(),
+                            glyph_id: glyph_id as u32,
+                            p0: prev.p0,
+                            p1: prev.p1,
+                            p2: next.p1,
+                        });
                     }
                 }
             }
@@ -45,17 +70,32 @@ fn colinear_vectors(t: &Testable, context: &Context) -> CheckFnResult {
             }
         }
     }
-    Ok(if !all_warnings.is_empty() {
-        Status::just_one_warn(
+    if !all_warnings.is_empty() {
+        let mut status = Status::warn(
             "found-colinear-vectors",
             &format!(
                 "The following glyphs have colinear vectors:\n\n{}",
-                bullet_list(context, all_warnings)
+                bullet_list(context, all_warnings.iter().map(|w| w.to_string()))
             ),
-        )
-    } else {
-        Status::just_one_pass()
-    })
+        );
+        for warning in all_warnings {
+            status.add_metadata(Metadata::GlyphProblem {
+                glyph_name: warning.glyph_name,
+                glyph_id: warning.glyph_id,
+                userspace_location: None,
+                position: Some((warning.p1.x as f32, warning.p1.y as f32)),
+                message: "Colinear vector".to_string(),
+                actual: Some(json!({
+                    "p0": [warning.p0.x, warning.p0.y],
+                    "p1": [warning.p1.x, warning.p1.y],
+                    "p2": [warning.p2.x, warning.p2.y],
+                })),
+                expected: None,
+            });
+        }
+        return Ok(Box::new(vec![status].into_iter()));
+    }
+    Ok(Status::just_one_pass())
 }
 
 #[cfg(test)]

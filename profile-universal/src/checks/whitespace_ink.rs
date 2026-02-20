@@ -1,7 +1,8 @@
 use fontations::skrifa::MetadataProvider;
 use fontspector_checkapi::{
-    pens::HasInkPen, prelude::*, testfont, FileTypeConvert, DEFAULT_LOCATION,
+    pens::HasInkPen, prelude::*, testfont, FileTypeConvert, Metadata, DEFAULT_LOCATION,
 };
+use serde_json::json;
 use unicode_properties::{GeneralCategory, UnicodeGeneralCategory};
 
 const EXTRA_NON_DRAWING: [u32; 6] = [0x180E, 0x200B, 0x2028, 0x2029, 0x2060, 0xFEFF];
@@ -43,19 +44,26 @@ fn whitespace_ink(t: &Testable, context: &Context) -> CheckFnResult {
                 .and(has_ink_pen.has_ink().then_some(()))
                 .is_some()
         })
-        .map(|(_cp, gid)| f.glyph_name_for_id_synthesise(gid))
+        .map(|(cp, gid)| (cp, gid, f.glyph_name_for_id_synthesise(gid)))
         .collect::<Vec<_>>();
-    if inky.is_empty() {
-        Ok(Status::just_one_pass())
-    } else {
-        Ok(Status::just_one_fail(
-            "has-ink",
-            &format!(
-                "The following glyphs have ink; they should be replaced by an empty glyph:\n\n{}",
-                bullet_list(context, inky)
-            ),
-        ))
+    let mut problems = vec![];
+    if !inky.is_empty() {
+        let glyph_names: Vec<String> = inky.iter().map(|(_, _, name)| name.clone()).collect();
+        let message = format!(
+            "The following glyphs have ink; they should be replaced by an empty glyph:\n\n{}",
+            bullet_list(context, glyph_names.clone())
+        );
+        let mut status = Status::fail("has-ink", &message);
+        status.add_metadata(Metadata::FontProblem {
+            message: message.clone(),
+            context: Some(json!({
+                "whitespace_glyphs_with_ink": inky.iter().map(|(cp, _, name)| format!("U+{:04X} ({})", cp, name)).collect::<Vec<_>>(),
+                "total_inky_glyphs": inky.len(),
+            })),
+        });
+        problems.push(status);
     }
+    return_result(problems)
 }
 
 #[cfg(test)]

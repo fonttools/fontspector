@@ -1731,6 +1731,7 @@ dependencies = [
  "fontspector-checkhelper",
  "itertools 0.14.0",
  "kurbo 0.11.3",
+ "serde_json",
  "unicode-properties",
 ]
 
