@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{collections::HashMap, str::FromStr};
 
 use serde::{Deserialize, Serialize};
 
@@ -86,6 +86,60 @@ impl std::fmt::Display for StatusCode {
         }
     }
 }
+
+#[derive(Debug, Clone, Serialize)]
+/// Metadata about a check result, which can be used by the reporter to provide
+/// additional information about the check result. This is intended to make the
+/// results of checks machine readable, for display in font editors or other tools.
+pub enum Metadata {
+    /// A problem with a specific glyph.
+    GlyphProblem {
+        /// The name of the glyph
+        glyph_name: String,
+        /// The ID of the glyph
+        glyph_id: u32,
+        /// A specific location within the font's design space, in user-space coordinates.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        userspace_location: Option<HashMap<String, f32>>,
+        /// A specific location within the glyph's coordinate space.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        position: Option<(f32, f32)>,
+        /// The value that was found.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        actual: Option<serde_json::Value>,
+        /// The value that was expected.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        expected: Option<serde_json::Value>,
+        /// A description of the problem to show to the user.
+        message: String,
+    },
+    /// A problem with a specific OpenType table.
+    TableProblem {
+        /// The tag of the table
+        table_tag: String,
+        /// The field within the table which has the problem, if any.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        field_name: Option<String>,
+        /// The value of the field which has the problem, if any.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        actual: Option<serde_json::Value>,
+        /// The expected value of the field, if any.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        expected: Option<serde_json::Value>,
+        /// A description of the problem to show to the user.
+        message: String,
+    },
+    /// A problem which is not specific to a glyph or table.
+    FontProblem {
+        /// A description of the problem to show to the user.
+        message: String,
+        /// Additional context about the problem
+        #[serde(skip_serializing_if = "Option::is_none")]
+        context: Option<serde_json::Value>,
+    },
+    /// A catch-all for other kinds of structured data.
+    Other(serde_json::Value),
+}
 #[derive(Debug, Clone, Serialize)]
 /// A status message from a check
 ///
@@ -102,8 +156,8 @@ pub struct Status {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub code: Option<String>,
     /// Additional metadata provided to the reporter
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub metadata: Option<serde_json::Value>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub metadata: Vec<Metadata>,
 }
 
 impl std::fmt::Display for Status {
@@ -156,7 +210,7 @@ impl Status {
             message: None,
             code: None,
             severity: StatusCode::Pass,
-            metadata: None,
+            metadata: Vec::new(),
         }
     }
     /// Create a status with a fail severity
@@ -165,7 +219,7 @@ impl Status {
             message: Some(message.to_string()),
             code: Some(code.to_string()),
             severity: StatusCode::Fail,
-            metadata: None,
+            metadata: Vec::new(),
         }
     }
     /// Create a status with a warning severity
@@ -174,7 +228,7 @@ impl Status {
             message: Some(message.to_string()),
             code: Some(code.to_string()),
             severity: StatusCode::Warn,
-            metadata: None,
+            metadata: Vec::new(),
         }
     }
     /// Create a status with an info severity
@@ -183,7 +237,7 @@ impl Status {
             message: Some(message.to_string()),
             code: Some(code.to_string()),
             severity: StatusCode::Skip,
-            metadata: None,
+            metadata: Vec::new(),
         }
     }
     /// Create a status with an info severity
@@ -192,7 +246,7 @@ impl Status {
             message: Some(message.to_string()),
             code: Some(code.to_string()),
             severity: StatusCode::Info,
-            metadata: None,
+            metadata: Vec::new(),
         }
     }
     /// Create a status with a fatal severity
@@ -201,7 +255,7 @@ impl Status {
             message: Some(message.to_string()),
             code: Some(code.to_string()),
             severity: StatusCode::Fatal,
-            metadata: None,
+            metadata: Vec::new(),
         }
     }
     /// Create a status with an error severity
@@ -210,8 +264,14 @@ impl Status {
             message: Some(message.to_string()),
             code: code.map(|x| x.to_string()),
             severity: StatusCode::Error,
-            metadata: None,
+            metadata: Vec::new(),
         }
+    }
+
+    /// Append metadata to the status
+    pub fn add_metadata(&mut self, metadata: Metadata) -> &mut Self {
+        self.metadata.push(metadata);
+        self
     }
 
     /// Apply an override to the status
