@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
 use fontations::skrifa::{outline::OutlinePen, raw::TableProvider, GlyphId, MetadataProvider};
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, DEFAULT_LOCATION};
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata, DEFAULT_LOCATION};
 use serde::Serialize;
-use serde_json::Value;
+use serde_json::json;
 
 use super::close_but_not_on;
 const ALIGNMENT_MISS_EPSILON: i16 = 2; // Four point lee-way on alignment misses
@@ -147,15 +147,18 @@ fn alignment_miss(t: &Testable, context: &Context) -> CheckFnResult {
                 }))
             ),
         );
-        warn.metadata = Some(
+        warn.metadata.extend(
             all_warnings
-                .iter()
-                .map(|warning| {
-                    #[allow(clippy::unwrap_used)] // How can it go wrong?
-                    serde_json::to_value(warning).unwrap()
-                })
-                .collect::<Vec<Value>>()
-                .into(),
+                .into_iter()
+                .map(|warning| Metadata::GlyphProblem {
+                    glyph_name: warning.glyph_name,
+                    glyph_id: warning.glyph_id,
+                    position: Some((warning.x, warning.y)),
+                    userspace_location: None,
+                    message: format!("Point should be on {} line", warning.line),
+                    actual: Some(json!({ "y": warning.y })),
+                    expected: Some(json!({ "y": warning.y_expected, "line_name": warning.line })),
+                }),
         );
         problems.push(warn);
     }
