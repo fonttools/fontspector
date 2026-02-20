@@ -2156,9 +2156,9 @@ dependencies = [
 
 [[package]]
 name = "google-fonts-subsets"
-version = "0.202505.7"
+version = "0.202602.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bb6e31268078b5ba9e31f96c1f8a8cc63ec78bfdc218174d1e8440e4401c6747"
+checksum = "597758334cd2e74730da9e4c6d970f9d6b32bdb6823b1f9c2272720615f12252"
 dependencies = [
  "glob",
 ]
