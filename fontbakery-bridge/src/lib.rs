@@ -88,7 +88,7 @@ fn python_checkrunner_impl(
                 message: Some(message),
                 severity: status,
                 code,
-                metadata: None,
+                metadata: Vec::new(),
             });
         }
         Ok(return_result(messages))
