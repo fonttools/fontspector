@@ -1,6 +1,7 @@
 use fontations::skrifa::string::StringId;
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, TestFont};
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata, TestFont};
 use google_fonts_axisregistry::build_name_table;
+use serde_json::json;
 use tabled::builder::Builder;
 
 use crate::utils::build_expected_font;
@@ -36,9 +37,16 @@ fn font_names(t: &Testable, _context: &Context) -> CheckFnResult {
     let f = testfont!(t);
     let mut problems = vec![];
     if f.has_axis("MORF") {
-        return Ok(Status::just_one_warn("morf-axis",
+        let msg = "Font has a Morph axis";
+        let mut status = Status::warn("morf-axis",
             "Font has a Morph axis. This check only works on fonts that have a wght axis. Since users can define their own stylenames for Morph families, please manually check that the family works on major platforms. You can use Agu Display as a reference."
-        ));
+        );
+        status.add_metadata(Metadata::FontProblem {
+            message: msg.to_string(),
+            context: Some(json!({"axis": "MORF"})),
+        });
+        problems.push(status);
+        return return_result(problems);
     }
 
     let expected_font_data = build_expected_font(&f, &[])?;
@@ -61,10 +69,16 @@ fn font_names(t: &Testable, _context: &Context) -> CheckFnResult {
             && expected.contains(" Regular")
             && current == expected.replace(" Regular", "")
         {
-            problems.push(Status::warn(
-                "lacks-regular",
-                "Regular missing from full name",
-            ));
+            let msg = "Regular missing from full name";
+            let mut status = Status::warn("lacks-regular", msg);
+            status.add_metadata(Metadata::FontProblem {
+                message: msg.to_string(),
+                context: Some(json!({
+                    "current": current.clone(),
+                    "expected": expected.clone()
+                })),
+            });
+            problems.push(status);
         }
         if current != expected {
             row.push(format!("**{current}**"));
