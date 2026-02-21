@@ -16,7 +16,7 @@ license = "Apache-2.0"
 freetype-rs = { version = "0", features = [
     "bundled",
 ] } # For freetype_rasterizer
-reqwest = { version = "0.12", features = ["blocking"] } # For fontdata namecheck
+reqwest = { version = "0.13", features = ["blocking"] } # For fontdata namecheck
 
 [dependencies]
 interpolatable = { version = "1.1", features = [
