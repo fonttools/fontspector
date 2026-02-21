@@ -52,7 +52,7 @@ pythonize = "0.25"
 
 indexmap = { version = "2", features = ["serde"] }
 tabled = "0.20.0"
-kurbo = "0.11"                                     # For italic angle check
+kurbo = "0.13"                                     # For italic angle check
 
 regex = "1.10.6"
 
