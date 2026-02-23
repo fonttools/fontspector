@@ -23,11 +23,12 @@ declare var CmarkGFM: any;
 const tinysort = require("tinysort");
 
 const SORT_RESULT: Record<StatusCode, string> = {
-  FAIL: "aa",
-  WARN: "bb",
-  INFO: "cc",
-  ERROR: "dd",
-  PASS: "ee",
+  FATAL: "aa",
+  FAIL: "bb",
+  WARN: "cc",
+  INFO: "dd",
+  ERROR: "ee",
+  PASS: "ff",
   SKIP: "zz",
 };
 
@@ -40,7 +41,7 @@ const CANT_COMPILE = (s: string) =>
   NOWASM(`the ${s} library cannot be compiled for WASM`);
 const NEEDS_NETWORK = NOWASM("it needs access to the network");
 const BABELFONT = NOWASM(
-  "the check requires a library (babelfont) with a Rust dependency"
+  "the check requires a library (babelfont) with a Rust dependency",
 );
 const EXCUSES: Record<string, string> = {
   // Needs network
@@ -58,7 +59,7 @@ const EXCUSES: Record<string, string> = {
   dotted_circle: CANT_COMPILE("cffsubr [required by ufo2ft]"),
   // Other checks
   "googlefonts/metadata/family_directory_name": NOWASM(
-    "there are no directories in the WASM environment"
+    "there are no directories in the WASM environment",
   ),
 };
 
@@ -101,7 +102,7 @@ function showResult(data: CheckResult[]) {
     let thispill = $(`#v-pills-tab button[data-checkid="${checkid}"]`);
     let worststatus = result.worst_status;
     $(`#${worststatus}-count`).html(
-      (1 + parseInt($(`#${worststatus}-count`).html())).toString()
+      (1 + parseInt($(`#${worststatus}-count`).html())).toString(),
     );
     if (thispill.length == 0) {
       // Add a new pill
@@ -128,7 +129,7 @@ function showResult(data: CheckResult[]) {
           $(`
           <button class="nav-link disabled header-${worststatus}" data-sortorder="${header_sort}">
           </div>
-        `)
+        `),
         );
       }
     }
@@ -147,7 +148,7 @@ function showResult(data: CheckResult[]) {
           <p class="text-muted">${checkid}</p>
           <div class="rationale">
           ${CmarkGFM.convert(
-            (result.check_rationale || "").replace(/^ +/gm, "")
+            (result.check_rationale || "").replace(/^ +/gm, ""),
           )}
           </div>
           <ul class="results">
@@ -196,7 +197,7 @@ function renderLog(log: Status, id: string, filename: string) {
   if (log.metadata && id in CheckSpecificRendering) {
     [extra_html, suppress] = CheckSpecificRendering[id](
       log.metadata,
-      fonts[filename]
+      fonts[filename],
     );
     if (suppress) {
       return $(extra_html);
@@ -280,7 +281,7 @@ function listChecks(checkName = "") {
     if (check.proposal) {
       if (check.proposal.length > 1) {
         let proposal_list = check.proposal.map(
-          (p) => `<li><a href="${p}">${p}</a></li>`
+          (p) => `<li><a href="${p}">${p}</a></li>`,
         );
         card
           .find(".table")
@@ -296,8 +297,8 @@ function listChecks(checkName = "") {
         .find(".sections")
         .append(
           $(
-            `<span class="badge badge-pill badge-primary mr-2"> ${section} </span>`
-          )
+            `<span class="badge badge-pill badge-primary mr-2"> ${section} </span>`,
+          ),
         );
     }
     for (const profile of check.profiles) {
@@ -305,8 +306,8 @@ function listChecks(checkName = "") {
         .find(".profiles")
         .append(
           $(
-            `<span class="badge badge-pill badge-primary mr-2"> ${profile} </span>`
-          )
+            `<span class="badge badge-pill badge-primary mr-2"> ${profile} </span>`,
+          ),
         );
     }
     $("#checks").append(card);
@@ -377,7 +378,7 @@ $(function () {
   $("#test").click(function () {
     const profile = $("#profiles .form-check-input:checked")[0].id.replace(
       "profile-",
-      ""
+      "",
     );
     const fulllists = $("#full-lists").is(":checked");
     const loglevels = $("#loglevels").val();
