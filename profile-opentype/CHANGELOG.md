@@ -5,7 +5,47 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.4.0 (2026-02-23)
+
+### New Features
+
+ - <csr-id-568958e9b33f5c11076dde02e89ce0a73bc6a07e/> Add machine-readable metadata to (almost) all checks
+   * chore(api): Add structured metadata enum
+   
+   * feat(googlefonts/outline): Add machine-readable metadata to all outline checks
+   
+   * feat(interpolation_issues): Add machine-readable metadata to interpolation issues check
+   
+   * chore(api): Fix metadata type
+   
+   * feat(universal): Add machine-readable metadata to (almost) all checks
+   
+   * feat(opentype): Add machine-readable metadata to (almost) all checks
+   
+   * feat(googlefonts): Add machine-readable metadata to (almost) all checks
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 1 commit contributed to the release over the course of 2 calendar days.
+ - 16 days passed between releases.
+ - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
+ - 1 unique issue was worked on: [#629](https://github.com/fonttools/fontspector/issues/629)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#629](https://github.com/fonttools/fontspector/issues/629)**
+    - Add machine-readable metadata to (almost) all checks ([`568958e`](https://github.com/fonttools/fontspector/commit/568958e9b33f5c11076dde02e89ce0a73bc6a07e))
+</details>
+
 ## v1.3.1 (2026-02-06)
+
+<csr-id-19b91cdf15a6d8ea7e60b616199d28e03c76ba4d/>
 
 ### Chore
 
@@ -15,7 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 1 commit contributed to the release over the course of 1 calendar day.
+ - 2 commits contributed to the release over the course of 1 calendar day.
  - 144 days passed between releases.
  - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
  - 1 unique issue was worked on: [#611](https://github.com/fonttools/fontspector/issues/611)
@@ -28,6 +68,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
  * **[#611](https://github.com/fonttools/fontspector/issues/611)**
     - Reformat ([`19b91cd`](https://github.com/fonttools/fontspector/commit/19b91cdf15a6d8ea7e60b616199d28e03c76ba4d))
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.4.0, fontspector-profile-fontwerk v1.2.3, fontspector-profile-googlefonts v1.6.1, fontspector-profile-opentype v1.3.1, fontspector-profile-universal v1.6.0, fontspector v1.5.4 ([`b27d3e3`](https://github.com/fonttools/fontspector/commit/b27d3e3ab7e2cf650a02883d776808bde0611edd))
 </details>
 
 ## v1.3.0 (2025-09-15)

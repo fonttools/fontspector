@@ -5,7 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.6.0 (2026-02-23)
+
+### New Features
+
+ - <csr-id-3f4a6a7c04cfb3c7908ef9e58761613536160741/> add FATAL status code for critical font defects
+   * feat(checkapi): add FATAL status code for critical font defects
+   
+   * refactor(googlefonts/metadata/validate): Change ERROR status to FATAL if parsing is broken
+
+### Bug Fixes
+
+ - <csr-id-cb071e639e9d0486b891d902da5fa7f1e3c9701d/> update rust crate zip to v8
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 2 commits contributed to the release over the course of 5 calendar days.
+ - 16 days passed between releases.
+ - 2 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 2 unique issues were worked on: [#627](https://github.com/fonttools/fontspector/issues/627), [#636](https://github.com/fonttools/fontspector/issues/636)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#627](https://github.com/fonttools/fontspector/issues/627)**
+    - Add FATAL status code for critical font defects ([`3f4a6a7`](https://github.com/fonttools/fontspector/commit/3f4a6a7c04cfb3c7908ef9e58761613536160741))
+ * **[#636](https://github.com/fonttools/fontspector/issues/636)**
+    - Update rust crate zip to v8 ([`cb071e6`](https://github.com/fonttools/fontspector/commit/cb071e639e9d0486b891d902da5fa7f1e3c9701d))
+</details>
+
 ## v1.5.4 (2026-02-06)
+
+<csr-id-19b91cdf15a6d8ea7e60b616199d28e03c76ba4d/>
 
 ### Chore
 
@@ -15,7 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 1 commit contributed to the release over the course of 1 calendar day.
+ - 2 commits contributed to the release over the course of 1 calendar day.
  - 2 days passed between releases.
  - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
  - 1 unique issue was worked on: [#611](https://github.com/fonttools/fontspector/issues/611)
@@ -28,6 +64,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
  * **[#611](https://github.com/fonttools/fontspector/issues/611)**
     - Reformat ([`19b91cd`](https://github.com/fonttools/fontspector/commit/19b91cdf15a6d8ea7e60b616199d28e03c76ba4d))
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.4.0, fontspector-profile-fontwerk v1.2.3, fontspector-profile-googlefonts v1.6.1, fontspector-profile-opentype v1.3.1, fontspector-profile-universal v1.6.0, fontspector v1.5.4 ([`b27d3e3`](https://github.com/fonttools/fontspector/commit/b27d3e3ab7e2cf650a02883d776808bde0611edd))
 </details>
 
 ## v1.5.3 (2026-02-04)

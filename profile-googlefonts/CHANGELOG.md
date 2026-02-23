@@ -5,7 +5,68 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.7.0 (2026-02-23)
+
+### New Features
+
+ - <csr-id-568958e9b33f5c11076dde02e89ce0a73bc6a07e/> Add machine-readable metadata to (almost) all checks
+   * chore(api): Add structured metadata enum
+   
+   * feat(googlefonts/outline): Add machine-readable metadata to all outline checks
+   
+   * feat(interpolation_issues): Add machine-readable metadata to interpolation issues check
+   
+   * chore(api): Fix metadata type
+   
+   * feat(universal): Add machine-readable metadata to (almost) all checks
+   
+   * feat(opentype): Add machine-readable metadata to (almost) all checks
+   
+   * feat(googlefonts): Add machine-readable metadata to (almost) all checks
+ - <csr-id-3f4a6a7c04cfb3c7908ef9e58761613536160741/> add FATAL status code for critical font defects
+   * feat(checkapi): add FATAL status code for critical font defects
+   
+   * refactor(googlefonts/metadata/validate): Change ERROR status to FATAL if parsing is broken
+
+### Bug Fixes
+
+ - <csr-id-0078371ea6b2ca38b9644063b4bbdda3d0715e3a/> update rust crate google-fonts-subsets to 0.202602
+ - <csr-id-eb142594b74d95a8deda5bdd16faf71dbdf34d0a/> Update file size checks
+   * refactor(profile-universal/src/checks/file_size): include FATAL level
+   
+   * feat(googlefonts): add check to ensure families are under 25mb
+   
+   * chore: lint
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 4 commits contributed to the release over the course of 5 calendar days.
+ - 16 days passed between releases.
+ - 4 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 4 unique issues were worked on: [#623](https://github.com/fonttools/fontspector/issues/623), [#627](https://github.com/fonttools/fontspector/issues/627), [#628](https://github.com/fonttools/fontspector/issues/628), [#629](https://github.com/fonttools/fontspector/issues/629)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#623](https://github.com/fonttools/fontspector/issues/623)**
+    - Update rust crate google-fonts-subsets to 0.202602 ([`0078371`](https://github.com/fonttools/fontspector/commit/0078371ea6b2ca38b9644063b4bbdda3d0715e3a))
+ * **[#627](https://github.com/fonttools/fontspector/issues/627)**
+    - Add FATAL status code for critical font defects ([`3f4a6a7`](https://github.com/fonttools/fontspector/commit/3f4a6a7c04cfb3c7908ef9e58761613536160741))
+ * **[#628](https://github.com/fonttools/fontspector/issues/628)**
+    - Update file size checks ([`eb14259`](https://github.com/fonttools/fontspector/commit/eb142594b74d95a8deda5bdd16faf71dbdf34d0a))
+ * **[#629](https://github.com/fonttools/fontspector/issues/629)**
+    - Add machine-readable metadata to (almost) all checks ([`568958e`](https://github.com/fonttools/fontspector/commit/568958e9b33f5c11076dde02e89ce0a73bc6a07e))
+</details>
+
 ## v1.6.1 (2026-02-06)
+
+<csr-id-3438162c5cfdb317cef761c251bb64fbe805985a/>
+<csr-id-19b91cdf15a6d8ea7e60b616199d28e03c76ba4d/>
 
 ### Chore
 
@@ -16,14 +77,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
  - <csr-id-85b736903fe5f9e042ab18883262f553612bdcca/> Allow Hani as synonym for Hans/Hant
    * fix(googlefonts/metadata/primary_script): Allow Hani as synonym for Hans/Hant (#17)
-   
-   * test(googlefonts/metadata/primary_script): Test file for above
+* test(googlefonts/metadata/primary_script): Test file for above
 
 ### Commit Statistics
 
 <csr-read-only-do-not-edit/>
 
- - 3 commits contributed to the release over the course of 1 calendar day.
+ - 4 commits contributed to the release over the course of 1 calendar day.
  - 2 days passed between releases.
  - 3 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 3 unique issues were worked on: [#610](https://github.com/fonttools/fontspector/issues/610), [#611](https://github.com/fonttools/fontspector/issues/611), [#616](https://github.com/fonttools/fontspector/issues/616)
@@ -40,6 +100,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Reformat ([`19b91cd`](https://github.com/fonttools/fontspector/commit/19b91cdf15a6d8ea7e60b616199d28e03c76ba4d))
  * **[#616](https://github.com/fonttools/fontspector/issues/616)**
     - Publicize checks module ([`3438162`](https://github.com/fonttools/fontspector/commit/3438162c5cfdb317cef761c251bb64fbe805985a))
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.4.0, fontspector-profile-fontwerk v1.2.3, fontspector-profile-googlefonts v1.6.1, fontspector-profile-opentype v1.3.1, fontspector-profile-universal v1.6.0, fontspector v1.5.4 ([`b27d3e3`](https://github.com/fonttools/fontspector/commit/b27d3e3ab7e2cf650a02883d776808bde0611edd))
 </details>
 
 ## v1.6.0 (2026-02-04)
@@ -57,8 +119,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - <csr-id-09d3d5fe9eaa141aaf938cbc256fe6afc8ede513/> add check to validate fvar axis ranges against GF Axis Registry
  - <csr-id-4c3a73b87c64b01d7deea104960c36e3100c1f29/> add check to validate primary_script and primary_language
    * feat(googlefonts): add check to validate primary_script and primary_language
-- primary_script must be a valid ISO 15924 script code
-- primary_language must be a valid language ID in format 'lang_Script'
 * test(googlefonts): Tests for valid_primary_script_language
 
 ### Bug Fixes
@@ -95,7 +155,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 </details>
 
 <csr-unknown>
-Adds a new check googlefonts/metadata/valid_primary_script_language thatvalidates METADATA.pb primary_script and primary_language fields againstthe google-fonts-languages data.<csr-unknown/>
+primary_script must be a valid ISO 15924 script codeprimary_language must be a valid language ID in format ‘lang_Script’<csr-unknown/>
 
 ## v1.5.0 (2025-12-17)
 

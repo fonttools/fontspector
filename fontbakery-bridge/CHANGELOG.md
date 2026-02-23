@@ -5,7 +5,100 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.3.0 (2026-02-23)
+
+### Chore
+
+ - <csr-id-c69a556c43bd09c1368073faf6f3ac6c985e0dc0/> Add changelog
+ - <csr-id-f44be5515dcaea17b96b1df7a4b11407561d0c17/> Improve error handling
+   * chore: Better error handling
+   
+   * chore: Better error handling for fix functions too
+ - <csr-id-d76cf586e4d8b509a6af4b2df724264afe125359/> Roll dependencies
+   * chore(deps): Add renovate config
+   
+   * chore(deps): Update pyo3 deps and fix
+   
+   * Update lock file
+   
+   * fix(fontbakery-bridge): Fix up fontbakery-bridge for new pyo3
+
+### New Features
+
+ - <csr-id-568958e9b33f5c11076dde02e89ce0a73bc6a07e/> Add machine-readable metadata to (almost) all checks
+   * chore(api): Add structured metadata enum
+   
+   * feat(googlefonts/outline): Add machine-readable metadata to all outline checks
+   
+   * feat(interpolation_issues): Add machine-readable metadata to interpolation issues check
+   
+   * chore(api): Fix metadata type
+   
+   * feat(universal): Add machine-readable metadata to (almost) all checks
+   
+   * feat(opentype): Add machine-readable metadata to (almost) all checks
+   
+   * feat(googlefonts): Add machine-readable metadata to (almost) all checks
+ - <csr-id-06e1ff0b9234917d3040559465b70c4b3c44e61e/> fontwerk profile
+
+### Bug Fixes
+
+ - <csr-id-46e90e51624979590af83272f96cbcfc521b7d0a/> Improve rationale rewrapping
+   * fix(cli): Improve rationale rewrapping
+   
+   * chore: Style fixes for new clippy
+
+### Other
+
+ - <csr-id-90205a8089d1394f957cdf13cdcc461b73824425/> fontspector-checkapi v1.1.2, fontspector-fontbakery-bridge v1.2.0, fontspector-profile-fontwerk v1.1.0, fontspector-profile-googlefonts v1.3.0, fontspector-profile-opentype v1.2.1, fontspector-profile-universal v1.1.2, fontspector v1.4.0
+
+### Style
+
+ - <csr-id-a6b7ffc4f39c6b1c1bd92cd9b07f4ba22d54ef2e/> deny indexing slicing
+   * chore: More lints into Cargo.toml
+   
+   * style: Deny indexing slicing
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 10 commits contributed to the release.
+ - 8 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 7 unique issues were worked on: [#113](https://github.com/fonttools/fontspector/issues/113), [#133](https://github.com/fonttools/fontspector/issues/133), [#161](https://github.com/fonttools/fontspector/issues/161), [#275](https://github.com/fonttools/fontspector/issues/275), [#287](https://github.com/fonttools/fontspector/issues/287), [#299](https://github.com/fonttools/fontspector/issues/299), [#629](https://github.com/fonttools/fontspector/issues/629)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#113](https://github.com/fonttools/fontspector/issues/113)**
+    - Make Fontbakery Python bridge usable ([`7082188`](https://github.com/fonttools/fontspector/commit/7082188f3e6c2ecae5090eba82390835cc1e41ff))
+ * **[#133](https://github.com/fonttools/fontspector/issues/133)**
+    - Roll dependencies ([`d76cf58`](https://github.com/fonttools/fontspector/commit/d76cf586e4d8b509a6af4b2df724264afe125359))
+ * **[#161](https://github.com/fonttools/fontspector/issues/161)**
+    - Fontwerk profile ([`06e1ff0`](https://github.com/fonttools/fontspector/commit/06e1ff0b9234917d3040559465b70c4b3c44e61e))
+ * **[#275](https://github.com/fonttools/fontspector/issues/275)**
+    - Improve error handling ([`f44be55`](https://github.com/fonttools/fontspector/commit/f44be5515dcaea17b96b1df7a4b11407561d0c17))
+ * **[#287](https://github.com/fonttools/fontspector/issues/287)**
+    - Deny indexing slicing ([`a6b7ffc`](https://github.com/fonttools/fontspector/commit/a6b7ffc4f39c6b1c1bd92cd9b07f4ba22d54ef2e))
+ * **[#299](https://github.com/fonttools/fontspector/issues/299)**
+    - Improve rationale rewrapping ([`46e90e5`](https://github.com/fonttools/fontspector/commit/46e90e51624979590af83272f96cbcfc521b7d0a))
+ * **[#629](https://github.com/fonttools/fontspector/issues/629)**
+    - Add machine-readable metadata to (almost) all checks ([`568958e`](https://github.com/fonttools/fontspector/commit/568958e9b33f5c11076dde02e89ce0a73bc6a07e))
+ * **Uncategorized**
+    - Fontspector-checkapi v1.1.2, fontspector-fontbakery-bridge v1.2.0, fontspector-profile-fontwerk v1.1.0, fontspector-profile-googlefonts v1.3.0, fontspector-profile-opentype v1.2.1, fontspector-profile-universal v1.1.2, fontspector v1.4.0 ([`90205a8`](https://github.com/fonttools/fontspector/commit/90205a8089d1394f957cdf13cdcc461b73824425))
+    - Add changelog ([`c69a556`](https://github.com/fonttools/fontspector/commit/c69a556c43bd09c1368073faf6f3ac6c985e0dc0))
+    - Release fontspector-fontbakery-bridge v1.1.0, fontspector-profile-googlefonts v1.2.0, fontspector v1.3.0 ([`05adc63`](https://github.com/fonttools/fontspector/commit/05adc636ddf710008076985ab8c2a03ea19a0f6c))
+</details>
+
 ## v1.2.0 (2025-08-11)
+
+<csr-id-c69a556c43bd09c1368073faf6f3ac6c985e0dc0/>
+<csr-id-f44be5515dcaea17b96b1df7a4b11407561d0c17/>
+<csr-id-d76cf586e4d8b509a6af4b2df724264afe125359/>
+<csr-id-a6b7ffc4f39c6b1c1bd92cd9b07f4ba22d54ef2e/>
 
 ### Chore
 
@@ -31,8 +124,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
  - <csr-id-46e90e51624979590af83272f96cbcfc521b7d0a/> Improve rationale rewrapping
    * fix(cli): Improve rationale rewrapping
-   
-   * chore: Style fixes for new clippy
+* chore: Style fixes for new clippy
 
 ### Style
 
@@ -40,38 +132,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    * chore: More lints into Cargo.toml
    
    * style: Deny indexing slicing
-
-### Commit Statistics
-
-<csr-read-only-do-not-edit/>
-
- - 8 commits contributed to the release over the course of 87 calendar days.
- - 95 days passed between releases.
- - 6 commits were understood as [conventional](https://www.conventionalcommits.org).
- - 6 unique issues were worked on: [#113](https://github.com/fonttools/fontspector/issues/113), [#133](https://github.com/fonttools/fontspector/issues/133), [#161](https://github.com/fonttools/fontspector/issues/161), [#275](https://github.com/fonttools/fontspector/issues/275), [#287](https://github.com/fonttools/fontspector/issues/287), [#299](https://github.com/fonttools/fontspector/issues/299)
-
-### Commit Details
-
-<csr-read-only-do-not-edit/>
-
-<details><summary>view details</summary>
-
- * **[#113](https://github.com/fonttools/fontspector/issues/113)**
-    - Make Fontbakery Python bridge usable ([`7082188`](https://github.com/fonttools/fontspector/commit/7082188f3e6c2ecae5090eba82390835cc1e41ff))
- * **[#133](https://github.com/fonttools/fontspector/issues/133)**
-    - Roll dependencies ([`d76cf58`](https://github.com/fonttools/fontspector/commit/d76cf586e4d8b509a6af4b2df724264afe125359))
- * **[#161](https://github.com/fonttools/fontspector/issues/161)**
-    - Fontwerk profile ([`06e1ff0`](https://github.com/fonttools/fontspector/commit/06e1ff0b9234917d3040559465b70c4b3c44e61e))
- * **[#275](https://github.com/fonttools/fontspector/issues/275)**
-    - Improve error handling ([`f44be55`](https://github.com/fonttools/fontspector/commit/f44be5515dcaea17b96b1df7a4b11407561d0c17))
- * **[#287](https://github.com/fonttools/fontspector/issues/287)**
-    - Deny indexing slicing ([`a6b7ffc`](https://github.com/fonttools/fontspector/commit/a6b7ffc4f39c6b1c1bd92cd9b07f4ba22d54ef2e))
- * **[#299](https://github.com/fonttools/fontspector/issues/299)**
-    - Improve rationale rewrapping ([`46e90e5`](https://github.com/fonttools/fontspector/commit/46e90e51624979590af83272f96cbcfc521b7d0a))
- * **Uncategorized**
-    - Add changelog ([`c69a556`](https://github.com/fonttools/fontspector/commit/c69a556c43bd09c1368073faf6f3ac6c985e0dc0))
-    - Release fontspector-fontbakery-bridge v1.1.0, fontspector-profile-googlefonts v1.2.0, fontspector v1.3.0 ([`05adc63`](https://github.com/fonttools/fontspector/commit/05adc636ddf710008076985ab8c2a03ea19a0f6c))
-</details>
 
 ## v1.1.0 (2025-07-11)
 

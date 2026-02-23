@@ -5,7 +5,59 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.7.0 (2026-02-23)
+
+### New Features
+
+ - <csr-id-568958e9b33f5c11076dde02e89ce0a73bc6a07e/> Add machine-readable metadata to (almost) all checks
+   * chore(api): Add structured metadata enum
+   
+   * feat(googlefonts/outline): Add machine-readable metadata to all outline checks
+   
+   * feat(interpolation_issues): Add machine-readable metadata to interpolation issues check
+   
+   * chore(api): Fix metadata type
+   
+   * feat(universal): Add machine-readable metadata to (almost) all checks
+   
+   * feat(opentype): Add machine-readable metadata to (almost) all checks
+   
+   * feat(googlefonts): Add machine-readable metadata to (almost) all checks
+
+### Bug Fixes
+
+ - <csr-id-eb142594b74d95a8deda5bdd16faf71dbdf34d0a/> Update file size checks
+   * refactor(profile-universal/src/checks/file_size): include FATAL level
+   
+   * feat(googlefonts): add check to ensure families are under 25mb
+   
+   * chore: lint
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 2 commits contributed to the release over the course of 3 calendar days.
+ - 16 days passed between releases.
+ - 2 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 2 unique issues were worked on: [#628](https://github.com/fonttools/fontspector/issues/628), [#629](https://github.com/fonttools/fontspector/issues/629)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#628](https://github.com/fonttools/fontspector/issues/628)**
+    - Update file size checks ([`eb14259`](https://github.com/fonttools/fontspector/commit/eb142594b74d95a8deda5bdd16faf71dbdf34d0a))
+ * **[#629](https://github.com/fonttools/fontspector/issues/629)**
+    - Add machine-readable metadata to (almost) all checks ([`568958e`](https://github.com/fonttools/fontspector/commit/568958e9b33f5c11076dde02e89ce0a73bc6a07e))
+</details>
+
 ## v1.6.0 (2026-02-06)
+
+<csr-id-19b91cdf15a6d8ea7e60b616199d28e03c76ba4d/>
+<csr-id-275df045d7ee4ba95e8183c48982201531dad633/>
 
 ### Chore
 
@@ -13,11 +65,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New Features
 
+<csr-id-5ee341e08c41001139a7914f346bfe70a875cc3a/>
+
  - <csr-id-04a449bd24ff2519f5c0300cd013ffcdbf363bf7/> Add check (implements #557)
    * chore(checkapi): Add fontdrasil and axes function
-   
-   * feat(suspicious_sidebearings): Add check (implements #557)
- - <csr-id-5ee341e08c41001139a7914f346bfe70a875cc3a/> Improve warning message, fixes #609
+* feat(suspicious_sidebearings): Add check (implements #557)
 
 ### Refactor
 
@@ -32,7 +84,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 4 commits contributed to the release over the course of 1 calendar day.
+ - 5 commits contributed to the release over the course of 1 calendar day.
  - 2 days passed between releases.
  - 4 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 4 unique issues were worked on: [#582](https://github.com/fonttools/fontspector/issues/582), [#611](https://github.com/fonttools/fontspector/issues/611), [#612](https://github.com/fonttools/fontspector/issues/612), [#618](https://github.com/fonttools/fontspector/issues/618)
@@ -51,7 +103,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Improve warning message, fixes #609 ([`5ee341e`](https://github.com/fonttools/fontspector/commit/5ee341e08c41001139a7914f346bfe70a875cc3a))
  * **[#618](https://github.com/fonttools/fontspector/issues/618)**
     - Add check (implements #557) ([`04a449b`](https://github.com/fonttools/fontspector/commit/04a449bd24ff2519f5c0300cd013ffcdbf363bf7))
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.4.0, fontspector-profile-fontwerk v1.2.3, fontspector-profile-googlefonts v1.6.1, fontspector-profile-opentype v1.3.1, fontspector-profile-universal v1.6.0, fontspector v1.5.4 ([`b27d3e3`](https://github.com/fonttools/fontspector/commit/b27d3e3ab7e2cf650a02883d776808bde0611edd))
 </details>
+
+<csr-unknown>
+ Improve warning message, fixes #609<csr-unknown/>
 
 ## v1.5.0 (2026-02-04)
 
@@ -147,9 +204,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  * **Uncategorized**
     - Release fontspector-checkapi v1.3.2, fontspector-profile-fontwerk v1.2.2, fontspector-profile-googlefonts v1.6.0, fontspector-profile-universal v1.5.0, fontspector-profile-iso15008 v1.0.5, fontspector v1.5.3 ([`43eb125`](https://github.com/fonttools/fontspector/commit/43eb125ce74b3424af90f5f9aa8082fdb4e2e742))
 </details>
-
-<csr-unknown>
-Variable fonts that include a vmtx (vertical metrics) table should alsoinclude a VVAR table.As noted by Behdad (at https://github.com/notofonts/noto-cjk/issues/307),inclusion of the VVAR table speeds up processing of vertical typesettingsignificantly with only a minor file size increase, even in cases wherethere is no variation in the vertical metrics (vmtx) across thedesignspace. Fonttools automatically adds this table if the vmtx tableexists, and it isn’t on the exclude list, but other build systems donot at present.(Closes #516)Add unit tests for the missing-vvar warning in required_tables check:Add ShantellSans test font to resources/test/ for VVAR present case.Remove equivalent Python tests in favor of Rust implementation.<csr-unknown/>
 
 ## v1.4.0 (2025-12-17)
 

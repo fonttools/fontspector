@@ -5,7 +5,53 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.5.0 (2026-02-23)
+
+### New Features
+
+ - <csr-id-568958e9b33f5c11076dde02e89ce0a73bc6a07e/> Add machine-readable metadata to (almost) all checks
+   * chore(api): Add structured metadata enum
+   
+   * feat(googlefonts/outline): Add machine-readable metadata to all outline checks
+   
+   * feat(interpolation_issues): Add machine-readable metadata to interpolation issues check
+   
+   * chore(api): Fix metadata type
+   
+   * feat(universal): Add machine-readable metadata to (almost) all checks
+   
+   * feat(opentype): Add machine-readable metadata to (almost) all checks
+   
+   * feat(googlefonts): Add machine-readable metadata to (almost) all checks
+ - <csr-id-3f4a6a7c04cfb3c7908ef9e58761613536160741/> add FATAL status code for critical font defects
+   * feat(checkapi): add FATAL status code for critical font defects
+   
+   * refactor(googlefonts/metadata/validate): Change ERROR status to FATAL if parsing is broken
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 2 commits contributed to the release over the course of 5 calendar days.
+ - 16 days passed between releases.
+ - 2 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 2 unique issues were worked on: [#627](https://github.com/fonttools/fontspector/issues/627), [#629](https://github.com/fonttools/fontspector/issues/629)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#627](https://github.com/fonttools/fontspector/issues/627)**
+    - Add FATAL status code for critical font defects ([`3f4a6a7`](https://github.com/fonttools/fontspector/commit/3f4a6a7c04cfb3c7908ef9e58761613536160741))
+ * **[#629](https://github.com/fonttools/fontspector/issues/629)**
+    - Add machine-readable metadata to (almost) all checks ([`568958e`](https://github.com/fonttools/fontspector/commit/568958e9b33f5c11076dde02e89ce0a73bc6a07e))
+</details>
+
 ## v1.4.0 (2026-02-06)
+
+<csr-id-19b91cdf15a6d8ea7e60b616199d28e03c76ba4d/>
 
 ### Chore
 
@@ -15,14 +61,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
  - <csr-id-04a449bd24ff2519f5c0300cd013ffcdbf363bf7/> Add check (implements #557)
    * chore(checkapi): Add fontdrasil and axes function
-   
-   * feat(suspicious_sidebearings): Add check (implements #557)
+* feat(suspicious_sidebearings): Add check (implements #557)
 
 ### Commit Statistics
 
 <csr-read-only-do-not-edit/>
 
- - 2 commits contributed to the release over the course of 1 calendar day.
+ - 3 commits contributed to the release over the course of 1 calendar day.
  - 2 days passed between releases.
  - 2 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 2 unique issues were worked on: [#611](https://github.com/fonttools/fontspector/issues/611), [#618](https://github.com/fonttools/fontspector/issues/618)
@@ -37,6 +82,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Reformat ([`19b91cd`](https://github.com/fonttools/fontspector/commit/19b91cdf15a6d8ea7e60b616199d28e03c76ba4d))
  * **[#618](https://github.com/fonttools/fontspector/issues/618)**
     - Add check (implements #557) ([`04a449b`](https://github.com/fonttools/fontspector/commit/04a449bd24ff2519f5c0300cd013ffcdbf363bf7))
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.4.0, fontspector-profile-fontwerk v1.2.3, fontspector-profile-googlefonts v1.6.1, fontspector-profile-opentype v1.3.1, fontspector-profile-universal v1.6.0, fontspector v1.5.4 ([`b27d3e3`](https://github.com/fonttools/fontspector/commit/b27d3e3ab7e2cf650a02883d776808bde0611edd))
 </details>
 
 ## v1.3.2 (2026-02-04)
