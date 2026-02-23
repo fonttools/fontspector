@@ -21,7 +21,6 @@ impl fontspector_checkapi::Plugin for Fontwerk {
             .exclude_check("googlefonts/family/italics_have_roman_counterparts")  // May need some improvements before we decide to include this one.
             .exclude_check("googlefonts/font_copyright")
             .exclude_check("googlefonts/fstype")
-            .exclude_check("googlefonts/gasp")
             .exclude_check("googlefonts/metadata/includes_production_subsets")
             .exclude_check("googlefonts/meta/script_lang_tags")
             .exclude_check("googlefonts/name/description_max_length")
