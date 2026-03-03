@@ -46,6 +46,10 @@ pub struct CheckResult {
     pub sourcefix_result: Option<FixResult>,
     /// Time taken
     pub time: Duration,
+    /// Whether or not a hotfix was available for this check
+    pub hotfix_available: bool,
+    /// Whether or not a source fix was available for this check
+    pub sourcefix_available: bool,
 }
 
 impl Serialize for CheckResult {
@@ -60,6 +64,9 @@ impl Serialize for CheckResult {
         s.serialize_field("section", &self.section)?;
         s.serialize_field("subresults", &self.subresults)?;
         s.serialize_field("worst_status", &self.worst_status())?;
+        // s.serialize_field("time", &self.time)?;
+        s.serialize_field("hotfix_available", &self.hotfix_available)?;
+        s.serialize_field("sourcefix_available", &self.sourcefix_available)?;
         if let Some(hotfix_result) = &self.hotfix_result {
             s.serialize_field("hotfix_result", hotfix_result)?;
         }
@@ -91,6 +98,8 @@ impl CheckResult {
             hotfix_result: None,
             sourcefix_result: None,
             time: duration,
+            hotfix_available: check.hotfix.is_some(),
+            sourcefix_available: check.fix_source.is_some(),
         }
     }
 

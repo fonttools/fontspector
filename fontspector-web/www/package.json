@@ -1,54 +1,39 @@
 {
-  "name": "create-wasm-app",
-  "version": "0.1.0",
-  "description": "create an app to consume rust-generated wasm packages",
+  "name": "www",
+  "version": "1.0.0",
+  "description": "",
   "main": "index.js",
-  "bin": {
-    "create-wasm-app": ".bin/create-wasm-app.js"
-  },
   "scripts": {
-    "build": "webpack --config webpack.config.js",
-    "start": "webpack serve"
+    "dev": "vite",
+    "build": "vue-tsc && vite build",
+    "preview": "vite preview"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/rustwasm/create-wasm-app.git"
-  },
-  "keywords": [
-    "webassembly",
-    "wasm",
-    "rust",
-    "webpack"
-  ],
-  "author": "Ashley Williams <ashley666ashley@gmail.com>",
-  "license": "(MIT OR Apache-2.0)",
-  "bugs": {
-    "url": "https://github.com/rustwasm/create-wasm-app/issues"
-  },
-  "homepage": "https://github.com/rustwasm/create-wasm-app#readme",
-  "dependencies": {
-    "@svgdotjs/svg.js": "^3.2.4",
-    "@types/bootstrap": "^4.6.6",
-    "bootstrap": "^4.6.2",
-    "cmark-gfm-js": "^1.1.7",
-    "diffenator3": "file:../pkg",
-    "dropzone": "^6.0.0-beta.2",
-    "harfbuzzjs": "^0.9.0",
-    "jquery": "^3.7.1",
-    "tinysort": "^3.2.8"
-  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
   "devDependencies": {
+    "@svgdotjs/svg.js": "^3.2.5",
+    "@types/bootstrap": "^5.2.10",
     "@types/dropzone": "^5.7.9",
-    "@types/jquery": "^3.5.32",
-    "@webassemblyjs/ast": "^1.14.1",
-    "@webassemblyjs/wasm-edit": "^1.14.1",
-    "@webassemblyjs/wasm-parser": "^1.14.1",
-    "copy-webpack-plugin": "^13.0.0",
-    "ts-loader": "^9.5.2",
-    "typescript": "^5.8.3",
-    "webpack": "^5.96.1",
-    "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "^5.1.0",
-    "worker-loader": "^3.0.8"
+    "@types/jquery": "^4.0.0",
+    "@types/node": "^25.3.3",
+    "@vitejs/plugin-vue": "^6.0.4",
+    "bootstrap": "^5.3.8",
+    "cmark-gfm-js": "^1.1.7",
+    "dropzone": "^6.0.0-beta.2",
+    "harfbuzzjs": "^0.10.0",
+    "jquery": "^3.7.1",
+    "sass-embedded": "^1.97.3",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1",
+    "vite-plugin-static-copy": "^3.2.0",
+    "vite-plugin-top-level-await": "^1.6.0",
+    "vite-plugin-wasm": "^3.5.0",
+    "vue": "^3.5.29",
+    "vue-tsc": "^3.2.5"
+  },
+  "dependencies": {
+    "@popperjs/core": "^2.11.8"
   }
 }
