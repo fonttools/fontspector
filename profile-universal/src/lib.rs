@@ -84,6 +84,7 @@ impl fontspector_checkapi::Plugin for Universal {
             .add_and_register_check(checks::unreachable_glyphs)
             .add_and_register_check(checks::unwanted_aat_tables)
             .add_and_register_check(checks::unwanted_tables)
+            .add_and_register_check(checks::dsig)
             .add_and_register_check(checks::valid_glyphnames)
             .add_and_register_check(checks::consistent_axes)
             .add_and_register_check(checks::varfont_duplexed_axis_reflow)
