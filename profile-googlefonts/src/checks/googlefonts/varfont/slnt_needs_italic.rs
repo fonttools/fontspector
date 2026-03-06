@@ -23,17 +23,9 @@ fn slnt_needs_italic(t: &Testable, _context: &Context) -> CheckFnResult {
         "not-variable",
         "Font is not a variable font."
     );
-    let has_slnt = f
-        .font()
-        .axes()
-        .iter()
-        .any(|a| a.tag() == Tag::new(b"slnt"));
+    let has_slnt = f.font().axes().iter().any(|a| a.tag() == Tag::new(b"slnt"));
     skip!(!has_slnt, "no-slnt", "Font does not have a 'slnt' axis.");
-    let has_ital = f
-        .font()
-        .axes()
-        .iter()
-        .any(|a| a.tag() == Tag::new(b"ital"));
+    let has_ital = f.font().axes().iter().any(|a| a.tag() == Tag::new(b"ital"));
     if has_ital {
         Ok(Status::just_one_pass())
     } else {
