@@ -21,7 +21,7 @@ def newTable(tag):
 def test_check_unwanted_tables(check):
     """Are there unwanted tables ?"""
     unwanted_tables = [
-        "DSIG",
+        # "DSIG" is now checked separately by the "dsig" check
         "FFTM",  # FontForge
         "TTFA",  # TTFAutohint
         "TSI0",  # TSI* = VTT
