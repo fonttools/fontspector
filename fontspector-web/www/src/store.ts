@@ -57,8 +57,3 @@ export function resetState() {
     state.counts[status] = 0;
   }
 }
-
-// For debugging
-import { DummyResults } from "./dummyresults";
-updateResults(DummyResults);
-state.view = "problem";
