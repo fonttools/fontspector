@@ -6,6 +6,19 @@ use itertools::Itertools;
 use std::{collections::BTreeMap, io::Write, path::Path};
 use termimad::MadSkin;
 
+/// Wrap a check ID with an OSC 8 terminal hyperlink to the fontspector wiki page.
+fn check_id_link(check_id: &str) -> String {
+    let wiki_slug = check_id.replace('/', "-");
+    let url = format!(
+        "https://github.com/fonttools/fontspector/wiki/{}",
+        wiki_slug
+    );
+    format!(
+        "\x1b]8;;{url}\x1b\\{}\x1b]8;;\x1b\\",
+        check_id.bright_cyan()
+    )
+}
+
 pub(crate) struct TerminalReporter {
     succinct: bool,
 }
@@ -65,7 +78,7 @@ impl Reporter for TerminalReporter {
                                 .file_name()
                                 .unwrap_or_default()
                                 .to_string_lossy(),
-                            result.check_id.bright_cyan(),
+                            check_id_link(&result.check_id),
                             colored_status(result.worst_status(), None),
                             subresults
                                 .iter()
@@ -83,7 +96,7 @@ impl Reporter for TerminalReporter {
                         let _ = writeln!(std::io::stdout(), "  Section: {sectionname}\n");
                         sectionheading_done = true;
                     }
-                    let _ = writeln!(std::io::stdout(), ">> {:}", result.check_id);
+                    let _ = writeln!(std::io::stdout(), ">> {:}", check_id_link(&result.check_id));
                     if args.verbose > 0 {
                         let _ = writeln!(std::io::stdout(), "   {:}", result.check_name);
                         let _ = write!(
