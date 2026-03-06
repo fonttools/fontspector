@@ -153,4 +153,8 @@ const groupedLogs = computed(() => {
 .bg-INFO {
   background-color: #bdbcf7 !important;
 }
+
+.nav-link+.nav-link {
+  margin-top: 5px;
+}
 </style>

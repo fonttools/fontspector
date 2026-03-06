@@ -1,13 +1,16 @@
 @import "bootstrap/scss/bootstrap.scss";
 @import "bootstrap-vue-next/dist/bootstrap-vue-next.css";
-:root,
-[data-bs-theme=light] {
+:root {
     --bs-danger: #ab333f;
     --bs-danger-rgb: 171, 51, 63;
     --bs-primary: #0c57b8;
     --bs-primary-rgb: 12, 87, 184;
 }
 
+[data-bs-theme="dark"] {
+    --bs-nav-link-color: #ddd;
+    --bs-nav-hover-color: white;
+}
 .btn-primary {
     --bs-btn-bg: var(--bs-primary);
     --bs-btn-disabled-bg: var(--bs-primary);
@@ -26,18 +29,29 @@ th {
   border: 2px solid white;
 }
 
+:root {
+  --opposite: #000;
+}
+:root[data-bs-theme=dark] {
+  --opposite: #fff;
+}
+
 table th {
   background-color: var(--bs-primary);
   color: white;
   text-align: center;
 }
 
-[data-bs-theme=dark] table td,
+table td,
 th {
   border: 1px solid var(--bs-body-bg);
-  background-color: color-mix(in srgb, var(--bs-body-bg), #fff 5%);
+  background-color: color-mix(in srgb, var(--bs-body-bg), var(--opposite) 5%);
 }
 
 table tr:nth-child(even) {
   background-color: #d4e5f6;
+}
+
+ .nav-link {
+  color: #535252d4;
 }
