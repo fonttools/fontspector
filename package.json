@@ -7,6 +7,7 @@
     "build-test": "cargo build --release && cargo-cp-artifact -a cdylib profile-testplugin  testplugin.fontspectorplugin -- cargo build -p profile-testplugin  --message-format=json-render-diagnostics --release"
   },
   "dependencies": {
-    "cargo-cp-artifact": "^0.1.9"
+    "cargo-cp-artifact": "^0.1.9",
+    "jszip": "^3.10.1"
   }
 }

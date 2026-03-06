@@ -1,6 +1,6 @@
 [package]
 name = "fontspector-web"
-version = "0.1.0"
+version = "1.6.0"
 edition = "2021"
 publish = false
 
@@ -17,10 +17,15 @@ serde_json = { workspace = true, features = ["preserve_order"] }
 profile-iso15008 = { path = "../profile-iso15008", package = "fontspector-profile-iso15008" }
 profile-adobe = { path = "../profile-adobe", package = "fontspector-profile-adobe" }
 profile-microsoft = { path = "../profile-microsoft", package = "fontspector-profile-microsoft" }
-
+serde = { version = "1.0", features = ["derive"] }
+serde-wasm-bindgen = "0.4"
+zip = { workspace = true }
 [lib]
 crate-type = ["cdylib", "rlib"]
 path = "src/lib.rs"
+
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = ['-Oz']
 
 [lints]
 workspace = true

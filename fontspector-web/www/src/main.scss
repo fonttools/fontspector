@@ -1,0 +1,15 @@
+@import "bootstrap/scss/bootstrap.scss";
+@import "bootstrap-vue-next/dist/bootstrap-vue-next.css";
+:root,
+[data-bs-theme=light] {
+    --bs-danger: #ab333f;
+    --bs-danger-rgb: 171, 51, 63;
+    --bs-primary: #0c57b8;
+    --bs-primary-rgb: 12, 87, 184;
+}
+
+.btn-primary {
+    --bs-btn-bg: var(--bs-primary);
+    --bs-btn-disabled-bg: var(--bs-primary);
+    --bs-btn-disabled-opacity: 0.5;
+}

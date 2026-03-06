@@ -56,6 +56,10 @@ kurbo = "0.11"                                     # For italic angle check
 
 regex = "1.10.6"
 
+zip = { version = "8", features = [
+    "deflate",
+], default-features = false } # CLI and web
+
 [workspace.lints.clippy]
 unwrap_used = "deny"
 expect_used = "deny"

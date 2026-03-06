@@ -2,7 +2,7 @@ import { FontInfo } from "./types";
 import { SVG } from '@svgdotjs/svg.js'
 
 type Renderer = (metadata: any, font: FontInfo) => [string, boolean];
-export var CheckSpecificRendering: Record<string, Renderer> = {};
+export const CheckSpecificRendering: Record<string, Renderer> = {};
 
 type AlignmentMisses = {
     glyph_name: string;
