@@ -1,4 +1,5 @@
 import { RequestMessage } from "./types";
+// @ts-ignore
 import FBWorker from "./webworker?worker";
 
 const fbWorker = new FBWorker();

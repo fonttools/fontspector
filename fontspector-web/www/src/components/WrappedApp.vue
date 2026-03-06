@@ -57,7 +57,7 @@ fbWorker.onmessage = (event: any) => {
         }
     } else if (data.id == "fix_result") {
         console.log("Received fix result from worker, preparing download...");
-        const zipBlob = new Blob([data.zipfile], { type: 'application/zip' });
+        const zipBlob = new Blob([data.zipfile as ArrayBufferView<ArrayBuffer>], { type: 'application/zip' });
         const url = URL.createObjectURL(zipBlob);
         const a = document.createElement('a');
         a.href = url;
