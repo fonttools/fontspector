@@ -1,17 +1,20 @@
 use fontations::skrifa::MetadataProvider;
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
 
 #[check(
     id = "opentype/fvar/valid_range",
-    title = "Validates that fvar axis maxValue is greater than minValue.",
+    title = "Validates fvar axis range and default values.",
     rationale = "
-        Each axis defined in the fvar table must have a maximum value
-        strictly greater than its minimum value. An axis where maxValue
-        is less than or equal to minValue is degenerate — it defines no
-        usable variation range and likely indicates a build error such
-        as a single-master designspace being compiled as a variable font.
+        Each axis defined in the fvar table must have:
+        - A maximum value strictly greater than its minimum value. An axis
+          where maxValue <= minValue is degenerate and defines no usable
+          variation range, likely indicating a build error.
+        - A default value within [minValue, maxValue]. A default outside
+          the range indicates a malformed font.
     ",
-    proposal = "https://github.com/fonttools/fontspector/issues/177"
+    proposal = "https://github.com/fonttools/fontspector/issues/177",
+    proposal = "https://github.com/fonttools/fontspector/issues/176"
 )]
 fn valid_range(t: &Testable, _context: &Context) -> CheckFnResult {
     let f = testfont!(t);
@@ -24,16 +27,41 @@ fn valid_range(t: &Testable, _context: &Context) -> CheckFnResult {
     for axis in f.font().axes().iter() {
         let tag = axis.tag();
         let min = axis.min_value();
+        let default = axis.default_value();
         let max = axis.max_value();
+
         if max <= min {
-            problems.push(Status::fail(
-                "invalid-range",
-                &format!(
-                    "The '{}' axis has maxValue ({}) <= minValue ({}). \
-                     This defines no usable variation range.",
-                    tag, max, min
-                ),
-            ));
+            let message = format!(
+                "The '{}' axis has maxValue ({}) <= minValue ({}). \
+                 This defines no usable variation range.",
+                tag, max, min
+            );
+            let mut status = Status::fail("invalid-range", &message);
+            status.add_metadata(Metadata::TableProblem {
+                table_tag: "fvar".to_string(),
+                field_name: Some(format!("{} axis range", tag)),
+                actual: Some(json!({"min": min, "max": max})),
+                expected: Some(json!("maxValue > minValue")),
+                message: message.clone(),
+            });
+            problems.push(status);
+        }
+
+        if default < min || default > max {
+            let message = format!(
+                "The default value ({}) for the '{}' axis is outside \
+                 the range [{}, {}].",
+                default, tag, min, max
+            );
+            let mut status = Status::fail("invalid-default", &message);
+            status.add_metadata(Metadata::TableProblem {
+                table_tag: "fvar".to_string(),
+                field_name: Some(format!("{} axis default", tag)),
+                actual: Some(json!(default)),
+                expected: Some(json!({"min": min, "max": max})),
+                message: message.clone(),
+            });
+            problems.push(status);
         }
     }
     return_result(problems)
@@ -103,7 +131,6 @@ mod tests {
 
         for axis in &mut fvar.axis_instance_arrays.axes {
             if axis.axis_tag == fontations::write::types::Tag::new(b"wght") {
-                // Swap min and max to make max < min
                 let temp = axis.min_value;
                 axis.min_value = axis.max_value;
                 axis.max_value = temp;
@@ -122,6 +149,60 @@ mod tests {
             &results,
             StatusCode::Fail,
             Some("invalid-range".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_default_below_min() {
+        let mut testable = test_able("varfont/inter/Inter[slnt,wght].ttf");
+        let f = TTF.from_testable(&testable).unwrap();
+        let mut fvar: Fvar = f.font().fvar().unwrap().to_owned_table();
+
+        for axis in &mut fvar.axis_instance_arrays.axes {
+            if axis.axis_tag == fontations::write::types::Tag::new(b"wght") {
+                axis.default_value = fontations::write::types::Fixed::from_f64(50.0);
+            }
+        }
+
+        let new_bytes = FontBuilder::new()
+            .add_table(&fvar)
+            .unwrap()
+            .copy_missing_tables(f.font())
+            .build();
+        testable.contents = new_bytes;
+
+        let results = run_check(valid_range, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("invalid-default".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_default_above_max() {
+        let mut testable = test_able("varfont/inter/Inter[slnt,wght].ttf");
+        let f = TTF.from_testable(&testable).unwrap();
+        let mut fvar: Fvar = f.font().fvar().unwrap().to_owned_table();
+
+        for axis in &mut fvar.axis_instance_arrays.axes {
+            if axis.axis_tag == fontations::write::types::Tag::new(b"wght") {
+                axis.default_value = fontations::write::types::Fixed::from_f64(1100.0);
+            }
+        }
+
+        let new_bytes = FontBuilder::new()
+            .add_table(&fvar)
+            .unwrap()
+            .copy_missing_tables(f.font())
+            .build();
+        testable.contents = new_bytes;
+
+        let results = run_check(valid_range, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("invalid-default".to_string()),
         );
     }
 }
