@@ -1,5 +1,6 @@
 use fontations::skrifa::raw::types::NameId;
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
 
 #[check(
     id = "googlefonts/name/no_vf_in_name",
@@ -17,26 +18,38 @@ fn no_vf_in_name(t: &Testable, _context: &Context) -> CheckFnResult {
     let mut problems = vec![];
     for name in f.get_name_entry_strings(NameId::FAMILY_NAME) {
         if contains_vf(&name) {
-            problems.push(Status::fail(
-                "vf-in-family-name",
-                &format!(
-                    "Family name '{}' contains 'VF'. Google Fonts \
-                     does not allow 'VF' in family names.",
-                    name
-                ),
-            ));
+            let message = format!(
+                "Family name '{}' contains 'VF'. Google Fonts \
+                 does not allow 'VF' in family names.",
+                name
+            );
+            let mut status = Status::fail("vf-in-family-name", &message);
+            status.add_metadata(Metadata::TableProblem {
+                table_tag: "name".to_string(),
+                field_name: Some(format!("nameID {}", NameId::FAMILY_NAME)),
+                actual: Some(json!(name)),
+                expected: Some(json!("name without 'VF'")),
+                message,
+            });
+            problems.push(status);
         }
     }
     for name in f.get_name_entry_strings(NameId::TYPOGRAPHIC_FAMILY_NAME) {
         if contains_vf(&name) {
-            problems.push(Status::fail(
-                "vf-in-typographic-family-name",
-                &format!(
-                    "Typographic family name '{}' contains 'VF'. Google Fonts \
-                     does not allow 'VF' in family names.",
-                    name
-                ),
-            ));
+            let message = format!(
+                "Typographic family name '{}' contains 'VF'. Google Fonts \
+                 does not allow 'VF' in family names.",
+                name
+            );
+            let mut status = Status::fail("vf-in-typographic-family-name", &message);
+            status.add_metadata(Metadata::TableProblem {
+                table_tag: "name".to_string(),
+                field_name: Some(format!("nameID {}", NameId::TYPOGRAPHIC_FAMILY_NAME)),
+                actual: Some(json!(name)),
+                expected: Some(json!("name without 'VF'")),
+                message,
+            });
+            problems.push(status);
         }
     }
     return_result(problems)
