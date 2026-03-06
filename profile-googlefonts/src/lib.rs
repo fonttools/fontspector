@@ -181,6 +181,7 @@ impl fontspector_checkapi::Plugin for GoogleFonts {
             .add_and_register_check(checks::googlefonts::name::mandatory_entries)
             .add_and_register_check(checks::googlefonts::name::version_format)
             .add_and_register_check(checks::googlefonts::old_ttfautohint)
+            .add_and_register_check(checks::googlefonts::parametric_axes_hidden)
             // checks::googlefonts::production_encoded_glyphs // DISABLED
             // checks::googlefonts::production_glyphs_similarity // Unlikely to be useful in the short term
             // checks::googlefonts::description::family_update // Unlikely to useful yet
