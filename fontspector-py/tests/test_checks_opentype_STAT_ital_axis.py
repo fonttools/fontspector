@@ -20,11 +20,11 @@ def test_check_italic_axis_in_stat(check):
     ]
     assert_PASS(check(fonts))
 
-    # FAIL
+    # Standalone italic font with correct STAT ital axis should PASS
     fonts = [
         TEST_FILE("shantell/ShantellSans-Italic[BNCE,INFM,SPAC,wght].ttf"),
     ]
-    assert_results_contain(check(fonts), FAIL, "missing-roman")
+    assert_PASS(check(fonts))
 
     fonts = [
         TEST_FILE("shantell/ShantellSans[BNCE,INFM,SPAC,wght].ttf"),
