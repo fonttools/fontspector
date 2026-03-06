@@ -1,0 +1,15 @@
+repos:
+-   repo: https://github.com/doublify/pre-commit-rust
+    rev: v1.0
+    hooks:
+    -   id: cargo-check
+        args: ["--workspace"]
+    -   id: fmt
+        args: ["--", "--check"]
+    -   id: clippy
+        args: ["--", "-D", "warnings"]
+ci:
+  autofix_commit_msg: "chore: auto fixes from pre-commit.com hooks"
+  autoupdate_branch: "main"
+
+
