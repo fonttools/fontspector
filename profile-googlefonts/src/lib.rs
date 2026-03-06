@@ -180,6 +180,7 @@ impl fontspector_checkapi::Plugin for GoogleFonts {
             .add_and_register_check(checks::googlefonts::name::familyname_first_char)
             .add_and_register_check(checks::googlefonts::name::mandatory_entries)
             .add_and_register_check(checks::googlefonts::name::version_format)
+            .add_and_register_check(checks::googlefonts::no_oblique_bit)
             .add_and_register_check(checks::googlefonts::old_ttfautohint)
             // checks::googlefonts::production_encoded_glyphs // DISABLED
             // checks::googlefonts::production_glyphs_similarity // Unlikely to be useful in the short term
