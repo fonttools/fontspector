@@ -1771,7 +1771,7 @@ dependencies = [
 
 [[package]]
 name = "fontspector-web"
-version = "0.1.0"
+version = "1.6.0"
 dependencies = [
  "console_error_panic_hook",
  "fontspector-checkapi",
