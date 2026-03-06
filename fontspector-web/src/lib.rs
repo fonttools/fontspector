@@ -27,19 +27,6 @@ extern "C" {
     fn log(s: &str);
 }
 
-#[derive(Deserialize)]
-struct FixRequest {
-    filename: String,
-    check_id: String,
-    details: Value,
-}
-
-#[derive(Deserialize)]
-struct FixRequestPackage {
-    requests: Vec<FixRequest>,
-    fonts: HashMap<String, Vec<u8>>,
-}
-
 #[wasm_bindgen]
 pub fn version() -> String {
     env!("CARGO_PKG_VERSION").to_string()
@@ -264,27 +251,6 @@ pub fn fix_fonts(fonts: &JsValue, requests: &JsValue) -> Result<Uint8Array, JsVa
             zip::write::SimpleFileOptions::default(),
         )
         .map_err(|e| e.to_string())?;
-        // Make sure we actually did fix stuff
-
-        let f = TTF.from_testable(&testable).ok_or_else(|| {
-            format!(
-                "Failed to parse {:?} after fixing: not a valid font",
-                testable.filename
-            )
-        })?;
-        if f.has_table(b"FFTM") {
-            return Err(format!(
-                "File {:?} is still broken after fixing\n",
-                testable.filename
-            )
-            .into());
-        } else {
-            logfile.push_str(&format!(
-                "File {:?} is valid after fixing, in loop\n",
-                testable.filename
-            ));
-        }
-
         zip.write_all(&testable.contents)
             .map_err(|e| e.to_string())?;
     }

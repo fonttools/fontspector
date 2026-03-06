@@ -4,7 +4,7 @@ import {
   fix_fonts,
   best_family_name,
   check_fonts,
-} from "pkg/fontspector_web.js";
+} from "../../pkg/fontspector_web.js";
 import {
   CheckResult,
   ErrorReply,
