@@ -237,8 +237,11 @@ impl TestFont<'_> {
     }
 
     /// Is this font a variable font?
+    ///
+    /// Returns false for fonts with an empty fvar table (no axes),
+    /// which some tools produce for Office kerning compatibility.
     pub fn is_variable_font(&self) -> bool {
-        self.has_table(b"fvar")
+        self.has_table(b"fvar") && self.font().axes().iter().next().is_some()
     }
 
     /// Return the font's outline type
@@ -686,4 +689,49 @@ pub fn get_name_platform_tuples(font: FontRef) -> HashSet<(u16, u16, u16)> {
         }
     }
     codes
+}
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
+    use super::*;
+    use crate::codetesting::test_able;
+
+    #[test]
+    fn test_is_variable_font_static() {
+        let t = test_able("mada/Mada-Regular.ttf");
+        let f = TTF.from_testable(&t).unwrap();
+        assert!(!f.is_variable_font());
+    }
+
+    #[test]
+    fn test_is_variable_font_variable() {
+        let t = test_able("varfont/inter/Inter[slnt,wght].ttf");
+        let f = TTF.from_testable(&t).unwrap();
+        assert!(f.is_variable_font());
+    }
+
+    #[test]
+    fn test_is_variable_font_empty_fvar() {
+        // Start from a real static font and add an empty fvar table
+        use fontations::write::{
+            tables::fvar::AxisInstanceArrays, tables::fvar::Fvar, FontBuilder,
+        };
+        let t = test_able("mada/Mada-Regular.ttf");
+        let f = TTF.from_testable(&t).unwrap();
+        let fvar = Fvar {
+            axis_instance_arrays: AxisInstanceArrays::new(vec![], vec![]).into(),
+        };
+        let new_bytes = FontBuilder::new()
+            .add_table(&fvar)
+            .unwrap()
+            .copy_missing_tables(f.font())
+            .build();
+        let t2 = Testable::new_with_contents("empty-fvar.ttf", new_bytes);
+        let f2 = TTF.from_testable(&t2).unwrap();
+        // Font has an fvar table but no axes, should NOT be considered variable
+        assert!(f2.has_table(b"fvar"));
+        assert!(!f2.is_variable_font());
+    }
 }
