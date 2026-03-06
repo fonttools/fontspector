@@ -196,6 +196,7 @@ pub fn set_name_entry(
         })
         .collect();
     new_records.push(new_record);
+    new_records.sort_by_key(|r| (r.platform_id, r.encoding_id, r.language_id, r.name_id));
     let new_nametable = Name::new(new_records);
     let new_bytes = FontBuilder::new()
         .add_table(&new_nametable)
