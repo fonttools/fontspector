@@ -1,9 +1,18 @@
 <script setup lang="ts">
 import { EMOJIS, STATUS_LABELS } from '../constants';
 import { state, updateResults, resetState } from '../store';
+import { useColorMode } from 'bootstrap-vue-next'
+import { ref } from 'vue';
+
+const mode = useColorMode();
 function toggleView() {
     state.view = state.view === 'classic' ? 'problem' : 'classic';
 }
+
+const changeColor = () => {
+    mode.value = mode.value === 'dark' ? 'light' : 'dark'
+}
+
 
 function downloadReport() {
     const html = document.documentElement.outerHTML;
@@ -18,7 +27,7 @@ function downloadReport() {
 </script>
 
 <template>
-    <nav class="navbar navbar-light bg-light px-5 mb-4">
+    <nav class="navbar bg-navbar px-5 mb-4">
         <a class="leftarrow text-secondary" href="#" @click.prevent="resetState">&lt;</a>
         <a class="navbar-brand d-block" href="#" @click.prevent="resetState">
             <img src="/lens.svg" width="60" height="60" class="d-inline-block align-top m-2" alt="" />
@@ -26,7 +35,7 @@ function downloadReport() {
                 Fontspector {{ state.view === 'classic' ? 'Check' : 'Problem' }} Report <br />
                 for <span id="font-name">{{ state.currentFontName }}</span>
             </div>
-            <div class="fs-6 bg-light pl-4 text-muted">
+            <div class="fs-6 pl-4 text-muted">
                 Fontspector version {{ state.version }}
             </div>
 
@@ -43,5 +52,16 @@ function downloadReport() {
             <label class="form-check-label" for="view-switch">Classic view</label>
         </div>
 
+        <div class="btn" @click="changeColor">{{ mode === 'dark' ? '☀️' : '🌙' }}</div>
     </nav>
 </template>
+
+<style>
+[data-bs-theme=light] .bg-navbar {
+    background-color: #ebebeb;
+}
+
+[data-bs-theme=dark] .bg-navbar {
+    background-color: #2c2c2c;
+}
+</style>
