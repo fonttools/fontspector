@@ -1,0 +1,11 @@
+# Included profiles
+# include_profiles = ["googlefonts"]
+
+[sections]
+"Workspace checks" = [
+    "googlefonts/font_names",
+    "googlefonts/fstype",
+    "whitespace_glyphs",
+    "whitespace_widths",
+    "googlefonts/vertical_metrics",
+]
