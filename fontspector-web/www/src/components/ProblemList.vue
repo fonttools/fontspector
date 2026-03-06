@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 import { renderMarkdown } from '../markdown';
-import { state } from '../store';
+import { SEVERITY_COLOR } from '../constants';
 import { FixItem, FixRequest, isFontProblem, isGlyphProblem, isTableProblem, Metadata, SubresultWithCheck } from '../types';
 import fbWorker from '../workersingleton';
 const props = defineProps<{
@@ -10,16 +10,13 @@ const props = defineProps<{
   results: any[],
 }>();
 
-function firstMetadata(sr: SubresultWithCheck): Metadata | null {
-  for (const sub of sr.check.subresults) {
-    for (const meta of sub.metadata || []) return meta;
-  }
-  return null;
-}
-
 function checkArea(sr: SubresultWithCheck): string {
-  const meta = firstMetadata(sr);
-  if (!meta) return sr.check.check_name;
+  // Look at the metadata for this specific status, not all subresults
+  const metadata = sr.status.metadata || [];
+  if (metadata.length === 0) return sr.check.section || sr.check.check_name;
+
+  // Use the first metadata item for this status
+  const meta = metadata[0];
   if (isGlyphProblem(meta)) return `Glyph ${meta.GlyphProblem.glyph_name}`;
   if (isTableProblem(meta)) return `Table ${meta.TableProblem.table_tag}`;
   if (isFontProblem(meta)) return "Font";
@@ -36,25 +33,38 @@ function groupByArea(results: SubresultWithCheck[]): Record<string, SubresultWit
   }
   return groups;
 }
+
+function makeFixKey(checkId: string, filename: string): string {
+  return `${checkId}::${filename}`;
+}
+
 function selectAllChildren(event: Event) {
   const checkbox = event.target as HTMLInputElement;
   const details = checkbox.closest("details");
-  if (!details) return;
-  const childCheckboxes = details.querySelectorAll("input[type=checkbox].individual-fix");
+
+  // If not in a details element, we're at the top level - select all checkboxes in the entire component
+  const container = details || checkbox.closest("div");
+  if (!container) return;
+
+  const childCheckboxes = container.querySelectorAll("input[type=checkbox].individual-fix");
   childCheckboxes.forEach(cb => {
     const checkId = cb.getAttribute("data-checkid");
     const filenames = JSON.parse(cb.getAttribute("data-filenames") || "[]");
     if (checkId) {
       if (checkbox.checked) {
-        filenames.forEach((filename: string) => selectedFixRequests.value.add({
-          check_id: checkId,
-          filename,
-        }));
+        filenames.forEach((filename: string) => {
+          const key = makeFixKey(checkId, filename);
+          selectedFixRequests.value.set(key, {
+            check_id: checkId,
+            filename,
+            details: null,
+          });
+        });
       } else {
-        filenames.forEach((filename: string) => selectedFixRequests.value.delete({
-          check_id: checkId,
-          filename
-        }));
+        filenames.forEach((filename: string) => {
+          const key = makeFixKey(checkId, filename);
+          selectedFixRequests.value.delete(key);
+        });
       }
       (cb as HTMLInputElement).checked = checkbox.checked;
     }
@@ -69,10 +79,20 @@ function fileCount(results: SubresultWithCheck[]): number {
 }
 // Cluster check results affecting multiple files together
 function collateFiles(results: SubresultWithCheck[]): SubresultWithCheck[][] {
-  // If the status is the same, but only check.filename differs, we want to cluster them together as they likely indicate the same underlying issue across multiple files
+  // Group by check_id + status content (message, code, severity)
+  // This way:
+  // - Identical issues across multiple files get grouped together
+  // - Different issues for the same file remain separate
+  // - Multiple subresults for the same issue in the same file also get grouped
   const groups: Record<string, SubresultWithCheck[]> = {};
   for (const res of results) {
-    const key = JSON.stringify(res.status) + res.check.check_id;
+    // Create a key based on the check and the actual issue content
+    const key = JSON.stringify({
+      check_id: res.check.check_id,
+      message: res.status.message,
+      code: res.status.code,
+      severity: res.status.severity,
+    });
     if (!groups[key]) groups[key] = [];
     groups[key].push(res);
   }
@@ -99,18 +119,20 @@ function fixAndDownload() {
   }
 }
 
-const selectedFixRequests = ref<Set<FixItem>>(new Set());
+const selectedFixRequests = ref<Map<string, FixItem>>(new Map());
 
 function toggleFixRequest(checkId: string, filenames: string[], e: Event) {
   for (var filename of filenames) {
-    const fixRequest: FixItem = {
-      check_id: checkId,
-      filename,
-      details: null,
-    };
+    const key = makeFixKey(checkId, filename);
     if ((e.target as HTMLInputElement).checked) {
-      selectedFixRequests.value.add(fixRequest);
-    } else { selectedFixRequests.value.delete(fixRequest); }
+      selectedFixRequests.value.set(key, {
+        check_id: checkId,
+        filename,
+        details: null,
+      });
+    } else {
+      selectedFixRequests.value.delete(key);
+    }
   }
 }
 
@@ -121,26 +143,34 @@ function baseName(path: string): string {
 </script>
 <template>
   <div>
-    <p><span class="resultclass">{{ resultClass }}</span> ({{ results.length }} issues across {{ fileCount(results) }}
-      files<span v-if="fixable">,
-        fix: <input type="checkbox" @change="selectAllChildren" /></span>) </p>
+    <p><span class="resultclass">{{ resultClass }}</span> ({{ results.length }} issues across {{
+      fileCount(results) }}
+      files)
+      <span v-if="fixable" class="float-end">
+        Fix all: <input type="checkbox" @change="selectAllChildren" /></span>
+    </p>
     <details v-for="(group, area) in groupByArea(results)" :key="area" open="true">
-      <summary>{{ area }} <span v-if="fixable">(Fix {{ group.length }} issues: <input type="checkbox"
-            @change="selectAllChildren" />)</span>
+      <summary class="mb-2">{{ area }} <span v-if="fixable && collateFiles(group).length > 1" class="float-end">Fix {{
+        group.length
+          }} issues:
+          <input type="checkbox" @change="selectAllChildren" /></span>
       </summary>
 
-      <details v-for="(resGroup, idx) in collateFiles(group)" :key="idx">
+      <details v-for="(resGroup, idx) in collateFiles(group)" :key="idx" class="mb-3">
         <!-- Within this group, status and check are the same -->
         <summary>
+          <span :class="`badge status-badge text-bg-${SEVERITY_COLOR[resGroup[0].status.severity]} m-1`">{{
+            resGroup[0].status.severity
+          }}</span>
           <span class="checkname">{{ resGroup[0].check.check_name }}</span>
           <span v-if="resGroup.length > 1" class="affected-files"> (Affects {{ resGroup.length }} files)</span><span
             v-if="resGroup.length == 1" class="affected-files"> (Affects {{ baseName(resGroup[0].check.filename ||
               "whole family") }})</span>
-          <span v-if="fixable">
+          <span v-if="fixable" style="float: right;">
             Fix:
             <input type="checkbox" class="individual-fix" :data-checkid="resGroup[0].check.check_id"
-              :data-filenames="JSON.stringify(resGroup.map(r => r.check.filename || 'Family Check'))" :checked="selectedFixRequests.has(
-                { check_id: resGroup[0].check.check_id, filename: resGroup[0].check.filename || 'Family Check' })"
+              :data-filenames="JSON.stringify(resGroup.map(r => r.check.filename || 'Family Check'))"
+              :checked="selectedFixRequests.has(makeFixKey(resGroup[0].check.check_id, resGroup[0].check.filename || 'Family Check'))"
               @change="(e) => { toggleFixRequest(resGroup[0].check.check_id, resGroup.map(r => r.check.filename || 'Family Check'), e) }" />
           </span>
         </summary>
@@ -155,9 +185,13 @@ function baseName(path: string): string {
         <p class="message" v-html="renderMarkdown(resGroup[0].status.message || '')"></p>
       </details>
     </details>
-    <div class="pt-3" v-if="fixable"><button class="btn btn-primary" @click="fixAndDownload"
-        :disabled="selectedFixRequests.size == 0">Fix
-        {{ selectedFixRequests.size }} Selected Issues</button></div>
+    <div class="clearfix">
+      <div class="float-end" v-if="fixable"><button class="btn btn-primary" @click="fixAndDownload"
+          :disabled="selectedFixRequests.size == 0">Fix
+          {{ selectedFixRequests.size }} Selected Issues</button></div>
+    </div>
+
+
   </div>
 </template>
 
@@ -206,5 +240,11 @@ table th {
 
 table tr:nth-child(even) {
   background-color: #d4e5f6;
+}
+
+.status-badge {
+  width: 55px;
+  margin-right: 20px;
+  display: inline-block;
 }
 </style>

@@ -83,7 +83,7 @@ function initDropzone() {
 
 </script>
 <template>
-  <div class="modal-dialog bg-gradient">
+  <div class="modal-dialog bg-gradient modal-fullscreen">
     <div class="modal-content">
       <div class="modal-body">
         <div class="container">

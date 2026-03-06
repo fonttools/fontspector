@@ -34,6 +34,7 @@
     "vue-tsc": "^3.2.5"
   },
   "dependencies": {
-    "@popperjs/core": "^2.11.8"
+    "@popperjs/core": "^2.11.8",
+    "bootstrap-vue-next": "^0.43.8"
   }
 }

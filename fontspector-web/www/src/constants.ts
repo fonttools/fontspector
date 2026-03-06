@@ -31,3 +31,13 @@ export const PROFILES = {
   microsoft: "Microsoft",
   workspace: "Google Workspace",
 };
+
+export const SEVERITY_COLOR: Record<StatusCode, string> = {
+  ERROR: "danger",
+  FAIL: "danger",
+  WARN: "warning",
+  SKIP: "secondary",
+  INFO: "info",
+  PASS: "success",
+  FATAL: "dark",
+};

@@ -2,18 +2,9 @@
 import { computed } from "vue";
 import {
   CheckResult,
-  GlyphProblem,
-  TableProblem,
-  FontProblem,
-  Metadata,
-  Status,
-  isGlyphProblem,
-  isTableProblem,
-  isFontProblem,
   SubresultWithCheck,
 } from "../types";
 import { state } from "../store";
-import { renderMarkdown } from '../markdown';
 import ProblemList from "./ProblemList.vue";
 
 function invertResults(cr: CheckResult[]): SubresultWithCheck[] {
