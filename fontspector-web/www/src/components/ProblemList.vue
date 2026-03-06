@@ -161,7 +161,7 @@ function baseName(path: string): string {
         <summary>
           <span :class="`badge status-badge text-bg-${SEVERITY_COLOR[resGroup[0].status.severity]} m-1`">{{
             resGroup[0].status.severity
-          }}</span>
+            }}</span>
           <span class="checkname">{{ resGroup[0].check.check_name }}</span>
           <span v-if="resGroup.length > 1" class="affected-files"> (Affects {{ resGroup.length }} files)</span><span
             v-if="resGroup.length == 1" class="affected-files"> (Affects {{ baseName(resGroup[0].check.filename ||
@@ -218,28 +218,6 @@ details+details {
 .affected-files {
   color: #6c757d;
   font-size: 0.9em;
-}
-
-table {
-  width: 100%;
-  margin-top: 10px;
-  background-color: aliceblue;
-}
-
-table td,
-th {
-  padding: 6px;
-  border: 2px solid white;
-}
-
-table th {
-  background-color: #007bff;
-  color: white;
-  text-align: center;
-}
-
-table tr:nth-child(even) {
-  background-color: #d4e5f6;
 }
 
 .status-badge {

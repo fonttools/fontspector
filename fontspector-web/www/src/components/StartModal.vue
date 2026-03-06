@@ -88,14 +88,14 @@ function initDropzone() {
       <div class="modal-body">
         <div class="container">
           <div class="row justify-content-between">
-            <div class="align-self-center mx-auto rounded pt-0 pl-3 pr-3 bg-white shadow-lg">
-              <img src="/Fontspector.svg" class="mx-auto d-block img-fluid" />
+            <div class="align-self-center mx-auto rounded pt-0 pl-3 pr-3 bg-modal shadow-lg">
+              <img src="/Fontspector.svg" class="mx-auto d-block img-fluid " />
               <div id="dropzone-container">
                 <div class="dropzone" ref="dropzoneElement">
                   <div class="dz-message">Drop your fonts here.</div>
                 </div>
               </div>
-              <div class="check-profile pt-3 pl-3 pr-3">
+              <div class="check-profile p-3 m-3">
                 <div class="row">
                   <div class="col">
                     <h6>Log levels</h6>
@@ -114,7 +114,7 @@ function initDropzone() {
                   </div>
                 </div>
               </div>
-              <div class="check-profile pt-3 pl-3 pr-3">
+              <div class="check-profile p-3 m-3">
                 <h6>Check profile</h6>
                 <div class="row">
                   <div class="col" v-for="(profileCol, colIndex) in profileCols" :key="colIndex">
@@ -153,3 +153,28 @@ function initDropzone() {
     </div>
   </div>
 </template>
+
+<style>
+.bg-modal {
+  background-color: #ebebeb;
+}
+
+[data-bs-theme=dark] .bg-modal {
+  background-color: #2c2c2c;
+}
+
+.dropzone {
+  border: none;
+  border-radius: 70px;
+}
+
+[data-bs-theme=light] .dropzone {
+  background-color: rgba(193, 237, 252, 0.8)
+}
+
+[data-bs-theme=dark] .dropzone {
+  border: none;
+  border-radius: 70px;
+  background-color: rgba(5, 66, 86, 0.8)
+}
+</style>

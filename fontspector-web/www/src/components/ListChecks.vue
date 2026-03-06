@@ -4,9 +4,9 @@ import { state } from '../store';
 </script>
 <template>
   <div>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-expand-lg bg-navbar">
       <div class="container-fluid">
-        <a class="leftarrow text-secondary" href="#" @click.prevent="state.view = 'start'">&lt;</a>
+        <a class="leftarrow text-secondary text-decoration-none" href="#" @click.prevent="state.view = 'start'">←</a>
         All the Fontspector Checks!
       </div>
     </nav>
@@ -29,13 +29,13 @@ import { state } from '../store';
             <tr>
               <th>Sections</th>
               <td><span v-for="s in check.sections" :key="s" class="badge badge-pill badge-primary mr-2">{{ s
-                  }}</span>
+              }}</span>
               </td>
             </tr>
             <tr>
               <th>Profiles</th>
               <td><span v-for="p in check.profiles" :key="p" class="badge badge-pill badge-primary mr-2">{{ p
-                  }}</span>
+              }}</span>
               </td>
             </tr>
           </table>
