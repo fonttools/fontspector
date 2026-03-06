@@ -8,23 +8,27 @@ fn segment_vf_collection(fonts: Vec<TestFont>) -> Vec<(Option<TestFont>, Option<
     let mut roman_italic = vec![];
     let (italics, mut non_italics): (Vec<_>, Vec<_>) = fonts
         .into_iter()
-        .partition(|f| f.filename.to_str().unwrap_or_default().contains("-Italic["));
+        .partition(|f| f.is_italic().unwrap_or(false));
     for italic in italics.into_iter() {
-        // Find a matching roman
-        let suspected_roman = italic
-            .filename
-            .to_str()
-            .unwrap_or_default()
-            .replace("-Italic[", "[");
-        if let Some(index) = non_italics
-            .iter()
-            .position(|f| f.filename.to_str().unwrap_or_default() == suspected_roman)
-        {
-            let roman = non_italics.swap_remove(index);
-            roman_italic.push((Some(roman), Some(italic)));
-        } else {
-            roman_italic.push((None, Some(italic)));
+        // Try to find a matching roman by replacing italic-related filename patterns
+        let italic_name = italic.filename.to_str().unwrap_or_default();
+        let suspected_roman = italic_name
+            .replace("-Italic[", "[")
+            .replace("-Italic.", ".")
+            .replace("Italic[", "[")
+            .replace("Italic.", ".");
+        if suspected_roman != italic_name {
+            if let Some(index) = non_italics
+                .iter()
+                .position(|f| f.filename.to_str().unwrap_or_default() == suspected_roman)
+            {
+                let roman = non_italics.swap_remove(index);
+                roman_italic.push((Some(roman), Some(italic)));
+                continue;
+            }
         }
+        // No matching roman found — this is a standalone italic
+        roman_italic.push((None, Some(italic)));
     }
     // Now add all the remaining non-italic fonts
     for roman in non_italics.into_iter() {
@@ -192,7 +196,7 @@ fn check_ital_is_binary_and_last(t: &TestFont, is_italic: bool) -> Result<Vec<St
     rationale = "
         Check that related Upright and Italic VFs have an
         'ital' axis in the STAT table.
-        
+
         Since the STAT table can be used to create new instances, it is
         important to ensure that such an 'ital' axis be the last one
         declared in the STAT table so that the eventual naming of new
@@ -201,7 +205,7 @@ fn check_ital_is_binary_and_last(t: &TestFont, is_italic: bool) -> Result<Vec<St
 
         The 'ital' axis should also be strictly boolean, only accepting
         values of 0 (for Uprights) or 1 (for Italics). This usually works
-        as a mechanism for selecting between two linked variable font files. 
+        as a mechanism for selecting between two linked variable font files.
 
         Also, the axis value name for uprights must be set as elidable.
     ",
@@ -225,13 +229,8 @@ fn ital_axis(c: &TestableCollection, _context: &Context) -> CheckFnResult {
                 problems.extend(check_ital_is_binary_and_last(&italic, true)?);
             }
             (None, Some(italic)) => {
-                problems.push(Status::fail(
-                    "missing-roman",
-                    &format!(
-                        "Italic font {} has no matching Roman font.",
-                        italic.filename.to_string_lossy()
-                    ),
-                ));
+                // Standalone italic font — validate its ital axis values
+                problems.extend(check_ital_is_binary_and_last(&italic, true)?);
             }
             (None, None) => {}
             (Some(roman), None) => {
