@@ -452,7 +452,7 @@ def test_check_name_rfn(check):
     assert "(FooBar)" in msg
 
 
-@check_id("googlefonts/name/family_name_compliance")
+@check_id("googlefonts/family_name_compliance")
 def test_check_name_family_name_compliance(check):
     """Check family name for GF Guide compliance."""
 

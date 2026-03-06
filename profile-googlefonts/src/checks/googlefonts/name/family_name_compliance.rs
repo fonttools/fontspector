@@ -26,7 +26,7 @@ static ABBREVIATION_EXCEPTIONS: LazyLock<HashSet<String>> = LazyLock::new(|| {
 });
 
 #[check(
-    id = "googlefonts/name/family_name_compliance",
+    id = "googlefonts/family_name_compliance",
     rationale = "
         
         Checks the family name for compliance with the Google Fonts Guide.
