@@ -82,6 +82,7 @@ impl fontspector_checkapi::Plugin for Universal {
             .add_and_register_check(checks::typographic_family_name)
             .add_and_register_check(checks::unique_glyphnames)
             .add_and_register_check(checks::unreachable_glyphs)
+            .add_and_register_check(checks::no_vert_and_vrt2)
             .add_and_register_check(checks::unwanted_aat_tables)
             .add_and_register_check(checks::unwanted_tables)
             .add_and_register_check(checks::valid_glyphnames)
