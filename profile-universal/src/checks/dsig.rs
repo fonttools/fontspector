@@ -1,4 +1,5 @@
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
 
 #[check(
     id = "dsig",
@@ -18,14 +19,20 @@ use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
 fn dsig(t: &Testable, _context: &Context) -> CheckFnResult {
     let f = testfont!(t);
     if f.has_table(b"DSIG") {
-        Ok(Status::just_one_warn(
-            "found-DSIG",
-            "This font has a digital signature (DSIG table) which \
+        let message = "This font has a digital signature (DSIG table) which \
              is only required — even if only a placeholder — on old \
              programs like MS Office 2013 in order to work properly. \
              The current recommendation is to completely remove the \
-             DSIG table.",
-        ))
+             DSIG table.";
+        let mut status = Status::warn("found-DSIG", message);
+        status.add_metadata(Metadata::TableProblem {
+            table_tag: "DSIG".to_string(),
+            field_name: None,
+            actual: Some(json!("present")),
+            expected: Some(json!("absent")),
+            message: message.to_string(),
+        });
+        return_result(vec![status])
     } else {
         Ok(Status::just_one_pass())
     }
