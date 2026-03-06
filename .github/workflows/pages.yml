@@ -20,7 +20,7 @@ jobs:
         run: |
           cd fontspector-web/www
           npm install
-          npm run build
+          npm run build -- --base=/fontspector/
       - name: Upload
         uses: actions/upload-pages-artifact@v4.0.0
         with:
