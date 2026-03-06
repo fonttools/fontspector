@@ -137,7 +137,7 @@ jobs:
               tar -czf "$dirname.tar.gz" "$dirname"
               echo "ASSET=$dirname.tar.gz" >> $GITHUB_ENV
           fi
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: ${{ env.ASSET }}
           path: ${{ env.ASSET }}
