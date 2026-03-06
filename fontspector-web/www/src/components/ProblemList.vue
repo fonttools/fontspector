@@ -210,7 +210,8 @@ details+details {
 }
 
 .rationale {
-  background-color: #f8f9fa;
+  background-color: color-mix(in srgb, var(--bs-body-bg), var(--opposite) 5%);
+
   padding: 10px;
   border-radius: 5px;
 }
