@@ -27,6 +27,7 @@ impl fontspector_checkapi::Plugin for OpenType {
             .add_and_register_check(checks::opentype::fsselection)
             .add_and_register_check(checks::opentype::fvar::axis_ranges_correct)
             .add_and_register_check(checks::opentype::fvar::regular_coords_correct)
+            .add_and_register_check(checks::opentype::fvar::valid_range)
             .add_and_register_check(checks::opentype::GDEF_mark_chars)
             .add_and_register_check(checks::opentype::GDEF_non_mark_chars)
             .add_and_register_check(checks::opentype::GDEF_spacing_marks)
