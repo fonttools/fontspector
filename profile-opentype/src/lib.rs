@@ -25,6 +25,7 @@ impl fontspector_checkapi::Plugin for OpenType {
             .add_and_register_check(checks::opentype::family::underline_thickness)
             .add_and_register_check(checks::opentype::font_version)
             .add_and_register_check(checks::opentype::fsselection)
+            .add_and_register_check(checks::opentype::fsselection_wws)
             .add_and_register_check(checks::opentype::fvar::axis_ranges_correct)
             .add_and_register_check(checks::opentype::fvar::regular_coords_correct)
             .add_and_register_check(checks::opentype::fvar::valid_range)
