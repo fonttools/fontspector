@@ -28,7 +28,7 @@ function downloadReport() {
 
 <template>
     <nav class="navbar bg-navbar px-5 mb-4">
-        <a class="leftarrow text-secondary" href="#" @click.prevent="resetState">&lt;</a>
+        <a class="leftarrow text-secondary text-decoration-none" href="#" @click.prevent="resetState">←</a>
         <a class="navbar-brand d-block" href="#" @click.prevent="resetState">
             <img src="/lens.svg" width="60" height="60" class="d-inline-block align-top m-2" alt="" />
             <div class="d-inline-block align-middle">

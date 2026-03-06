@@ -13,3 +13,31 @@
     --bs-btn-disabled-bg: var(--bs-primary);
     --bs-btn-disabled-opacity: 0.5;
 }
+
+table {
+  width: 100%;
+  margin-top: 10px;
+  background-color: aliceblue;
+}
+
+table td,
+th {
+  padding: 6px;
+  border: 2px solid white;
+}
+
+table th {
+  background-color: var(--bs-primary);
+  color: white;
+  text-align: center;
+}
+
+[data-bs-theme=dark] table td,
+th {
+  border: 1px solid var(--bs-body-bg);
+  background-color: color-mix(in srgb, var(--bs-body-bg), #fff 5%);
+}
+
+table tr:nth-child(even) {
+  background-color: #d4e5f6;
+}

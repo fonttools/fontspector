@@ -20,13 +20,7 @@
     #test {
         background-color: rgb(120, 214, 235)
     }
-
-    .dropzone {
-        border: none;
-        border-radius: 70px;
-        background-color: rgba(193, 237, 252, 0.8)
-    }
-
+    
     img.img-fluid {
         height: 30vh !important;
     }

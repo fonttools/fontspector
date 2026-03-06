@@ -6,7 +6,7 @@
    version="1.1"
    viewBox="0 0 1495.38 515.11"
    sodipodi:docname="Fontspector.svg"
-   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   inkscape:version="1.4.2 (ebf0e940, 2025-05-08)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -21,14 +21,14 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      showgrid="false"
-     inkscape:zoom="0.5476462"
-     inkscape:cx="1097.4239"
-     inkscape:cy="-29.215943"
+     inkscape:zoom="2.1905848"
+     inkscape:cx="1040.818"
+     inkscape:cy="203.37035"
      inkscape:window-width="1920"
-     inkscape:window-height="1011"
+     inkscape:window-height="1186"
      inkscape:window-x="0"
-     inkscape:window-y="0"
-     inkscape:window-maximized="1"
+     inkscape:window-y="25"
+     inkscape:window-maximized="0"
      inkscape:current-layer="_x32_" />
   <!-- Generator: Adobe Illustrator 29.0.1, SVG Export Plug-In . SVG Version: 2.1.0 Build 192)  -->
   <defs
@@ -40,6 +40,12 @@
       }
     </style>
   </defs>
+  <circle
+     style="opacity:0.96463;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:11.8077;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;paint-order:stroke fill markers"
+     id="path1"
+     cx="1108.0973"
+     cy="242.85751"
+     r="91.29982" />
   <path
      id="path75"
      class="st0"
@@ -84,6 +90,8 @@
        id="path99" />
   </g>
   <path
-     d="M1107.67,131.04c-60.55,0-109.8,49.26-109.8,109.8,0,22.25,6.66,42.97,18.08,60.29l-17.51,17.51,5.18,5.18-111.31,104.82c-7.62,7.62-7.62,19.96,0,27.58s19.96,7.62,27.58,0l104.82-111.31,5.18,5.18,17.51-17.51c17.32,11.42,38.04,18.08,60.29,18.08,60.55,0,109.8-49.26,109.8-109.8s-49.26-109.8-109.8-109.8ZM1107.67,329.64c-48.97,0-88.8-39.84-88.8-88.8s39.84-88.8,88.8-88.8,88.8,39.84,88.8,88.8-39.84,88.8-88.8,88.8Z"
-     id="path103" />
+     d="m 1107.67,131.04 c -60.55,0 -109.8,49.26 -109.8,109.8 0,22.25 6.66,42.97 18.08,60.29 l -17.51,17.51 5.18,5.18 -111.31,104.82 c -7.62,7.62 -7.62,19.96 0,27.58 7.62,7.62 19.96,7.62 27.58,0 l 104.82,-111.31 5.18,5.18 17.51,-17.51 c 17.32,11.42 38.04,18.08 60.29,18.08 60.55,0 109.8,-49.26 109.8,-109.8 0,-60.54 -49.26,-109.8 -109.8,-109.8 z m 0,198.6 c -48.97,0 -88.8,-39.84 -88.8,-88.8 0,-48.96 39.84,-88.8 88.8,-88.8 48.96,0 88.8,39.84 88.8,88.8 0,48.96 -39.84,88.8 -88.8,88.8 z"
+     id="path103"
+     sodipodi:nodetypes="csccccsccccssccsssss"
+     style="stroke:none;stroke-opacity:1" />
 </svg>
