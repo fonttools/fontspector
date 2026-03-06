@@ -1,4 +1,5 @@
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
 
 #[check(
     id = "googlefonts/no_oblique_bit",
@@ -18,12 +19,18 @@ fn no_oblique_bit(t: &Testable, _context: &Context) -> CheckFnResult {
     let f = testfont!(t);
     let flags = f.get_os2_fsselection()?;
     if flags.contains(fontations::skrifa::raw::tables::os2::SelectionFlags::OBLIQUE) {
-        Ok(Status::just_one_fail(
-            "oblique-bit-set",
-            "The OS/2 fsSelection OBLIQUE bit (bit 9) is set. \
+        let message = "The OS/2 fsSelection OBLIQUE bit (bit 9) is set. \
              Google Fonts does not want this bit enabled. \
-             Oblique styles should use the Italic bit instead.",
-        ))
+             Oblique styles should use the Italic bit instead.";
+        let mut status = Status::fail("oblique-bit-set", message);
+        status.add_metadata(Metadata::TableProblem {
+            table_tag: "OS/2".to_string(),
+            field_name: Some("fsSelection".to_string()),
+            actual: Some(json!("OBLIQUE bit set")),
+            expected: Some(json!("OBLIQUE bit not set")),
+            message: message.to_string(),
+        });
+        return_result(vec![status])
     } else {
         Ok(Status::just_one_pass())
     }
