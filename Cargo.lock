@@ -1628,7 +1628,7 @@ name = "fontspector-profile-designspace"
 version = "1.0.3"
 dependencies = [
  "fontspector-checkapi",
- "norad 0.18.0",
+ "norad 0.18.1",
  "pluginator",
  "quick-xml 0.39.2",
  "serde_json",
@@ -3287,9 +3287,9 @@ dependencies = [
 
 [[package]]
 name = "norad"
-version = "0.18.0"
+version = "0.18.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0d95c06f422d411ccc1fc89f14173cd45750c2903b91eb4f407bff4abdda6929"
+checksum = "98f99baa23658985868da7af2fcec84eb48df560a410737f3be0b1d97e4a7488"
 dependencies = [
  "base64",
  "close_already",
