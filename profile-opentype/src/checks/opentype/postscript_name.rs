@@ -20,3 +20,39 @@ fn postscript_name(t: &Testable, _context: &Context) -> CheckFnResult {
     }
     return_result(problems)
 }
+
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, set_name_entry, test_able},
+        StatusCode,
+    };
+
+    #[test]
+    fn test_postscript_name_pass() {
+        let testable = test_able("source-sans-pro/OTF/SourceSansPro-Bold.otf");
+        let result = run_check(postscript_name, testable);
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_postscript_name_fail_bad_chars() {
+        let mut testable = test_able("source-sans-pro/OTF/SourceSansPro-Bold.otf");
+        set_name_entry(
+            &mut testable,
+            3,
+            1,
+            0x0409,
+            NameId::POSTSCRIPT_NAME,
+            "(illegal) characters".to_string(),
+        );
+        let result = run_check(postscript_name, testable);
+        assert_results_contain(
+            &result,
+            StatusCode::Fail,
+            Some("bad-psname-entries".to_string()),
+        );
+    }
+}

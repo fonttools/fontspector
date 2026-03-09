@@ -333,3 +333,56 @@ fn glyph_metrics_stats(f: &TestFont, context: &Context) -> Result<GlyphMetricsSt
         most_common_width,
     })
 }
+
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use fontations::{skrifa::raw::TableProvider, write::from_obj::ToOwnedTable};
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, remove_table, run_check, test_able},
+        StatusCode,
+    };
+
+    #[test]
+    fn test_monospace_pass_non_mono() {
+        let testable = test_able("mada/Mada-Regular.ttf");
+        let result = run_check(monospace, testable);
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_monospace_fail_bad_post_isfixedpitch() {
+        let mut testable = test_able("mada/Mada-Regular.ttf");
+        let f = TTF.from_testable(&testable).unwrap();
+        let mut post: fontations::write::tables::post::Post =
+            f.font().post().unwrap().to_owned_table();
+        post.is_fixed_pitch = 42;
+        testable.set(f.rebuild_with_new_table(&post).unwrap());
+        let result = run_check(monospace, testable);
+        assert_results_contain(
+            &result,
+            StatusCode::Fail,
+            Some("bad-post-isFixedPitch".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_monospace_fail_bad_panose() {
+        let mut testable = test_able("mada/Mada-Regular.ttf");
+        let f = TTF.from_testable(&testable).unwrap();
+        let mut os2: fontations::write::tables::os2::Os2 = f.font().os2().unwrap().to_owned_table();
+        os2.panose_10[3] = 9; // Proportion = Monospaced
+        testable.set(f.rebuild_with_new_table(&os2).unwrap());
+        let result = run_check(monospace, testable);
+        assert_results_contain(&result, StatusCode::Fail, Some("bad-panose".to_string()));
+    }
+
+    #[test]
+    fn test_monospace_fail_lacks_table() {
+        let mut testable = test_able("mada/Mada-Regular.ttf");
+        remove_table(&mut testable, b"OS/2");
+        let result = run_check(monospace, testable);
+        assert_results_contain(&result, StatusCode::Fail, Some("lacks-table".to_string()));
+    }
+}

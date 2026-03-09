@@ -54,3 +54,45 @@ fn unitsperem(f: &Testable, _context: &Context) -> CheckFnResult {
     }
     return_result(problems)
 }
+
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use fontations::{skrifa::raw::TableProvider, write::from_obj::ToOwnedTable};
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        StatusCode,
+    };
+
+    #[test]
+    fn test_unitsperem_pass() {
+        let testable = test_able("mada/Mada-Regular.ttf");
+        let result = run_check(unitsperem, testable);
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_unitsperem_warn_suboptimal() {
+        let mut testable = test_able("mada/Mada-Regular.ttf");
+        let f = TTF.from_testable(&testable).unwrap();
+        let mut head: fontations::write::tables::head::Head =
+            f.font().head().unwrap().to_owned_table();
+        head.units_per_em = 100;
+        testable.set(f.rebuild_with_new_table(&head).unwrap());
+        let result = run_check(unitsperem, testable);
+        assert_results_contain(&result, StatusCode::Warn, Some("suboptimal".to_string()));
+    }
+
+    #[test]
+    fn test_unitsperem_fail_out_of_range() {
+        let mut testable = test_able("mada/Mada-Regular.ttf");
+        let f = TTF.from_testable(&testable).unwrap();
+        let mut head: fontations::write::tables::head::Head =
+            f.font().head().unwrap().to_owned_table();
+        head.units_per_em = 0;
+        testable.set(f.rebuild_with_new_table(&head).unwrap());
+        let result = run_check(unitsperem, testable);
+        assert_results_contain(&result, StatusCode::Fail, Some("out-of-range".to_string()));
+    }
+}

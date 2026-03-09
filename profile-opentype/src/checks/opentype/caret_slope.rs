@@ -113,3 +113,45 @@ fn fix_caret_slope(t: &mut Testable) -> FixFnResult {
     t.set(f.rebuild_with_new_table(&hhea)?);
     Ok(true)
 }
+
+#[cfg(test)]
+mod tests {
+    use fontations::{skrifa::raw::TableProvider, write::from_obj::ToOwnedTable};
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        prelude::*,
+        FileTypeConvert, StatusCode,
+    };
+
+    #[test]
+    fn test_caret_slope_upright_pass() {
+        let testable = test_able("shantell/ShantellSans[BNCE,INFM,SPAC,wght].ttf");
+        let result = run_check(super::caret_slope, testable);
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_caret_slope_zero_rise() {
+        let mut testable = test_able("shantell/ShantellSans[BNCE,INFM,SPAC,wght].ttf");
+        let f = TTF.from_testable(&testable).unwrap();
+        let mut hhea: fontations::write::tables::hhea::Hhea =
+            f.font().hhea().unwrap().to_owned_table();
+        hhea.caret_slope_rise = 0;
+        testable.set(f.rebuild_with_new_table(&hhea).unwrap());
+        let result = run_check(super::caret_slope, testable);
+        assert_results_contain(&result, StatusCode::Fail, Some("zero-rise".to_string()));
+    }
+
+    #[test]
+    fn test_caret_slope_mismatch() {
+        let mut testable = test_able("shantell/ShantellSans[BNCE,INFM,SPAC,wght].ttf");
+        let f = TTF.from_testable(&testable).unwrap();
+        let mut hhea: fontations::write::tables::hhea::Hhea =
+            f.font().hhea().unwrap().to_owned_table();
+        hhea.caret_slope_rise = 1000;
+        hhea.caret_slope_run = 194;
+        testable.set(f.rebuild_with_new_table(&hhea).unwrap());
+        let result = run_check(super::caret_slope, testable);
+        assert_results_contain(&result, StatusCode::Warn, Some("mismatch".to_string()));
+    }
+}

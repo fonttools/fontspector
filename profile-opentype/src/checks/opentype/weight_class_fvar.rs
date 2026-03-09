@@ -55,3 +55,42 @@ fn fix_weight_class_fvar(t: &mut Testable) -> FixFnResult {
     t.set(f.rebuild_with_new_table(&os2)?);
     Ok(true)
 }
+
+#[cfg(test)]
+mod tests {
+    use fontations::{skrifa::raw::TableProvider, write::from_obj::ToOwnedTable};
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, assert_skip, run_check, test_able},
+        prelude::*,
+        FileTypeConvert, StatusCode,
+    };
+
+    #[test]
+    fn test_weight_class_fvar_pass() {
+        let testable = test_able("varfont/OpenSans[wdth,wght].ttf");
+        let result = run_check(super::weight_class_fvar, testable);
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_weight_class_fvar_mismatch() {
+        let mut testable = test_able("varfont/OpenSans[wdth,wght].ttf");
+        let f = TTF.from_testable(&testable).unwrap();
+        let mut os2: fontations::write::tables::os2::Os2 = f.font().os2().unwrap().to_owned_table();
+        os2.us_weight_class = 333;
+        testable.set(f.rebuild_with_new_table(&os2).unwrap());
+        let result = run_check(super::weight_class_fvar, testable);
+        assert_results_contain(
+            &result,
+            StatusCode::Fail,
+            Some("bad-weight-class".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_weight_class_fvar_no_wght_skip() {
+        let testable = test_able("BadGrades/BadGrades-VF.ttf");
+        let result = run_check(super::weight_class_fvar, testable);
+        assert_skip(&result);
+    }
+}

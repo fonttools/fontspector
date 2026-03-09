@@ -43,3 +43,48 @@ fn vendor_id(f: &Testable, context: &Context) -> CheckFnResult {
     }
     return_result(problems)
 }
+
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use fontspector_checkapi::{
+        codetesting::{
+            assert_pass, assert_results_contain, assert_skip, run_check, run_check_with_config,
+            test_able,
+        },
+        StatusCode, TestableType,
+    };
+    use std::collections::HashMap;
+
+    #[test]
+    fn test_vendor_id_skip_no_config() {
+        let testable = test_able("merriweather/Merriweather-Regular.ttf");
+        let result = run_check(vendor_id, testable);
+        assert_skip(&result);
+    }
+
+    #[test]
+    fn test_vendor_id_pass_matching() {
+        let testable = test_able("merriweather/Merriweather-Regular.ttf");
+        let mut config = HashMap::new();
+        config.insert(
+            "opentype/vendor_id".to_string(),
+            serde_json::json!({"vendor_id": "STC "}),
+        );
+        let result = run_check_with_config(vendor_id, TestableType::Single(&testable), config);
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_vendor_id_fail_wrong() {
+        let testable = test_able("merriweather/Merriweather-Regular.ttf");
+        let mut config = HashMap::new();
+        config.insert(
+            "opentype/vendor_id".to_string(),
+            serde_json::json!({"vendor_id": "TEST"}),
+        );
+        let result = run_check_with_config(vendor_id, TestableType::Single(&testable), config);
+        assert_results_contain(&result, StatusCode::Fail, Some("bad-vendor-id".to_string()));
+    }
+}

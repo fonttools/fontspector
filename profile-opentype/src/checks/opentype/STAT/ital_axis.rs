@@ -240,3 +240,64 @@ fn ital_axis(c: &TestableCollection, _context: &Context) -> CheckFnResult {
     }
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check_with_config, test_able},
+        prelude::*,
+        StatusCode, TestableType,
+    };
+    use std::collections::HashMap;
+
+    #[test]
+    fn test_stat_ital_axis_pass() {
+        let testables: Vec<Testable> = vec![
+            test_able("shantell/ShantellSans[BNCE,INFM,SPAC,wght].ttf"),
+            test_able("shantell/ShantellSans-Italic[BNCE,INFM,SPAC,wght].ttf"),
+        ];
+        let collection = TestableCollection {
+            testables,
+            directory: "".to_string(),
+        };
+        let result = run_check_with_config(
+            super::ital_axis,
+            TestableType::Collection(&collection),
+            HashMap::new(),
+        );
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_stat_ital_axis_missing_roman() {
+        let testables: Vec<Testable> = vec![test_able(
+            "shantell/ShantellSans-Italic[BNCE,INFM,SPAC,wght].ttf",
+        )];
+        let collection = TestableCollection {
+            testables,
+            directory: "".to_string(),
+        };
+        let result = run_check_with_config(
+            super::ital_axis,
+            TestableType::Collection(&collection),
+            HashMap::new(),
+        );
+        assert_results_contain(&result, StatusCode::Fail, Some("missing-roman".to_string()));
+    }
+
+    #[test]
+    fn test_stat_ital_axis_roman_only_pass() {
+        let testables: Vec<Testable> =
+            vec![test_able("shantell/ShantellSans[BNCE,INFM,SPAC,wght].ttf")];
+        let collection = TestableCollection {
+            testables,
+            directory: "".to_string(),
+        };
+        let result = run_check_with_config(
+            super::ital_axis,
+            TestableType::Collection(&collection),
+            HashMap::new(),
+        );
+        assert_pass(&result);
+    }
+}

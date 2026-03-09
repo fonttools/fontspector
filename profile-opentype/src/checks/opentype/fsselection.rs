@@ -69,6 +69,143 @@ fn fsselection(f: &Testable, _context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        StatusCode, Testable,
+    };
+
+    fn test_fsselection_with_style(
+        fs_selection: SelectionFlags,
+        style: &str,
+    ) -> Option<fontspector_checkapi::CheckResult> {
+        use fontations::{
+            skrifa::raw::{tables::head::MacStyle, TableProvider},
+            write::from_obj::ToOwnedTable,
+        };
+        let mut testable = test_able("cabin/Cabin-Regular.ttf");
+        // First update OS/2 fsSelection
+        let new_bytes = {
+            let f = TTF.from_testable(&testable).unwrap();
+            let mut os2: fontations::write::tables::os2::Os2 =
+                f.font().os2().unwrap().to_owned_table();
+            os2.fs_selection = fs_selection;
+            f.rebuild_with_new_table(&os2).unwrap()
+        };
+        testable.set(new_bytes);
+        // Then update head macStyle to match
+        let new_bytes = {
+            let f = TTF.from_testable(&testable).unwrap();
+            let mut head: fontations::write::tables::head::Head =
+                f.font().head().unwrap().to_owned_table();
+            let mut mac_style = MacStyle::empty();
+            if fs_selection.contains(SelectionFlags::BOLD) {
+                mac_style |= MacStyle::BOLD;
+            }
+            if fs_selection.contains(SelectionFlags::ITALIC) {
+                mac_style |= MacStyle::ITALIC;
+            }
+            head.mac_style = mac_style;
+            f.rebuild_with_new_table(&head).unwrap()
+        };
+        testable.set(new_bytes);
+        // Create a new Testable with the desired filename for style detection
+        let new_testable =
+            Testable::new_with_contents(format!("Test-{style}.ttf"), testable.contents);
+        run_check(fsselection, new_testable)
+    }
+
+    #[test]
+    fn test_fsselection_regular_pass() {
+        let result = test_fsselection_with_style(SelectionFlags::REGULAR, "Regular");
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_fsselection_italic_pass() {
+        let result = test_fsselection_with_style(SelectionFlags::ITALIC, "Italic");
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_fsselection_bold_pass() {
+        let result = test_fsselection_with_style(SelectionFlags::BOLD, "Bold");
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_fsselection_bold_italic_pass() {
+        let result = test_fsselection_with_style(
+            SelectionFlags::BOLD | SelectionFlags::ITALIC,
+            "BoldItalic",
+        );
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_fsselection_regular_marked_italic_fail() {
+        let result = test_fsselection_with_style(SelectionFlags::REGULAR, "Italic");
+        assert_results_contain(&result, StatusCode::Fail, Some("bad-REGULAR".to_string()));
+        assert_results_contain(&result, StatusCode::Fail, Some("bad-ITALIC".to_string()));
+    }
+
+    #[test]
+    fn test_fsselection_bold_for_regular_fail() {
+        let result = test_fsselection_with_style(SelectionFlags::BOLD, "Regular");
+        assert_results_contain(&result, StatusCode::Fail, Some("bad-REGULAR".to_string()));
+        assert_results_contain(&result, StatusCode::Fail, Some("bad-BOLD".to_string()));
+    }
+
+    #[test]
+    fn test_fsselection_macstyle_bold_mismatch() {
+        // Set BOLD in fsSelection but not in macStyle (macStyle defaults to 0 for Cabin-Regular)
+        let mut testable = test_able("cabin/Cabin-Regular.ttf");
+        let new_bytes = {
+            let f = TTF.from_testable(&testable).unwrap();
+            let mut os2: fontations::write::tables::os2::Os2 =
+                f.font().os2().unwrap().to_owned_table();
+            os2.fs_selection |= SelectionFlags::BOLD;
+            os2.fs_selection.remove(SelectionFlags::REGULAR);
+            f.rebuild_with_new_table(&os2).unwrap()
+        };
+        testable.set(new_bytes);
+        let new_testable =
+            Testable::new_with_contents("Test-Bold.ttf".to_string(), testable.contents);
+        let result = run_check(fsselection, new_testable);
+        assert_results_contain(
+            &result,
+            StatusCode::Fail,
+            Some("fsselection-macstyle-bold".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_fsselection_macstyle_italic_mismatch() {
+        // Set ITALIC in fsSelection but not in macStyle
+        let mut testable = test_able("cabin/Cabin-Regular.ttf");
+        let new_bytes = {
+            let f = TTF.from_testable(&testable).unwrap();
+            let mut os2: fontations::write::tables::os2::Os2 =
+                f.font().os2().unwrap().to_owned_table();
+            os2.fs_selection |= SelectionFlags::ITALIC;
+            os2.fs_selection.remove(SelectionFlags::REGULAR);
+            f.rebuild_with_new_table(&os2).unwrap()
+        };
+        testable.set(new_bytes);
+        let new_testable =
+            Testable::new_with_contents("Test-Italic.ttf".to_string(), testable.contents);
+        let result = run_check(fsselection, new_testable);
+        assert_results_contain(
+            &result,
+            StatusCode::Fail,
+            Some("fsselection-macstyle-italic".to_string()),
+        );
+    }
+}
+
 fn fix_fsselection(t: &mut Testable) -> FixFnResult {
     let f = testfont!(t);
     let Some(style) = f.style() else {
