@@ -1,24 +1,31 @@
 import { StatusCode } from "./types";
 
-export const STATUS_LABELS: Record<StatusCode, string> = {
-  ERROR: "Error",
-  FAIL: "Fail",
-  WARN: "Warn",
-  SKIP: "Skip",
-  INFO: "Info",
-  PASS: "Pass",
-  FATAL: "Fatal",
+// Maps every StatusCode to its display metadata.
+const STATUS_MAP: Record<StatusCode, { label: string; emoji: string; color: string }> = {
+  FATAL: { label: "Fatal", emoji: "💀", color: "dark" },
+  ERROR: { label: "Error", emoji: "💥", color: "danger" },
+  FAIL:  { label: "Fail",  emoji: "🔥", color: "danger" },
+  WARN:  { label: "Warn",  emoji: "⚠️", color: "warning" },
+  INFO:  { label: "Info",  emoji: "ℹ️", color: "info" },
+  PASS:  { label: "Pass",  emoji: "✅", color: "success" },
+  SKIP:  { label: "Skip",  emoji: "⏩", color: "secondary" },
 };
 
-export const EMOJIS: Record<StatusCode, string> = {
-  ERROR: "💥",
-  FAIL: "🔥",
-  WARN: "⚠️",
-  SKIP: "⏩",
-  INFO: "ℹ️",
-  PASS: "✅",
-  FATAL: "💀",
-};
+// Ordered list of status codes for iteration (e.g. rendering in severity order).
+export const STATUS_ORDER: StatusCode[] = ["FATAL", "ERROR", "FAIL", "WARN", "INFO", "PASS", "SKIP"];
+
+export function worseThan(a: StatusCode, b: StatusCode): boolean {
+  return STATUS_ORDER.indexOf(a) < STATUS_ORDER.indexOf(b);
+}
+
+export const STATUS_LABELS: Record<StatusCode, string> =
+  Object.fromEntries(STATUS_ORDER.map((c) => [c, STATUS_MAP[c].label])) as Record<StatusCode, string>;
+
+export const EMOJIS: Record<StatusCode, string> =
+  Object.fromEntries(STATUS_ORDER.map((c) => [c, STATUS_MAP[c].emoji])) as Record<StatusCode, string>;
+
+export const SEVERITY_COLOR: Record<StatusCode, string> =
+  Object.fromEntries(STATUS_ORDER.map((c) => [c, STATUS_MAP[c].color])) as Record<StatusCode, string>;
 
 export const PROFILES = {
   opentype: "OpenType (standards compliance)",
@@ -30,14 +37,4 @@ export const PROFILES = {
   fontwerk: "Fontwerk",
   microsoft: "Microsoft",
   workspace: "Google Workspace",
-};
-
-export const SEVERITY_COLOR: Record<StatusCode, string> = {
-  ERROR: "danger",
-  FAIL: "danger",
-  WARN: "warning",
-  SKIP: "secondary",
-  INFO: "info",
-  PASS: "success",
-  FATAL: "dark",
 };
