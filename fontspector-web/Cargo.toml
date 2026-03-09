@@ -18,7 +18,6 @@ profile-iso15008 = { path = "../profile-iso15008", package = "fontspector-profil
 profile-adobe = { path = "../profile-adobe", package = "fontspector-profile-adobe" }
 profile-microsoft = { path = "../profile-microsoft", package = "fontspector-profile-microsoft" }
 serde = { version = "1.0", features = ["derive"] }
-serde-wasm-bindgen = "0.4"
 zip = { workspace = true }
 [lib]
 crate-type = ["cdylib", "rlib"]
