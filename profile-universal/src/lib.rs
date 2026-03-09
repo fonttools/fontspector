@@ -46,6 +46,7 @@ impl fontspector_checkapi::Plugin for Universal {
             .add_and_register_check(checks::freetype_rasterizer);
 
         builder
+            .add_and_register_check(checks::fvar_instance_ps_names)
             .add_and_register_check(checks::fvar_name_entries)
             .add_and_register_check(checks::gpos7)
             .add_and_register_check(checks::gpos_kerning_info)
