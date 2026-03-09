@@ -9,8 +9,8 @@ use termimad::MadSkin;
 /// Wrap a check ID with an OSC 8 terminal hyperlink to the fontspector wiki page.
 /// Only emits OSC 8 escape sequences when the terminal supports ANSI output.
 fn check_id_link(check_id: &str) -> String {
-    let colored_id = check_id.bright_cyan();
     if colored::control::SHOULD_COLORIZE.should_colorize() {
+        let colored_id = check_id.bright_cyan();
         let wiki_slug = check_id.replace('/', "-");
         let url = format!(
             "https://github.com/fonttools/fontspector/wiki/{}",
@@ -18,7 +18,7 @@ fn check_id_link(check_id: &str) -> String {
         );
         format!("\x1b]8;;{url}\x1b\\{colored_id}\x1b]8;;\x1b\\")
     } else {
-        format!("{colored_id}")
+        check_id.to_string()
     }
 }
 
