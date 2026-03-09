@@ -65,8 +65,8 @@ mod tests {
     fn test_unwanted_tables_fail_each() {
         // Adding each unwanted table one-by-one should trigger FAIL
         let unwanted_tables: Vec<&[u8; 4]> = vec![
-            b"DSIG", b"FFTM", b"TTFA", b"TSI0", b"TSI1", b"TSI2", b"TSI3", b"TSI5", b"TSIC",
-            b"TSIV", b"TSIP", b"TSIS", b"TSID", b"TSIJ", b"TSIB", b"prop",
+            b"FFTM", b"TTFA", b"TSI0", b"TSI1", b"TSI2", b"TSI3", b"TSI5", b"TSIC",
+            b"TSIV", b"TSIP", b"TSIS", b"TSID", b"TSIJ", b"TSIB", b"prop", b"Debg",
         ];
         for unwanted in unwanted_tables {
             let mut testable = test_able("mada/Mada-Regular.ttf");
