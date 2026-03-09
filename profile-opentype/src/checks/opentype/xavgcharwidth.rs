@@ -87,7 +87,6 @@ fn xavgcharwidth(f: &Testable, _context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
-<<<<<<< HEAD
 fn compute_expected_xavgcharwidth(
     font: &TestFont,
 ) -> Result<(&'static str, u32), FontspectorError> {

@@ -269,7 +269,8 @@ mod tests {
     }
 
     #[test]
-    fn test_stat_ital_axis_missing_roman() {
+    fn test_stat_ital_axis_standalone_italic_pass() {
+        // A standalone italic with a valid ital axis should pass
         let testables: Vec<Testable> = vec![test_able(
             "shantell/ShantellSans-Italic[BNCE,INFM,SPAC,wght].ttf",
         )];
@@ -282,7 +283,7 @@ mod tests {
             TestableType::Collection(&collection),
             HashMap::new(),
         );
-        assert_results_contain(&result, StatusCode::Fail, Some("missing-roman".to_string()));
+        assert_pass(&result);
     }
 
     #[test]
