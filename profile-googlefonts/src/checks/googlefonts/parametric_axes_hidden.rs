@@ -73,7 +73,14 @@ fn parametric_axes_hidden(t: &Testable, _context: &Context) -> CheckFnResult {
 mod tests {
     #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-    use fontspector_checkapi::codetesting::{assert_pass, assert_skip, run_check, test_able};
+    use fontations::{
+        skrifa::raw::TableProvider,
+        write::{from_obj::ToOwnedTable, tables::fvar::Fvar, FontBuilder},
+    };
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, assert_skip, run_check, test_able},
+        FileTypeConvert, StatusCode, TTF,
+    };
 
     use super::parametric_axes_hidden;
 
@@ -90,5 +97,47 @@ mod tests {
         let testable = test_able("varfont/inter/Inter[slnt,wght].ttf");
         let results = run_check(parametric_axes_hidden, testable);
         assert_pass(&results);
+    }
+
+    #[test]
+    #[allow(clippy::unwrap_used)]
+    fn test_fail_parametric_axis_not_hidden() {
+        // Start from Inter (a variable font) and add an XOPQ parametric axis without HIDDEN flag
+        let mut testable = test_able("varfont/inter/Inter[slnt,wght].ttf");
+        let f = TTF.from_testable(&testable).unwrap();
+        let mut fvar: Fvar = f.font().fvar().unwrap().to_owned_table();
+
+        // Add a parametric axis (XOPQ) with flags=0 (not hidden)
+        fvar.axis_instance_arrays
+            .axes
+            .push(fontations::write::tables::fvar::VariationAxisRecord {
+                axis_tag: fontations::write::types::Tag::new(b"XOPQ"),
+                min_value: fontations::write::types::Fixed::from_f64(10.0),
+                default_value: fontations::write::types::Fixed::from_f64(88.0),
+                max_value: fontations::write::types::Fixed::from_f64(200.0),
+                flags: 0, // NOT hidden — should trigger fail
+                axis_name_id: fontations::write::types::NameId::new(256),
+            });
+
+        // Add a third coordinate to each instance for the new axis
+        for instance in &mut fvar.axis_instance_arrays.instances {
+            instance
+                .coordinates
+                .push(fontations::write::types::Fixed::from_f64(88.0));
+        }
+
+        let new_bytes = FontBuilder::new()
+            .add_table(&fvar)
+            .unwrap()
+            .copy_missing_tables(f.font())
+            .build();
+        testable.contents = new_bytes;
+
+        let results = run_check(parametric_axes_hidden, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("parametric-not-hidden".to_string()),
+        );
     }
 }
