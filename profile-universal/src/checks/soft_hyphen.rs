@@ -1,4 +1,9 @@
-use fontations::{skrifa::MetadataProvider, types::GlyphId};
+use fontations::{
+    read::{tables::cmap::CmapSubtable, TableProvider},
+    skrifa::MetadataProvider,
+    types::GlyphId,
+    write::tables::cmap::Cmap,
+};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
 
@@ -23,7 +28,8 @@ use serde_json::json;
     ",
     proposal = "https://github.com/fonttools/fontbakery/issues/4046",
     proposal = "https://github.com/fonttools/fontbakery/issues/3486",
-    title = "Does the font contain a soft hyphen?"
+    title = "Does the font contain a soft hyphen?",
+    hotfix = fix_soft_hyphen,
 )]
 fn soft_hyphen(t: &Testable, context: &Context) -> CheckFnResult {
     let f = testfont!(t);
@@ -47,6 +53,29 @@ fn soft_hyphen(t: &Testable, context: &Context) -> CheckFnResult {
         problems.push(status);
     }
     return_result(problems)
+}
+
+fn fix_soft_hyphen(t: &mut Testable) -> FixFnResult {
+    let f = testfont!(t);
+    let charmap = f.font().charmap();
+    let cmap = f.font().cmap()?;
+    let data = cmap.offset_data();
+    // Only fix if all subtables are format 4 or 12
+    if cmap.encoding_records().iter().any(|r| {
+        r.subtable(data)
+            .is_ok_and(|s| !matches!(s, CmapSubtable::Format4(_) | CmapSubtable::Format12(_)))
+    }) {
+        return Ok(false);
+    }
+    let mappings: Vec<_> = charmap.mappings().filter(|(cp, _)| *cp != 0x00AD).collect();
+    let new_cmap = Cmap::from_mappings(
+        mappings
+            .into_iter()
+            .map(|(c, gid)| (char::from_u32(c).unwrap_or('\0'), gid)),
+    )
+    .map_err(|e| FontspectorError::General(format!("Failed to create new cmap: {e}")))?;
+    t.set(f.rebuild_with_new_table(&new_cmap)?);
+    Ok(true)
 }
 // def check_soft_hyphen(ttFont):
 //     """Does the font contain a soft hyphen?"""

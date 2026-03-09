@@ -1,3 +1,4 @@
+use fontations::{skrifa::raw::types::Tag, write::FontBuilder};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
 
@@ -14,7 +15,8 @@ use serde_json::json;
         it can be independently disabled by foundries that choose to retain
         the DSIG table.
     ",
-    proposal = "https://github.com/fonttools/fontspector/issues/101"
+    proposal = "https://github.com/fonttools/fontspector/issues/101",
+    hotfix = delete_dsig,
 )]
 fn dsig(t: &Testable, _context: &Context) -> CheckFnResult {
     let f = testfont!(t);
@@ -36,6 +38,22 @@ fn dsig(t: &Testable, _context: &Context) -> CheckFnResult {
     } else {
         Ok(Status::just_one_pass())
     }
+}
+
+fn delete_dsig(t: &mut Testable) -> FixFnResult {
+    let f = testfont!(t);
+    let dsig_tag = Tag::new(b"DSIG");
+    let mut new_font = FontBuilder::new();
+    for table in f.font().table_directory.table_records() {
+        let tag = table.tag.get();
+        if tag != dsig_tag {
+            if let Some(data) = f.font().table_data(tag) {
+                new_font.add_raw(tag, data);
+            }
+        }
+    }
+    t.set(new_font.build());
+    Ok(true)
 }
 
 #[cfg(test)]

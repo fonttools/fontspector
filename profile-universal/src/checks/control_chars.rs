@@ -1,4 +1,9 @@
-use fontations::{skrifa::MetadataProvider, types::GlyphId};
+use fontations::{
+    read::{tables::cmap::CmapSubtable, TableProvider},
+    skrifa::MetadataProvider,
+    types::GlyphId,
+    write::tables::cmap::Cmap,
+};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
 
@@ -12,7 +17,8 @@ use serde_json::json;
         CR (U+000D) for this check.
     ",
     proposal = "https://github.com/fonttools/fontbakery/pull/2430",
-    title = "Does font file include unacceptable control character glyphs?"
+    title = "Does font file include unacceptable control character glyphs?",
+    hotfix = fix_control_chars,
 )]
 pub fn control_chars(t: &Testable, context: &Context) -> CheckFnResult {
     let f = testfont!(t);
@@ -43,6 +49,32 @@ pub fn control_chars(t: &Testable, context: &Context) -> CheckFnResult {
         problems.push(status);
     }
     return_result(problems)
+}
+
+fn fix_control_chars(t: &mut Testable) -> FixFnResult {
+    let f = testfont!(t);
+    let charmap = f.font().charmap();
+    let cmap = f.font().cmap()?;
+    let data = cmap.offset_data();
+    if cmap.encoding_records().iter().any(|r| {
+        r.subtable(data)
+            .is_ok_and(|s| !matches!(s, CmapSubtable::Format4(_) | CmapSubtable::Format12(_)))
+    }) {
+        return Ok(false);
+    }
+    let bad_codepoints: Vec<u32> = (0x01u32..0x1F).filter(|&c| c != 0x0D).collect();
+    let mappings: Vec<_> = charmap
+        .mappings()
+        .filter(|(cp, _)| !bad_codepoints.contains(cp))
+        .collect();
+    let new_cmap = Cmap::from_mappings(
+        mappings
+            .into_iter()
+            .map(|(c, gid)| (char::from_u32(c).unwrap_or('\0'), gid)),
+    )
+    .map_err(|e| FontspectorError::General(format!("Failed to create new cmap: {e}")))?;
+    t.set(f.rebuild_with_new_table(&new_cmap)?);
+    Ok(true)
 }
 
 #[cfg(test)]

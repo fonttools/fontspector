@@ -1,4 +1,7 @@
-use fontations::skrifa::{raw::TableProvider, FontRef};
+use fontations::{
+    skrifa::{raw::TableProvider, FontRef},
+    write::from_obj::ToOwnedTable,
+};
 use fontspector_checkapi::{
     constants::OutlineType, prelude::*, testfont, FileTypeConvert, Metadata,
 };
@@ -27,7 +30,8 @@ use crate::utils::build_expected_font;
     
     ",
     proposal = "https://github.com/fonttools/fontbakery/issues/4829",
-    title = "Check the OS/2 usWeightClass is appropriate for the font's best SubFamily name."
+    title = "Check the OS/2 usWeightClass is appropriate for the font's best SubFamily name.",
+    hotfix = fix_weightclass,
 )]
 fn weightclass(t: &Testable, _context: &Context) -> CheckFnResult {
     let f = testfont!(t);
@@ -144,4 +148,14 @@ fn weightclass(t: &Testable, _context: &Context) -> CheckFnResult {
         problems.push(status);
     }
     return_result(problems)
+}
+
+fn fix_weightclass(t: &mut Testable) -> FixFnResult {
+    let f = testfont!(t);
+    let expected_names = build_expected_font(&f, &[])?;
+    let expected_value = FontRef::new(&expected_names)?.os2()?.us_weight_class();
+    let mut os2: fontations::write::tables::os2::Os2 = f.font().os2()?.to_owned_table();
+    os2.us_weight_class = expected_value;
+    t.set(f.rebuild_with_new_table(&os2)?);
+    Ok(true)
 }
