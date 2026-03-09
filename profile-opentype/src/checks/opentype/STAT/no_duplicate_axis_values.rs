@@ -76,7 +76,14 @@ fn no_duplicate_axis_values(t: &Testable, _context: &Context) -> CheckFnResult {
 mod tests {
     #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-    use fontspector_checkapi::codetesting::{assert_pass, assert_skip, run_check, test_able};
+    use fontations::write::{
+        tables::stat::{AxisRecord, AxisValue, AxisValueTableFlags, Stat},
+        FontBuilder,
+    };
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, assert_skip, run_check, test_able},
+        FileTypeConvert, StatusCode, TTF,
+    };
 
     use super::no_duplicate_axis_values;
 
@@ -92,5 +99,49 @@ mod tests {
         let testable = test_able("varfont/inter/Inter[slnt,wght].ttf");
         let results = run_check(no_duplicate_axis_values, testable);
         assert_pass(&results);
+    }
+
+    #[test]
+    #[allow(clippy::unwrap_used)]
+    fn test_fail_duplicate_axis_values() {
+        use fontations::write::types::{Fixed, NameId, Tag};
+
+        // Start from Inter and replace STAT with one that has duplicate axis value entries
+        let mut testable = test_able("varfont/inter/Inter[slnt,wght].ttf");
+        let f = TTF.from_testable(&testable).unwrap();
+
+        // Build a STAT table with two identical Format1 entries for the same axis+value
+        let stat = Stat::new(
+            vec![AxisRecord::new(Tag::new(b"wght"), NameId::new(256), 0)],
+            vec![
+                AxisValue::format_1(
+                    0,
+                    AxisValueTableFlags::empty(),
+                    NameId::new(257),
+                    Fixed::from_f64(400.0),
+                ),
+                AxisValue::format_1(
+                    0,
+                    AxisValueTableFlags::empty(),
+                    NameId::new(258),
+                    Fixed::from_f64(400.0), // same axis index and value — duplicate
+                ),
+            ],
+            NameId::new(259),
+        );
+
+        let new_bytes = FontBuilder::new()
+            .add_table(&stat)
+            .unwrap()
+            .copy_missing_tables(f.font())
+            .build();
+        testable.contents = new_bytes;
+
+        let results = run_check(no_duplicate_axis_values, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("duplicate-axis-value".to_string()),
+        );
     }
 }
