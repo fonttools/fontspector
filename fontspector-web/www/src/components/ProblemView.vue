@@ -6,6 +6,7 @@ import {
 } from "../types";
 import { state } from "../store";
 import ProblemList from "./ProblemList.vue";
+import { worseThan } from "../constants";
 
 function invertResults(cr: CheckResult[]): SubresultWithCheck[] {
   const results: SubresultWithCheck[] = [];
@@ -22,7 +23,7 @@ function splitFixable(results: SubresultWithCheck[]): [SubresultWithCheck[], Sub
   const fixable: SubresultWithCheck[] = [];
   const unfixable: SubresultWithCheck[] = [];
   for (const res of results) {
-    if (res.check.hotfix_available) {
+    if (res.check.hotfix_available && worseThan(res.status.severity, "WARN")) {
       fixable.push(res);
     } else {
       unfixable.push(res);

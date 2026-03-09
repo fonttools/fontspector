@@ -1,4 +1,4 @@
-use fontations::skrifa::raw::TableProvider;
+use fontations::{skrifa::raw::TableProvider, write::from_obj::ToOwnedTable};
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
 
@@ -6,7 +6,8 @@ use serde_json::json;
     id = "opentype/weight_class_fvar",
     rationale = "According to Microsoft's OT Spec the OS/2 usWeightClass should match the fvar default value.",
     proposal = "https://github.com/googlefonts/gftools/issues/477",
-    title = "Checking if OS/2 usWeightClass matches fvar."
+    title = "Checking if OS/2 usWeightClass matches fvar.",
+    hotfix = fix_weight_class_fvar,
 )]
 fn weight_class_fvar(t: &Testable, _context: &Context) -> CheckFnResult {
     let f = testfont!(t);
@@ -35,4 +36,22 @@ fn weight_class_fvar(t: &Testable, _context: &Context) -> CheckFnResult {
         problems.push(status);
     }
     return_result(problems)
+}
+
+fn fix_weight_class_fvar(t: &mut Testable) -> FixFnResult {
+    let f = testfont!(t);
+    if !f.is_variable_font() {
+        return Ok(false);
+    }
+    let Some(fvar_value) = f
+        .axis_ranges()
+        .find(|(tag, _, _, _)| tag == "wght")
+        .map(|(_, _, default, _)| default)
+    else {
+        return Ok(false);
+    };
+    let mut os2: fontations::write::tables::os2::Os2 = f.font().os2()?.to_owned_table();
+    os2.us_weight_class = fvar_value as u16;
+    t.set(f.rebuild_with_new_table(&os2)?);
+    Ok(true)
 }
