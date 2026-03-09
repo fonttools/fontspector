@@ -71,7 +71,6 @@ mod whitespace_glyphs;
 mod whitespace_ink;
 mod whitespace_widths;
 mod ytlc_sanity;
-mod zero_width_chars;
 
 pub mod name;
 
@@ -145,6 +144,5 @@ pub use whitespace_glyphs::whitespace_glyphs;
 pub use whitespace_ink::whitespace_ink;
 pub use whitespace_widths::whitespace_widths;
 pub use ytlc_sanity::ytlc_sanity;
-pub use zero_width_chars::zero_width_chars;
 pub use STAT_in_statics::STAT_in_statics;
 pub use STAT_strings::STAT_strings;
