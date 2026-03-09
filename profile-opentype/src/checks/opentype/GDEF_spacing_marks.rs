@@ -37,3 +37,23 @@ fn GDEF_spacing_marks(f: &Testable, context: &Context) -> CheckFnResult {
 
     Ok(Status::just_one_pass())
 }
+
+#[cfg(test)]
+mod tests {
+    use fontspector_checkapi::codetesting::{assert_pass, assert_skip, run_check, test_able};
+
+    #[test]
+    fn test_gdef_spacing_marks_skip_no_gdef() {
+        let mut testable = test_able("familysans/FamilySans-Regular.ttf");
+        fontspector_checkapi::codetesting::remove_table(&mut testable, b"GDEF");
+        let result = run_check(super::GDEF_spacing_marks, testable);
+        assert_skip(&result);
+    }
+
+    #[test]
+    fn test_gdef_spacing_marks_pass() {
+        let testable = test_able("nunito/Nunito-Regular.ttf");
+        let result = run_check(super::GDEF_spacing_marks, testable);
+        assert_pass(&result);
+    }
+}

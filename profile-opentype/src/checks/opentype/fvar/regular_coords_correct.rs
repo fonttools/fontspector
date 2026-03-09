@@ -70,3 +70,34 @@ fn regular_coords_correct(t: &Testable, _context: &Context) -> CheckFnResult {
     }
     return_result(problems)
 }
+
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        StatusCode,
+    };
+
+    #[test]
+    fn test_regular_coords_pass() {
+        let testable = test_able("cabinvfbeta/CabinVFBeta.ttf");
+        let result = run_check(regular_coords_correct, testable);
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_regular_coords_skip_static() {
+        let testable = test_able("source-sans-pro/TTF/SourceSansPro-Bold.ttf");
+        let result = run_check(regular_coords_correct, testable);
+        assert_results_contain(&result, StatusCode::Skip, Some("not-variable".to_string()));
+    }
+
+    #[test]
+    fn test_regular_coords_pass_italic() {
+        let testable = test_able("varfont/OpenSans-Italic[wdth,wght].ttf");
+        let result = run_check(regular_coords_correct, testable);
+        assert_pass(&result);
+    }
+}

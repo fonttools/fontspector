@@ -40,3 +40,32 @@ fn maxadvancewidth(t: &Testable, _context: &Context) -> CheckFnResult {
     }
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    use fontations::{skrifa::raw::TableProvider, write::from_obj::ToOwnedTable};
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        prelude::*,
+        FileTypeConvert, StatusCode,
+    };
+
+    #[test]
+    fn test_maxadvancewidth_pass() {
+        let testable = test_able("familysans/FamilySans-Regular.ttf");
+        let result = run_check(super::maxadvancewidth, testable);
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_maxadvancewidth_mismatch() {
+        let mut testable = test_able("familysans/FamilySans-Regular.ttf");
+        let f = TTF.from_testable(&testable).unwrap();
+        let mut hhea: fontations::write::tables::hhea::Hhea =
+            f.font().hhea().unwrap().to_owned_table();
+        hhea.advance_width_max = 32767u16.into();
+        testable.set(f.rebuild_with_new_table(&hhea).unwrap());
+        let result = run_check(super::maxadvancewidth, testable);
+        assert_results_contain(&result, StatusCode::Fail, Some("mismatch".to_string()));
+    }
+}

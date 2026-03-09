@@ -94,9 +94,15 @@ fn font_version(f: &Testable, _context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 #[cfg(test)]
 mod tests {
     use super::*;
+    use fontations::{skrifa::raw::TableProvider, write::from_obj::ToOwnedTable};
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, set_name_entry, test_able},
+        StatusCode,
+    };
 
     #[test]
     fn test_parser() {
@@ -107,5 +113,68 @@ mod tests {
         let v = "Version 1.2.3";
         let parsed = parse_version(v.chars());
         assert_eq!(parsed, "1.2");
+    }
+
+    #[test]
+    fn test_font_version_pass() {
+        let testable = test_able("nunito/Nunito-Regular.ttf");
+        let result = run_check(font_version, testable);
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_font_version_near_mismatch() {
+        let mut testable = test_able("nunito/Nunito-Regular.ttf");
+        let f = TTF.from_testable(&testable).unwrap();
+        let mut head: fontations::write::tables::head::Head =
+            f.font().head().unwrap().to_owned_table();
+        head.font_revision = fontations::skrifa::raw::types::Fixed::from_f64(1.00098);
+        testable.set(f.rebuild_with_new_table(&head).unwrap());
+        set_name_entry(
+            &mut testable,
+            3,
+            1,
+            0x0409,
+            NameId::VERSION_STRING,
+            "Version 1.001".to_string(),
+        );
+        set_name_entry(
+            &mut testable,
+            1,
+            0,
+            0,
+            NameId::VERSION_STRING,
+            "Version 1.001".to_string(),
+        );
+        let result = run_check(font_version, testable);
+        assert_results_contain(&result, StatusCode::Warn, Some("near-mismatch".to_string()));
+    }
+
+    #[test]
+    fn test_font_version_fail_mismatch() {
+        let mut testable = test_able("nunito/Nunito-Regular.ttf");
+        let f = TTF.from_testable(&testable).unwrap();
+        let mut head: fontations::write::tables::head::Head =
+            f.font().head().unwrap().to_owned_table();
+        head.font_revision = fontations::skrifa::raw::types::Fixed::from_f64(3.1);
+        testable.set(f.rebuild_with_new_table(&head).unwrap());
+        set_name_entry(
+            &mut testable,
+            3,
+            1,
+            0x0409,
+            NameId::VERSION_STRING,
+            "Version 3.000".to_string(),
+        );
+        set_name_entry(
+            &mut testable,
+            1,
+            0,
+            0,
+            NameId::VERSION_STRING,
+            "Version 3.000".to_string(),
+        );
+        let result = run_check(font_version, testable);
+        assert_results_contain(&result, StatusCode::Fail, Some("mismatch".to_string()));
     }
 }
