@@ -1,4 +1,4 @@
-use fontspector_checkapi::prelude::*;
+use fontspector_checkapi::{prelude::*, Metadata};
 
 /// Check if text contains "free" as a standalone word (case-insensitive).
 fn contains_word_free(text: &str) -> bool {
@@ -38,11 +38,15 @@ fn no_free_word(desc: &Testable, _context: &Context) -> CheckFnResult {
     let text = strip_html_tags(&html);
 
     if contains_word_free(&text) {
-        Ok(Status::just_one_warn(
-            "free-in-description",
-            "The description contains the word 'free'. \
-             All Google Fonts are libre/free, so this is redundant.",
-        ))
+        let message = "The description contains the word 'free'. \
+             All Google Fonts are libre/free, so this is redundant."
+            .to_string();
+        let mut status = Status::warn("free-in-description", &message);
+        status.add_metadata(Metadata::FontProblem {
+            message,
+            context: None,
+        });
+        Ok(Box::new(vec![status].into_iter()))
     } else {
         Ok(Status::just_one_pass())
     }
@@ -50,7 +54,22 @@ fn no_free_word(desc: &Testable, _context: &Context) -> CheckFnResult {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
+    use super::{contains_word_free, no_free_word, strip_html_tags};
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check},
+        StatusCode, Testable,
+    };
+    use std::path::PathBuf;
+
+    fn make_desc_testable(html_content: &str) -> Testable {
+        Testable {
+            filename: PathBuf::from("DESCRIPTION.en_us.html"),
+            source: None,
+            contents: html_content.as_bytes().to_vec(),
+        }
+    }
 
     #[test]
     fn test_no_false_positive_on_freedom() {
@@ -71,5 +90,61 @@ mod tests {
     fn test_strip_html() {
         assert_eq!(strip_html_tags("<p>Hello <b>world</b></p>"), "Hello world");
         assert_eq!(strip_html_tags("<a href=\"free\">text</a>"), "text");
+    }
+
+    #[test]
+    fn check_pass_no_free_word() {
+        let desc =
+            make_desc_testable("<p>A beautiful serif typeface designed for readability.</p>\n");
+        let results = run_check(no_free_word, desc);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn check_pass_free_in_html_attribute_only() {
+        let desc = make_desc_testable("<a href=\"https://example.com/free\">Download</a>\n");
+        let results = run_check(no_free_word, desc);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn check_pass_free_as_substring() {
+        let desc =
+            make_desc_testable("<p>A carefree freestyle font offering typographic freedom.</p>\n");
+        let results = run_check(no_free_word, desc);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn check_warns_free_in_description() {
+        let desc = make_desc_testable("<p>This is a free font for everyone.</p>\n");
+        let results = run_check(no_free_word, desc);
+        assert_results_contain(
+            &results,
+            StatusCode::Warn,
+            Some("free-in-description".to_string()),
+        );
+    }
+
+    #[test]
+    fn check_warns_free_uppercase() {
+        let desc = make_desc_testable("<p>This font is FREE to use.</p>\n");
+        let results = run_check(no_free_word, desc);
+        assert_results_contain(
+            &results,
+            StatusCode::Warn,
+            Some("free-in-description".to_string()),
+        );
+    }
+
+    #[test]
+    fn check_warns_free_after_html_stripping() {
+        let desc = make_desc_testable("<p>A <b>free</b> typeface for display use.</p>\n");
+        let results = run_check(no_free_word, desc);
+        assert_results_contain(
+            &results,
+            StatusCode::Warn,
+            Some("free-in-description".to_string()),
+        );
     }
 }
