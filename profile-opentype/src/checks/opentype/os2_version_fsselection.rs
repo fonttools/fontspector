@@ -1,4 +1,7 @@
-use fontations::skrifa::raw::{tables::os2::SelectionFlags, TableProvider};
+use fontations::{
+    skrifa::raw::{tables::os2::SelectionFlags, TableProvider},
+    write::from_obj::ToOwnedTable,
+};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
 
@@ -18,7 +21,8 @@ const V4_FLAGS: &[(SelectionFlags, &str)] = &[
         bits in an earlier version of the OS/2 table is invalid and may
         cause unpredictable behavior in some environments.
     ",
-    proposal = "https://github.com/fonttools/fontspector/issues/178"
+    proposal = "https://github.com/fonttools/fontspector/issues/178",
+    hotfix = fix_os2_version_fsselection,
 )]
 fn os2_version_fsselection(t: &Testable, _context: &Context) -> CheckFnResult {
     let f = testfont!(t);
@@ -48,6 +52,24 @@ fn os2_version_fsselection(t: &Testable, _context: &Context) -> CheckFnResult {
         }
     }
     return_result(problems)
+}
+
+fn fix_os2_version_fsselection(t: &mut Testable) -> FixFnResult {
+    let f = testfont!(t);
+    let os2 = f.font().os2()?;
+    let version = os2.version();
+
+    if version >= 4 {
+        return Ok(false);
+    }
+
+    let mut os2_write: fontations::write::tables::os2::Os2 = os2.to_owned_table();
+    for (flag, _name) in V4_FLAGS {
+        os2_write.fs_selection.remove(*flag);
+    }
+
+    t.set(f.rebuild_with_new_table(&os2_write)?);
+    Ok(true)
 }
 
 #[cfg(test)]
