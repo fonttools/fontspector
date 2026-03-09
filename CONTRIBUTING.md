@@ -49,7 +49,6 @@ Fontspector is a font testing framework written in Rust. It has a number of core
 - `TestFont` in `fontspector-checkapi/src/font.rs` contains a number of helper methods which tests can use to manipulate the font and extract data from it.
 - Each check runs in a `Context`. (`fontspector-checkapi/src/context.rs`) The context contains a general-purpose cache that checks can use to avoid recomputing things, user-defined per-check configuration, some free-form metadata, and `Override`s which change the return values of a check.
 
-
 ## Running the test suite
 
 We export the Fontspector check runner to a Python module, and then use
@@ -69,10 +68,20 @@ pytest
 
 We welcome many types of contributions, including:
 
-*   New checks and features
-*   Bug fixes
-*   Documentation improvements
-*   Performance enhancements
+- New checks and features
+- Bug fixes
+- Documentation improvements
+- Performance enhancements
+
+### Guidelines for new checks
+
+1. In the previous incarnation of this QA tool, fontbakery, checks were largely granular; a single check would test for a single specific issue. This resulted in two problems: first, checks would be added without clearly checking whether they were duplicative of other checks; second, multiple checks on the same area of the font produced high overhead due to spinning up many checks and fetching the same data multiple times. In Fontspector, we have moved to a more holistic approach, where a single check may test for multiple related issues. This means that when adding a new check, you should first check whether there is an existing check that tests for the same area of the font in the same profile, and if so, consider adding your new test to that existing check rather than creating a new one. Ultimately this is a judgement call, as checks may have different rationales. But as a general rule, if your new test is related to an existing check and could be added without making the check unwieldy, it's better to add it to the existing check.
+
+2. Checks should have Rust tests, and the tests should cover both passing and failing cases. If you're adding a new check, please add tests for it. Good examples of tests can be found in the `profile-universal/src/checks/arabic_high_hamza.rs` and `profile-universal/src/checks/family_uniqueness_first_31_characters.rs` checks.
+
+3. All warning and failing subresults should return rich `Metadata` to help tools like Fontspector-Web to display the results in a user-friendly way.
+
+4. Where possible, tests should include a hotfix function that can be used to automatically fix the problem. This is not always possible, but where it is, it can be a great help to users. Where hotfixing is not possible, an explanation of how to fix the issue in font editors should be added to the rationale.
 
 ### Submitting a Pull Request
 
@@ -82,6 +91,7 @@ We welcome many types of contributions, including:
     ```
 2.  **Make your changes.**
 3.  **Ensure Code Quality:** Before committing, please run the standard Rust formatting and linting tools across the entire workspace.
+
     ```sh
     # Format your code
     cargo fmt --all
@@ -89,6 +99,7 @@ We welcome many types of contributions, including:
     # Run clippy to catch common mistakes and style issues
     cargo clippy --all -- -D warnings
     ```
+
 4.  **Run Tests:** Make sure all existing tests pass and, if you're adding a new feature, please add tests for it.
     ```sh
     cargo test --all
@@ -96,6 +107,7 @@ We welcome many types of contributions, including:
 5.  **Commit Your Changes with Conventional Commits:** We use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) to automate changelogs and versioning. Your commit messages MUST follow this specification.
 
     The commit message should be structured as follows:
+
     ```
     <type>(<scope>): <short description>
     <BLANK LINE>
@@ -105,25 +117,28 @@ We welcome many types of contributions, including:
     ```
 
     **Common types:**
-    *   `feat`: A new feature.
-    *   `fix`: A bug fix.
-    *   `docs`: Documentation only changes.
-    *   `style`: Changes that do not affect the meaning of the code (white-space, formatting, etc).
-    *   `refactor`: A code change that neither fixes a bug nor adds a feature.
-    *   `perf`: A code change that improves performance.
-    *   `test`: Adding missing tests or correcting existing tests.
-    *   `chore`: Changes to the build process or auxiliary tools.
+    - `feat`: A new feature.
+    - `fix`: A bug fix.
+    - `docs`: Documentation only changes.
+    - `style`: Changes that do not affect the meaning of the code (white-space, formatting, etc).
+    - `refactor`: A code change that neither fixes a bug nor adds a feature.
+    - `perf`: A code change that improves performance.
+    - `test`: Adding missing tests or correcting existing tests.
+    - `chore`: Changes to the build process or auxiliary tools.
 
     **Example:**
+
     ```
     feat(check-api): Add support for variable font axis checks
     ```
 
     **Using `cog` for commits:**
     To simplify creating conventional commits, we strongly encourage using `cog` (Cocogitto), which is configured for this project in `cog.toml`. Instead of `git commit`, you can simply run:
+
     ```sh
     cog commit
     ```
+
     This will guide you through creating a compliant commit message.
 
 6.  **Push to your fork** and **open a Pull Request** against the `main` branch.
