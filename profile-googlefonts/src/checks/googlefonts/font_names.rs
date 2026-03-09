@@ -56,6 +56,7 @@ fn font_names(t: &Testable, _context: &Context) -> CheckFnResult {
     let mut ok = true;
     let mut md_table = Builder::new();
     md_table.push_record(vec!["Name", "Current", "Expected"]);
+    let mut metadatas = vec![];
 
     for &(name_id, name) in NAME_IDS.iter() {
         let current = f.get_best_name(&[name_id]).unwrap_or("N/A".to_string());
@@ -84,6 +85,14 @@ fn font_names(t: &Testable, _context: &Context) -> CheckFnResult {
             row.push(format!("**{current}**"));
             row.push(format!("**{expected}**"));
             ok = false;
+            metadatas.push(Metadata::FontProblem {
+                message: format!("Name table entry for {name} is incorrect"),
+                context: Some(json!({
+                    "name_id": name_id.to_u16(),
+                    "current": current.clone(),
+                    "expected": expected.clone()
+                })),
+            });
         } else {
             row.push(current);
             row.push(expected);
@@ -92,13 +101,15 @@ fn font_names(t: &Testable, _context: &Context) -> CheckFnResult {
     }
 
     if !ok {
-        problems.push(Status::fail(
+        let mut status = Status::fail(
             "bad-names",
             &format!(
                 "Font names are incorrect:\n\n{}",
                 md_table.build().with(tabled::settings::Style::markdown())
             ),
-        ));
+        );
+        status.metadata.extend(metadatas);
+        problems.push(status);
     }
     return_result(problems)
 }

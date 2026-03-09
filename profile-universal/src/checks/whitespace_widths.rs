@@ -1,4 +1,7 @@
-use fontations::skrifa::{raw::TableProvider, MetadataProvider};
+use fontations::{
+    skrifa::{raw::TableProvider, MetadataProvider},
+    write::{from_obj::ToOwnedTable, tables::hmtx::Hmtx},
+};
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
 
@@ -19,7 +22,8 @@ use serde_json::json;
     ",
     proposal = "https://github.com/fonttools/fontbakery/issues/3843",
     proposal = "https://github.com/fonttools/fontbakery/issues/4829",
-    title = "Space and non-breaking space have the same width?"
+    title = "Space and non-breaking space have the same width?",
+    hotfix = fix_whitespace_widths,
 )]
 fn whitespace_widths(t: &Testable, _context: &Context) -> CheckFnResult {
     let f = testfont!(t);
@@ -51,4 +55,23 @@ fn whitespace_widths(t: &Testable, _context: &Context) -> CheckFnResult {
     } else {
         skip!("missing-glyphs", "Space and nbspace not found in font");
     }
+}
+
+fn fix_whitespace_widths(t: &mut Testable) -> FixFnResult {
+    let f = testfont!(t);
+    let mut hmtx: Hmtx = f.font().hmtx()?.to_owned_table();
+    let charmap = f.font().charmap();
+    if let (Some(space), Some(nbspace)) = (charmap.map(0x0020u32), charmap.map(0x00A0u32)) {
+        let space_width = hmtx
+            .h_metrics
+            .get(space.to_u32() as usize)
+            .map(|m| m.advance)
+            .unwrap_or(0);
+        if let Some(nbspace_metric) = hmtx.h_metrics.get_mut(nbspace.to_u32() as usize) {
+            nbspace_metric.advance = space_width;
+        }
+        t.set(f.rebuild_with_new_table(&hmtx)?);
+        return Ok(true);
+    }
+    Ok(false)
 }
