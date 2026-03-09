@@ -1,4 +1,8 @@
-use fontations::skrifa::MetadataProvider;
+use fontations::{
+    read::{tables::cmap::CmapSubtable, TableProvider},
+    skrifa::MetadataProvider,
+    write::tables::cmap::Cmap,
+};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
 
@@ -17,7 +21,8 @@ use serde_json::json;
         soft hyphen (U+00AD), but these are not mandatory.
     ",
     proposal = "https://github.com/fonttools/fontbakery/issues/4829",
-    title = "Font contains glyphs for whitespace characters?"
+    title = "Font contains glyphs for whitespace characters?",
+    hotfix = fix_whitespace_glyphs,
 )]
 fn whitespace_glyphs(t: &Testable, _context: &Context) -> CheckFnResult {
     let f = testfont!(t);
@@ -40,4 +45,34 @@ fn whitespace_glyphs(t: &Testable, _context: &Context) -> CheckFnResult {
         }
     }
     return_result(problems)
+}
+
+fn fix_whitespace_glyphs(t: &mut Testable) -> FixFnResult {
+    // If we have a space already, map 0xA0 to it in the cmap.
+    let f = testfont!(t);
+    let charmap = f.font().charmap();
+    if let Some(space_gid) = charmap.map(0x20u32) {
+        let mut mappings = charmap.mappings().collect::<Vec<_>>();
+        let cmap = f.font().cmap()?;
+        let data = cmap.offset_data();
+        // If there are any subtables which are not 4 or 12, we can't use this
+        if f.font().cmap()?.encoding_records().iter().any(|r| {
+            r.subtable(data)
+                .is_ok_and(|s| !matches!(s, CmapSubtable::Format4(_) | CmapSubtable::Format12(_)))
+        }) {
+            return Ok(false);
+        }
+        mappings.push((0xA0u32, space_gid));
+        mappings.sort_by_key(|(c, _)| *c);
+        let new_cmap = Cmap::from_mappings(
+            mappings
+                .into_iter()
+                .map(|(c, gid)| (char::from_u32(c).unwrap_or('\0'), gid)),
+        )
+        .map_err(|e| FontspectorError::General(format!("Failed to create new cmap: {e}")))?;
+
+        t.set(f.rebuild_with_new_table(&new_cmap)?);
+        return Ok(true);
+    }
+    Ok(false)
 }
