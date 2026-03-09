@@ -80,7 +80,14 @@ fn opsz_not_elided(t: &Testable, _context: &Context) -> CheckFnResult {
 mod tests {
     #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-    use fontspector_checkapi::codetesting::{assert_pass, assert_skip, run_check, test_able};
+    use fontations::write::{
+        tables::stat::{AxisRecord, AxisValue, AxisValueTableFlags, Stat},
+        FontBuilder,
+    };
+    use fontspector_checkapi::{
+        codetesting::{assert_results_contain, assert_skip, run_check, test_able},
+        FileTypeConvert, StatusCode, TTF,
+    };
 
     use super::opsz_not_elided;
 
@@ -100,16 +107,41 @@ mod tests {
     }
 
     #[test]
-    fn test_pass_league_gothic() {
-        // LeagueGothic may have opsz without elidable flag
-        let testable = test_able("leaguegothic-vf/LeagueGothic[wdth].ttf");
+    #[allow(clippy::unwrap_used)]
+    fn test_warn_elidable_opsz() {
+        use fontations::write::types::{Fixed, NameId, Tag};
+
+        // Start from Inter and replace STAT with one that has an elidable opsz axis value
+        let mut testable = test_able("varfont/inter/Inter[slnt,wght].ttf");
+        let f = TTF.from_testable(&testable).unwrap();
+
+        // Build a STAT table with an opsz design axis and an elidable opsz axis value
+        let stat = Stat::new(
+            vec![
+                AxisRecord::new(Tag::new(b"wght"), NameId::new(256), 0),
+                AxisRecord::new(Tag::new(b"opsz"), NameId::new(257), 1),
+            ],
+            vec![AxisValue::format_1(
+                1, // axis_index for opsz
+                AxisValueTableFlags::ELIDABLE_AXIS_VALUE_NAME,
+                NameId::new(258),
+                Fixed::from_f64(12.0),
+            )],
+            NameId::new(259),
+        );
+
+        let new_bytes = FontBuilder::new()
+            .add_table(&stat)
+            .unwrap()
+            .copy_missing_tables(f.font())
+            .build();
+        testable.contents = new_bytes;
+
         let results = run_check(opsz_not_elided, testable);
-        // Will skip if no opsz axis, which is fine
-        let result = results.as_ref().unwrap();
-        let worst = result.subresults.iter().map(|s| s.severity).max().unwrap();
-        assert!(
-            worst <= fontspector_checkapi::StatusCode::Pass
-                || worst == fontspector_checkapi::StatusCode::Skip
+        assert_results_contain(
+            &results,
+            StatusCode::Warn,
+            Some("elidable-opsz".to_string()),
         );
     }
 }
