@@ -65,4 +65,51 @@ mod tests {
         let results = run_check(os2_version_fsselection, testable);
         assert_pass(&results);
     }
+
+    #[test]
+    fn test_warn_v4_flag_in_old_os2() {
+        // Load Mada-Regular (OS/2 version 4), then rebuild with
+        // OS/2 version 3 and USE_TYPO_METRICS (bit 7) set in fsSelection.
+        use fontations::skrifa::raw::types::Tag;
+        use fontations::skrifa::FontRef;
+        use fontations::write::FontBuilder;
+        use fontspector_checkapi::codetesting::assert_results_contain;
+        use fontspector_checkapi::StatusCode;
+
+        let mut testable = test_able("mada/Mada-Regular.ttf");
+        let f = FontRef::new(&testable.contents).unwrap();
+        let os2_tag = Tag::new(b"OS/2");
+
+        // Get original OS/2 table data and modify it
+        let os2_data = f.table_data(os2_tag).unwrap();
+        let mut os2_bytes = os2_data.as_ref().to_vec();
+        // Set version to 3 (bytes 0-1, big-endian)
+        os2_bytes[0] = 0x00;
+        os2_bytes[1] = 0x03;
+        // Set USE_TYPO_METRICS bit (bit 7 = 0x0080) in fsSelection (bytes 62-63)
+        let fs_sel = u16::from_be_bytes([os2_bytes[62], os2_bytes[63]]);
+        let new_fs_sel = fs_sel | 0x0080;
+        os2_bytes[62] = (new_fs_sel >> 8) as u8;
+        os2_bytes[63] = (new_fs_sel & 0xFF) as u8;
+
+        // Rebuild font with modified OS/2 table
+        let mut builder = FontBuilder::new();
+        builder.add_raw(os2_tag, &os2_bytes);
+        for table_record in f.table_directory.table_records() {
+            let tag = table_record.tag.get();
+            if tag != os2_tag {
+                if let Some(table_data) = f.table_data(tag) {
+                    builder.add_raw(tag, table_data);
+                }
+            }
+        }
+        testable.contents = builder.build();
+
+        let results = run_check(os2_version_fsselection, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Warn,
+            Some("v4-flag-in-old-os2".to_string()),
+        );
+    }
 }
