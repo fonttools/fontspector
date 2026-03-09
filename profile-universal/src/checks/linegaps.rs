@@ -1,4 +1,4 @@
-use fontations::skrifa::raw::TableProvider;
+use fontations::{skrifa::raw::TableProvider, write::from_obj::ToOwnedTable};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
 
@@ -18,7 +18,8 @@ use serde_json::json;
     ",
     proposal = "https://github.com/fonttools/fontbakery/issues/4133",
     proposal = "https://googlefonts.github.io/gf-guide/metrics.html",
-    title = "Checking Vertical Metric linegaps."
+    title = "Checking Vertical Metric linegaps.",
+    hotfix = fix_linegaps,
 )]
 fn linegaps(t: &Testable, _context: &Context) -> CheckFnResult {
     let f = testfont!(t);
@@ -59,4 +60,18 @@ fn linegaps(t: &Testable, _context: &Context) -> CheckFnResult {
         problems.push(status);
     }
     return_result(problems)
+}
+
+fn fix_linegaps(t: &mut Testable) -> FixFnResult {
+    let f = testfont!(t);
+    let mut os2: fontations::write::tables::os2::Os2 = f.font().os2()?.to_owned_table();
+    let mut hhea: fontations::write::tables::hhea::Hhea = f.font().hhea()?.to_owned_table();
+    os2.s_typo_line_gap = 0;
+    hhea.line_gap = 0.into();
+    // Rebuild with both tables
+    let font_bytes = f.rebuild_with_new_table(&os2)?;
+    t.set(font_bytes);
+    let f = testfont!(t);
+    t.set(f.rebuild_with_new_table(&hhea)?);
+    Ok(true)
 }

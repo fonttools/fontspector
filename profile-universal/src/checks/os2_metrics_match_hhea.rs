@@ -1,4 +1,4 @@
-use fontations::skrifa::raw::TableProvider;
+use fontations::{skrifa::raw::TableProvider, write::from_obj::ToOwnedTable};
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
 
@@ -16,7 +16,8 @@ use serde_json::json;
         released font may cause reflow in user documents and unhappy users.
     ",
     proposal = "https://github.com/fonttools/fontbakery/issues/4829",
-    title = "Checking OS/2 Metrics match hhea Metrics."
+    title = "Checking OS/2 Metrics match hhea Metrics.",
+    hotfix = fix_os2_metrics_match_hhea,
 )]
 fn os2_metrics_match_hhea(t: &Testable, context: &Context) -> CheckFnResult {
     let f = testfont!(t);
@@ -88,4 +89,15 @@ fn os2_metrics_match_hhea(t: &Testable, context: &Context) -> CheckFnResult {
         problems.push(status);
     }
     return_result(problems)
+}
+
+fn fix_os2_metrics_match_hhea(t: &mut Testable) -> FixFnResult {
+    let f = testfont!(t);
+    let hhea = f.font().hhea()?;
+    let mut os2: fontations::write::tables::os2::Os2 = f.font().os2()?.to_owned_table();
+    os2.s_typo_ascender = hhea.ascender().to_i16();
+    os2.s_typo_descender = hhea.descender().to_i16();
+    os2.s_typo_line_gap = hhea.line_gap().to_i16();
+    t.set(f.rebuild_with_new_table(&os2)?);
+    Ok(true)
 }

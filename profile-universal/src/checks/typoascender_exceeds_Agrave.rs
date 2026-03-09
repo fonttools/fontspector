@@ -1,7 +1,10 @@
-use fontations::skrifa::{
-    prelude::{LocationRef, Size},
-    raw::TableProvider,
-    MetadataProvider,
+use fontations::{
+    skrifa::{
+        prelude::{LocationRef, Size},
+        raw::TableProvider,
+        MetadataProvider,
+    },
+    write::from_obj::ToOwnedTable,
 };
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
@@ -23,7 +26,8 @@ use serde_json::json;
     ",
     proposal = "https://github.com/fonttools/fontbakery/issues/3170",
     title = "Checking that the typoAscender exceeds the yMax of the /Agrave.",
-    metadata = "{\"experimental\": \"since 2024/Jul/17\"}"
+    metadata = "{\"experimental\": \"since 2024/Jul/17\"}",
+    hotfix = fix_typoascender_exceeds_Agrave,
 )]
 fn typoascender_exceeds_Agrave(f: &Testable, _context: &Context) -> CheckFnResult {
     let font = testfont!(f);
@@ -64,4 +68,26 @@ fn typoascender_exceeds_Agrave(f: &Testable, _context: &Context) -> CheckFnResul
         problems.push(status);
     }
     return_result(problems)
+}
+
+fn fix_typoascender_exceeds_Agrave(t: &mut Testable) -> FixFnResult {
+    let f = testfont!(t);
+    let agrave = f.font().charmap().map(0x00C0u32);
+    let Some(agrave) = agrave else {
+        return Ok(false);
+    };
+    let Some(bounds) = f
+        .font()
+        .glyph_metrics(Size::unscaled(), LocationRef::new(&[]))
+        .bounds(agrave)
+    else {
+        return Ok(false);
+    };
+    let mut os2: fontations::write::tables::os2::Os2 = f.font().os2()?.to_owned_table();
+    if (os2.s_typo_ascender as f32) < bounds.y_max {
+        os2.s_typo_ascender = bounds.y_max.ceil() as i16;
+        t.set(f.rebuild_with_new_table(&os2)?);
+        return Ok(true);
+    }
+    Ok(false)
 }
