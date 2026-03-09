@@ -71,6 +71,25 @@ fn nested_components(f: &Testable, context: &Context) -> CheckFnResult {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use fontspector_checkapi::codetesting::{assert_pass, run_check, test_able};
+
+    #[test]
+    fn test_nested_components_pass() {
+        // Nunito Regular should have no nested components
+        let testable = test_able("nunito/Nunito-Regular.ttf");
+        let results = run_check(super::nested_components, testable);
+        assert_pass(&results);
+    }
+
+    // Note: The Python test modifies glyf table in-memory to create nested components
+    // by setting quotedbl's first component to "second" (which itself has components).
+    // This requires glyf table manipulation which is not available in the current
+    // Rust test utilities. A dedicated test font with pre-existing nested components
+    // would be needed for a FAIL test.
+}
+
 fn get_depth(glyph_id: GlyphId, loca: &Loca, glyf: &Glyf) -> u32 {
     let mut depth = 0;
     let glyph_entry = loca.get_glyf(glyph_id, glyf).ok().flatten();

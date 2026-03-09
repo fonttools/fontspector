@@ -46,6 +46,41 @@ fn unwanted_tables(t: &Testable, _context: &Context) -> CheckFnResult {
     })
 }
 
+#[cfg(test)]
+mod tests {
+    use fontspector_checkapi::{
+        codetesting::{add_table, assert_pass, assert_results_contain, run_check, test_able},
+        StatusCode,
+    };
+
+    #[test]
+    fn test_unwanted_tables_pass() {
+        // Mada Regular has no unwanted tables, should PASS
+        let testable = test_able("mada/Mada-Regular.ttf");
+        let results = run_check(super::unwanted_tables, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_unwanted_tables_fail_each() {
+        // Adding each unwanted table one-by-one should trigger FAIL
+        let unwanted_tables: Vec<&[u8; 4]> = vec![
+            b"DSIG", b"FFTM", b"TTFA", b"TSI0", b"TSI1", b"TSI2", b"TSI3", b"TSI5", b"TSIC",
+            b"TSIV", b"TSIP", b"TSIS", b"TSID", b"TSIJ", b"TSIB", b"prop",
+        ];
+        for unwanted in unwanted_tables {
+            let mut testable = test_able("mada/Mada-Regular.ttf");
+            add_table(&mut testable, unwanted);
+            let results = run_check(super::unwanted_tables, testable);
+            assert_results_contain(
+                &results,
+                StatusCode::Fail,
+                Some("unwanted-tables".to_string()),
+            );
+        }
+    }
+}
+
 fn delete_unwanted_tables(t: &mut Testable) -> FixFnResult {
     let f = testfont!(t);
     let unwanted_tags = UNWANTED_TABLES

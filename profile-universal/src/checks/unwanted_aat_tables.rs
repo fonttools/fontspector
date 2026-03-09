@@ -56,6 +56,42 @@ fn unwanted_aat_tables(t: &Testable, _context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
+#[cfg(test)]
+mod tests {
+    use fontspector_checkapi::{
+        codetesting::{add_table, assert_pass, assert_results_contain, run_check, test_able},
+        StatusCode,
+    };
+
+    #[test]
+    fn test_unwanted_aat_tables_pass() {
+        // Mada Regular has no unwanted AAT tables, should PASS
+        let testable = test_able("mada/Mada-Regular.ttf");
+        let results = run_check(super::unwanted_aat_tables, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_unwanted_aat_tables_fail_each() {
+        // Adding each unwanted AAT table one-by-one should trigger FAIL
+        let unwanted_tables: Vec<&[u8; 4]> = vec![
+            b"EBSC", b"Zaph", b"acnt", b"ankr", b"bdat", b"bhed", b"bloc", b"bmap", b"bsln",
+            b"fdsc", b"feat", b"fond", b"gcid", b"just", b"kerx", b"lcar", b"ltag", b"mort",
+            b"morx", b"opbd", b"prop", b"trak", b"xref",
+        ];
+        for unwanted in unwanted_tables {
+            let mut testable = test_able("mada/Mada-Regular.ttf");
+            add_table(&mut testable, unwanted);
+            let results = run_check(super::unwanted_aat_tables, testable);
+            assert_results_contain(
+                &results,
+                StatusCode::Fail,
+                Some("has-unwanted-tables".to_string()),
+            );
+        }
+    }
+}
+
 fn delete_unwanted_aat_tables(t: &mut Testable) -> FixFnResult {
     let f = testfont!(t);
     let mut new_font = FontBuilder::new();
