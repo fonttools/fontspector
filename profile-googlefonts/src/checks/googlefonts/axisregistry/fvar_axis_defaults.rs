@@ -61,3 +61,26 @@ fn fvar_axis_defaults(t: &Testable, _context: &Context) -> CheckFnResult {
 
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
+    use fontspector_checkapi::codetesting::{assert_pass, assert_skip, run_check, test_able};
+
+    use super::fvar_axis_defaults;
+
+    #[test]
+    fn test_pass_good_vf() {
+        let testable = test_able("cabinvf/Cabin[wdth,wght].ttf");
+        let results = run_check(fvar_axis_defaults, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_skip_static_font() {
+        let testable = test_able("mada/Mada-Regular.ttf");
+        let results = run_check(fvar_axis_defaults, testable);
+        assert_skip(&results);
+    }
+}

@@ -53,3 +53,30 @@ fn unique_glyphnames(t: &Testable, context: &Context) -> CheckFnResult {
         ))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::unique_glyphnames;
+    use fontspector_checkapi::codetesting::{assert_pass, assert_skip, run_check, test_able};
+
+    #[test]
+    fn test_unique_glyphnames_pass() {
+        let testable = test_able("nunito/Nunito-Regular.ttf");
+        let results = run_check(unique_glyphnames, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_unique_glyphnames_cff_pass() {
+        let testable = test_able("source-sans-pro/OTF/SourceSansPro-Regular.otf");
+        let results = run_check(unique_glyphnames, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_unique_glyphnames_cff2_skip() {
+        let testable = test_able("source-sans-pro/VAR/SourceSansVariable-Roman.otf");
+        let results = run_check(unique_glyphnames, testable);
+        assert_skip(&results);
+    }
+}

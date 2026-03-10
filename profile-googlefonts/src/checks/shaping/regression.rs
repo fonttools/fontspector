@@ -99,3 +99,19 @@ impl ShapingCheck for RegressionTest {
         test.expectation.is_some()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used)]
+
+    use super::regression;
+    use fontspector_checkapi::codetesting::{assert_skip, run_check, test_able};
+
+    #[test]
+    fn test_regression_skip_no_config() {
+        // Without shaping test configuration, the check should skip
+        let testable = test_able("nunito/Nunito-Regular.ttf");
+        let results = run_check(regression, testable);
+        assert_skip(&results);
+    }
+}

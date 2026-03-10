@@ -101,3 +101,26 @@ fn fix_os2_metrics_match_hhea(t: &mut Testable) -> FixFnResult {
     t.set(f.rebuild_with_new_table(&os2)?);
     Ok(true)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::os2_metrics_match_hhea;
+    use fontspector_checkapi::codetesting::{
+        assert_pass, assert_results_contain, run_check, test_able,
+    };
+    use fontspector_checkapi::StatusCode;
+
+    #[test]
+    fn test_os2_metrics_match_hhea_fail_linegap() {
+        let testable = test_able("mada/Mada-Regular.ttf");
+        let results = run_check(os2_metrics_match_hhea, testable);
+        assert_results_contain(&results, StatusCode::Fail, Some("lineGap".to_string()));
+    }
+
+    #[test]
+    fn test_os2_metrics_match_hhea_pass() {
+        let testable = test_able("mada/Mada-Black.ttf");
+        let results = run_check(os2_metrics_match_hhea, testable);
+        assert_pass(&results);
+    }
+}

@@ -98,3 +98,37 @@ fn char_restrictions(t: &Testable, _context: &Context) -> CheckFnResult {
     }
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used)]
+
+    use super::char_restrictions;
+    use fontations::skrifa::raw::types::NameId;
+    use fontspector_checkapi::codetesting::{
+        assert_pass, assert_results_contain, run_check, set_name_entry, test_able,
+    };
+    use fontspector_checkapi::StatusCode;
+
+    #[test]
+    fn test_char_restrictions_pass() {
+        let testable = test_able("merriweather/Merriweather-Regular.ttf");
+        let results = run_check(char_restrictions, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_char_restrictions_fail_bad_postscript() {
+        let mut testable = test_able("merriweather/Merriweather-Regular.ttf");
+        set_name_entry(
+            &mut testable,
+            3,
+            1,
+            0x0409,
+            NameId::POSTSCRIPT_NAME,
+            "Merriweather{Regular}".to_string(),
+        );
+        let results = run_check(char_restrictions, testable);
+        assert_results_contain(&results, StatusCode::Fail, Some("bad-string".to_string()));
+    }
+}

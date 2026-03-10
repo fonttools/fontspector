@@ -30,3 +30,41 @@ should be removed (perhaps these were added by a longstanding FontLab Studio
     }
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used)]
+
+    use super::no_copyright_on_description;
+    use fontations::skrifa::raw::types::NameId;
+    use fontspector_checkapi::codetesting::{
+        assert_pass, assert_results_contain, run_check, set_name_entry, test_able,
+    };
+    use fontspector_checkapi::StatusCode;
+
+    #[test]
+    fn test_no_copyright_pass() {
+        let testable = test_able("mada/Mada-Regular.ttf");
+        let results = run_check(no_copyright_on_description, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_no_copyright_fail() {
+        let mut testable = test_able("mada/Mada-Regular.ttf");
+        set_name_entry(
+            &mut testable,
+            3,
+            1,
+            0x0409,
+            NameId::DESCRIPTION,
+            "Copyright 2023 by Someone".to_string(),
+        );
+        let results = run_check(no_copyright_on_description, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("copyright-on-description".to_string()),
+        );
+    }
+}

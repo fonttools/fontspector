@@ -89,3 +89,65 @@ fn rfn(t: &Testable, _context: &Context) -> CheckFnResult {
     }
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
+    use fontations::skrifa::raw::types::NameId;
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, set_name_entry, test_able},
+        StatusCode,
+    };
+
+    use super::rfn;
+
+    #[test]
+    fn test_pass_good_font() {
+        let testable = test_able("nunito/Nunito-Regular.ttf");
+        let results = run_check(rfn, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_fail_rfn_with_familyname() {
+        let mut testable = test_able("nunito/Nunito-Regular.ttf");
+        let rfn_string = "Copyright 2022 The Nunito Project Authors \
+            (https://github.com/googlefonts/NunitoSans), \
+            with Reserved Font Name Nunito."
+            .to_string();
+        set_name_entry(
+            &mut testable,
+            3,
+            1,
+            0x0409,
+            NameId::VERSION_STRING,
+            rfn_string,
+        );
+        let results = run_check(rfn, testable);
+        assert_results_contain(&results, StatusCode::Fail, Some("rfn".to_string()));
+    }
+
+    #[test]
+    fn test_warn_rfn_with_other_familyname() {
+        let mut testable = test_able("nunito/Nunito-Regular.ttf");
+        let rfn_string = "Copyright 2022 The FooBar Project Authors \
+            (https://github.com/foo/bar), \
+            with Reserved Font Name FooBar."
+            .to_string();
+        set_name_entry(
+            &mut testable,
+            3,
+            1,
+            0x0409,
+            NameId::VERSION_STRING,
+            rfn_string,
+        );
+        let results = run_check(rfn, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Warn,
+            Some("legacy-familyname".to_string()),
+        );
+    }
+}

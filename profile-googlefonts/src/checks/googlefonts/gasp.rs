@@ -157,6 +157,45 @@ fn gasp(t: &Testable, _context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
+    use fontspector_checkapi::{
+        codetesting::{assert_results_contain, assert_skip, run_check, test_able},
+        StatusCode,
+    };
+
+    use super::gasp;
+
+    #[test]
+    fn test_good_font_no_fail() {
+        let testable = test_able("montserrat/Montserrat-Black.ttf");
+        let results = run_check(gasp, testable);
+        let worst = results.as_ref().unwrap().worst_status();
+        assert!(
+            worst == StatusCode::Pass || worst == StatusCode::Info,
+            "Expected pass or info for good gasp, got {:?}",
+            worst
+        );
+    }
+
+    #[test]
+    fn test_skip_cff_font() {
+        let testable = test_able("source-sans-pro/OTF/SourceSansPro-Black.otf");
+        let results = run_check(gasp, testable);
+        assert_skip(&results);
+    }
+
+    #[test]
+    fn test_fail_lacks_gasp() {
+        let mut testable = test_able("mada/Mada-Regular.ttf");
+        fontspector_checkapi::codetesting::remove_table(&mut testable, b"gasp");
+        let results = run_check(gasp, testable);
+        assert_results_contain(&results, StatusCode::Fail, Some("lacks-gasp".to_string()));
+    }
+}
+
 fn fix_unhinted_font(t: &mut Testable) -> FixFnResult {
     let f = testfont!(t);
     if f.has_table(b"fpgm") || (f.has_table(b"prep") && f.has_table(b"gasp")) {

@@ -68,3 +68,61 @@ fn vendor_id(t: &Testable, _context: &Context) -> CheckFnResult {
     }
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        FileTypeConvert, StatusCode,
+    };
+
+    use super::vendor_id;
+
+    fn set_vendor_id(testable: &mut fontspector_checkapi::Testable, vid: &str) {
+        use fontations::{skrifa::raw::TableProvider, write::from_obj::ToOwnedTable};
+
+        let f = fontspector_checkapi::prelude::TTF
+            .from_testable(testable)
+            .unwrap();
+        let mut os2: fontations::write::tables::os2::Os2 = f.font().os2().unwrap().to_owned_table();
+        let vid_bytes: [u8; 4] = vid.as_bytes().try_into().unwrap();
+        os2.ach_vend_id = fontations::types::Tag::new(&vid_bytes);
+        testable.set(f.rebuild_with_new_table(&os2).unwrap());
+    }
+
+    #[test]
+    fn test_warn_bad_vids() {
+        for bad_vid in &["UKWN", "ukwn", "PfEd", "PYRS"] {
+            let mut testable = test_able("merriweather/Merriweather-Regular.ttf");
+            set_vendor_id(&mut testable, bad_vid);
+            let results = run_check(vendor_id, testable);
+            assert_results_contain(&results, StatusCode::Warn, Some("bad".to_string()));
+        }
+    }
+
+    #[test]
+    fn test_warn_unknown_vid() {
+        let mut testable = test_able("merriweather/Merriweather-Regular.ttf");
+        set_vendor_id(&mut testable, "????");
+        let results = run_check(vendor_id, testable);
+        assert_results_contain(&results, StatusCode::Warn, Some("unknown".to_string()));
+    }
+
+    #[test]
+    fn test_pass_known_vid() {
+        let mut testable = test_able("merriweather/Merriweather-Regular.ttf");
+        set_vendor_id(&mut testable, "APPL");
+        let results = run_check(vendor_id, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_pass_goog_vid() {
+        let mut testable = test_able("merriweather/Merriweather-Regular.ttf");
+        set_vendor_id(&mut testable, "GOOG");
+        let results = run_check(vendor_id, testable);
+        assert_pass(&results);
+    }
+}

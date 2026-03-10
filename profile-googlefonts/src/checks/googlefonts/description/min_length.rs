@@ -24,3 +24,45 @@ fn min_length(desc: &Testable, _context: &Context) -> CheckFnResult {
         Status::just_one_pass()
     })
 }
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check},
+        StatusCode, Testable,
+    };
+    use std::path::PathBuf;
+
+    use super::min_length;
+
+    fn make_desc(content: &str) -> Testable {
+        Testable {
+            filename: PathBuf::from("DESCRIPTION.en_us.html"),
+            source: None,
+            contents: content.as_bytes().to_vec(),
+        }
+    }
+
+    #[test]
+    fn test_fail_199_bytes() {
+        let desc = make_desc(&"a".repeat(199));
+        let results = run_check(min_length, desc);
+        assert_results_contain(&results, StatusCode::Fail, Some("too-short".to_string()));
+    }
+
+    #[test]
+    fn test_fail_200_bytes() {
+        let desc = make_desc(&"a".repeat(200));
+        let results = run_check(min_length, desc);
+        assert_results_contain(&results, StatusCode::Fail, Some("too-short".to_string()));
+    }
+
+    #[test]
+    fn test_pass_201_bytes() {
+        let desc = make_desc(&"a".repeat(201));
+        let results = run_check(min_length, desc);
+        assert_pass(&results);
+    }
+}

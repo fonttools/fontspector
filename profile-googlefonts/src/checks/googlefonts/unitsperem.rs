@@ -51,3 +51,57 @@ fn unitsperem(t: &Testable, _context: &Context) -> CheckFnResult {
     }
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        FileTypeConvert, StatusCode,
+    };
+
+    use super::unitsperem;
+
+    fn set_units_per_em(testable: &mut fontspector_checkapi::Testable, upm: u16) {
+        use fontations::{skrifa::raw::TableProvider, write::from_obj::ToOwnedTable};
+
+        let f = fontspector_checkapi::prelude::TTF
+            .from_testable(testable)
+            .unwrap();
+        let mut head: fontations::write::tables::head::Head =
+            f.font().head().unwrap().to_owned_table();
+        head.units_per_em = upm;
+        testable.set(f.rebuild_with_new_table(&head).unwrap());
+    }
+
+    #[test]
+    fn test_pass_good_values() {
+        for upm in [16, 32, 64, 128, 256, 512, 1024, 500, 1000, 2000, 2048] {
+            let mut testable = test_able("cabin/Cabin-Regular.ttf");
+            set_units_per_em(&mut testable, upm);
+            let results = run_check(unitsperem, testable);
+            assert_pass(&results);
+        }
+    }
+
+    #[test]
+    fn test_fail_large_values() {
+        for upm in [4096, 16385] {
+            let mut testable = test_able("cabin/Cabin-Regular.ttf");
+            set_units_per_em(&mut testable, upm);
+            let results = run_check(unitsperem, testable);
+            assert_results_contain(&results, StatusCode::Fail, Some("large-value".to_string()));
+        }
+    }
+
+    #[test]
+    fn test_fail_bad_values() {
+        for upm in [1, 2, 4, 8, 15] {
+            let mut testable = test_able("cabin/Cabin-Regular.ttf");
+            set_units_per_em(&mut testable, upm);
+            let results = run_check(unitsperem, testable);
+            assert_results_contain(&results, StatusCode::Fail, Some("bad-value".to_string()));
+        }
+    }
+}

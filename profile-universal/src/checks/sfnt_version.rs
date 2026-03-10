@@ -51,3 +51,23 @@ fn sfnt_version(t: &Testable, _context: &Context) -> CheckFnResult {
     }
     Ok(Status::just_one_pass())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::sfnt_version;
+    use fontspector_checkapi::codetesting::{assert_pass, run_check, test_able};
+
+    #[test]
+    fn test_sfnt_version_ttf_pass() {
+        let testable = test_able("cabin/Cabin-Regular.ttf");
+        let results = run_check(sfnt_version, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_sfnt_version_cff_pass() {
+        let testable = test_able("source-sans-pro/OTF/SourceSansPro-Regular.otf");
+        let results = run_check(sfnt_version, testable);
+        assert_pass(&results);
+    }
+}

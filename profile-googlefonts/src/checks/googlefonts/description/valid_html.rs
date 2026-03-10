@@ -53,3 +53,56 @@ fn valid_html(desc: &Testable, _context: &Context) -> CheckFnResult {
     }
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check},
+        StatusCode, Testable,
+    };
+    use std::path::PathBuf;
+
+    use super::valid_html;
+
+    fn make_desc(content: &str) -> Testable {
+        Testable {
+            filename: PathBuf::from("DESCRIPTION.en_us.html"),
+            source: None,
+            contents: content.as_bytes().to_vec(),
+        }
+    }
+
+    #[test]
+    fn test_pass_good_html() {
+        let desc = make_desc("<p>This is a good HTML snippet with a paragraph tag.</p>\n");
+        let results = run_check(valid_html, desc);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_fail_lacks_paragraph() {
+        let desc = make_desc("This is plain text without any paragraph tags.\n");
+        let results = run_check(valid_html, desc);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("lacks-paragraph".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_fail_html_tag() {
+        let desc = make_desc("<html>foo</html>");
+        let results = run_check(valid_html, desc);
+        assert_results_contain(&results, StatusCode::Fail, Some("html-tag".to_string()));
+    }
+
+    #[test]
+    fn test_pass_ampersand_without_entity() {
+        let desc = make_desc("<p>This example has the & caracter, and does not escape it with an HTML entity code.</p>");
+        let results = run_check(valid_html, desc);
+        assert_pass(&results);
+    }
+}

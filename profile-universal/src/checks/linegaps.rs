@@ -75,3 +75,29 @@ fn fix_linegaps(t: &mut Testable) -> FixFnResult {
     t.set(f.rebuild_with_new_table(&hhea)?);
     Ok(true)
 }
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used)]
+
+    use super::linegaps;
+    use fontspector_checkapi::codetesting::{
+        assert_pass, assert_results_contain, run_check, test_able,
+    };
+    use fontspector_checkapi::StatusCode;
+
+    #[test]
+    fn test_linegaps_warn() {
+        let testable = test_able("mada/Mada-Regular.ttf");
+        let results = run_check(linegaps, testable);
+        assert_results_contain(&results, StatusCode::Warn, Some("hhea".to_string()));
+    }
+
+    #[test]
+    fn test_linegaps_pass_after_fix() {
+        let mut testable = test_able("mada/Mada-Regular.ttf");
+        super::fix_linegaps(&mut testable).unwrap();
+        let results = run_check(linegaps, testable);
+        assert_pass(&results);
+    }
+}

@@ -57,6 +57,45 @@ fn whitespace_widths(t: &Testable, _context: &Context) -> CheckFnResult {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used)]
+
+    use super::whitespace_widths;
+    use fontations::read::TableProvider;
+    use fontations::skrifa::MetadataProvider;
+    use fontations::write::{from_obj::ToOwnedTable, tables::hmtx::Hmtx};
+    use fontspector_checkapi::codetesting::{
+        assert_pass, assert_results_contain, run_check, test_able,
+    };
+    use fontspector_checkapi::{FileTypeConvert, StatusCode};
+
+    #[test]
+    fn test_whitespace_widths_pass() {
+        let testable = test_able("nunito/Nunito-Regular.ttf");
+        let results = run_check(whitespace_widths, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_whitespace_widths_fail() {
+        let mut testable = test_able("nunito/Nunito-Regular.ttf");
+        let f = fontspector_checkapi::TTF.from_testable(&testable).unwrap();
+        let mut hmtx: Hmtx = f.font().hmtx().unwrap().to_owned_table();
+        let space_gid = f.font().charmap().map(0x0020u32).unwrap();
+        if let Some(metric) = hmtx.h_metrics.get_mut(space_gid.to_u32() as usize) {
+            metric.advance = 0;
+        }
+        testable.set(f.rebuild_with_new_table(&hmtx).unwrap());
+        let results = run_check(whitespace_widths, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("different-widths".to_string()),
+        );
+    }
+}
+
 fn fix_whitespace_widths(t: &mut Testable) -> FixFnResult {
     let f = testfont!(t);
     let mut hmtx: Hmtx = f.font().hmtx()?.to_owned_table();
