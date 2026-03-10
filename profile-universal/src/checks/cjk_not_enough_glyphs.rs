@@ -80,3 +80,35 @@ fn cjk_not_enough_glyphs(f: &Testable, context: &Context) -> CheckFnResult {
     }
     Ok(Status::just_one_pass())
 }
+
+#[cfg(test)]
+mod tests {
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        StatusCode,
+    };
+
+    #[test]
+    fn test_cjk_not_enough_glyphs_pass() {
+        // NotoSansJP is a CJK font with plenty of CJK glyphs (>150), should PASS
+        // (Python test uses Iansui-Regular.ttf which is not available;
+        // NotoSansJP is an equivalent CJK font with sufficient glyphs)
+        let testable = test_able("cjk/NotoSansJP[wght].ttf");
+        let results = run_check(super::cjk_not_enough_glyphs, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_cjk_not_enough_glyphs_skip_not_cjk() {
+        // Montserrat is not a CJK font, should be SKIPPED
+        let testable = test_able("montserrat/Montserrat-Regular.ttf");
+        let results = run_check(super::cjk_not_enough_glyphs, testable);
+        assert_results_contain(&results, StatusCode::Skip, Some("not-cjk".to_string()));
+    }
+
+    // Note: The Python test also modifies Montserrat's cmap and OS/2 codepage bits
+    // in-memory to simulate a font that claims CJK but has only 1-2 CJK glyphs,
+    // triggering WARN "cjk-not-enough-glyphs". This requires OS/2 table modification
+    // which is not available in the current Rust test utilities. A dedicated test font
+    // with CJK codepage flags but very few CJK glyphs would be needed for that test.
+}
