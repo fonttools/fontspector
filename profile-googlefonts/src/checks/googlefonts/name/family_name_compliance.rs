@@ -107,3 +107,98 @@ fn family_name_compliance(t: &Testable, _context: &Context) -> CheckFnResult {
     }
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
+    use fontations::skrifa::raw::types::NameId;
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, set_name_entry, test_able},
+        StatusCode,
+    };
+
+    use super::family_name_compliance;
+
+    fn set_family_name(testable: &mut fontspector_checkapi::Testable, name: &str) {
+        set_name_entry(
+            testable,
+            3,
+            1,
+            0x0409,
+            NameId::FAMILY_NAME,
+            name.to_string(),
+        );
+    }
+
+    #[test]
+    fn test_pass_good_font() {
+        let testable = test_able("cabin/Cabin-Regular.ttf");
+        let results = run_check(family_name_compliance, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_fail_camelcase() {
+        let mut testable = test_able("cabin/Cabin-Regular.ttf");
+        set_family_name(&mut testable, "GollyGhost");
+        let results = run_check(family_name_compliance, testable);
+        assert_results_contain(&results, StatusCode::Fail, Some("camelcase".to_string()));
+    }
+
+    #[test]
+    fn test_pass_camelcase_exception() {
+        let mut testable = test_able("cabin/Cabin-Regular.ttf");
+        set_family_name(&mut testable, "KoHo");
+        let results = run_check(family_name_compliance, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_fail_abbreviation() {
+        let mut testable = test_able("cabin/Cabin-Regular.ttf");
+        set_family_name(&mut testable, "DTL Prokyon");
+        let results = run_check(family_name_compliance, testable);
+        assert_results_contain(&results, StatusCode::Fail, Some("abbreviation".to_string()));
+    }
+
+    #[test]
+    fn test_pass_abbreviation_exception() {
+        let mut testable = test_able("cabin/Cabin-Regular.ttf");
+        set_family_name(&mut testable, "PT Sans");
+        let results = run_check(family_name_compliance, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_pass_sc_ending() {
+        let mut testable = test_able("cabin/Cabin-Regular.ttf");
+        set_family_name(&mut testable, "Amatic SC");
+        let results = run_check(family_name_compliance, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_fail_forbidden_characters() {
+        let mut testable = test_able("cabin/Cabin-Regular.ttf");
+        set_family_name(&mut testable, "KonKhmer_SleokChher");
+        let results = run_check(family_name_compliance, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("forbidden-characters".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_fail_starts_with_lowercase() {
+        let mut testable = test_able("cabin/Cabin-Regular.ttf");
+        set_family_name(&mut testable, "cabin");
+        let results = run_check(family_name_compliance, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("starts-with-not-uppercase".to_string()),
+        );
+    }
+}

@@ -108,3 +108,26 @@ fn script_lang_tags(t: &Testable, _context: &Context) -> CheckFnResult {
     }
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
+    use fontspector_checkapi::{
+        codetesting::{assert_results_contain, run_check, test_able},
+        StatusCode,
+    };
+
+    use super::script_lang_tags;
+
+    #[test]
+    fn test_warn_lacks_meta_table() {
+        let testable = test_able("mada/Mada-Regular.ttf");
+        let results = run_check(script_lang_tags, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Warn,
+            Some("lacks-meta-table".to_string()),
+        );
+    }
+}

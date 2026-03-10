@@ -69,6 +69,41 @@ fn fstype(t: &Testable, _context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        FileTypeConvert, StatusCode,
+    };
+
+    use super::fstype;
+
+    #[test]
+    fn test_pass_good_font() {
+        let testable = test_able("cabin/Cabin-Regular.ttf");
+        let results = run_check(fstype, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_fail_drm() {
+        use fontations::{skrifa::raw::TableProvider, write::from_obj::ToOwnedTable};
+
+        let mut testable = test_able("cabin/Cabin-Regular.ttf");
+        let f = fontspector_checkapi::prelude::TTF
+            .from_testable(&testable)
+            .unwrap();
+        let mut os2: fontations::write::tables::os2::Os2 = f.font().os2().unwrap().to_owned_table();
+        os2.fs_type = 1;
+        testable.set(f.rebuild_with_new_table(&os2).unwrap());
+
+        let results = run_check(fstype, testable);
+        assert_results_contain(&results, StatusCode::Fail, Some("drm".to_string()));
+    }
+}
+
 fn fix_fstype(t: &mut Testable) -> FixFnResult {
     let f = testfont!(t);
     let mut os2: fontations::write::tables::os2::Os2 = f.font().os2()?.to_owned_table();

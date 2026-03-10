@@ -46,3 +46,29 @@ fn has_ttfautohint_params(t: &Testable, _context: &Context) -> CheckFnResult {
     }
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
+    use fontspector_checkapi::{
+        codetesting::{assert_results_contain, run_check, test_able},
+        StatusCode,
+    };
+
+    use super::has_ttfautohint_params;
+
+    #[test]
+    fn test_skip_not_hinted() {
+        let testable = test_able("mada/Mada-Regular.ttf");
+        let results = run_check(has_ttfautohint_params, testable);
+        assert_results_contain(&results, StatusCode::Skip, Some("not-hinted".to_string()));
+    }
+
+    #[test]
+    fn test_info_has_params() {
+        let testable = test_able("merriweather/Merriweather-Regular.ttf");
+        let results = run_check(has_ttfautohint_params, testable);
+        assert_results_contain(&results, StatusCode::Info, Some("ok".to_string()));
+    }
+}

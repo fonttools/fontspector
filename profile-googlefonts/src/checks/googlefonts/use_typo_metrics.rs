@@ -53,6 +53,65 @@ fn use_typo_metrics(t: &Testable, context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
+    use fontations::skrifa::raw::TableProvider;
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, assert_skip, run_check, test_able},
+        FileTypeConvert, StatusCode,
+    };
+
+    use super::use_typo_metrics;
+
+    fn set_fs_selection(testable: &mut fontspector_checkapi::Testable, value: u16) {
+        use fontations::{read::tables::os2::SelectionFlags, write::from_obj::ToOwnedTable};
+
+        let f = fontspector_checkapi::prelude::TTF
+            .from_testable(testable)
+            .unwrap();
+        let mut os2: fontations::write::tables::os2::Os2 = f.font().os2().unwrap().to_owned_table();
+        os2.fs_selection = SelectionFlags::from_bits_truncate(value);
+        testable.set(f.rebuild_with_new_table(&os2).unwrap());
+    }
+
+    #[test]
+    fn test_pass_with_bit7_set() {
+        let mut testable = test_able("abeezee/ABeeZee-Regular.ttf");
+        let f = fontspector_checkapi::prelude::TTF
+            .from_testable(&testable)
+            .unwrap();
+        let current = f.font().os2().unwrap().fs_selection().bits();
+        set_fs_selection(&mut testable, current | (1 << 7));
+        let results = run_check(use_typo_metrics, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_fail_without_bit7() {
+        let mut testable = test_able("abeezee/ABeeZee-Regular.ttf");
+        let f = fontspector_checkapi::prelude::TTF
+            .from_testable(&testable)
+            .unwrap();
+        let current = f.font().os2().unwrap().fs_selection().bits();
+        set_fs_selection(&mut testable, current & !(1 << 7));
+        let results = run_check(use_typo_metrics, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("missing-os2-fsselection-bit7".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_skip_cjk_font() {
+        let testable = test_able("cjk/NotoSansJP[wght].ttf");
+        let results = run_check(use_typo_metrics, testable);
+        assert_skip(&results);
+    }
+}
+
 fn fix_use_typo_metrics(t: &mut Testable) -> FixFnResult {
     let f = testfont!(t);
     if f.is_cjk_font(None) {

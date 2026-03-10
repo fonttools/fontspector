@@ -48,3 +48,35 @@ fn canonical_filename(t: &Testable, _context: &Context) -> CheckFnResult {
     }
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
+    use fontspector_checkapi::codetesting::{assert_pass, run_check, test_able};
+
+    use super::canonical_filename;
+
+    #[test]
+    fn test_pass_good_filenames() {
+        for font_file in [
+            "montserrat/Montserrat-Thin.ttf",
+            "montserrat/Montserrat-Regular.ttf",
+            "montserrat/Montserrat-Bold.ttf",
+            "montserrat/Montserrat-Black.ttf",
+            "montserrat/Montserrat-ThinItalic.ttf",
+            "montserrat/Montserrat-BoldItalic.ttf",
+        ] {
+            let testable = test_able(font_file);
+            let results = run_check(canonical_filename, testable);
+            assert_pass(&results);
+        }
+    }
+
+    #[test]
+    fn test_pass_vf_canonical() {
+        let testable = test_able("ubuntusans/UbuntuSans[wdth,wght].ttf");
+        let results = run_check(canonical_filename, testable);
+        assert_pass(&results);
+    }
+}

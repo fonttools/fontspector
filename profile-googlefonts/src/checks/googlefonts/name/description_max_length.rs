@@ -30,3 +30,53 @@ fn description_max_length(t: &Testable, _context: &Context) -> CheckFnResult {
     }
     Ok(Status::just_one_pass())
 }
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
+    use fontations::skrifa::raw::types::NameId;
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, set_name_entry, test_able},
+        StatusCode,
+    };
+
+    use super::description_max_length;
+
+    #[test]
+    fn test_pass_good_font() {
+        let testable = test_able("mada/Mada-Regular.ttf");
+        let results = run_check(description_max_length, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_pass_200_chars() {
+        let mut testable = test_able("mada/Mada-Regular.ttf");
+        set_name_entry(
+            &mut testable,
+            3,
+            1,
+            0x0409,
+            NameId::DESCRIPTION,
+            "a".repeat(200),
+        );
+        let results = run_check(description_max_length, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_warn_201_chars() {
+        let mut testable = test_able("mada/Mada-Regular.ttf");
+        set_name_entry(
+            &mut testable,
+            3,
+            1,
+            0x0409,
+            NameId::DESCRIPTION,
+            "a".repeat(201),
+        );
+        let results = run_check(description_max_length, testable);
+        assert_results_contain(&results, StatusCode::Warn, Some("too-long".to_string()));
+    }
+}

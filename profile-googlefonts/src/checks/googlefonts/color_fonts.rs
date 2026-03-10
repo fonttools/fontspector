@@ -53,3 +53,42 @@ fn color_fonts(t: &Testable, _context: &Context) -> CheckFnResult {
     }
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::color_fonts;
+    use fontspector_checkapi::codetesting::{
+        add_table, assert_pass, assert_results_contain, run_check, test_able,
+    };
+    use fontspector_checkapi::StatusCode;
+
+    #[test]
+    fn test_color_fonts_colrv1_no_svg_static() {
+        let testable = test_able("color_fonts/noto-glyf_colr_1.ttf");
+        let results = run_check(color_fonts, testable);
+        assert_results_contain(&results, StatusCode::Fail, Some("add-svg".to_string()));
+    }
+
+    #[test]
+    fn test_color_fonts_colrv1_variable_no_svg_pass() {
+        let mut testable = test_able("color_fonts/noto-glyf_colr_1.ttf");
+        add_table(&mut testable, b"fvar");
+        let results = run_check(color_fonts, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_color_fonts_no_color_tables_pass() {
+        let testable = test_able("cabin/Cabin-Regular.ttf");
+        let results = run_check(color_fonts, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_color_fonts_svg_only_fail() {
+        let mut testable = test_able("cabin/Cabin-Regular.ttf");
+        add_table(&mut testable, b"SVG ");
+        let results = run_check(color_fonts, testable);
+        assert_results_contain(&results, StatusCode::Fail, Some("add-colr".to_string()));
+    }
+}

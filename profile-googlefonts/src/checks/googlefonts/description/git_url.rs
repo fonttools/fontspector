@@ -46,3 +46,53 @@ fn git_url(desc: &Testable, _context: &Context) -> CheckFnResult {
     }
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
+    use fontspector_checkapi::{
+        codetesting::{assert_results_contain, run_check},
+        StatusCode, Testable,
+    };
+    use std::path::PathBuf;
+
+    use super::git_url;
+
+    fn make_desc(content: &str) -> Testable {
+        Testable {
+            filename: PathBuf::from("DESCRIPTION.en_us.html"),
+            source: None,
+            contents: content.as_bytes().to_vec(),
+        }
+    }
+
+    #[test]
+    fn test_fail_no_git_url() {
+        let desc = make_desc("<p>A simple description with no links.</p>\n");
+        let results = run_check(git_url, desc);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("lacks-git-url".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_info_with_git_urls() {
+        let desc = make_desc("<p>Description</p><a href='https://github.com/uswds/public-sans'>Good URL</a><a href='https://gitlab.com/smc/fonts/uroob'>Another Good One</a>\n");
+        let results = run_check(git_url, desc);
+        assert_results_contain(&results, StatusCode::Info, Some("url-found".to_string()));
+    }
+
+    #[test]
+    fn test_fail_false_git_in_url() {
+        let desc = make_desc("<a href='https://v2.designsystem.digital.gov'>Bad URL</a>\n");
+        let results = run_check(git_url, desc);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("lacks-git-url".to_string()),
+        );
+    }
+}
