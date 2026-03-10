@@ -115,3 +115,30 @@ fn case_mapping(t: &Testable, context: &Context) -> CheckFnResult {
     }
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::case_mapping;
+    use fontspector_checkapi::codetesting::{
+        assert_pass, assert_results_contain, run_check, test_able,
+    };
+    use fontspector_checkapi::StatusCode;
+
+    #[test]
+    fn test_case_mapping_fail() {
+        let testable = test_able("merriweather/Merriweather-Regular.ttf");
+        let results = run_check(case_mapping, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("missing-case-counterparts".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_case_mapping_pass() {
+        let testable = test_able("cabin/Cabin-Regular.ttf");
+        let results = run_check(case_mapping, testable);
+        assert_pass(&results);
+    }
+}

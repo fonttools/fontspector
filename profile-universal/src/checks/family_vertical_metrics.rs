@@ -100,3 +100,29 @@ fn family_vertical_metrics(c: &TestableCollection, context: &Context) -> CheckFn
 
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+
+    use super::family_vertical_metrics;
+    use fontspector_checkapi::codetesting::{assert_pass, run_check_with_config, test_able};
+    use fontspector_checkapi::{TestableCollection, TestableType};
+
+    #[test]
+    fn test_family_vertical_metrics_pass() {
+        let testables = vec![
+            test_able("montserrat/Montserrat-Black.ttf"),
+            test_able("montserrat/Montserrat-BlackItalic.ttf"),
+            test_able("montserrat/Montserrat-Bold.ttf"),
+            test_able("montserrat/Montserrat-BoldItalic.ttf"),
+        ];
+        let collection = TestableCollection::from_testables(testables, None);
+        let results = run_check_with_config(
+            family_vertical_metrics,
+            TestableType::Collection(&collection),
+            HashMap::new(),
+        );
+        assert_pass(&results);
+    }
+}

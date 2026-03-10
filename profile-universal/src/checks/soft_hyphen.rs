@@ -83,3 +83,41 @@ fn fix_soft_hyphen(t: &mut Testable) -> FixFnResult {
 //         yield WARN, Message("softhyphen", "This font has a 'Soft Hyphen' character.")
 //     else:
 //         yield PASS, "Looks good!"
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used)]
+
+    use super::soft_hyphen;
+    use fontations::skrifa::MetadataProvider;
+    use fontations::write::tables::cmap::Cmap;
+    use fontspector_checkapi::codetesting::{
+        assert_pass, assert_results_contain, run_check, test_able,
+    };
+    use fontspector_checkapi::{FileTypeConvert, StatusCode};
+
+    #[test]
+    fn test_soft_hyphen_warn() {
+        let testable = test_able("montserrat/Montserrat-Black.ttf");
+        let results = run_check(soft_hyphen, testable);
+        assert_results_contain(&results, StatusCode::Warn, Some("softhyphen".to_string()));
+    }
+
+    #[test]
+    fn test_soft_hyphen_pass() {
+        // Remove soft hyphen from a font that has it
+        let mut testable = test_able("montserrat/Montserrat-Black.ttf");
+        let f = fontspector_checkapi::TTF.from_testable(&testable).unwrap();
+        let charmap = f.font().charmap();
+        let mappings: Vec<_> = charmap.mappings().filter(|(cp, _)| *cp != 0x00AD).collect();
+        let new_cmap = Cmap::from_mappings(
+            mappings
+                .into_iter()
+                .map(|(c, gid)| (char::from_u32(c).unwrap_or('\0'), gid)),
+        )
+        .unwrap();
+        testable.set(f.rebuild_with_new_table(&new_cmap).unwrap());
+        let results = run_check(soft_hyphen, testable);
+        assert_pass(&results);
+    }
+}

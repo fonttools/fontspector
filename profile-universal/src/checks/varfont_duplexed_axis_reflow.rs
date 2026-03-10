@@ -305,3 +305,32 @@ fn grovel_item_variation_store(
     }
     Ok(false)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::varfont_duplexed_axis_reflow;
+    use fontspector_checkapi::codetesting::{assert_results_contain, run_check, test_able};
+    use fontspector_checkapi::StatusCode;
+
+    #[test]
+    fn test_duplexed_axis_reflow_grad() {
+        let testable = test_able("BadGrades/BadGrades-VF.ttf");
+        let results = run_check(varfont_duplexed_axis_reflow, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("grad-causes-reflow".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_duplexed_axis_reflow_rond() {
+        let testable = test_able("bad_fonts/reflowing_ROND/BadRoundness-VF.ttf");
+        let results = run_check(varfont_duplexed_axis_reflow, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("rond-causes-reflow".to_string()),
+        );
+    }
+}

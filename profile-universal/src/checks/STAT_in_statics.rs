@@ -112,3 +112,16 @@ fn STAT_in_statics(t: &Testable, _context: &Context) -> CheckFnResult {
         .collect();
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::STAT_in_statics;
+    use fontspector_checkapi::codetesting::{assert_skip, run_check, test_able};
+
+    #[test]
+    fn test_STAT_in_statics_skip_no_stat() {
+        let testable = test_able("cabin/Cabin-Regular.ttf");
+        let results = run_check(STAT_in_statics, testable);
+        assert_skip(&results);
+    }
+}

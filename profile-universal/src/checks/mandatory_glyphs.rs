@@ -91,3 +91,16 @@ fn mandatory_glyphs(f: &Testable, _context: &Context) -> CheckFnResult {
 
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::mandatory_glyphs;
+    use fontspector_checkapi::codetesting::{assert_pass, run_check, test_able};
+
+    #[test]
+    fn test_mandatory_glyphs_pass() {
+        let testable = test_able("nunito/Nunito-Regular.ttf");
+        let results = run_check(mandatory_glyphs, testable);
+        assert_pass(&results);
+    }
+}

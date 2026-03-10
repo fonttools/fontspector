@@ -70,7 +70,7 @@ impl OutlinePen for AlignmentMissPen<'_> {
 #[check(
     id = "outline_alignment_miss",
     rationale = "
-        
+
         This check heuristically looks for on-curve points which are close to, but
         do not sit on, significant boundary coordinates. For example, a point which
         has a Y-coordinate of 1 or -1 might be a misplaced baseline point. As well as
@@ -81,7 +81,7 @@ impl OutlinePen for AlignmentMissPen<'_> {
         may call for points in locations near the boundaries. As this check is liable
         to generate significant numbers of false positives, it will pass if there are
         more than 100 reported misalignments.
-    
+
     ",
     proposal = "https://github.com/fonttools/fontbakery/pull/3088",
     title = "Are there any misaligned on-curve points?"
@@ -168,10 +168,11 @@ fn alignment_miss(t: &Testable, context: &Context) -> CheckFnResult {
 
 #[cfg(test)]
 mod tests {
-    use fontspector_checkapi::codetesting::{
-        assert_messages_contain, assert_results_contain, run_check, test_able,
-    };
+    #![allow(clippy::unwrap_used)]
 
+    use fontspector_checkapi::codetesting::{
+        assert_messages_contain, assert_pass, assert_results_contain, run_check, test_able,
+    };
     use fontspector_checkapi::StatusCode;
 
     #[test]
@@ -184,5 +185,43 @@ mod tests {
             Some("found-misalignments".to_string()),
         );
         assert_messages_contain(&results, "A (U+0041): X=3,Y=-2 (should be at baseline 0?)");
+    }
+
+    #[test]
+    fn test_outline_alignment_miss_os2_high_version() {
+        let testable = test_able("merriweather/Merriweather-Regular.ttf");
+        let results = run_check(super::alignment_miss, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_outline_alignment_miss_os2_low_version() {
+        use fontations::skrifa::raw::TableProvider;
+        use fontations::write::{from_obj::ToOwnedTable, FontBuilder};
+        use fontspector_checkapi::FileTypeConvert;
+
+        let mut testable = test_able("merriweather/Merriweather-Regular.ttf");
+        let f = fontspector_checkapi::TTF.from_testable(&testable).unwrap();
+        let mut os2: fontations::write::tables::os2::Os2 = f.font().os2().unwrap().to_owned_table();
+        // Set fields to None so version computes to < 2
+        os2.sx_height = None;
+        os2.s_cap_height = None;
+        os2.us_default_char = None;
+        os2.us_break_char = None;
+        os2.us_max_context = None;
+        os2.ul_code_page_range_1 = None;
+        os2.ul_code_page_range_2 = None;
+        let new_bytes = FontBuilder::new()
+            .add_table(&os2)
+            .unwrap()
+            .copy_missing_tables(f.font())
+            .build();
+        testable.contents = new_bytes;
+        let results = run_check(super::alignment_miss, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Warn,
+            Some("skip-cap-x-height-alignment".to_string()),
+        );
     }
 }

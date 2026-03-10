@@ -156,3 +156,26 @@ fn family_win_ascent_and_descent(c: &TestableCollection, _context: &Context) -> 
     }
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+
+    use super::family_win_ascent_and_descent;
+    use fontspector_checkapi::codetesting::{
+        assert_results_contain, run_check_with_config, test_able,
+    };
+    use fontspector_checkapi::{StatusCode, TestableCollection, TestableType};
+
+    #[test]
+    fn test_family_win_ascent_descent_fail() {
+        let testables = vec![test_able("mada/Mada-Regular.ttf")];
+        let collection = TestableCollection::from_testables(testables, None);
+        let results = run_check_with_config(
+            family_win_ascent_and_descent,
+            TestableType::Collection(&collection),
+            HashMap::new(),
+        );
+        assert_results_contain(&results, StatusCode::Fail, Some("ascent".to_string()));
+    }
+}

@@ -31,3 +31,29 @@ fn mandatory_avar_table(t: &Testable, _context: &Context) -> CheckFnResult {
         Status::just_one_warn("missing-avar", "The font does not include an avar table.  If the progression rates of axes is linear and no user-mapping is expected, this is fine, and this check can be ignored or excluded.")
     })
 }
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used)]
+
+    use super::mandatory_avar_table;
+    use fontspector_checkapi::codetesting::{
+        assert_pass, assert_results_contain, remove_table, run_check, test_able,
+    };
+    use fontspector_checkapi::StatusCode;
+
+    #[test]
+    fn test_mandatory_avar_pass() {
+        let testable = test_able("ibmplexsans-vf/IBMPlexSansVar-Roman.ttf");
+        let results = run_check(mandatory_avar_table, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_mandatory_avar_warn_missing() {
+        let mut testable = test_able("ibmplexsans-vf/IBMPlexSansVar-Roman.ttf");
+        remove_table(&mut testable, b"avar");
+        let results = run_check(mandatory_avar_table, testable);
+        assert_results_contain(&results, StatusCode::Warn, Some("missing-avar".to_string()));
+    }
+}

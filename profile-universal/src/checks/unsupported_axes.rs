@@ -31,3 +31,23 @@ fn unsupported_axes(t: &Testable, _context: &Context) -> CheckFnResult {
         Status::just_one_pass()
     })
 }
+
+#[cfg(test)]
+mod tests {
+    use super::unsupported_axes;
+    use fontspector_checkapi::codetesting::{assert_pass, assert_skip, run_check, test_able};
+
+    #[test]
+    fn test_unsupported_axes_pass() {
+        let testable = test_able("ibmplexsans-vf/IBMPlexSansVar-Roman.ttf");
+        let results = run_check(unsupported_axes, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_unsupported_axes_skip_not_variable() {
+        let testable = test_able("cabin/Cabin-Regular.ttf");
+        let results = run_check(unsupported_axes, testable);
+        assert_skip(&results);
+    }
+}

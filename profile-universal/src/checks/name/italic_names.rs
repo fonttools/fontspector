@@ -89,3 +89,23 @@ fn italic_names(t: &Testable, _context: &Context) -> CheckFnResult {
     }
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::italic_names;
+    use fontspector_checkapi::codetesting::{assert_pass, assert_skip, run_check, test_able};
+
+    #[test]
+    fn test_italic_names_skip_regular() {
+        let testable = test_able("cabin/Cabin-Regular.ttf");
+        let results = run_check(italic_names, testable);
+        assert_skip(&results);
+    }
+
+    #[test]
+    fn test_italic_names_pass() {
+        let testable = test_able("cabin/Cabin-Italic.ttf");
+        let results = run_check(italic_names, testable);
+        assert_pass(&results);
+    }
+}

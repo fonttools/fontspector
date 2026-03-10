@@ -30,3 +30,30 @@ fn empty_glyph_on_gid1_for_colrv0(t: &Testable, _context: &Context) -> CheckFnRe
         Ok(Status::just_one_pass())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::empty_glyph_on_gid1_for_colrv0;
+    use fontspector_checkapi::codetesting::{
+        assert_pass, assert_results_contain, run_check, test_able,
+    };
+    use fontspector_checkapi::StatusCode;
+
+    #[test]
+    fn test_empty_glyph_gid1_not_empty() {
+        let testable = test_able("color_fonts/AmiriQuranColored_gid1_notempty.ttf");
+        let results = run_check(empty_glyph_on_gid1_for_colrv0, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("gid1-has-contours".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_empty_glyph_pass_amiri() {
+        let testable = test_able("amiri/AmiriQuranColored.ttf");
+        let results = run_check(empty_glyph_on_gid1_for_colrv0, testable);
+        assert_pass(&results);
+    }
+}
