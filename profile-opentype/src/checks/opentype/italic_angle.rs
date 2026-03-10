@@ -145,3 +145,89 @@ fn italic_angle(t: &Testable, context: &Context) -> CheckFnResult {
     }
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    use fontations::{skrifa::raw::TableProvider, write::from_obj::ToOwnedTable};
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        prelude::*,
+        FileTypeConvert, StatusCode,
+    };
+
+    fn make_testable_with_angle_and_style(angle: f32, style: &str) -> Testable {
+        let source = test_able("cabin/Cabin-Regular.ttf");
+        let f = TTF.from_testable(&source).unwrap();
+        let mut post: fontations::write::tables::post::Post =
+            f.font().post().unwrap().to_owned_table();
+        post.italic_angle = fontations::types::Fixed::from_f64(angle as f64);
+        let new_bytes = f.rebuild_with_new_table(&post).unwrap();
+        let filename = format!("TestFont-{style}.ttf");
+        Testable::new_with_contents(filename, new_bytes)
+    }
+
+    #[test]
+    fn test_italic_angle_regular_zero_pass() {
+        let testable = make_testable_with_angle_and_style(0.0, "Regular");
+        let result = run_check(super::italic_angle, testable);
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_italic_angle_positive_warn() {
+        let testable = make_testable_with_angle_and_style(1.0, "Italic");
+        let result = run_check(super::italic_angle, testable);
+        assert_results_contain(&result, StatusCode::Warn, Some("positive".to_string()));
+    }
+
+    #[test]
+    fn test_italic_angle_over_20_degrees() {
+        let testable = make_testable_with_angle_and_style(-21.0, "ThinItalic");
+        let result = run_check(super::italic_angle, testable);
+        assert_results_contain(
+            &result,
+            StatusCode::Warn,
+            Some("over-20-degrees".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_italic_angle_over_30_degrees() {
+        let testable = make_testable_with_angle_and_style(-31.0, "ThinItalic");
+        let result = run_check(super::italic_angle, testable);
+        assert_results_contain(
+            &result,
+            StatusCode::Warn,
+            Some("over-30-degrees".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_italic_angle_over_90_degrees() {
+        let testable = make_testable_with_angle_and_style(-91.0, "ThinItalic");
+        let result = run_check(super::italic_angle, testable);
+        assert_results_contain(
+            &result,
+            StatusCode::Fail,
+            Some("over-90-degrees".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_italic_angle_zero_italic_fail() {
+        let testable = make_testable_with_angle_and_style(0.0, "Italic");
+        let result = run_check(super::italic_angle, testable);
+        assert_results_contain(&result, StatusCode::Fail, Some("zero-italic".to_string()));
+    }
+
+    #[test]
+    fn test_italic_angle_non_zero_upright_fail() {
+        let testable = make_testable_with_angle_and_style(-1.0, "ExtraBold");
+        let result = run_check(super::italic_angle, testable);
+        assert_results_contain(
+            &result,
+            StatusCode::Fail,
+            Some("non-zero-upright".to_string()),
+        );
+    }
+}

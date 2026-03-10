@@ -75,3 +75,31 @@ fn axis_ranges_correct(t: &Testable, _context: &Context) -> CheckFnResult {
     }
     return_result(problems)
 }
+
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        StatusCode,
+    };
+
+    #[test]
+    fn test_axis_ranges_pass() {
+        let testable = test_able("cabinvfbeta/CabinVFBeta.ttf");
+        let result = run_check(axis_ranges_correct, testable);
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_axis_ranges_unusual_slnt() {
+        let testable = test_able("varfont/inter/Inter[slnt,wght].ttf");
+        let result = run_check(axis_ranges_correct, testable);
+        assert_results_contain(
+            &result,
+            StatusCode::Warn,
+            Some("unusual-slnt-range".to_string()),
+        );
+    }
+}

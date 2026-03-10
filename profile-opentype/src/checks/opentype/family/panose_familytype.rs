@@ -61,3 +61,76 @@ fn panose_familytype(c: &TestableCollection, _context: &Context) -> CheckFnResul
         StatusCode::Warn
     )
 }
+
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use fontations::{skrifa::raw::TableProvider, write::from_obj::ToOwnedTable};
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check_with_config, test_able},
+        StatusCode, TestableCollection, TestableType,
+    };
+    use std::collections::HashMap;
+
+    #[test]
+    fn test_panose_familytype_pass() {
+        let testables: Vec<_> = [
+            "mada/Mada-Black.ttf",
+            "mada/Mada-ExtraLight.ttf",
+            "mada/Mada-Medium.ttf",
+            "mada/Mada-SemiBold.ttf",
+            "mada/Mada-Bold.ttf",
+            "mada/Mada-Light.ttf",
+            "mada/Mada-Regular.ttf",
+        ]
+        .iter()
+        .map(|f| test_able(f))
+        .collect();
+        let collection = TestableCollection {
+            testables,
+            directory: "".to_string(),
+        };
+        let result = run_check_with_config(
+            panose_familytype,
+            TestableType::Collection(&collection),
+            HashMap::new(),
+        );
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_panose_familytype_inconsistency() {
+        let mut testables: Vec<_> = [
+            "mada/Mada-Black.ttf",
+            "mada/Mada-ExtraLight.ttf",
+            "mada/Mada-Medium.ttf",
+            "mada/Mada-SemiBold.ttf",
+            "mada/Mada-Bold.ttf",
+            "mada/Mada-Light.ttf",
+            "mada/Mada-Regular.ttf",
+        ]
+        .iter()
+        .map(|f| test_able(f))
+        .collect();
+        // Modify the first font's panose family type
+        let new_bytes = {
+            let f = TTF.from_testable(&testables[0]).unwrap();
+            let mut os2: fontations::write::tables::os2::Os2 =
+                f.font().os2().unwrap().to_owned_table();
+            os2.panose_10[0] = os2.panose_10[0].wrapping_add(1);
+            f.rebuild_with_new_table(&os2).unwrap()
+        };
+        testables[0].set(new_bytes);
+        let collection = TestableCollection {
+            testables,
+            directory: "".to_string(),
+        };
+        let result = run_check_with_config(
+            panose_familytype,
+            TestableType::Collection(&collection),
+            HashMap::new(),
+        );
+        assert_results_contain(&result, StatusCode::Warn, Some("inconsistency".to_string()));
+    }
+}

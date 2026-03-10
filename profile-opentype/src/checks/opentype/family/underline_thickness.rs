@@ -44,3 +44,64 @@ fn underline_thickness(c: &TestableCollection, _context: &Context) -> CheckFnRes
         Status::just_one_fail("inconsistent-underline-thickness", &message)
     })
 }
+
+#[cfg(test)]
+mod tests {
+    use fontations::{skrifa::raw::TableProvider, write::from_obj::ToOwnedTable};
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check_with_config, test_able},
+        prelude::*,
+        FileTypeConvert, StatusCode, TestableType,
+    };
+    use std::collections::HashMap;
+
+    #[test]
+    fn test_underline_thickness_pass() {
+        let testables: Vec<Testable> = vec![
+            test_able("mada/Mada-Black.ttf"),
+            test_able("mada/Mada-ExtraLight.ttf"),
+            test_able("mada/Mada-Medium.ttf"),
+            test_able("mada/Mada-SemiBold.ttf"),
+            test_able("mada/Mada-Bold.ttf"),
+            test_able("mada/Mada-Light.ttf"),
+            test_able("mada/Mada-Regular.ttf"),
+        ];
+        let collection = TestableCollection {
+            testables,
+            directory: "".to_string(),
+        };
+        let result = run_check_with_config(
+            super::underline_thickness,
+            TestableType::Collection(&collection),
+            HashMap::new(),
+        );
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_underline_thickness_inconsistent() {
+        let mut mada_black = test_able("mada/Mada-Black.ttf");
+        let f = TTF.from_testable(&mada_black).unwrap();
+        let mut post: fontations::write::tables::post::Post =
+            f.font().post().unwrap().to_owned_table();
+        let original = post.underline_thickness;
+        post.underline_thickness =
+            fontations::skrifa::raw::types::FWord::new(original.to_i16() + 1);
+        mada_black.set(f.rebuild_with_new_table(&post).unwrap());
+        let testables: Vec<Testable> = vec![mada_black, test_able("mada/Mada-Regular.ttf")];
+        let collection = TestableCollection {
+            testables,
+            directory: "".to_string(),
+        };
+        let result = run_check_with_config(
+            super::underline_thickness,
+            TestableType::Collection(&collection),
+            HashMap::new(),
+        );
+        assert_results_contain(
+            &result,
+            StatusCode::Fail,
+            Some("inconsistent-underline-thickness".to_string()),
+        );
+    }
+}

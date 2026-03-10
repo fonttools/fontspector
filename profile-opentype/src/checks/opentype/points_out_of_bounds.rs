@@ -84,3 +84,15 @@ fn points_out_of_bounds(t: &Testable, _context: &Context) -> CheckFnResult {
     }
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    use fontspector_checkapi::codetesting::{assert_pass, run_check, test_able};
+
+    #[test]
+    fn test_points_out_of_bounds_pass() {
+        let testable = test_able("familysans/FamilySans-Regular.ttf");
+        let result = run_check(super::points_out_of_bounds, testable);
+        assert_pass(&result);
+    }
+}

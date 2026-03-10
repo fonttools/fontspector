@@ -141,3 +141,51 @@ fn fix_xavgcharwidth(t: &mut Testable) -> FixFnResult {
     t.set(f.rebuild_with_new_table(&os2)?);
     Ok(true)
 }
+
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use fontations::{skrifa::raw::TableProvider, write::from_obj::ToOwnedTable};
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        StatusCode,
+    };
+
+    #[test]
+    fn test_xavgcharwidth_pass() {
+        let testable = test_able("nunito/Nunito-Regular.ttf");
+        let result = run_check(xavgcharwidth, testable);
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_xavgcharwidth_close() {
+        let mut testable = test_able("nunito/Nunito-Regular.ttf");
+        let f = TTF.from_testable(&testable).unwrap();
+        let mut os2: fontations::write::tables::os2::Os2 = f.font().os2().unwrap().to_owned_table();
+        os2.x_avg_char_width = 556;
+        testable.set(f.rebuild_with_new_table(&os2).unwrap());
+        let result = run_check(xavgcharwidth, testable);
+        assert_results_contain(
+            &result,
+            StatusCode::Info,
+            Some("xAvgCharWidth-close".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_xavgcharwidth_wrong() {
+        let mut testable = test_able("nunito/Nunito-Regular.ttf");
+        let f = TTF.from_testable(&testable).unwrap();
+        let mut os2: fontations::write::tables::os2::Os2 = f.font().os2().unwrap().to_owned_table();
+        os2.x_avg_char_width = 500;
+        testable.set(f.rebuild_with_new_table(&os2).unwrap());
+        let result = run_check(xavgcharwidth, testable);
+        assert_results_contain(
+            &result,
+            StatusCode::Warn,
+            Some("xAvgCharWidth-wrong".to_string()),
+        );
+    }
+}

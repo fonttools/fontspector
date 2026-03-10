@@ -64,3 +64,15 @@ fn glyf_non_transformed_duplicate_components(t: &Testable, _context: &Context) -
     }
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    use fontspector_checkapi::codetesting::{assert_pass, run_check, test_able};
+
+    #[test]
+    fn test_glyf_non_transformed_duplicate_components_pass() {
+        let testable = test_able("nunito/Nunito-Regular.ttf");
+        let result = run_check(super::glyf_non_transformed_duplicate_components, testable);
+        assert_pass(&result);
+    }
+}

@@ -31,3 +31,37 @@ fn empty_records(t: &Testable, _context: &Context) -> CheckFnResult {
     }
     return_result(problems)
 }
+
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use fontations::skrifa::raw::types::NameId;
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, set_name_entry, test_able},
+        StatusCode,
+    };
+
+    #[test]
+    fn test_empty_records_pass() {
+        let testable = test_able("source-sans-pro/OTF/SourceSansPro-Regular.otf");
+        let result = run_check(empty_records, testable);
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_empty_records_fail() {
+        let mut testable = test_able("source-sans-pro/OTF/SourceSansPro-Regular.otf");
+        // Set a name entry to an empty string
+        set_name_entry(
+            &mut testable,
+            3,
+            1,
+            0x0409,
+            NameId::UNIQUE_ID,
+            "".to_string(),
+        );
+        let result = run_check(empty_records, testable);
+        assert_results_contain(&result, StatusCode::Fail, Some("empty-record".to_string()));
+    }
+}

@@ -50,3 +50,25 @@ fn foundry_defined_tag_name(t: &Testable, _context: &Context) -> CheckFnResult {
     }
     return_result(problems)
 }
+
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use fontspector_checkapi::codetesting::{assert_pass, run_check, test_able};
+
+    #[test]
+    fn test_foundry_defined_tag_pass() {
+        let testable = test_able("cabinvfbeta/CabinVFBeta.ttf");
+        let result = run_check(foundry_defined_tag_name, testable);
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_foundry_defined_tag_pass_shantell() {
+        // ShantellSans has foundry-defined tags (BNCE, INFM, SPAC) - all uppercase
+        let testable = test_able("shantell/ShantellSans-Italic[BNCE,INFM,SPAC,wght].ttf");
+        let result = run_check(foundry_defined_tag_name, testable);
+        assert_pass(&result);
+    }
+}

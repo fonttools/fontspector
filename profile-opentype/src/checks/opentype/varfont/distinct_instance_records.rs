@@ -44,3 +44,17 @@ fn distinct_instance_records(t: &Testable, _context: &Context) -> CheckFnResult 
     }
     return_result(problems)
 }
+
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use fontspector_checkapi::codetesting::{assert_pass, run_check, test_able};
+
+    #[test]
+    fn test_distinct_instance_records_pass() {
+        let testable = test_able("cabinvf/Cabin[wdth,wght].ttf");
+        let result = run_check(distinct_instance_records, testable);
+        assert_pass(&result);
+    }
+}
