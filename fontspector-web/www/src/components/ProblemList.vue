@@ -95,7 +95,7 @@ function collateFiles(results: SubresultWithCheck[]): SubresultWithCheck[][] {
     });
     if (!groups[key]) groups[key] = [];
     groups[key].push(res);
-  }
+  } 
   return Object.values(groups);
 }
 function fixAndDownload() {
@@ -149,7 +149,7 @@ function baseName(path: string): string {
       <span v-if="fixable" class="float-end">
         Fix all: <input type="checkbox" @change="selectAllChildren" /></span>
     </p>
-    <details v-for="(group, area) in groupByArea(results)" :key="area" open="true">
+    <details v-for="([area, group], idx) of Object.entries(groupByArea(results)).sort(([a], [b]) => a.localeCompare(b))" :key="idx" open="true">
       <summary class="mb-2">{{ area }} <span v-if="fixable && collateFiles(group).length > 1" class="float-end">Fix {{
         group.length
           }} issues:
