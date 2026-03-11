@@ -82,6 +82,11 @@ impl Testable {
         self.contents = new_bytes;
     }
 
+    /// Set the new filename of a file
+    pub fn set_filename<P: Into<PathBuf> + AsRef<Path>>(&mut self, new_filename: P) {
+        self.filename = new_filename.into();
+    }
+
     /// Save the contents of a file to disk
     pub fn save(&self) -> Result<(), std::io::Error> {
         std::fs::write(&self.filename, &self.contents)

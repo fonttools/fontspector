@@ -22,7 +22,8 @@ use serde_json::json;
     
     ",
     proposal = "https://github.com/fonttools/fontbakery/issues/4829",
-    title = "Checking file is named canonically."
+    title = "Checking file is named canonically.",
+    hotfix = fix_canonical_filename,
 )]
 fn canonical_filename(t: &Testable, _context: &Context) -> CheckFnResult {
     let f = testfont!(t);
@@ -47,6 +48,13 @@ fn canonical_filename(t: &Testable, _context: &Context) -> CheckFnResult {
         problems.push(Status::pass());
     }
     return_result(problems)
+}
+
+fn fix_canonical_filename(t: &mut Testable) -> Result<bool, FontspectorError> {
+    let f = testfont!(t);
+    let expected_filename = build_filename(f.font(), &t.extension().unwrap_or_default());
+    t.set_filename(&expected_filename);
+    Ok(true)
 }
 
 #[cfg(test)]
