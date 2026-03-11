@@ -1,5 +1,8 @@
 #![allow(clippy::expect_used, clippy::unwrap_used)]
-use std::{collections::HashMap, path::PathBuf};
+use std::{
+    collections::{BTreeMap, BTreeSet, HashMap},
+    path::PathBuf,
+};
 
 use fontspector_checkapi::prelude::*;
 use js_sys::{Reflect, Uint8Array};
@@ -20,6 +23,8 @@ use profile_opentype::OpenType;
 use profile_universal::Universal;
 use std::io::Write;
 use zip::ZipWriter;
+
+type FixFn = dyn Fn(&mut Testable) -> Result<bool, FontspectorError>;
 
 #[wasm_bindgen]
 extern "C" {
@@ -210,13 +215,29 @@ pub fn fix_fonts(fonts: &JsValue, requests: &JsValue) -> Result<Uint8Array, JsVa
     let registry = register_profiles();
     let mut logfile = String::new();
 
+    // Gather all the testables and their fixes first. Have to do this in multiple passes to
+    // avoid mutably borrowing the same testable multiple times.
+    let mut to_fix: BTreeMap<String, (&mut Testable, Vec<(String, &FixFn)>)> = BTreeMap::new();
+    let mut filenames_we_need = BTreeSet::new();
     for request in js_sys::try_iter(requests)?.ok_or_else(|| "not iterable!")? {
         let request = request?;
-        // Do nothing for now
-        // extract filename and check_id
         let filename = Reflect::get(&request, &JsValue::from_str("filename"))?
             .as_string()
             .ok_or("filename is not a string")?;
+        filenames_we_need.insert(filename.clone());
+    }
+    // Now map them to their testables
+    for testable in &mut testables {
+        if filenames_we_need.contains(&testable.filename.to_string_lossy().to_string()) {
+            to_fix.insert(
+                testable.filename.to_string_lossy().to_string(),
+                (testable, vec![]),
+            );
+        }
+    }
+    // Next pass gathers fix functions
+    for request in js_sys::try_iter(requests)?.ok_or_else(|| "not iterable!")? {
+        let request = request?;
         let check_id = Reflect::get(&request, &JsValue::from_str("check_id"))?
             .as_string()
             .ok_or("check_id is not a string")?;
@@ -228,18 +249,27 @@ pub fn fix_fonts(fonts: &JsValue, requests: &JsValue) -> Result<Uint8Array, JsVa
             .hotfix
             .as_ref()
             .ok_or_else(|| format!("Check {check_id} does not have a fixer"))?;
-        let mut testable = testables
-            .iter_mut()
-            .find(|t| t.filename == filename)
-            .ok_or_else(|| format!("Could not find file with name {filename}"))?;
-        if fixer(&mut testable)
-            .map_err(|e| format!("Failed to fix {filename} for check {check_id}: {e}"))?
-        {
-            logfile.push_str(&format!("Fixed {filename} for check {check_id}\n"));
-        } else {
-            logfile.push_str(&format!(
-                "Did not apply fix {filename} for check {check_id}\n"
-            ));
+        let filename = Reflect::get(&request, &JsValue::from_str("filename"))?
+            .as_string()
+            .ok_or("filename is not a string")?;
+        if let Some((_, fixes)) = to_fix.get_mut(&filename) {
+            fixes.push((check_id.clone(), fixer));
+        }
+    }
+
+    // Now run all the fixes at once
+    for (filename, (testable, fixes)) in to_fix.into_iter() {
+        logfile.push_str(&format!("Fixing {filename}:\n"));
+        for (check_id, fixer) in fixes {
+            match fixer(testable) {
+                Ok(true) => logfile.push_str(&format!("  - Applied fix for {check_id}\n")),
+                Ok(false) => logfile.push_str(&format!(
+                    "  - Fix for {check_id} did not apply cleanly, manual review needed\n"
+                )),
+                Err(e) => {
+                    logfile.push_str(&format!("  - Error applying fix for {check_id}: {e}\n"))
+                }
+            }
         }
     }
 
