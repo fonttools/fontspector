@@ -114,6 +114,7 @@ fn fix_caret_slope(t: &mut Testable) -> FixFnResult {
     Ok(true)
 }
 
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 #[cfg(test)]
 mod tests {
     use fontations::{skrifa::raw::TableProvider, write::from_obj::ToOwnedTable};
