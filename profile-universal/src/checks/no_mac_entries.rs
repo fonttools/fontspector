@@ -1,5 +1,7 @@
-use fontations::skrifa::raw::TableProvider;
-use fontations::write::tables::name::{Name, NameRecord};
+use fontations::{
+    skrifa::raw::TableProvider,
+    write::tables::name::{Name, NameRecord},
+};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
 
@@ -38,7 +40,10 @@ fn no_mac_entries(t: &Testable, _context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
-fn fix_no_mac_entries(t: &mut Testable, _replies: Option<MoreInfoReplies>) -> Result<FixResult, FontspectorError> {
+fn fix_no_mac_entries(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
     let name_table = f.font().name()?;
     let new_records: Vec<NameRecord> = name_table

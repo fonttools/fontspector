@@ -2,6 +2,7 @@
 
 mod args;
 mod configuration;
+mod hotfix;
 mod profiles;
 mod reporters;
 
@@ -426,16 +427,7 @@ fn try_fixing_stuff(results: &mut RunResults, args: &Args, registry: &Registry) 
         });
         let mut modified = false;
         for (id, fix, result) in fixes.into_iter() {
-            log::info!("Trying to fix {file} with {id}");
-            result.hotfix_result = match fix(&mut testable, None) {
-                Ok(hotfix_result) => {
-                    if matches!(hotfix_result, FixResult::Fixed) {
-                        modified = true;
-                    }
-                    Some(hotfix_result)
-                }
-                Err(e) => Some(FixResult::FixFailed(e.to_string())),
-            }
+            result.hotfix_result = hotfix::run_hotfix(&file, &mut testable, &mut modified, id, fix);
         }
         if modified {
             // save it

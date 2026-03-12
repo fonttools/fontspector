@@ -38,7 +38,10 @@ fn weight_class_fvar(t: &Testable, _context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
-fn fix_weight_class_fvar(t: &mut Testable, _replies: Option<MoreInfoReplies>) -> Result<FixResult, FontspectorError> {
+fn fix_weight_class_fvar(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
     if !f.is_variable_font() {
         return Ok(FixResult::Unfixable);

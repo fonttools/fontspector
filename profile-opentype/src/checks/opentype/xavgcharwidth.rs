@@ -133,7 +133,10 @@ fn compute_expected_xavgcharwidth(
     }
 }
 
-fn fix_xavgcharwidth(t: &mut Testable, _replies: Option<MoreInfoReplies>) -> Result<FixResult, FontspectorError> {
+fn fix_xavgcharwidth(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
     let (_, expected) = compute_expected_xavgcharwidth(&f)?;
     let mut os2: fontations::write::tables::os2::Os2 = f.font().os2()?.to_owned_table();

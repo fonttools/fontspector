@@ -92,7 +92,10 @@ mod tests {
     }
 }
 
-fn delete_unwanted_aat_tables(t: &mut Testable, _replies: Option<MoreInfoReplies>) -> Result<FixResult, FontspectorError> {
+fn delete_unwanted_aat_tables(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
     let mut new_font = FontBuilder::new();
     for table in f.font().table_directory.table_records() {

@@ -81,7 +81,10 @@ mod tests {
     }
 }
 
-fn delete_unwanted_tables(t: &mut Testable, _replies: Option<MoreInfoReplies>) -> Result<FixResult, FontspectorError> {
+fn delete_unwanted_tables(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
     let unwanted_tags = UNWANTED_TABLES
         .iter()

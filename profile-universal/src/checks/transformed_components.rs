@@ -104,7 +104,10 @@ fn transformed_components(f: &Testable, context: &Context) -> CheckFnResult {
     }
 }
 
-fn decompose_transformed_components(t: &mut Testable, _replies: Option<MoreInfoReplies>) -> Result<FixResult, FontspectorError> {
+fn decompose_transformed_components(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
     let loca = f.font().loca(None)?;
     let glyf = f.font().glyf()?;
