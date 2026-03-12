@@ -1,10 +1,13 @@
-use fontations::skrifa::string::StringId;
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata, TestFont};
+use edit_distance::edit_distance;
+use fontations::{read::TableProvider, skrifa::string::StringId};
+use fontspector_checkapi::{
+    constants::STATIC_STYLE_NAMES, prelude::*, testfont, FileTypeConvert, Metadata, TestFont,
+};
 use google_fonts_axisregistry::build_name_table;
 use serde_json::json;
 use tabled::builder::Builder;
 
-use crate::utils::build_expected_font;
+use crate::{constants::gf_api_weight_name, utils::build_expected_font};
 
 const NAME_IDS: [(StringId, &str); 6] = [
     (StringId::FAMILY_NAME, "Family Name"),
@@ -49,6 +52,75 @@ fn font_names(t: &Testable, _context: &Context) -> CheckFnResult {
         return return_result(problems);
     }
 
+    // If this is a static file, the subfamily name must be one of the
+    // Google Fonts supported styles.
+    if !f.is_variable_font() {
+        let style_name = f.best_subfamilyname().unwrap_or("Regular".to_string());
+        let os2 = f.font().os2()?;
+        let weight_class = os2.us_weight_class();
+        if !STATIC_STYLE_NAMES.contains(&style_name.as_str()) {
+            // Are we *close* to a static style name?
+            let mut closest = None;
+            let mut min_distance = usize::MAX;
+            for static_name in STATIC_STYLE_NAMES {
+                let distance = edit_distance(&style_name, static_name);
+                if distance < min_distance {
+                    min_distance = distance;
+                    closest = Some(static_name);
+                }
+            }
+            // First check if we have a weight class that matches a supported style name, even if the style name itself doesn't match.
+            // XBold might be a typo for Bold but it's more likely to be an ExtraBold if the weight class is 800, for example.
+            if weight_class != 400 {
+                let expected_style_name = gf_api_weight_name(weight_class);
+                let msg = format!(
+                    "Unsupported style name for static font. OS/2 usWeightClass is {weight_class}, so suggested style name is '{expected_style_name}'."
+                );
+                let mut status = Status::fail("unsupported-style", &msg);
+                status.add_metadata(Metadata::TableProblem {
+                    table_tag: "name".to_string(),
+                    field_name: Some("subfamily name".to_string()),
+                    message: "Style name does not match OS/2 usWeightClass".to_string(),
+                    actual: Some(json!(style_name.clone())),
+                    expected: Some(json!(expected_style_name)),
+                });
+                problems.push(status);
+                return return_result(problems);
+            } else if min_distance <= 4 {
+                if let Some(closest) = closest {
+                    let msg = format!(
+                        "Unsupported style name for static font. Did you mean '{closest}'?"
+                    );
+                    let mut status = Status::fail("unsupported-style", &msg);
+                    status.add_metadata(Metadata::TableProblem {
+                        table_tag: "name".to_string(),
+                        field_name: Some("subfamily name".to_string()),
+                        message: "Possibly mistyped style name".to_string(),
+                        actual: Some(json!(style_name.clone())),
+                        expected: Some(json!(closest)),
+                    });
+                    problems.push(status);
+                    return return_result(problems);
+                }
+            } else {
+                let msg = format!(
+                    "Unsupported style name for static font. Expected one of {:?}, got '{style_name}'.",
+                    STATIC_STYLE_NAMES
+                );
+                let mut status = Status::fail("unsupported-style", &msg);
+                status.add_metadata(Metadata::TableProblem {
+                    table_tag: "name".to_string(),
+                    field_name: Some("subfamily name".to_string()),
+                    message: "Unsupported style name for static font".to_string(),
+                    actual: Some(json!(style_name.clone())),
+                    expected: Some(json!(STATIC_STYLE_NAMES)),
+                });
+                problems.push(status);
+                return return_result(problems);
+            }
+        }
+    }
+
     let expected_font_data = build_expected_font(&f, &[])?;
     let expected_font = TestFont::new_from_data(&t.filename, &expected_font_data).map_err(|e| {
         FontspectorError::General(format!("Couldn't build expected font from data: {e}"))
@@ -85,13 +157,12 @@ fn font_names(t: &Testable, _context: &Context) -> CheckFnResult {
             row.push(format!("**{current}**"));
             row.push(format!("**{expected}**"));
             ok = false;
-            metadatas.push(Metadata::FontProblem {
+            metadatas.push(Metadata::TableProblem {
+                table_tag: "name".to_string(),
+                field_name: Some(name.to_string()),
                 message: format!("Name table entry for {name} is incorrect"),
-                context: Some(json!({
-                    "name_id": name_id.to_u16(),
-                    "current": current.clone(),
-                    "expected": expected.clone()
-                })),
+                actual: Some(json!(current.clone())),
+                expected: Some(json!(expected.clone())),
             });
         } else {
             row.push(current);
