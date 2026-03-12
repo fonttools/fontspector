@@ -102,8 +102,8 @@ fn trailing_spaces(f: &Testable, _context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
-fn fix_trailing_spaces(_f: &mut Testable) -> FixFnResult {
-    Ok(false)
+fn fix_trailing_spaces(_f: &mut Testable, _replies: Option<MoreInfoReplies>) -> Result<FixResult, FontspectorError> {
+    Ok(FixResult::Unfixable)
 }
 
 #[cfg(test)]

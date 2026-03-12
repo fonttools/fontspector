@@ -185,13 +185,13 @@ fn font_names(t: &Testable, _context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
-fn fix_font_names(t: &mut Testable) -> FixFnResult {
+fn fix_font_names(t: &mut Testable, _replies: Option<MoreInfoReplies>) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
     if f.has_axis("MORF") {
-        return Ok(false);
+        return Ok(FixResult::Unfixable);
     }
     let new_binary = build_name_table(f.font(), None, None, &[], None)
         .map_err(|e| FontspectorError::Fix(format!("Couldn't build name table: {e}")))?;
     t.set(new_binary);
-    Ok(true)
+    Ok(FixResult::Fixed)
 }

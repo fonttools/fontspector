@@ -122,7 +122,7 @@ impl Reporter for TerminalReporter {
                         Some(FixResult::Fixed) => {
                             termimad::print_inline("  Hotfix applied.\n")
                         }
-                        Some(FixResult::FixError(e)) => {
+                        Some(FixResult::FixFailed(e)) => {
                             termimad::print_inline(&format!("  Hotfix failed: {e:}\n"))
                         }
                         _ => {}
@@ -134,7 +134,7 @@ impl Reporter for TerminalReporter {
                         Some(FixResult::Fixed) => {
                             termimad::print_inline("  Source fix applied.\n")
                         }
-                        Some(FixResult::FixError(e)) => {
+                        Some(FixResult::FixFailed(e)) => {
                             termimad::print_inline(&format!("  Source fix failed: {e:}\n"))
                         }
                         _ => {}

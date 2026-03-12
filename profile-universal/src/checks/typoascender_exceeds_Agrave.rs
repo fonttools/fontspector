@@ -70,24 +70,24 @@ fn typoascender_exceeds_Agrave(f: &Testable, _context: &Context) -> CheckFnResul
     return_result(problems)
 }
 
-fn fix_typoascender_exceeds_Agrave(t: &mut Testable) -> FixFnResult {
+fn fix_typoascender_exceeds_Agrave(t: &mut Testable, _replies: Option<MoreInfoReplies>) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
     let agrave = f.font().charmap().map(0x00C0u32);
     let Some(agrave) = agrave else {
-        return Ok(false);
+        return Ok(FixResult::Unfixable);
     };
     let Some(bounds) = f
         .font()
         .glyph_metrics(Size::unscaled(), LocationRef::new(&[]))
         .bounds(agrave)
     else {
-        return Ok(false);
+        return Ok(FixResult::Unfixable);
     };
     let mut os2: fontations::write::tables::os2::Os2 = f.font().os2()?.to_owned_table();
     if (os2.s_typo_ascender as f32) < bounds.y_max {
         os2.s_typo_ascender = bounds.y_max.ceil() as i16;
         t.set(f.rebuild_with_new_table(&os2)?);
-        return Ok(true);
+        return Ok(FixResult::Fixed);
     }
-    Ok(false)
+    Ok(FixResult::Unfixable)
 }

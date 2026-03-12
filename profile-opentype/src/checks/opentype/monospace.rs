@@ -161,7 +161,7 @@ fn monospace(t: &Testable, context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
-fn fix_monospace(t: &mut Testable) -> FixFnResult {
+fn fix_monospace(t: &mut Testable, _replies: Option<MoreInfoReplies>) -> Result<FixResult, FontspectorError> {
     let context = Context::default();
     let mut changed = false;
 
@@ -228,7 +228,7 @@ fn fix_monospace(t: &mut Testable) -> FixFnResult {
         }
     }
 
-    Ok(changed)
+    Ok(if changed { FixResult::Fixed } else { FixResult::Unfixable })
 }
 
 #[allow(clippy::indexing_slicing)] // Crossing my fingers here.

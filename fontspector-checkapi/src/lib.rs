@@ -27,6 +27,8 @@ mod error;
 
 /// Managing a registry of file types
 mod filetype;
+/// Data types for applying fixes to fonts
+mod fix;
 /// Represents a TrueType font, together with useful routines for dealing with them
 mod font;
 /// Routines to make dealing with GSUB tables more tractable
@@ -43,11 +45,15 @@ mod status;
 mod testable;
 /// Common utility functions for check implementors
 mod utils;
-pub use check::{return_result, Check, CheckFlags, CheckId, CheckImplementation, HotfixFunction};
-pub use checkresult::{CheckResult, FixResult};
+pub use check::{return_result, Check, CheckFlags, CheckId, CheckImplementation};
+pub use checkresult::CheckResult;
 pub use context::Context;
 pub use error::FontspectorError;
 pub use filetype::{FileType, FileTypeConvert};
+pub use fix::{
+    Choice, DialogField, DialogFieldType, FixResult, HotfixFunction, MoreInfoReplies,
+    MoreInfoRequest,
+};
 pub use font::{
     get_name_entry_string, get_name_platform_tuples, PlatformSelector, TestFont, DEFAULT_LOCATION,
     TTF,
@@ -91,11 +97,11 @@ pub mod prelude {
         };
     }
     /// The expected return type of a hotfix function
-    pub type FixFnResult = Result<bool, FontspectorError>;
     pub use crate::{
         return_result, utils::*, Check, CheckFlags, CheckFnResult, CheckImplementation, Context,
-        FileType, FontspectorError, Profile, ProfileBuilder, Registry, Status, StatusList,
-        Testable, TestableCollection, TestableType, TTF,
+        FileType, FixResult, FontspectorError, MoreInfoReplies, MoreInfoRequest, Profile,
+        ProfileBuilder, Registry, Status, StatusList, Testable, TestableCollection, TestableType,
+        TTF,
     };
 }
 

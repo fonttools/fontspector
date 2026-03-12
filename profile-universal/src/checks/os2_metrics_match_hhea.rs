@@ -91,7 +91,7 @@ fn os2_metrics_match_hhea(t: &Testable, context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
-fn fix_os2_metrics_match_hhea(t: &mut Testable) -> FixFnResult {
+fn fix_os2_metrics_match_hhea(t: &mut Testable, _replies: Option<MoreInfoReplies>) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
     let hhea = f.font().hhea()?;
     let mut os2: fontations::write::tables::os2::Os2 = f.font().os2()?.to_owned_table();
@@ -99,7 +99,7 @@ fn fix_os2_metrics_match_hhea(t: &mut Testable) -> FixFnResult {
     os2.s_typo_descender = hhea.descender().to_i16();
     os2.s_typo_line_gap = hhea.line_gap().to_i16();
     t.set(f.rebuild_with_new_table(&os2)?);
-    Ok(true)
+    Ok(FixResult::Fixed)
 }
 
 #[cfg(test)]

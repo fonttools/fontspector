@@ -50,11 +50,14 @@ fn canonical_filename(t: &Testable, _context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
-fn fix_canonical_filename(t: &mut Testable) -> Result<bool, FontspectorError> {
+fn fix_canonical_filename(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
     let expected_filename = build_filename(f.font(), &t.extension().unwrap_or_default());
     t.set_filename(&expected_filename);
-    Ok(true)
+    Ok(FixResult::Fixed)
 }
 
 #[cfg(test)]

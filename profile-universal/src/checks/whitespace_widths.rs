@@ -96,7 +96,7 @@ mod tests {
     }
 }
 
-fn fix_whitespace_widths(t: &mut Testable) -> FixFnResult {
+fn fix_whitespace_widths(t: &mut Testable, _replies: Option<MoreInfoReplies>) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
     let mut hmtx: Hmtx = f.font().hmtx()?.to_owned_table();
     let charmap = f.font().charmap();
@@ -110,7 +110,7 @@ fn fix_whitespace_widths(t: &mut Testable) -> FixFnResult {
             nbspace_metric.advance = space_width;
         }
         t.set(f.rebuild_with_new_table(&hmtx)?);
-        return Ok(true);
+        return Ok(FixResult::Fixed);
     }
-    Ok(false)
+    Ok(FixResult::Unfixable)
 }
