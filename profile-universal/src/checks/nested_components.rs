@@ -103,7 +103,7 @@ fn get_depth(glyph_id: GlyphId, loca: &Loca, glyf: &Glyf) -> u32 {
     depth
 }
 
-fn decompose_nested_components(t: &mut Testable) -> FixFnResult {
+fn decompose_nested_components(t: &mut Testable, _replies: Option<MoreInfoReplies>) -> Result<FixResult, FontspectorError> {
     let font = testfont!(t);
     let loca = font.font().loca(None)?;
     let glyf = font.font().glyf()?;

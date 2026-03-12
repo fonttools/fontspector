@@ -206,10 +206,10 @@ mod tests {
     }
 }
 
-fn fix_fsselection(t: &mut Testable) -> FixFnResult {
+fn fix_fsselection(t: &mut Testable, _replies: Option<MoreInfoReplies>) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
     let Some(style) = f.style() else {
-        return Ok(false);
+        return Ok(FixResult::Unfixable);
     };
     let mut os2: fontations::write::tables::os2::Os2 = f.font().os2()?.to_owned_table();
     os2.fs_selection &= SelectionFlags::USE_TYPO_METRICS;
@@ -227,5 +227,5 @@ fn fix_fsselection(t: &mut Testable) -> FixFnResult {
     }
 
     t.set(f.rebuild_with_new_table(&os2)?);
-    Ok(true)
+    Ok(FixResult::Fixed)
 }

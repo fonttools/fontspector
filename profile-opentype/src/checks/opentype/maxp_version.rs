@@ -76,11 +76,11 @@ fn maxp_version(t: &Testable, _context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
-fn fix_maxp_version(t: &mut Testable) -> FixFnResult {
+fn fix_maxp_version(t: &mut Testable, _replies: Option<MoreInfoReplies>) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
     let status = check_maxp_version(&f)?;
     match status {
-        VersionStatus::Ok => Ok(false),
+        VersionStatus::Ok => Ok(FixResult::Unfixable),
         VersionStatus::NeedsUpgrade => {
             // Too complex, refuse
             Err(FontspectorError::Fix(
@@ -105,7 +105,7 @@ fn fix_maxp_version(t: &mut Testable) -> FixFnResult {
             maxp.max_component_depth = None;
             let font = f.rebuild_with_new_table(&maxp)?;
             t.set(font);
-            Ok(true)
+            Ok(FixResult::Fixed)
         }
     }
 }

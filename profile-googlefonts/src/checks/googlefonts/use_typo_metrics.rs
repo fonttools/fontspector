@@ -112,13 +112,13 @@ mod tests {
     }
 }
 
-fn fix_use_typo_metrics(t: &mut Testable) -> FixFnResult {
+fn fix_use_typo_metrics(t: &mut Testable, _replies: Option<MoreInfoReplies>) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
     if f.is_cjk_font(None) {
-        return Ok(false);
+        return Ok(FixResult::Unfixable);
     }
     let mut os2: fontations::write::tables::os2::Os2 = f.font().os2()?.to_owned_table();
     os2.fs_selection |= SelectionFlags::USE_TYPO_METRICS;
     t.set(f.rebuild_with_new_table(&os2)?);
-    Ok(true)
+    Ok(FixResult::Fixed)
 }

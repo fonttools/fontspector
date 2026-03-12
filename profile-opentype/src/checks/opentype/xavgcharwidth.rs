@@ -133,13 +133,13 @@ fn compute_expected_xavgcharwidth(
     }
 }
 
-fn fix_xavgcharwidth(t: &mut Testable) -> FixFnResult {
+fn fix_xavgcharwidth(t: &mut Testable, _replies: Option<MoreInfoReplies>) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
     let (_, expected) = compute_expected_xavgcharwidth(&f)?;
     let mut os2: fontations::write::tables::os2::Os2 = f.font().os2()?.to_owned_table();
     os2.x_avg_char_width = expected as i16;
     t.set(f.rebuild_with_new_table(&os2)?);
-    Ok(true)
+    Ok(FixResult::Fixed)
 }
 
 #[allow(clippy::unwrap_used, clippy::expect_used)]

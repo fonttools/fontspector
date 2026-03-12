@@ -196,10 +196,10 @@ mod tests {
     }
 }
 
-fn fix_unhinted_font(t: &mut Testable) -> FixFnResult {
+fn fix_unhinted_font(t: &mut Testable, _replies: Option<MoreInfoReplies>) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
     if f.has_table(b"fpgm") || (f.has_table(b"prep") && f.has_table(b"gasp")) {
-        return Ok(false);
+        return Ok(FixResult::Unfixable);
     }
     let new_gasp = fontations::write::tables::gasp::Gasp {
         version: 0,
@@ -220,5 +220,5 @@ fn fix_unhinted_font(t: &mut Testable) -> FixFnResult {
     new_font.copy_missing_tables(f.font());
     let new_bytes = new_font.build();
     t.set(new_bytes);
-    Ok(true)
+    Ok(FixResult::Fixed)
 }

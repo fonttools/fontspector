@@ -187,12 +187,12 @@ mod tests {
     }
 }
 
-fn fix_weightclass(t: &mut Testable) -> FixFnResult {
+fn fix_weightclass(t: &mut Testable, _replies: Option<MoreInfoReplies>) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
     let expected_names = build_expected_font(&f, &[])?;
     let expected_value = FontRef::new(&expected_names)?.os2()?.us_weight_class();
     let mut os2: fontations::write::tables::os2::Os2 = f.font().os2()?.to_owned_table();
     os2.us_weight_class = expected_value;
     t.set(f.rebuild_with_new_table(&os2)?);
-    Ok(true)
+    Ok(FixResult::Fixed)
 }

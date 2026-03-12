@@ -4,7 +4,7 @@ use fontations::{
     types::GlyphId,
     write::tables::cmap::Cmap,
 };
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata, MoreInfoReplies};
 use serde_json::json;
 
 #[check(
@@ -55,7 +55,10 @@ fn soft_hyphen(t: &Testable, context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
-fn fix_soft_hyphen(t: &mut Testable) -> FixFnResult {
+fn fix_soft_hyphen(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
     let charmap = f.font().charmap();
     let cmap = f.font().cmap()?;
@@ -65,7 +68,7 @@ fn fix_soft_hyphen(t: &mut Testable) -> FixFnResult {
         r.subtable(data)
             .is_ok_and(|s| !matches!(s, CmapSubtable::Format4(_) | CmapSubtable::Format12(_)))
     }) {
-        return Ok(false);
+        return Ok(FixResult::FixFailed("Cannot fix soft hyphen because the font contains a cmap subtable that is not format 4 or 12.".to_string()));
     }
     let mappings: Vec<_> = charmap.mappings().filter(|(cp, _)| *cp != 0x00AD).collect();
     let new_cmap = Cmap::from_mappings(
@@ -75,26 +78,19 @@ fn fix_soft_hyphen(t: &mut Testable) -> FixFnResult {
     )
     .map_err(|e| FontspectorError::General(format!("Failed to create new cmap: {e}")))?;
     t.set(f.rebuild_with_new_table(&new_cmap)?);
-    Ok(true)
+    Ok(FixResult::Fixed)
 }
-// def check_soft_hyphen(ttFont):
-//     """Does the font contain a soft hyphen?"""
-//     if 0x00AD in ttFont["cmap"].getBestCmap().keys():
-//         yield WARN, Message("softhyphen", "This font has a 'Soft Hyphen' character.")
-//     else:
-//         yield PASS, "Looks good!"
 
 #[cfg(test)]
 mod tests {
     #![allow(clippy::unwrap_used)]
 
     use super::soft_hyphen;
-    use fontations::skrifa::MetadataProvider;
-    use fontations::write::tables::cmap::Cmap;
-    use fontspector_checkapi::codetesting::{
-        assert_pass, assert_results_contain, run_check, test_able,
+    use fontations::{skrifa::MetadataProvider, write::tables::cmap::Cmap};
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        FileTypeConvert, StatusCode,
     };
-    use fontspector_checkapi::{FileTypeConvert, StatusCode};
 
     #[test]
     fn test_soft_hyphen_warn() {

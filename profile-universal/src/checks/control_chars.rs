@@ -51,7 +51,7 @@ pub fn control_chars(t: &Testable, context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
-fn fix_control_chars(t: &mut Testable) -> FixFnResult {
+fn fix_control_chars(t: &mut Testable, _replies: Option<MoreInfoReplies>) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
     let charmap = f.font().charmap();
     let cmap = f.font().cmap()?;
@@ -60,7 +60,7 @@ fn fix_control_chars(t: &mut Testable) -> FixFnResult {
         r.subtable(data)
             .is_ok_and(|s| !matches!(s, CmapSubtable::Format4(_) | CmapSubtable::Format12(_)))
     }) {
-        return Ok(false);
+        return Ok(FixResult::Unfixable);
     }
     let bad_codepoints: Vec<u32> = (0x01u32..0x1F).filter(|&c| c != 0x0D).collect();
     let mappings: Vec<_> = charmap
@@ -74,7 +74,7 @@ fn fix_control_chars(t: &mut Testable) -> FixFnResult {
     )
     .map_err(|e| FontspectorError::General(format!("Failed to create new cmap: {e}")))?;
     t.set(f.rebuild_with_new_table(&new_cmap)?);
-    Ok(true)
+    Ok(FixResult::Fixed)
 }
 
 #[cfg(test)]

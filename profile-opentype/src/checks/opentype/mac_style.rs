@@ -140,12 +140,12 @@ mod tests {
     }
 }
 
-fn fix_mac_style(f: &mut Testable) -> FixFnResult {
+fn fix_mac_style(f: &mut Testable, _replies: Option<MoreInfoReplies>) -> Result<FixResult, FontspectorError> {
     let font = testfont!(f);
     let mut head: fontations::write::tables::head::Head = font.font().head()?.to_owned_table();
 
     let Some(style) = font.style() else {
-        return Ok(false);
+        return Ok(FixResult::Unfixable);
     };
     let mut bits = head.mac_style;
     if style == "Bold" || style == "BoldItalic" {
@@ -160,5 +160,5 @@ fn fix_mac_style(f: &mut Testable) -> FixFnResult {
     }
     head.mac_style = bits;
     f.set(font.rebuild_with_new_table(&head)?);
-    Ok(true)
+    Ok(FixResult::Fixed)
 }
