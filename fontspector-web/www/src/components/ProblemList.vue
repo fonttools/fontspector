@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import { renderMarkdown } from '../markdown';
 import { SEVERITY_COLOR } from '../constants';
-import { FixItem, FixRequest, isFontProblem, isGlyphProblem, isTableProblem, Metadata, SubresultWithCheck } from '../types';
+import { FixItem, FixRequest, isFontProblem, isGlyphProblem, isTableProblem, StatusCode, SubresultWithCheck } from '../types';
 import fbWorker from '../workersingleton';
 const props = defineProps<{
   resultClass: string,
@@ -77,26 +77,108 @@ function fileCount(results: SubresultWithCheck[]): number {
   }
   return files.size;
 }
-// Cluster check results affecting multiple files together
-function collateFiles(results: SubresultWithCheck[]): SubresultWithCheck[][] {
-  // Group by check_id + status content (message, code, severity)
-  // This way:
-  // - Identical issues across multiple files get grouped together
-  // - Different issues for the same file remain separate
-  // - Multiple subresults for the same issue in the same file also get grouped
-  const groups: Record<string, SubresultWithCheck[]> = {};
+
+type MessageVariant = {
+  signature: string;
+  severity: StatusCode;
+  code: string | null;
+  message: string | null;
+};
+
+type CollatedCheckGroup = {
+  check: SubresultWithCheck['check'];
+  filenames: string[];
+  messages: MessageVariant[];
+  worstSeverity: StatusCode;
+};
+
+const SEVERITY_ORDER: Record<StatusCode, number> = {
+  FATAL: 7,
+  ERROR: 6,
+  FAIL: 5,
+  WARN: 4,
+  INFO: 3,
+  PASS: 2,
+  SKIP: 1,
+};
+
+function resultFilename(res: SubresultWithCheck): string {
+  return res.check.filename || 'Family Check';
+}
+
+function statusSignature(res: SubresultWithCheck): string {
+  return JSON.stringify({
+    severity: res.status.severity,
+    code: res.status.code || null,
+    message: res.status.message || null,
+  });
+}
+
+// Cluster by check first, then by file cohorts that share the same set of messages.
+function collateFiles(results: SubresultWithCheck[]): CollatedCheckGroup[] {
+  const checkGroups = new Map<string, SubresultWithCheck[]>();
   for (const res of results) {
-    // Create a key based on the check and the actual issue content
-    const key = JSON.stringify({
-      check_id: res.check.check_id,
-      message: res.status.message,
-      code: res.status.code,
-      severity: res.status.severity,
-    });
-    if (!groups[key]) groups[key] = [];
-    groups[key].push(res);
-  } 
-  return Object.values(groups);
+    const key = res.check.check_id;
+    if (!checkGroups.has(key)) checkGroups.set(key, []);
+    checkGroups.get(key)!.push(res);
+  }
+
+  const collated: CollatedCheckGroup[] = [];
+  for (const entries of checkGroups.values()) {
+    const byFile = new Map<string, SubresultWithCheck[]>();
+    const messageBySignature = new Map<string, MessageVariant>();
+
+    for (const entry of entries) {
+      const filename = resultFilename(entry);
+      if (!byFile.has(filename)) byFile.set(filename, []);
+      byFile.get(filename)!.push(entry);
+
+      const signature = statusSignature(entry);
+      if (!messageBySignature.has(signature)) {
+        messageBySignature.set(signature, {
+          signature,
+          severity: entry.status.severity,
+          code: entry.status.code || null,
+          message: entry.status.message || null,
+        });
+      }
+    }
+
+    const cohorts = new Map<string, { filenames: string[]; signatures: string[] }>();
+    for (const [filename, fileEntries] of byFile.entries()) {
+      const signatures = Array.from(new Set(fileEntries.map((entry) => statusSignature(entry)))).sort();
+      const cohortKey = signatures.join('|::|');
+      if (!cohorts.has(cohortKey)) {
+        cohorts.set(cohortKey, { filenames: [], signatures });
+      }
+      cohorts.get(cohortKey)!.filenames.push(filename);
+    }
+
+    for (const cohort of cohorts.values()) {
+      const messages = cohort.signatures
+        .map((signature) => messageBySignature.get(signature))
+        .filter((msg): msg is MessageVariant => msg !== undefined);
+
+      const worstSeverity = messages.reduce<StatusCode>((worst, msg) => {
+        return SEVERITY_ORDER[msg.severity] > SEVERITY_ORDER[worst] ? msg.severity : worst;
+      }, messages[0]?.severity || entries[0].status.severity);
+
+      collated.push({
+        check: entries[0].check,
+        filenames: cohort.filenames.sort((a, b) => a.localeCompare(b)),
+        messages,
+        worstSeverity,
+      });
+    }
+  }
+
+  return collated.sort((a, b) => {
+    const byName = a.check.check_name.localeCompare(b.check.check_name);
+    if (byName !== 0) return byName;
+    const byCount = b.filenames.length - a.filenames.length;
+    if (byCount !== 0) return byCount;
+    return a.filenames[0].localeCompare(b.filenames[0]);
+  });
 }
 function fixAndDownload() {
   // Create a FixRequestPackage
@@ -156,33 +238,35 @@ function baseName(path: string): string {
           <input type="checkbox" @change="selectAllChildren" /></span>
       </summary>
 
-      <details v-for="(resGroup, idx) in collateFiles(group)" :key="idx" class="mb-3">
-        <!-- Within this group, status and check are the same -->
+      <details v-for="(checkGroup, idx) in collateFiles(group)" :key="idx" class="mb-3">
         <summary>
-          <span :class="`badge status-badge text-bg-${SEVERITY_COLOR[resGroup[0].status.severity]} m-1`">{{
-            resGroup[0].status.severity
+          <span :class="`badge status-badge text-bg-${SEVERITY_COLOR[checkGroup.worstSeverity]} m-1`">{{
+            checkGroup.worstSeverity
             }}</span>
-          <span class="checkname">{{ resGroup[0].check.check_name }}</span>
-          <span v-if="resGroup.length > 1" class="affected-files"> (Affects {{ resGroup.length }} files)</span><span
-            v-if="resGroup.length == 1" class="affected-files"> (Affects {{ baseName(resGroup[0].check.filename ||
-              "whole family") }})</span>
+          <span class="checkname">{{ checkGroup.check.check_name }}</span>
+          <span v-if="checkGroup.filenames.length > 1" class="affected-files"> (Affects {{ checkGroup.filenames.length }} files)</span><span
+            v-if="checkGroup.filenames.length == 1" class="affected-files"> (Affects {{ baseName(checkGroup.filenames[0]) }})</span>
           <span v-if="fixable" style="float: right;">
             Fix:
-            <input type="checkbox" class="individual-fix" :data-checkid="resGroup[0].check.check_id"
-              :data-filenames="JSON.stringify(resGroup.map(r => r.check.filename || 'Family Check'))"
-              :checked="selectedFixRequests.has(makeFixKey(resGroup[0].check.check_id, resGroup[0].check.filename || 'Family Check'))"
-              @change="(e) => { toggleFixRequest(resGroup[0].check.check_id, resGroup.map(r => r.check.filename || 'Family Check'), e) }" />
+            <input type="checkbox" class="individual-fix" :data-checkid="checkGroup.check.check_id"
+              :data-filenames="JSON.stringify(checkGroup.filenames)"
+              :checked="checkGroup.filenames.every((filename) => selectedFixRequests.has(makeFixKey(checkGroup.check.check_id, filename)))"
+              @change="(e) => { toggleFixRequest(checkGroup.check.check_id, checkGroup.filenames, e) }" />
           </span>
         </summary>
-        <p class="affected-files" v-if="resGroup.length > 1">Affects
+        <div class="affected-files" v-if="checkGroup.filenames.length > 1">Affects
         <ul>
-          <li v-for='file in resGroup.map(r => r.check.filename || "Family Check")'>
+          <li v-for='file in checkGroup.filenames' :key='file'>
             {{ file }}
           </li>
         </ul>
-        </p>
-        <p class="rationale" v-html="renderMarkdown(resGroup[0].check.check_rationale)"></p>
-        <p class="message" v-html="renderMarkdown(resGroup[0].status.message || '')"></p>
+        </div>
+        <p class="rationale" v-html="renderMarkdown(checkGroup.check.check_rationale)"></p>
+        <div v-for="message in checkGroup.messages" :key="message.signature" class="message-block">
+          <span :class="`badge text-bg-${SEVERITY_COLOR[message.severity]} m-1`">{{ message.severity }}</span>
+          <span v-if="message.code" class="message-code">{{ message.code }}</span>
+          <p class="message" v-html="renderMarkdown(message.message || '')"></p>
+        </div>
       </details>
     </details>
     <div class="clearfix">
@@ -225,5 +309,16 @@ details+details {
   width: 55px;
   margin-right: 20px;
   display: inline-block;
+}
+
+.message-block {
+  margin-bottom: 30px;
+  margin-left: 30px;
+}
+
+.message-code {
+  color: #6c757d;
+  font-size: 0.9em;
+  margin-left: 4px;
 }
 </style>
