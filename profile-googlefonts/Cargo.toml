@@ -55,6 +55,7 @@ image = { version = "0.25.5", default-features = false, features = [
     "gif",
 ] }
 harfrust = { workspace = true }
+edit-distance = "2.2.2"
 
 [lints]
 workspace = true
