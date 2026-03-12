@@ -180,7 +180,7 @@ function collateFiles(results: SubresultWithCheck[]): CollatedCheckGroup[] {
     return a.filenames[0].localeCompare(b.filenames[0]);
   });
 }
-function fixAndDownload() {
+function fix(download: boolean) {
   // Create a FixRequestPackage
   try {
     let items: FixItem[] = [];
@@ -192,6 +192,7 @@ function fixAndDownload() {
     const fixRequestPackage: FixRequest = {
       id: "fix",
       requests: items,
+      download,
     };
     // Send it to the webworker
     console.log("Sending fix request package to worker:", fixRequestPackage);
@@ -231,7 +232,8 @@ function baseName(path: string): string {
       <span v-if="fixable" class="float-end">
         Fix all: <input type="checkbox" @change="selectAllChildren" /></span>
     </p>
-    <details v-for="([area, group], idx) of Object.entries(groupByArea(results)).sort(([a], [b]) => a.localeCompare(b))" :key="idx" open="true">
+    <details v-for="([area, group], idx) of Object.entries(groupByArea(results)).sort(([a], [b]) => a.localeCompare(b))"
+      :key="idx" open="true">
       <summary class="mb-2">{{ area }} <span v-if="fixable && collateFiles(group).length > 1" class="float-end">Fix {{
         group.length
           }} issues:
@@ -242,10 +244,11 @@ function baseName(path: string): string {
         <summary>
           <span :class="`badge status-badge text-bg-${SEVERITY_COLOR[checkGroup.worstSeverity]} m-1`">{{
             checkGroup.worstSeverity
-            }}</span>
+          }}</span>
           <span class="checkname">{{ checkGroup.check.check_name }}</span>
-          <span v-if="checkGroup.filenames.length > 1" class="affected-files"> (Affects {{ checkGroup.filenames.length }} files)</span><span
-            v-if="checkGroup.filenames.length == 1" class="affected-files"> (Affects {{ baseName(checkGroup.filenames[0]) }})</span>
+          <span v-if="checkGroup.filenames.length > 1" class="affected-files"> (Affects {{ checkGroup.filenames.length
+            }} files)</span><span v-if="checkGroup.filenames.length == 1" class="affected-files"> (Affects {{
+              baseName(checkGroup.filenames[0]) }})</span>
           <span v-if="fixable" style="float: right;">
             Fix:
             <input type="checkbox" class="individual-fix" :data-checkid="checkGroup.check.check_id"
@@ -255,11 +258,11 @@ function baseName(path: string): string {
           </span>
         </summary>
         <div class="affected-files" v-if="checkGroup.filenames.length > 1">Affects
-        <ul>
-          <li v-for='file in checkGroup.filenames' :key='file'>
-            {{ file }}
-          </li>
-        </ul>
+          <ul>
+            <li v-for='file in checkGroup.filenames' :key='file'>
+              {{ file }}
+            </li>
+          </ul>
         </div>
         <p class="rationale" v-html="renderMarkdown(checkGroup.check.check_rationale)"></p>
         <div v-for="message in checkGroup.messages" :key="message.signature" class="message-block">
@@ -270,12 +273,13 @@ function baseName(path: string): string {
       </details>
     </details>
     <div class="clearfix">
-      <div class="float-end" v-if="fixable"><button class="btn btn-primary" @click="fixAndDownload"
-          :disabled="selectedFixRequests.size == 0">Fix
-          {{ selectedFixRequests.size }} Selected Issues</button></div>
+      <div class="float-end" v-if="fixable">
+        <button class="btn btn-primary" @click="() => fix(false)" :disabled="selectedFixRequests.size == 0">Fix
+          {{ selectedFixRequests.size }} Selected Issues</button>
+        <button class="btn btn-primary" @click="() => fix(true)" :disabled="selectedFixRequests.size == 0">Fix and
+          Download</button>
+      </div>
     </div>
-
-
   </div>
 </template>
 
