@@ -185,7 +185,10 @@ fn font_names(t: &Testable, _context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
-fn fix_font_names(t: &mut Testable, _replies: Option<MoreInfoReplies>) -> Result<FixResult, FontspectorError> {
+fn fix_font_names(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
     if f.has_axis("MORF") {
         return Ok(FixResult::Unfixable);

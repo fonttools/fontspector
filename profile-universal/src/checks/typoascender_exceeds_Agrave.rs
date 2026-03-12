@@ -70,7 +70,10 @@ fn typoascender_exceeds_Agrave(f: &Testable, _context: &Context) -> CheckFnResul
     return_result(problems)
 }
 
-fn fix_typoascender_exceeds_Agrave(t: &mut Testable, _replies: Option<MoreInfoReplies>) -> Result<FixResult, FontspectorError> {
+fn fix_typoascender_exceeds_Agrave(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
     let agrave = f.font().charmap().map(0x00C0u32);
     let Some(agrave) = agrave else {

@@ -957,7 +957,10 @@ fn comparison_base_table(
     table.to_string()
 }
 
-fn fix_vertical_metrics(t: &mut Testable, _replies: Option<MoreInfoReplies>) -> Result<FixResult, FontspectorError> {
+fn fix_vertical_metrics(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
     let mut f = testfont!(t);
     // Check if the font has a BASE table
     if !f.has_table(b"BASE") {

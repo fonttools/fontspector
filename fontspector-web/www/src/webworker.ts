@@ -54,10 +54,10 @@ async function init() {
     if (msg.id == "justload") {
       return;
     } else if (msg.id == "fix") {
-      const { requests } = msg as FixRequest;
+      const { requests, download } = msg as FixRequest;
       try {
         const zipfile = fix_fonts(loadedFonts, requests);
-        post({ id: "fix_result", zipfile });
+        post({ id: "fix_result", zipfile, download });
       } catch (error: any) {
         post({ id: "error", error: error.toString() });
       }

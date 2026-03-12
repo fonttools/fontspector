@@ -102,7 +102,10 @@ fn trailing_spaces(f: &Testable, _context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
-fn fix_trailing_spaces(_f: &mut Testable, _replies: Option<MoreInfoReplies>) -> Result<FixResult, FontspectorError> {
+fn fix_trailing_spaces(
+    _f: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
     Ok(FixResult::Unfixable)
 }
 
@@ -110,16 +113,19 @@ fn fix_trailing_spaces(_f: &mut Testable, _replies: Option<MoreInfoReplies>) -> 
 mod tests {
     #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-    use fontations::skrifa::raw::types::NameId;
-    use fontations::write::{
-        tables::maxp::Maxp,
-        tables::name::{Name, NameRecord},
-        FontBuilder,
+    use fontations::{
+        skrifa::raw::types::NameId,
+        write::{
+            tables::{
+                maxp::Maxp,
+                name::{Name, NameRecord},
+            },
+            FontBuilder,
+        },
     };
-    use fontspector_checkapi::Testable;
     use fontspector_checkapi::{
         codetesting::{assert_messages_contain, assert_results_contain, run_check_with_config},
-        StatusCode, TestableType,
+        StatusCode, Testable, TestableType,
     };
     use std::collections::HashMap;
 

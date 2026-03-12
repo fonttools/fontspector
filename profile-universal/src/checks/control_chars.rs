@@ -51,7 +51,10 @@ pub fn control_chars(t: &Testable, context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
-fn fix_control_chars(t: &mut Testable, _replies: Option<MoreInfoReplies>) -> Result<FixResult, FontspectorError> {
+fn fix_control_chars(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
     let charmap = f.font().charmap();
     let cmap = f.font().cmap()?;

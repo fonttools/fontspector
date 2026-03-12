@@ -157,6 +157,36 @@ fn gasp(t: &Testable, _context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
+fn fix_unhinted_font(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
+    let f = testfont!(t);
+    if f.has_table(b"fpgm") || (f.has_table(b"prep") && f.has_table(b"gasp")) {
+        return Ok(FixResult::Unfixable);
+    }
+    let new_gasp = fontations::write::tables::gasp::Gasp {
+        version: 0,
+        gasp_ranges: vec![fontations::write::tables::gasp::GaspRange {
+            range_max_ppem: 0xFFFF,
+            range_gasp_behavior: GaspRangeBehavior::GASP_GRIDFIT
+                | GaspRangeBehavior::GASP_DOGRAY
+                | GaspRangeBehavior::GASP_SYMMETRIC_GRIDFIT
+                | GaspRangeBehavior::GASP_SYMMETRIC_SMOOTHING,
+        }],
+        num_ranges: 1,
+    };
+    // PUSHW[] 511 SCANCTRL[] PUSHB[] 4 SCANTYPE[]
+    let new_prep = b"\xb8\x01\xff\x85\xb0\x04\x8d";
+    let mut new_font = FontBuilder::new();
+    new_font.add_table(&new_gasp)?;
+    new_font.add_raw(Tag::new(b"prep"), new_prep);
+    new_font.copy_missing_tables(f.font());
+    let new_bytes = new_font.build();
+    t.set(new_bytes);
+    Ok(FixResult::Fixed)
+}
+
 #[cfg(test)]
 mod tests {
     #![allow(clippy::unwrap_used, clippy::expect_used)]
@@ -194,31 +224,4 @@ mod tests {
         let results = run_check(gasp, testable);
         assert_results_contain(&results, StatusCode::Fail, Some("lacks-gasp".to_string()));
     }
-}
-
-fn fix_unhinted_font(t: &mut Testable, _replies: Option<MoreInfoReplies>) -> Result<FixResult, FontspectorError> {
-    let f = testfont!(t);
-    if f.has_table(b"fpgm") || (f.has_table(b"prep") && f.has_table(b"gasp")) {
-        return Ok(FixResult::Unfixable);
-    }
-    let new_gasp = fontations::write::tables::gasp::Gasp {
-        version: 0,
-        gasp_ranges: vec![fontations::write::tables::gasp::GaspRange {
-            range_max_ppem: 0xFFFF,
-            range_gasp_behavior: GaspRangeBehavior::GASP_GRIDFIT
-                | GaspRangeBehavior::GASP_DOGRAY
-                | GaspRangeBehavior::GASP_SYMMETRIC_GRIDFIT
-                | GaspRangeBehavior::GASP_SYMMETRIC_SMOOTHING,
-        }],
-        num_ranges: 1,
-    };
-    // PUSHW[] 511 SCANCTRL[] PUSHB[] 4 SCANTYPE[]
-    let new_prep = b"\xb8\x01\xff\x85\xb0\x04\x8d";
-    let mut new_font = FontBuilder::new();
-    new_font.add_table(&new_gasp)?;
-    new_font.add_raw(Tag::new(b"prep"), new_prep);
-    new_font.copy_missing_tables(f.font());
-    let new_bytes = new_font.build();
-    t.set(new_bytes);
-    Ok(FixResult::Fixed)
 }

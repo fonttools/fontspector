@@ -48,7 +48,7 @@ fn bold_italic_unique_for_nameid1(c: &TestableCollection, _context: &Context) ->
     return_result(problems)
 }
 
-#[allow(clippy::unwrap_used, clippy::expect_used)]
+#[allow(clippy::unwrap_used, clippy::expect_used, clippy::indexing_slicing)]
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -71,7 +71,7 @@ mod tests {
             "source-sans-pro/OTF/SourceSansPro-BoldItalic.otf",
         ]
         .iter()
-        .map(|f| test_able(f))
+        .map(test_able)
         .collect();
         let collection = TestableCollection {
             testables,
@@ -94,7 +94,7 @@ mod tests {
             "source-sans-pro/OTF/SourceSansPro-BoldItalic.otf",
         ]
         .iter()
-        .map(|f| test_able(f))
+        .map(test_able)
         .collect();
         // Make the italic font also have the bold bit set, duplicating BoldItalic
         let new_bytes = {
@@ -132,7 +132,7 @@ mod tests {
             "cabin/CabinCondensed-Bold.ttf",
         ]
         .iter()
-        .map(|f| test_able(f))
+        .map(test_able)
         .collect();
         let collection = TestableCollection {
             testables,

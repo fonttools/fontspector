@@ -98,7 +98,10 @@ fn caret_slope(t: &Testable, _context: &Context) -> CheckFnResult {
 //     Ok(true)
 // }
 
-fn fix_caret_slope(t: &mut Testable, _replies: Option<MoreInfoReplies>) -> Result<FixResult, FontspectorError> {
+fn fix_caret_slope(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
     let mut hhea: fontations::write::tables::hhea::Hhea = f.font().hhea()?.to_owned_table();
     let post = f.font().post()?;

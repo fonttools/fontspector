@@ -76,7 +76,10 @@ fn maxp_version(t: &Testable, _context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
-fn fix_maxp_version(t: &mut Testable, _replies: Option<MoreInfoReplies>) -> Result<FixResult, FontspectorError> {
+fn fix_maxp_version(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
     let status = check_maxp_version(&f)?;
     match status {
@@ -147,7 +150,7 @@ mod tests {
         assert_eq!(result.worst_status(), StatusCode::Fail);
 
         // Fix it
-        let fixed = (maxp_version.hotfix.unwrap())(&mut ssp_otf).unwrap();
-        assert!(fixed);
+        let fixed = (maxp_version.hotfix.unwrap())(&mut ssp_otf, None).unwrap();
+        assert!(fixed.is_success());
     }
 }

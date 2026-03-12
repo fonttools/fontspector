@@ -62,7 +62,10 @@ fn linegaps(t: &Testable, _context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
-fn fix_linegaps(t: &mut Testable, _replies: Option<MoreInfoReplies>) -> Result<FixResult, FontspectorError> {
+fn fix_linegaps(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
     let mut os2: fontations::write::tables::os2::Os2 = f.font().os2()?.to_owned_table();
     let mut hhea: fontations::write::tables::hhea::Hhea = f.font().hhea()?.to_owned_table();
@@ -81,10 +84,10 @@ mod tests {
     #![allow(clippy::unwrap_used)]
 
     use super::linegaps;
-    use fontspector_checkapi::codetesting::{
-        assert_pass, assert_results_contain, run_check, test_able,
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        StatusCode,
     };
-    use fontspector_checkapi::StatusCode;
 
     #[test]
     fn test_linegaps_warn() {
@@ -96,7 +99,7 @@ mod tests {
     #[test]
     fn test_linegaps_pass_after_fix() {
         let mut testable = test_able("mada/Mada-Regular.ttf");
-        super::fix_linegaps(&mut testable).unwrap();
+        super::fix_linegaps(&mut testable, None).unwrap();
         let results = run_check(linegaps, testable);
         assert_pass(&results);
     }

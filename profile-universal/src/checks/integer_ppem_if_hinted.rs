@@ -44,7 +44,10 @@ fn integer_ppem_if_hinted(f: &Testable, _context: &Context) -> CheckFnResult {
     )
 }
 
-fn fix_integer_ppem_if_hinted(t: &mut Testable, _replies: Option<MoreInfoReplies>) -> Result<FixResult, FontspectorError> {
+fn fix_integer_ppem_if_hinted(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
     let mut head: fontations::write::tables::head::Head = f.font().head()?.to_owned_table();
     head.flags |= Flags::FORCE_INTEGER_PPEM;

@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
@@ -20,9 +22,16 @@ pub enum FixResult {
     // FixError(String),
 }
 
+impl FixResult {
+    /// A helper function to check if the fix was successful
+    pub fn is_success(&self) -> bool {
+        matches!(self, FixResult::Fixed)
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 /// A request for more information from the user, in order to apply a fix.
-pub struct MoreInfoRequest(Vec<DialogField>);
+pub struct MoreInfoRequest(pub Vec<DialogField>);
 
 /// A field in a dialog request, which can be of various types (choice, text, number, boolean)
 #[derive(Debug, Clone, Serialize)]
@@ -57,9 +66,55 @@ pub enum DialogFieldType {
     Boolean,
 }
 
+impl DialogField {
+    /// A helper function to create a choice field from a list of (value, description) pairs
+    pub fn new_choice(key: &str, prompt: &str, options: Vec<(&str, &str)>) -> Self {
+        DialogField {
+            key: key.to_string(),
+            prompt: prompt.to_string(),
+            field_type: DialogFieldType::Choice(
+                options
+                    .into_iter()
+                    .map(|(value, description)| Choice {
+                        value: value.to_string(),
+                        description: description.to_string(),
+                    })
+                    .collect(),
+            ),
+        }
+    }
+
+    /// A helper function to create a text field
+    pub fn new_text(key: &str, prompt: &str) -> Self {
+        DialogField {
+            key: key.to_string(),
+            prompt: prompt.to_string(),
+            field_type: DialogFieldType::Text,
+        }
+    }
+
+    /// A helper function to create a number field
+    pub fn new_number(key: &str, prompt: &str) -> Self {
+        DialogField {
+            key: key.to_string(),
+            prompt: prompt.to_string(),
+            field_type: DialogFieldType::Number,
+        }
+    }
+
+    /// A helper function to create a boolean field
+    pub fn new_boolean(key: &str, prompt: &str) -> Self {
+        DialogField {
+            key: key.to_string(),
+            prompt: prompt.to_string(),
+            field_type: DialogFieldType::Boolean,
+        }
+    }
+}
+
 /// A collection of user responses to a dialog request, mapping field keys to values
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct MoreInfoReplies(std::collections::HashMap<String, Value>);
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct MoreInfoReplies(pub HashMap<String, Value>);
 
 /// The function signature for a hotfix function
 pub type HotfixFunction =

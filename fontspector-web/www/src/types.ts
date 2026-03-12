@@ -137,6 +137,7 @@ export interface ReadyReply {
 export interface FixReply {
   id: "fix_result";
   zipfile: Uint8Array;
+  download?: boolean;
 }
 
 export type ReplyMessage =
@@ -151,6 +152,7 @@ export type Profile = keyof typeof PROFILES;
 export interface FixRequest {
   id: "fix";
   requests: FixItem[];
+  download?: boolean;
 }
 
 export interface RunCheckRequest {

@@ -47,7 +47,10 @@ fn whitespace_glyphs(t: &Testable, _context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
-fn fix_whitespace_glyphs(t: &mut Testable, _replies: Option<MoreInfoReplies>) -> Result<FixResult, FontspectorError> {
+fn fix_whitespace_glyphs(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
     // If we have a space already, map 0xA0 to it in the cmap.
     let f = testfont!(t);
     let charmap = f.font().charmap();
