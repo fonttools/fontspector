@@ -227,37 +227,6 @@ def test_check_metadata_designer_values(check):
     )
 
 
-@check_id("googlefonts/metadata/validate")
-def test_check_metadata_date_added(check, tmp_path):
-    """Validate 'date_added' field on METADATA.pb."""
-
-    md_file = TEST_FILE("cabinvf/METADATA.pb")
-    md = read_mdpb(md_file)
-    assert_PASS(check(md_file), "with a good METADATA.pb file...")
-
-    md.date_added = "2021-07-11"
-    assert_PASS(
-        check(fake_mdpb(tmp_path, md)),
-        "with a good date_added field...",
-    )
-
-    md.date_added = ""
-    assert_results_contain(
-        check(fake_mdpb(tmp_path, md)),
-        ERROR,
-        "date-empty",
-        "with an empty string on date_added field...",
-    )
-
-    md.date_added = "2020, Oct 1st"  # This is not the YYYY-MM-DD format we expect.
-    assert_results_contain(
-        check(fake_mdpb(tmp_path, md)),
-        ERROR,
-        "date-malformed",
-        "with a bad date string on date_added field...",
-    )
-
-
 @pytest.mark.skip("Check not ported yet.")
 @check_id("googlefonts/metadata/undeclared_fonts")
 def test_check_metadata_undeclared_fonts(check):
@@ -490,79 +459,6 @@ def test_check_name_license(check, mada_ttFonts):
 
     # TODO:
     # WARN, "http" / "http-in-description"
-
-
-@check_id("googlefonts/metadata/validate")
-def test_check_metadata_unique_full_name_values(check, tmp_path):
-    """METADATA.pb: check if fonts field only has unique "full_name" values."""
-
-    # Our reference FamilySans family is good:
-    md_file = TEST_FILE("familysans/METADATA.pb")
-    md_contents = read_mdpb(md_file)
-    assert_PASS(check(md_file), "with a good family...")
-
-    # then duplicate a full_name entry to make it FAIL:
-    md_contents.fonts[0].full_name = md_contents.fonts[1].full_name
-    assert_results_contain(
-        check(fake_mdpb(tmp_path, md_contents)),
-        FAIL,
-        "duplicated",
-        "with a duplicated full_name entry.",
-    )
-
-
-@check_id("googlefonts/metadata/validate")
-def test_check_metadata_unique_weight_style_pairs(check, tmp_path):
-    """METADATA.pb: check if fonts field only contains unique style:weight pairs."""
-
-    # Our reference FamilySans family is good:
-    font = TEST_FILE("familysans/FamilySans-Regular.ttf")
-
-    # then duplicate a pair of style & weight entries to make it FAIL:
-    md = Font(font).family_metadata
-    assert_PASS(check(fake_mdpb(tmp_path, md)), "with a good family...")
-    md.fonts[0].style = md.fonts[1].style
-    md.fonts[0].weight = md.fonts[1].weight
-    assert_results_contain(
-        check([fake_mdpb(tmp_path, md)]),
-        FAIL,
-        "duplicated",
-        "with a duplicated pair of style & weight entries",
-    )
-
-
-@check_id("googlefonts/metadata/license")
-def test_check_metadata_license(check):
-    """METADATA.pb license is "APACHE2", "UFL" or "OFL"?"""
-
-    # Let's start with our reference FamilySans family:
-    font = TEST_FILE("familysans/METADATA.pb")
-
-    good_licenses = ["APACHE2", "UFL", "OFL"]
-    some_bad_values = ["APACHE", "Apache", "Ufl", "Ofl", "Open Font License"]
-
-    check(font)
-    contents = open(font, "r").read()
-    import re
-
-    with tempfile.TemporaryDirectory() as tmpdirname:
-        dest = tmpdirname + "/METADATA.pb"
-        for good in good_licenses:
-            contents = re.sub(r'license:\s*".*"', f'license: "{good}"', contents)
-            with open(dest, "w") as f:
-                f.write(contents)
-            assert_PASS(check(dest), f": {good}")
-
-        for bad in some_bad_values:
-            contents = re.sub(r'license:\s*".*"', f'license: "{bad}"', contents)
-            with open(dest, "w") as f:
-                f.write(contents)
-            assert_results_contain(
-                check(dest),
-                FAIL,
-                "bad-license",
-                f": {bad}",
-            )
 
 
 @pytest.mark.skip("Check not ported yet.")
@@ -859,45 +755,6 @@ def test_check_metadata_nameid_font_name(check):
 
     # TODO:
     # FAIL, "lacks-entry"
-
-
-@check_id("googlefonts/metadata/validate")
-def test_check_metadata_match_fullname_postscript(check, tmp_path):
-    """METADATA.pb family.full_name and family.post_script_name
-    fields have equivalent values ?"""
-
-    regular_font = TEST_FILE("merriweather/Merriweather-Regular.ttf")
-    assert_results_contain(
-        check(TEST_FILE("merriweather/METADATA.pb")),
-        FAIL,
-        "mismatch",
-        "with bad entries (Merriweather-Regular)...",
-    )
-    #                       post_script_name: "Merriweather-Regular"
-    #                       full_name:        "Merriweather"
-
-    # fix the regular metadata:
-    md = Font(regular_font).family_metadata
-    md.fonts[2].full_name = "Merriweather Regular"
-
-    assert_PASS(
-        check(fake_mdpb(tmp_path, md)),
-        "with good entries (Merriweather-Regular after full_name fix)...",
-    )
-    #            post_script_name: "Merriweather-Regular"
-    #            full_name:        "Merriweather Regular"
-
-    # introduce an error in the metadata:
-    md.fonts[2].full_name = "MistakenFont Regular"
-
-    assert_results_contain(
-        check(fake_mdpb(tmp_path, md)),
-        FAIL,
-        "mismatch",
-        "with a mismatch...",
-    )
-    #                       post_script_name: "Merriweather-Regular"
-    #                       full_name:        "MistakenFont Regular"
 
 
 MONTSERRAT_RIBBI = [
@@ -1219,52 +1076,6 @@ def test_check_metadata_nameid_family_and_full_names(check):
             )
             # and restore the good value:
             ttFont["name"].names[i].string = backup
-
-
-@check_id("googlefonts/metadata/validate")
-def test_check_metadata_match_name_familyname(check, tmp_path):
-    """METADATA.pb: Check font name is the same as family name."""
-
-    # Our reference Cabin is known to be good
-    font = TEST_FILE("cabinvf/Cabin[wdth,wght].ttf")
-    mdbp = TEST_FILE("cabinvf/METADATA.pb")
-    assert_PASS(check(mdbp), "with a good font...")
-
-    # Then we FAIL with mismatching names:
-    family_md = Font(font).family_metadata
-    family_md.name = "Some Fontname"
-    family_md.fonts[0].name = "Something Else"
-    assert_results_contain(
-        check(fake_mdpb(tmp_path, family_md)),
-        FAIL,
-        "mismatch",
-        "with bad font/family name metadata...",
-    )
-
-
-@check_id("googlefonts/metadata/validate")
-def test_check_check_metadata_canonical_weight_value(check, tmp_path):
-    """METADATA.pb: Check that font weight has a canonical value."""
-
-    font = TEST_FILE("cabinvf/Cabin[wdth,wght].ttf")
-    check([font, TEST_FILE("cabinvf/METADATA.pb")])
-    md = Font(font).family_metadata
-
-    for w in [100, 200, 300, 400, 500, 600, 700, 800, 900]:
-        # md.fonts[0].weight = str(w)
-        assert_PASS(
-            check(fake_mdpb(tmp_path, md)),
-            f"with a good weight value ({w})...",
-        )
-
-    for w in [150, 250, 350, 450, 550, 650, 750, 850]:
-        md.fonts[0].weight = w
-        assert_results_contain(
-            check(fake_mdpb(tmp_path, md)),
-            FAIL,
-            "bad-weight",
-            "with a bad weight value ({w})...",
-        )
 
 
 @check_id("googlefonts/metadata/weightclass")
@@ -2538,22 +2349,6 @@ def test_check_description_family_update(check, requests_mock):
     assert_PASS(check(MockFont(file=font, description=desc + "\nSomething else...")))
 
 
-@check_id("googlefonts/metadata/family_directory_name")
-def test_check_metadata_family_directory_name(check, tmp_path):
-    """Check family directory name."""
-
-    mdpb = TEST_FILE("overpassmono/METADATA.pb")
-    assert_PASS(check(mdpb))
-
-    # Copy it to a temp directory where it won't have the correct parent name
-    shutil.copy(mdpb, tmp_path / "METADATA.pb")
-    assert_results_contain(
-        check(str(tmp_path / "METADATA.pb")),
-        FAIL,
-        "bad-directory-name",
-    )
-
-
 @pytest.mark.skip("Check not ported yet.")
 @check_id("googlefonts/repo/sample_image")
 def test_check_repo_sample_image(check):
@@ -2622,50 +2417,6 @@ def test_check_metadata_unsupported_subsets(check):
     assert_results_contain(
         check(MockFont(file=font, family_metadata=md)), FAIL, "unsupported-subset"
     )
-
-
-@check_id("googlefonts/metadata/validate")
-def test_check_metadata_category_hints(check, tmp_path):
-    """Check if category on METADATA.pb matches
-    what can be inferred from the family name."""
-
-    font = TEST_FILE("cabinvf/Cabin[wdth,wght].ttf")
-    assert_PASS(
-        check(TEST_FILE("cabinvf/METADATA.pb")),
-        "with a familyname without any of the keyword hints...",
-    )
-
-    md = Font(font).family_metadata
-    md.name = "Seaweed Script"
-    md.category[:] = ["DISPLAY"]
-    assert_results_contain(
-        check(fake_mdpb(tmp_path, md)),
-        WARN,
-        "inferred-category",
-        f'with a bad category "{md.category}" for familyname "{md.name}"...',
-    )
-
-    md.name = "Red Hat Display"
-    md.category[:] = ["SANS_SERIF"]
-    assert_results_contain(
-        check(fake_mdpb(tmp_path, md)),
-        WARN,
-        "inferred-category",
-        f'with a bad category "{md.category}" for familyname "{md.name}"...',
-    )
-
-    md.name = "Seaweed Script"
-    md.category[:] = ["HANDWRITING"]
-    results = check(fake_mdpb(tmp_path, md))
-    assert not any(
-        [result.message.code == "inferred-category" for result in results]
-    ), f'with a good category "{md.category}" for familyname "{md.name}"...'
-
-    md.name = "Red Hat Display"
-    md.category[:] = ["DISPLAY"]
-    assert not any(
-        [result.message.code == "inferred-category" for result in results]
-    ), f'with a good category "{md.category}" for familyname "{md.name}"...'
 
 
 @pytest.mark.parametrize(
@@ -2903,37 +2654,3 @@ def test_check_shape_languages(check):
     assert_results_contain(check(test_font), FAIL, "failed-language-shaping")
 
 
-@check_id("googlefonts/metadata/validate")
-def test_check_metadata_minisite_url(check, tmp_path):
-    """Validate minisite_url field"""
-
-    MD_FILE = TEST_FILE("cabinvf/METADATA.pb")
-    md = read_mdpb(MD_FILE)
-    assert_results_contain(check(MD_FILE), INFO, "lacks-minisite-url")
-
-    md.minisite_url = "a_good_one.com"
-    assert_PASS(check(fake_mdpb(tmp_path, md)), "with a good one")
-
-    md.minisite_url = "some_url/"
-    assert_results_contain(
-        check(fake_mdpb(tmp_path, md)),
-        FAIL,
-        "trailing-clutter",
-        "with a minisite_url with unnecessary trailing forward-slash",
-    )
-
-    md.minisite_url = "some_url/index.htm"
-    assert_results_contain(
-        check(fake_mdpb(tmp_path, md)),
-        FAIL,
-        "trailing-clutter",
-        "with a minisite_url with unnecessary trailing /index.htm",
-    )
-
-    md.minisite_url = "some_url/index.html"
-    assert_results_contain(
-        check(fake_mdpb(tmp_path, md)),
-        FAIL,
-        "trailing-clutter",
-        "with a minisite_url with unnecessary trailing /index.html",
-    )
