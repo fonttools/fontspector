@@ -230,6 +230,10 @@ function fix(download: boolean) {
     // Send it to the webworker
     console.log("Sending fix request package to worker:", fixRequestPackage);
     fbWorker.postMessage(fixRequestPackage);
+    // And empty our selection
+    selectedFixRequests.value.clear();
+    dialogReplies.value.clear();
+    dialogValidity.value.clear();
   } catch (e) {
     console.error("Error preparing fix request package:", e);
   }
