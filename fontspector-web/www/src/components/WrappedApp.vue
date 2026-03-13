@@ -71,7 +71,7 @@ fbWorker.onmessage = (event: any) => {
             const promises: any[] = [];
             zip.forEach((relativePath, zipEntry) => {
                 // Skip the log file
-                if (!zipEntry.dir && !relativePath.endsWith(".log")) {
+                if (!zipEntry.dir && !relativePath.endsWith("fix_log.txt")) {
                     const promise = zipEntry.async("uint8array").then((content) => {
                         files[relativePath] = content;
                     });
