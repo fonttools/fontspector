@@ -80,7 +80,9 @@ fbWorker.onmessage = (event: any) => {
             });
             return Promise.all(promises).then(() => files);
         }).then((files) => {
-            create({ title: "Fix applied!", body: "Fixes have been applied, and the new fonts downloaded to your downloads folder. Check status has been updated.", variant: "success" });
+            if (data.download) {
+                create({ title: "Fix applied!", body: "Fixes have been applied, and the new fonts downloaded to your downloads folder. Check status has been updated.", variant: "success" });
+            }
             postToWorker({
                 id: "run_checks",
                 files,
