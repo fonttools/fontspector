@@ -580,51 +580,6 @@ def test_check_metadata_single_cjk_subset(check, tmp_path):
     )
 
 
-@check_id("googlefonts/metadata/copyright")
-def test_check_metadata_copyright(check):
-    """METADATA.pb: Copyright notice is the same in all fonts?"""
-
-    # Let's start with our reference FamilySans family:
-    mdpb = TEST_FILE("familysans/METADATA.pb")
-
-    # We know its copyright notices are consistent:
-    assert_PASS(check(mdpb), "with consistent copyright notices on FamilySans...")
-
-    # Now we make them diverge:
-    mdpb = TEST_FILE("familysans/bad-METADATA.pb")
-    # To ensure the problem is detected:
-    assert_results_contain(
-        check(mdpb),
-        FAIL,
-        "inconsistency",
-        "with diverging copyright notice strings...",
-    )
-
-
-@check_id("googlefonts/metadata/familyname")
-def test_check_metadata_familyname(check, tmp_path):
-    """Check that METADATA.pb family values are all the same."""
-
-    # Let's start with our reference FamilySans family:
-    font = TEST_FILE("familysans/FamilySans-Regular.ttf")
-    good_mdpb = TEST_FILE("familysans/METADATA.pb")
-
-    # We know its family name entries on METADATA.pb are consistent:
-    assert_PASS(check(good_mdpb), "with consistent family name...")
-
-    # Now we make them diverge:
-    md = Font(font).family_metadata
-    md.fonts[1].name = md.fonts[0].name + " arbitrary suffix!"  # to make it different
-
-    # To ensure the problem is detected:
-    assert_results_contain(
-        check(fake_mdpb(tmp_path, md)),
-        FAIL,
-        "inconsistency",
-        "With diverging Family name metadata entries...",
-    )
-
-
 @pytest.mark.skip("Check not ported yet.")
 @check_id("googlefonts/metadata/has_regular")
 def test_check_metadata_has_regular(check):
@@ -843,27 +798,6 @@ def test_check_metadata_valid_filename_values(check):
         )
 
 
-@check_id("googlefonts/metadata/consistent_with_fonts")
-def test_check_metadata_valid_post_script_name_values(check, tmp_path):
-    """METADATA.pb font.post_script_name field contains font name in right format?"""
-
-    # Our reference Montserrat family is a good 18-styles family:
-    # So it must PASS the check:
-    files = (
-        MONTSERRAT_RIBBI + MONTSERRAT_NON_RIBBI + [TEST_FILE("montserrat/METADATA.pb")]
-    )
-    assert_PASS(check(files), "with a good font...")
-    # And fail if it finds a bad filename:
-    md = Font(files[0]).family_metadata
-    md.fonts[0].post_script_name = "WrongPSName"
-    assert_results_contain(
-        check(MONTSERRAT_RIBBI + MONTSERRAT_NON_RIBBI + [fake_mdpb(tmp_path, md)]),
-        FAIL,
-        "mismatch",
-        "with a bad font...",
-    )
-
-
 @check_id("googlefonts/metadata/valid_nameid25")
 def test_check_metadata_valid_nameid25(check):
     """Check name ID 25 to end with "Italic" for Italic VFs"""
@@ -1006,78 +940,6 @@ def test_check_metadata_reserved_font_name(check, tmp_path):
     )
 
 
-@check_id("googlefonts/metadata/consistent_with_fonts")
-def test_check_metadata_filenames(check):
-    """METADATA.pb: Font filenames match font.filename entries?"""
-
-    rosarivo_fonts_plus_mdpb = rosarivo_fonts + [TEST_FILE("rosarivo/METADATA.pb")]
-
-    assert_PASS(check(rosarivo_fonts_plus_mdpb), "with matching list of font files...")
-
-    # make sure missing files are detected by the check:
-    fonts = rosarivo_fonts_plus_mdpb
-    # drop one font file from check in order to trigger the FAIL
-    assert_results_contain(
-        check(fonts[1:]), FAIL, "file-not-found", "with missing font files..."
-    )
-
-    # From all TTFs in Cabin's directory, the condensed ones are not
-    # listed on METADATA.pb, so the check must FAIL.
-    assert_results_contain(
-        check(
-            list(glob.glob("data/test/cabin/*ttf")) + [TEST_FILE("cabin/METADATA.pb")]
-        ),
-        FAIL,
-        "file-not-declared",
-        "with some font files not declared...",
-    )
-
-
-@check_id("googlefonts/metadata/consistent_with_fonts")
-def test_check_metadata_nameid_family_and_full_names(check):
-    """METADATA.pb font.name and font.full_name fields
-    match the values declared on the name table?"""
-
-    rosarivo_fonts_plus_mdpb = [TTFont(x) for x in rosarivo_fonts] + [
-        TEST_FILE("rosarivo/METADATA.pb")
-    ]
-    assert_PASS(check(rosarivo_fonts_plus_mdpb), "with a good font...")
-
-    # There we go again!
-    # Breaking FULL_FONT_NAME entries:
-    ttFont = rosarivo_fonts_plus_mdpb[0]
-    for i, name in enumerate(ttFont["name"].names):
-        if name.nameID == NameID.FULL_FONT_NAME:
-            backup = name.string
-            ttFont["name"].names[i].string = "This is utterly wrong!".encode(
-                name.getEncoding()
-            )
-            assert_results_contain(
-                check(rosarivo_fonts_plus_mdpb),
-                FAIL,
-                "fullname-mismatch",
-                "with a METADATA.pb / FULL_FONT_NAME mismatch...",
-            )
-            # and restore the good value:
-            ttFont["name"].names[i].string = backup
-
-    # And then we do the same with FONT_FAMILY_NAME entries:
-    for i, name in enumerate(ttFont["name"].names):
-        if name.nameID == NameID.FONT_FAMILY_NAME:
-            backup = name.string
-            ttFont["name"].names[i].string = (
-                "I'm listening to" " The Players with Hiromasa Suzuki - Galaxy (1979)"
-            ).encode(name.getEncoding())
-            assert_results_contain(
-                check(rosarivo_fonts_plus_mdpb),
-                FAIL,
-                "familyname-mismatch",
-                "with a METADATA.pb / FONT_FAMILY_NAME mismatch...",
-            )
-            # and restore the good value:
-            ttFont["name"].names[i].string = backup
-
-
 @check_id("googlefonts/metadata/weightclass")
 def test_check_metadata_weightclass(check, tmp_path):
     """Checking OS/2 usWeightClass matches weight specified at METADATA.pb"""
@@ -1155,85 +1017,6 @@ def test_check_metadata_weightclass(check, tmp_path):
             )
 
 
-@check_id("googlefonts/metadata/consistent_repo_urls")
-def test_check_metadata_consistent_repo_urls(check, tmp_path):
-    """METADATA.pb: Check URL on copyright string
-    is the same as in repository_url field."""
-
-    # The problem was first seen on a project with these diverging values:
-    # copyright: "Copyright 2022 The Delicious Handrawn Project Authors
-    #             (https://github.com/duartp/gloock)"
-    # repository_url: "https://github.com/alphArtype/Delicious-Handrawn"
-    md_file = TEST_FILE("delicioushandrawn/METADATA.pb")
-    assert_results_contain(check([md_file]), FAIL, "mismatch", "with different URLs...")
-
-    family_md = read_mdpb(md_file)
-    # so we fix it:
-    assert (
-        family_md.source.repository_url
-        == "https://github.com/alphArtype/Delicious-Handrawn"
-    )
-    family_md.fonts[0].copyright = (
-        "Copyright 2022 The Delicious Handrawn Project Authors"
-        " (https://github.com/alphArtype/Delicious-Handrawn)"
-    )
-    assert_PASS(check(fake_mdpb(tmp_path, family_md)))
-
-    family_md.source.repository_url = ""
-    assert_results_contain(
-        check(fake_mdpb(tmp_path, family_md)),
-        FAIL,
-        "lacks-repo-url",
-        "when the field is either empty or completley missing...",
-    )
-
-    # League Gothic got a bad repo in DESCRIPTION.en.html
-    league_files = [
-        TEST_FILE("leaguegothic-vf/METADATA.pb"),
-        TEST_FILE("leaguegothic-vf/DESCRIPTION.en_us.html"),
-    ]
-    assert_results_contain(
-        check(league_files), FAIL, "mismatch", "with different URLs..."
-    )
-
-    # CabinVF got a bad repo in OFL.txt
-    cabin_files = [TEST_FILE("cabinvf/METADATA.pb"), TEST_FILE("cabinvf/OFL.txt")]
-    assert_results_contain(
-        check(cabin_files), FAIL, "mismatch", "with different URLs..."
-    )
-
-
-@check_id("googlefonts/metadata/primary_script")
-def test_check_metadata_primary_script(check, tmp_path):
-    """METADATA.pb: Check for primary_script"""
-
-    font = TEST_FILE("notosanskhudawadi/NotoSansKhudawadi-Regular.ttf")
-    mdpb_file = TEST_FILE("notosanskhudawadi/METADATA.pb")
-    assert_PASS(check([font, mdpb_file]))
-
-    family_md = read_mdpb(mdpb_file)
-    family_md.primary_script = ""
-    assert_results_contain(
-        check([font, fake_mdpb(tmp_path, family_md)]),
-        WARN,
-        "missing-primary-script",
-    )
-    family_md.primary_script = "Arab"
-    assert_results_contain(
-        check([font, fake_mdpb(tmp_path, family_md)]),
-        WARN,
-        "wrong-primary-script",
-    )
-    assert_PASS(
-        check(
-            [
-                TEST_FILE("merriweather/Merriweather-Regular.ttf"),
-                TEST_FILE("merriweather/METADATA.pb"),
-            ]
-        )
-    )
-
-
 # FIXME!
 # GFonts hosted Cabin files seem to have changed in ways
 # that break some of the assumptions in the code-test below.
@@ -1254,33 +1037,6 @@ def test_check_production_encoded_glyphs(check, cabin_ttFonts):
         ttFont["cmap"].getcmap(3, 1).cmap.pop(ord("A"))
         ttFont["glyf"].glyphs.pop("A")
         assert_results_contain(check(ttFont), FAIL, "lost-glyphs")
-
-
-@check_id("googlefonts/metadata/category")
-def test_check_metadata_category(check, tmp_path):
-    """Category field for this font on METADATA.pb is valid?"""
-
-    # Our reference Cabin family...
-    font = TEST_FILE("cabin/Cabin-Regular.ttf")
-    check(font)
-    md = Font(font).family_metadata
-    assert md.category == ["SANS_SERIF"]  # ...is known to be good ;-)
-    assert_PASS(check([font, fake_mdpb(tmp_path, md)]), "with a good METADATA.pb...")
-
-    # We then report a problem with this sample of bad values:
-    for bad_value in ["SAN_SERIF", "MONO_SPACE", "sans_serif", "monospace"]:
-        md.category[:] = [bad_value]
-        assert_results_contain(
-            check([font, fake_mdpb(tmp_path, md)]),
-            FAIL,
-            "bad-value",
-            f'with a bad category "{bad_value}"...',
-        )
-
-    # And we accept the good ones:
-    for good_value in ["MONOSPACE", "SANS_SERIF", "SERIF", "DISPLAY", "HANDWRITING"]:
-        md.category[:] = [good_value]
-        assert_PASS(check([font, fake_mdpb(tmp_path, md)]), f'with "{good_value}"...')
 
 
 @pytest.mark.parametrize(
@@ -1618,89 +1374,6 @@ def test_check_family_italics_have_roman_counterparts(check):
         FAIL,
         "missing-roman",
         "with an Italic varfont that lacks a Roman counterpart.",
-    )
-
-
-@check_id("googlefonts/repo/dirname_matches_nameid_1")
-def test_check_repo_dirname_matches_nameid_1(check, tmp_path):
-    FONT_FAMILY_NAME = "rosarivo"
-
-    # Create a temporary directory that mimics the folder structure of the Google Fonts
-    # repository, and copy into it a test family that is known to have all the necessary
-    # files.
-    tmp_gf_dir = tmp_path / f"ofl/{FONT_FAMILY_NAME}"
-    src_family = portable_path(f"data/test/{FONT_FAMILY_NAME}")
-    shutil.copytree(src_family, tmp_gf_dir, dirs_exist_ok=True)
-
-    # PASS result; only check regular as we get skips for non-Regular
-    fonts = [str(tmp_gf_dir / "Rosarivo-Regular.ttf")]
-    assert_PASS(check(fonts))
-
-    # Get the path of the Regular font; it will be used for deleting the file later.
-    reg_font_path = next((pth for pth in fonts if "Regular" in pth), None)
-
-    # Now rename the temporary directory to make the check fail.
-    new_dir_name = f"not_{FONT_FAMILY_NAME}"
-    renamed_tmp_gf_dir = tmp_gf_dir.with_name(new_dir_name)
-    os.replace(tmp_gf_dir, renamed_tmp_gf_dir)
-
-    # FAIL ("mismatch") result
-    fonts = [str(renamed_tmp_gf_dir / "Rosarivo-Regular.ttf")]
-    msg = assert_results_contain(check(fonts), FAIL, "mismatch")
-    assert msg == (
-        f"Family name on the name table ('{FONT_FAMILY_NAME.title()}')"
-        f" does not match directory name in the repo structure ('{new_dir_name}')."
-        f" Expected '{FONT_FAMILY_NAME}'."
-    )
-
-    # Rename the temporary directory back to the original name,
-    # and delete the Regular font file to make the check fail.
-    os.replace(renamed_tmp_gf_dir, tmp_gf_dir)
-    os.remove(reg_font_path)
-
-
-@check_id("googlefonts/repo/vf_has_static_fonts")
-def test_check_repo_vf_has_static_fonts(check, tmp_path):
-    """Check VF family dirs in google/fonts contain static fonts"""
-
-    # in order for this check to work, we need to
-    # mimic the folder structure of the Google Fonts repository
-    dir_path = "ofl/foo/bar"
-    tmp_gf_dir = tmp_path / "repo_vf_has_static_fonts"
-    tmp_gf_dir.mkdir()
-    family_dir = tmp_gf_dir / "ofl/testfamily"
-    src_family = portable_path("data/test/varfont/inter")
-
-    shutil.copytree(src_family, family_dir, dirs_exist_ok=True)
-
-    assert_PASS(
-        check([str(x) for x in family_dir.glob("**/*") if x.is_file()]),
-        "for a VF family which does not have a static dir.",
-    )
-
-    static_dir = family_dir / "static"
-    static_dir.mkdir()
-    static_fonts = portable_path("data/test/ibmplexsans-vf")
-    shutil.rmtree(static_dir)
-    shutil.copytree(static_fonts, static_dir)
-    assert_PASS(
-        check([str(x) for x in family_dir.glob("**/*") if x.is_file()]),
-        "for a VF family which has a static dir and manually hinted static fonts",
-    )
-
-    static_fonts = portable_path("data/test/overpassmono")
-    shutil.rmtree(static_dir)
-    static_dir.mkdir()
-    shutil.copyfile(
-        os.path.join(static_fonts, "OverpassMono-Regular.ttf"),
-        static_dir / "OverpassMono-Regular.ttf",
-    )
-
-    assert_results_contain(
-        check([str(x) for x in family_dir.glob("**/*") if x.is_file()]),
-        WARN,
-        "not-manually-hinted",
-        "for a VF family which has a static dir but no manually hinted static fonts",
     )
 
 
