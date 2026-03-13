@@ -6,13 +6,12 @@ use std::{
 
 use fontspector_checkapi::prelude::*;
 use js_sys::{Reflect, Uint8Array};
-use serde::Deserialize;
 use serde_json::{json, Value};
 use wasm_bindgen::prelude::*;
 extern crate console_error_panic_hook;
 use fontspector_checkapi::{
-    testfont, Check, CheckResult, Context, FileTypeConvert, HotfixFunction, Plugin, Profile,
-    Registry, StatusCode, TestFont, Testable, TestableCollection, TestableType,
+    Check, CheckResult, Context, HotfixFunction, Plugin, Profile, Registry, StatusCode, TestFont,
+    Testable, TestableCollection, TestableType,
 };
 use profile_adobe::Adobe;
 use profile_fontwerk::Fontwerk;
@@ -206,6 +205,23 @@ pub fn dump_checks() -> Result<String, JsValue> {
     serde_json::to_string_pretty(&checks).map_err(|e| e.to_string().into())
 }
 
+struct FixRequest<'a> {
+    check_id: String,
+    fixer: &'a HotfixFunction,
+    dialogue: Option<MoreInfoReplies>,
+}
+
+fn parse_request_dialogue(request: &JsValue) -> Result<Option<MoreInfoReplies>, JsValue> {
+    let details = Reflect::get(request, &JsValue::from_str("details"))?;
+    if details.is_null() || details.is_undefined() {
+        return Ok(None);
+    }
+
+    serde_wasm_bindgen::from_value(details)
+        .map(Some)
+        .map_err(|e| format!("Could not parse fix request details: {e}").into())
+}
+
 #[wasm_bindgen]
 pub fn fix_fonts(fonts: &JsValue, requests: &JsValue) -> Result<Uint8Array, JsValue> {
     console_error_panic_hook::set_once();
@@ -215,8 +231,7 @@ pub fn fix_fonts(fonts: &JsValue, requests: &JsValue) -> Result<Uint8Array, JsVa
 
     // Gather all the testables and their fixes first. Have to do this in multiple passes to
     // avoid mutably borrowing the same testable multiple times.
-    let mut to_fix: BTreeMap<String, (&mut Testable, Vec<(String, &HotfixFunction)>)> =
-        BTreeMap::new();
+    let mut to_fix: BTreeMap<String, (&mut Testable, Vec<FixRequest<'_>>)> = BTreeMap::new();
     let mut filenames_we_need = BTreeSet::new();
     for request in js_sys::try_iter(requests)?.ok_or_else(|| "not iterable!")? {
         let request = request?;
@@ -234,7 +249,7 @@ pub fn fix_fonts(fonts: &JsValue, requests: &JsValue) -> Result<Uint8Array, JsVa
             );
         }
     }
-    // Next pass gathers fix functions
+    // Next pass gathers fix functions and dialogue options
     for request in js_sys::try_iter(requests)?.ok_or_else(|| "not iterable!")? {
         let request = request?;
         let check_id = Reflect::get(&request, &JsValue::from_str("check_id"))?
@@ -251,16 +266,25 @@ pub fn fix_fonts(fonts: &JsValue, requests: &JsValue) -> Result<Uint8Array, JsVa
         let filename = Reflect::get(&request, &JsValue::from_str("filename"))?
             .as_string()
             .ok_or("filename is not a string")?;
+        let dialogue = parse_request_dialogue(&request)?;
         if let Some((_, fixes)) = to_fix.get_mut(&filename) {
-            fixes.push((check_id.clone(), fixer));
+            fixes.push(FixRequest {
+                check_id: check_id.to_string(),
+                fixer: *fixer,
+                dialogue,
+            });
         }
     }
 
     // Now run all the fixes at once
     for (filename, (testable, fixes)) in to_fix.into_iter() {
         logfile.push_str(&format!("Fixing {filename}:\n"));
-        for (check_id, fixer) in fixes {
-            match fixer(testable, None) {
+        for fix_request in fixes.iter() {
+            let check_id = &fix_request.check_id;
+            let fixer = &fix_request.fixer;
+            let options = fix_request.dialogue.clone();
+
+            match fixer(testable, options) {
                 Ok(FixResult::Fixed) => {
                     logfile.push_str(&format!("  - Applied fix for {check_id}\n"))
                 }
