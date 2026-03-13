@@ -131,6 +131,10 @@ function initDropzone() {
                   <button v-if="!state.loading" class="btn mt-3 btn-primary w-100" @click="runChecks">
                     Inspect!
                   </button>
+                  <button v-if="state.loading" class="btn mt-3 btn-primary w-100" disabled>
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    Loading
+                  </button>
                 </div>
                 <div class="mx-auto mt-2 mb-0 text-muted text-center">
                   <p>
