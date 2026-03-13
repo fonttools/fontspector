@@ -11,8 +11,8 @@ use serde_json::{json, Value};
 use wasm_bindgen::prelude::*;
 extern crate console_error_panic_hook;
 use fontspector_checkapi::{
-    testfont, Check, CheckResult, Context, FileTypeConvert, Plugin, Profile, Registry, StatusCode,
-    TestFont, Testable, TestableCollection, TestableType,
+    testfont, Check, CheckResult, Context, FileTypeConvert, HotfixFunction, Plugin, Profile,
+    Registry, StatusCode, TestFont, Testable, TestableCollection, TestableType,
 };
 use profile_adobe::Adobe;
 use profile_fontwerk::Fontwerk;
@@ -23,8 +23,6 @@ use profile_opentype::OpenType;
 use profile_universal::Universal;
 use std::io::Write;
 use zip::ZipWriter;
-
-type FixFn = dyn Fn(&mut Testable) -> Result<bool, FontspectorError>;
 
 #[wasm_bindgen]
 extern "C" {
@@ -217,7 +215,8 @@ pub fn fix_fonts(fonts: &JsValue, requests: &JsValue) -> Result<Uint8Array, JsVa
 
     // Gather all the testables and their fixes first. Have to do this in multiple passes to
     // avoid mutably borrowing the same testable multiple times.
-    let mut to_fix: BTreeMap<String, (&mut Testable, Vec<(String, &FixFn)>)> = BTreeMap::new();
+    let mut to_fix: BTreeMap<String, (&mut Testable, Vec<(String, &HotfixFunction)>)> =
+        BTreeMap::new();
     let mut filenames_we_need = BTreeSet::new();
     for request in js_sys::try_iter(requests)?.ok_or_else(|| "not iterable!")? {
         let request = request?;
@@ -261,11 +260,17 @@ pub fn fix_fonts(fonts: &JsValue, requests: &JsValue) -> Result<Uint8Array, JsVa
     for (filename, (testable, fixes)) in to_fix.into_iter() {
         logfile.push_str(&format!("Fixing {filename}:\n"));
         for (check_id, fixer) in fixes {
-            match fixer(testable) {
-                Ok(true) => logfile.push_str(&format!("  - Applied fix for {check_id}\n")),
-                Ok(false) => logfile.push_str(&format!(
-                    "  - Fix for {check_id} did not apply cleanly, manual review needed\n"
+            match fixer(testable, None) {
+                Ok(FixResult::Fixed) => {
+                    logfile.push_str(&format!("  - Applied fix for {check_id}\n"))
+                }
+                Ok(FixResult::FixFailed(s)) => logfile.push_str(&format!(
+                    "  - Fix for {check_id} did not apply cleanly ({s}), manual review needed\n"
                 )),
+                Ok(FixResult::MoreInfoNeeded(_)) => logfile.push_str(&format!(
+                    "  - Fix for {check_id} needs more information, manual review needed\n"
+                )),
+                Ok(_) => {}
                 Err(e) => {
                     logfile.push_str(&format!("  - Error applying fix for {check_id}: {e}\n"))
                 }
