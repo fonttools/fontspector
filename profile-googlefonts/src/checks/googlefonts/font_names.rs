@@ -11,6 +11,7 @@ use tabled::builder::Builder;
 use crate::{constants::gf_api_weight_name, utils::build_expected_font};
 
 struct StaticChecker {
+    family_name: String,
     subfamily_name: String,
     weight_class: u16,
 }
@@ -18,6 +19,7 @@ struct StaticChecker {
 impl StaticChecker {
     fn from_font(t: &TestFont) -> Result<Self, FontspectorError> {
         Ok(Self {
+            family_name: t.best_familyname().unwrap_or("Unknown".to_string()),
             subfamily_name: t.best_subfamilyname().unwrap_or("Regular".to_string()),
             weight_class: t.font().os2()?.us_weight_class(),
         })
@@ -62,7 +64,7 @@ impl StaticChecker {
             value: "promote".to_string(),
             description: format!(
                 "Change family name to '{} {}' for this font",
-                "Family Name", self.subfamily_name
+                self.family_name, self.subfamily_name
             ),
         });
         if let Some(suggested_style_name) = self.weightclass_suggests_style_name() {
@@ -145,12 +147,14 @@ fn font_names(t: &Testable, _context: &Context) -> CheckFnResult {
             let Some(request) = static_checker.more_info() else {
                 return return_result(problems);
             };
+            let style_name = static_checker.subfamily_name.clone();
 
             // First check if we have a weight class that matches a supported style name, even if the style name itself doesn't match.
             // XBold might be a typo for Bold but it's more likely to be an ExtraBold if the weight class is 800, for example.
             if let Some(expected_style_name) = static_checker.weightclass_suggests_style_name() {
                 let msg = format!(
-                    "Unsupported style name for static font. OS/2 usWeightClass is {}, so suggested style name is '{}'.",
+                    "Unsupported style name '{}' for static font. OS/2 usWeightClass is {}, so suggested style name is '{}'.",
+                    style_name,
                     static_checker.weight_class, expected_style_name
                 );
                 let mut status = Status::fail("unsupported-style", &msg);
@@ -167,7 +171,7 @@ fn font_names(t: &Testable, _context: &Context) -> CheckFnResult {
             }
             if let Some(closest) = static_checker.maybe_typo() {
                 let msg =
-                    format!("Unsupported style name for static font. Did you mean '{closest}'?");
+                    format!("Unsupported style name '{style_name}' for static font. Did you mean '{closest}'?");
                 let mut status = Status::fail("unsupported-style", &msg);
                 status.add_metadata(Metadata::TableProblem {
                     table_tag: "name".to_string(),
@@ -181,7 +185,8 @@ fn font_names(t: &Testable, _context: &Context) -> CheckFnResult {
                 return return_result(problems);
             } else {
                 let msg = format!(
-                    "Unsupported style name for static font. Expected one of {:?}, got '{}'.",
+                    "Unsupported style name {} for static font. Expected one of {:?}, got '{}'.",
+                    style_name,
                     STATIC_STYLE_NAMES,
                     static_checker.subfamily_name.clone()
                 );
