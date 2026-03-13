@@ -59,6 +59,7 @@ fn fix_weight_class_fvar(
     Ok(FixResult::Fixed)
 }
 
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 #[cfg(test)]
 mod tests {
     use fontations::{skrifa::raw::TableProvider, write::from_obj::ToOwnedTable};
