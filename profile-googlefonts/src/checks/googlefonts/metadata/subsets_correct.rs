@@ -246,3 +246,119 @@ fn subsets_correct(c: &TestableCollection, context: &Context) -> CheckFnResult {
 
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+
+    use super::subsets_correct;
+    use fontspector_checkapi::{
+        codetesting::{
+            assert_pass, assert_results_contain, run_check_with_config_and_network, test_able,
+        },
+        StatusCode, Testable, TestableCollection, TestableType,
+    };
+
+    fn run(files: Vec<Testable>) -> Option<fontspector_checkapi::CheckResult> {
+        let collection = TestableCollection::from_testables(files, None);
+        run_check_with_config_and_network(
+            subsets_correct,
+            TestableType::Collection(&collection),
+            HashMap::new(),
+            true,
+        )
+    }
+
+    fn with_subsets(subsets: &[&str]) -> Testable {
+        let mdpb = test_able("cabinvf/METADATA.pb");
+        let original = String::from_utf8(mdpb.contents.clone())
+            .unwrap_or_else(|e| panic!("Invalid UTF-8 in cabinvf METADATA fixture: {e}"));
+        let old_subsets = "subsets: \"latin\"\nsubsets: \"latin-ext\"\nsubsets: \"menu\"\nsubsets: \"vietnamese\"";
+        let new_subsets = subsets
+            .iter()
+            .map(|s| format!("subsets: \"{s}\""))
+            .collect::<Vec<_>>()
+            .join("\n");
+        let updated = original.replacen(old_subsets, &new_subsets, 1);
+        Testable::new_with_contents("METADATA.pb", updated.into_bytes())
+    }
+
+    fn with_metadata(mdpb: Testable) -> Vec<Testable> {
+        vec![
+            test_able("cabinvf/Cabin[wdth,wght].ttf"),
+            test_able("cabinvf/Cabin-Italic[wdth,wght].ttf"),
+            mdpb,
+        ]
+    }
+
+    #[test]
+    fn test_check_metadata_menu_and_latin() {
+        assert_pass(&run(with_metadata(test_able("cabinvf/METADATA.pb"))));
+
+        let missing_latin = run(with_metadata(with_subsets(&[
+            "menu",
+            "latin-ext",
+            "vietnamese",
+        ])));
+        assert_results_contain(
+            &missing_latin,
+            StatusCode::Fail,
+            Some("missing".to_string()),
+        );
+
+        let missing_menu = run(with_metadata(with_subsets(&[
+            "latin",
+            "latin-ext",
+            "vietnamese",
+        ])));
+        assert_results_contain(&missing_menu, StatusCode::Fail, Some("missing".to_string()));
+    }
+
+    #[test]
+    fn test_check_metadata_subsets_order() {
+        assert_pass(&run(with_metadata(test_able("cabinvf/METADATA.pb"))));
+
+        let unsorted = run(with_metadata(with_subsets(&[
+            "menu",
+            "latin",
+            "latin-ext",
+            "vietnamese",
+        ])));
+        assert_results_contain(&unsorted, StatusCode::Fail, Some("not-sorted".to_string()));
+    }
+
+    #[test]
+    fn test_check_metadata_single_cjk_subset() {
+        let single_cjk = run(with_metadata(with_subsets(&[
+            "latin",
+            "latin-ext",
+            "menu",
+            "vietnamese",
+            "korean",
+        ])));
+        let single_cjk_results = single_cjk
+            .as_ref()
+            .unwrap_or_else(|| panic!("Expected check result for single CJK subset test"));
+        assert!(
+            !single_cjk_results
+                .subresults
+                .iter()
+                .any(|r| r.code.as_deref() == Some("multiple-cjk-subsets")),
+            "single CJK subset unexpectedly triggered multiple-cjk-subsets"
+        );
+
+        let multiple_cjk = run(with_metadata(with_subsets(&[
+            "latin",
+            "latin-ext",
+            "menu",
+            "vietnamese",
+            "korean",
+            "japanese",
+        ])));
+        assert_results_contain(
+            &multiple_cjk,
+            StatusCode::Error,
+            Some("multiple-cjk-subsets".to_string()),
+        );
+    }
+}
