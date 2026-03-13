@@ -295,7 +295,45 @@ mod tests {
     #![allow(clippy::unwrap_used)]
 
     use super::*;
+    use fontspector_checkapi::codetesting::{
+        assert_pass, assert_results_contain, run_check, test_able,
+    };
     use fontspector_checkapi::StatusCode;
+    use fontspector_checkapi::Testable;
+
+    fn replace_in_metadata(path: &str, old: &str, new: &str) -> Testable {
+        let mdpb = test_able(path);
+        let metadata = String::from_utf8(mdpb.contents.clone()).unwrap();
+        assert!(
+            metadata.contains(old),
+            "Did not find expected snippet in METADATA: {old}"
+        );
+        let updated = metadata.replacen(old, new, 1);
+        Testable::new_with_contents("METADATA.pb", updated.into_bytes())
+    }
+
+    fn replace_all_in_metadata(path: &str, old: &str, new: &str) -> Testable {
+        let mdpb = test_able(path);
+        let metadata = String::from_utf8(mdpb.contents.clone()).unwrap();
+        assert!(
+            metadata.contains(old),
+            "Did not find expected snippet in METADATA: {old}"
+        );
+        let updated = metadata.replace(old, new);
+        Testable::new_with_contents("METADATA.pb", updated.into_bytes())
+    }
+
+    fn assert_no_failures(results: &Option<fontspector_checkapi::CheckResult>) {
+        let has_failure = results.as_ref().unwrap().subresults.iter().any(|r| {
+            r.severity == StatusCode::Fail
+                || r.severity == StatusCode::Error
+                || r.severity == StatusCode::Fatal
+        });
+        assert!(
+            !has_failure,
+            "Expected no failing severities, got {results:#?}"
+        );
+    }
 
     #[test]
     fn test_noto_languages() {
@@ -340,5 +378,199 @@ mod tests {
         assert!(result
             .iter()
             .any(|r| r.severity == StatusCode::Fail && r.code.as_deref() == Some("language")));
+    }
+
+    #[test]
+    fn test_metadata_date_added() {
+        let good = test_able("familysans/METADATA.pb");
+        assert_no_failures(&run_check(validate, good));
+
+        let empty = replace_in_metadata(
+            "familysans/METADATA.pb",
+            "date_added: \"2017-08-21\"",
+            "date_added: \"\"",
+        );
+        assert_results_contain(
+            &run_check(validate, empty),
+            StatusCode::Error,
+            Some("date-empty".to_string()),
+        );
+
+        let malformed = replace_in_metadata(
+            "familysans/METADATA.pb",
+            "date_added: \"2017-08-21\"",
+            "date_added: \"2020, Oct 1st\"",
+        );
+        assert_results_contain(
+            &run_check(validate, malformed),
+            StatusCode::Error,
+            Some("date-malformed".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_metadata_unique_full_name_values() {
+        let duplicated = replace_in_metadata(
+            "familysans/METADATA.pb",
+            "full_name: \"Family Sans Thin\"",
+            "full_name: \"Family Sans Thin Italic\"",
+        );
+        assert_results_contain(
+            &run_check(validate, duplicated),
+            StatusCode::Fail,
+            Some("duplicated".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_metadata_unique_weight_style_pairs() {
+        let duplicated = replace_in_metadata(
+            "familysans/METADATA.pb",
+            "style: \"normal\"",
+            "style: \"italic\"",
+        );
+        assert_results_contain(
+            &run_check(validate, duplicated),
+            StatusCode::Fail,
+            Some("duplicated".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_metadata_match_fullname_postscript() {
+        // Merriweather test metadata intentionally has one bad fullname/postscript pair.
+        let bad = test_able("merriweather/METADATA.pb");
+        assert_results_contain(
+            &run_check(validate, bad),
+            StatusCode::Fail,
+            Some("mismatch".to_string()),
+        );
+
+        let fixed = replace_in_metadata(
+            "merriweather/METADATA.pb",
+            "full_name: \"Merriweather\"",
+            "full_name: \"Merriweather Regular\"",
+        );
+        assert_no_failures(&run_check(validate, fixed));
+
+        let mismatched = replace_in_metadata(
+            "merriweather/METADATA.pb",
+            "full_name: \"Merriweather\"",
+            "full_name: \"MistakenFont Regular\"",
+        );
+        assert_results_contain(
+            &run_check(validate, mismatched),
+            StatusCode::Fail,
+            Some("mismatch".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_metadata_match_name_familyname() {
+        let good = test_able("familysans/METADATA.pb");
+        assert_no_failures(&run_check(validate, good));
+
+        let mismatch = replace_in_metadata(
+            "familysans/METADATA.pb",
+            "fonts {\n  name: \"Family Sans\"",
+            "fonts {\n  name: \"Something Else\"",
+        );
+        assert_results_contain(
+            &run_check(validate, mismatch),
+            StatusCode::Fail,
+            Some("mismatch".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_metadata_canonical_weight_value() {
+        let good = test_able("familysans/METADATA.pb");
+        assert_no_failures(&run_check(validate, good));
+
+        let bad_weight =
+            replace_in_metadata("familysans/METADATA.pb", "weight: 100", "weight: 150");
+        assert_results_contain(
+            &run_check(validate, bad_weight),
+            StatusCode::Fail,
+            Some("bad-weight".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_metadata_category_hints() {
+        let good = test_able("familysans/METADATA.pb");
+        assert_no_failures(&run_check(validate, good));
+
+        let warned =
+            replace_all_in_metadata("familysans/METADATA.pb", "Family Sans", "Seaweed Script");
+        let warned = {
+            let metadata = String::from_utf8(warned.contents.clone()).unwrap();
+            let updated = metadata.replacen("category: \"SANS_SERIF\"", "category: \"DISPLAY\"", 1);
+            Testable::new_with_contents("METADATA.pb", updated.into_bytes())
+        };
+        assert_results_contain(
+            &run_check(validate, warned),
+            StatusCode::Warn,
+            Some("inferred-category".to_string()),
+        );
+
+        let fixed =
+            replace_all_in_metadata("familysans/METADATA.pb", "Family Sans", "Seaweed Script");
+        let fixed = {
+            let metadata = String::from_utf8(fixed.contents.clone()).unwrap();
+            let updated =
+                metadata.replacen("category: \"SANS_SERIF\"", "category: \"HANDWRITING\"", 1);
+            Testable::new_with_contents("METADATA.pb", updated.into_bytes())
+        };
+        let results = run_check(validate, fixed);
+        let has_inferred_category = results
+            .as_ref()
+            .unwrap()
+            .subresults
+            .iter()
+            .any(|r| r.code.as_deref() == Some("inferred-category"));
+        assert!(
+            !has_inferred_category,
+            "Unexpected inferred-category warning"
+        );
+    }
+
+    #[test]
+    fn test_metadata_minisite_url() {
+        let no_minisite = test_able("familysans/METADATA.pb");
+        assert_results_contain(
+            &run_check(validate, no_minisite),
+            StatusCode::Info,
+            Some("lacks-minisite-url".to_string()),
+        );
+
+        let good = replace_in_metadata(
+            "familysans/METADATA.pb",
+            "date_added: \"2017-08-21\"",
+            "date_added: \"2017-08-21\"\nminisite_url: \"a_good_one.com\"",
+        );
+        assert_pass(&run_check(validate, good));
+
+        let trailing_slash = replace_in_metadata(
+            "familysans/METADATA.pb",
+            "date_added: \"2017-08-21\"",
+            "date_added: \"2017-08-21\"\nminisite_url: \"some_url/\"",
+        );
+        assert_results_contain(
+            &run_check(validate, trailing_slash),
+            StatusCode::Fail,
+            Some("trailing-clutter".to_string()),
+        );
+
+        let trailing_index = replace_in_metadata(
+            "familysans/METADATA.pb",
+            "date_added: \"2017-08-21\"",
+            "date_added: \"2017-08-21\"\nminisite_url: \"some_url/index.html\"",
+        );
+        assert_results_contain(
+            &run_check(validate, trailing_index),
+            StatusCode::Fail,
+            Some("trailing-clutter".to_string()),
+        );
     }
 }

@@ -42,3 +42,67 @@ fn vf_has_static_fonts(c: &TestableCollection, _context: &Context) -> CheckFnRes
     }
     Ok(Status::just_one_pass())
 }
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+
+    use super::vf_has_static_fonts;
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, test_able},
+        StatusCode, Testable, TestableCollection, TestableType,
+    };
+
+    fn run(files: Vec<Testable>) -> Option<fontspector_checkapi::CheckResult> {
+        let collection = TestableCollection::from_testables(files, None);
+        fontspector_checkapi::codetesting::run_check_with_config(
+            vf_has_static_fonts,
+            TestableType::Collection(&collection),
+            HashMap::new(),
+        )
+    }
+
+    fn clone_to_static_path(src: &str, basename: &str) -> Testable {
+        let t = test_able(src);
+        Testable::new_with_contents(
+            format!("ofl/testfamily/static/{basename}"),
+            t.contents.clone(),
+        )
+    }
+
+    #[test]
+    fn test_check_repo_vf_has_static_fonts() {
+        // Pass with no static directory files.
+        assert_pass(&run(vec![
+            test_able("cabinvf/Cabin[wdth,wght].ttf"),
+            test_able("cabinvf/Cabin-Italic[wdth,wght].ttf"),
+        ]));
+
+        // Pass when static dir contains manually hinted statics.
+        assert_pass(&run(vec![
+            test_able("cabinvf/Cabin[wdth,wght].ttf"),
+            test_able("cabinvf/Cabin-Italic[wdth,wght].ttf"),
+            clone_to_static_path(
+                "ibmplexsans-vf/IBMPlexSansVar-Roman.ttf",
+                "IBMPlexSansVar-Roman.ttf",
+            ),
+            clone_to_static_path(
+                "ibmplexsans-vf/IBMPlexSansVar-Italic.ttf",
+                "IBMPlexSansVar-Italic.ttf",
+            ),
+        ]));
+
+        // Warn when static dir contains non-manually-hinted fonts.
+        assert_results_contain(
+            &run(vec![
+                test_able("cabinvf/Cabin[wdth,wght].ttf"),
+                clone_to_static_path(
+                    "overpassmono/OverpassMono-Regular.ttf",
+                    "OverpassMono-Regular.ttf",
+                ),
+            ]),
+            StatusCode::Warn,
+            Some("not-manually-hinted".to_string()),
+        );
+    }
+}

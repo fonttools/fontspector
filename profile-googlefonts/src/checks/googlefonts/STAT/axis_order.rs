@@ -76,3 +76,42 @@ fn axis_order(c: &TestableCollection, _context: &Context) -> CheckFnResult {
     }
     return_result(results)
 }
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used)]
+
+    use std::collections::HashMap;
+
+    use super::axis_order;
+    use fontspector_checkapi::{
+        codetesting::{assert_results_contain, test_able},
+        StatusCode, Testable, TestableCollection, TestableType,
+    };
+
+    fn run(files: Vec<Testable>) -> Option<fontspector_checkapi::CheckResult> {
+        let collection = TestableCollection::from_testables(files, None);
+        fontspector_checkapi::codetesting::run_check_with_config(
+            axis_order,
+            TestableType::Collection(&collection),
+            HashMap::new(),
+        )
+    }
+
+    #[test]
+    fn test_check_STAT_axis_order() {
+        // A variable font with a STAT table should yield an INFO summary.
+        assert_results_contain(
+            &run(vec![test_able("cabinvf/Cabin[wdth,wght].ttf")]),
+            StatusCode::Info,
+            Some("summary".to_string()),
+        );
+
+        // A static font without a STAT table should yield a SKIP.
+        assert_results_contain(
+            &run(vec![test_able("merriweather/Merriweather-Regular.ttf")]),
+            StatusCode::Skip,
+            Some("missing-STAT".to_string()),
+        );
+    }
+}

@@ -31,3 +31,43 @@ fn has_regular(c: &TestableCollection, _context: &Context) -> CheckFnResult {
         ))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+
+    use super::has_regular;
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check_with_config, test_able},
+        StatusCode, Testable, TestableCollection, TestableType,
+    };
+
+    fn run(mdpb: Testable) -> Option<fontspector_checkapi::CheckResult> {
+        let collection = TestableCollection::from_testables(vec![mdpb], None);
+        run_check_with_config(
+            has_regular,
+            TestableType::Collection(&collection),
+            HashMap::new(),
+        )
+    }
+
+    #[test]
+    fn test_check_metadata_has_regular() {
+        assert_pass(&run(test_able("familysans/METADATA.pb")));
+
+        let mdpb = test_able("familysans/METADATA.pb");
+        let text = String::from_utf8(mdpb.contents.clone())
+            .unwrap_or_else(|e| panic!("Invalid UTF-8 in familysans METADATA fixture: {e}"));
+        let broken = text.replacen(
+            "style: \"normal\"\n  weight: 400\n  filename: \"FamilySans-Regular.ttf\"",
+            "style: \"normal\"\n  weight: 500\n  filename: \"FamilySans-Regular.ttf\"",
+            1,
+        );
+        let bad = Testable::new_with_contents("METADATA.pb", broken.into_bytes());
+        assert_results_contain(
+            &run(bad),
+            StatusCode::Fail,
+            Some("lacks-regular".to_string()),
+        );
+    }
+}

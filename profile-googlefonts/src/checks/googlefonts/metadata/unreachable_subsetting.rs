@@ -97,3 +97,53 @@ fn unreachable_subsetting(c: &TestableCollection, context: &Context) -> CheckFnR
 
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used)]
+
+    use std::collections::HashMap;
+
+    use super::unreachable_subsetting;
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, test_able},
+        StatusCode, Testable, TestableCollection, TestableType,
+    };
+
+    fn run(files: Vec<Testable>) -> Option<fontspector_checkapi::CheckResult> {
+        let collection = TestableCollection::from_testables(files, None);
+        fontspector_checkapi::codetesting::run_check_with_config(
+            unreachable_subsetting,
+            TestableType::Collection(&collection),
+            HashMap::new(),
+        )
+    }
+
+    #[test]
+    fn test_check_metadata_unreachable_subsetting() {
+        // Good: Noto Sans Khudawadi codepoints are all covered by subsets
+        assert_pass(&run(vec![
+            test_able("notosanskhudawadi/NotoSansKhudawadi-Regular.ttf"),
+            test_able("notosanskhudawadi/METADATA.pb"),
+        ]));
+
+        // Bad: Cabin has codepoints not covered by its declared subsets
+        assert_results_contain(
+            &run(vec![
+                test_able("cabin/Cabin-Regular.ttf"),
+                test_able("cabin/METADATA.pb"),
+            ]),
+            StatusCode::Warn,
+            Some("unreachable-subsetting".to_string()),
+        );
+
+        // Bad: Playfair variable font with no METADATA (subsets auto-detected but codepoints unreachable)
+        assert_results_contain(
+            &run(vec![test_able(
+                "playfair/Playfair-Italic[opsz,wdth,wght].ttf",
+            )]),
+            StatusCode::Warn,
+            Some("unreachable-subsetting".to_string()),
+        );
+    }
+}

@@ -26,3 +26,23 @@ fn copyright(c: &Testable, context: &Context) -> CheckFnResult {
         StatusCode::Fail,
     )
 }
+
+#[cfg(test)]
+mod tests {
+    use super::copyright;
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        StatusCode,
+    };
+
+    #[test]
+    fn test_check_metadata_copyright() {
+        assert_pass(&run_check(copyright, test_able("familysans/METADATA.pb")));
+
+        assert_results_contain(
+            &run_check(copyright, test_able("familysans/bad-METADATA.pb")),
+            StatusCode::Fail,
+            Some("inconsistency".to_string()),
+        );
+    }
+}

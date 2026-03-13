@@ -117,3 +117,50 @@ fn license(c: &TestableCollection, _context: &Context) -> CheckFnResult {
     }
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+
+    use fontations::skrifa::raw::types::NameId;
+
+    use super::license;
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, remove_name_entry, test_able},
+        StatusCode, Testable, TestableCollection, TestableType,
+    };
+
+    fn run(files: Vec<Testable>) -> Option<fontspector_checkapi::CheckResult> {
+        let collection = TestableCollection::from_testables(files, None);
+        fontspector_checkapi::codetesting::run_check_with_config(
+            license,
+            TestableType::Collection(&collection),
+            HashMap::new(),
+        )
+    }
+
+    #[test]
+    fn test_check_name_license() {
+        assert_pass(&run(vec![
+            test_able("mada/Mada-Regular.ttf"),
+            test_able("mada/OFL.txt"),
+        ]));
+
+        assert_results_contain(
+            &run(vec![
+                test_able("mada/Mada-Regular.ttf"),
+                test_able("source-sans-pro/LICENSE.txt"),
+            ]),
+            StatusCode::Fail,
+            Some("wrong".to_string()),
+        );
+
+        let mut missing = test_able("mada/Mada-Regular.ttf");
+        remove_name_entry(&mut missing, NameId::new(13));
+        assert_results_contain(
+            &run(vec![missing, test_able("mada/OFL.txt")]),
+            StatusCode::Fail,
+            Some("missing".to_string()),
+        );
+    }
+}
