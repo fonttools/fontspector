@@ -1,20 +1,50 @@
-use dialoguer::{Confirm, Input, Select};
-use fontspector_checkapi::{prelude::*, DialogFieldType, HotfixFunction};
+use dialoguer::{theme::ColorfulTheme, Confirm, Input, Select};
+use fontspector_checkapi::{prelude::*, CheckResult, DialogFieldType, HotfixFunction, Metadata};
 use serde_json::Value;
+use std::io::Write;
+use termimad::MadSkin;
+
+use crate::reporters::terminal::check_id_link;
 
 pub(crate) fn run_hotfix(
-    file: &String,
     testable: &mut Testable,
     modified: &mut bool,
-    id: String,
+    result: &mut CheckResult,
     fix: &HotfixFunction,
-) -> Option<FixResult> {
+) {
     let mut options = None;
+    let mut header_shown = false;
+
+    // If we have a metadata containing a FixNeedsMoreInformation, we can run the dialog first to get the options for the fix
+    if let Some(Metadata::FixNeedsMoreInformation(dialog)) = result
+        .subresults
+        .iter()
+        .flat_map(|s| &s.metadata)
+        .find(|m| matches!(m, Metadata::FixNeedsMoreInformation(_)))
+    {
+        show_header(
+            testable,
+            &result.section,
+            &result.check_id,
+            &result.check_name,
+        );
+        options = run_dialog(dialog);
+        header_shown = true;
+    }
+
     loop {
-        log::info!("Trying to fix {file} with {id}");
         match fix(testable, options) {
             Ok(FixResult::MoreInfoNeeded(dialog)) => {
-                log::info!("Check {id} needs more info to fix {file}");
+                if !header_shown {
+                    show_header(
+                        testable,
+                        &result.section,
+                        &result.check_id,
+                        &result.check_name,
+                    );
+                    header_shown = true;
+                }
+
                 options = run_dialog(&dialog);
                 continue;
             }
@@ -22,11 +52,33 @@ pub(crate) fn run_hotfix(
                 if matches!(hotfix_result, FixResult::Fixed) {
                     *modified = true;
                 }
-                return Some(hotfix_result);
+                result.hotfix_result = Some(hotfix_result);
+                return;
             }
-            Err(e) => return Some(FixResult::FixFailed(e.to_string())),
+            Err(e) => {
+                result.hotfix_result = Some(FixResult::FixFailed(e.to_string()));
+                return;
+            }
         }
     }
+}
+
+fn show_header(
+    testable: &mut Testable,
+    section: &Option<String>,
+    check_id: &str,
+    check_name: &str,
+) {
+    let skin = MadSkin::default();
+    let filename = testable.filename.to_string_lossy();
+    let _ = writeln!(std::io::stdout(), "Testing: {filename}");
+    if let Some(sectionname) = section {
+        let _ = writeln!(std::io::stdout(), "  Section: {sectionname}\n");
+    }
+    let _ = writeln!(std::io::stdout(), ">> {:}\n", check_id_link(check_id));
+
+    let _ = writeln!(std::io::stdout(), "   {:}\n", check_name);
+    eprintln!("{}", skin.term_text("More information was needed to fix this problem, so we will ask you some questions to help the process.\n"));
 }
 
 fn run_dialog(dialog: &MoreInfoRequest) -> Option<MoreInfoReplies> {
@@ -39,7 +91,7 @@ fn run_dialog(dialog: &MoreInfoRequest) -> Option<MoreInfoReplies> {
                     .iter()
                     .map(|x| x.description.clone())
                     .collect::<Vec<_>>();
-                if let Ok(Some(selection)) = Select::new()
+                if let Ok(Some(selection)) = Select::with_theme(&ColorfulTheme::default())
                     .with_prompt(&field.prompt)
                     .items(&items)
                     .interact_opt()
@@ -51,12 +103,15 @@ fn run_dialog(dialog: &MoreInfoRequest) -> Option<MoreInfoReplies> {
                 }
             }
             DialogFieldType::Text => {
-                if let Ok(input) = Input::new().with_prompt(&field.prompt).interact_text() {
+                if let Ok(input) = Input::with_theme(&ColorfulTheme::default())
+                    .with_prompt(&field.prompt)
+                    .interact_text()
+                {
                     replies.0.insert(field.key.clone(), Value::String(input));
                 }
             }
             DialogFieldType::Number => {
-                if let Ok(input) = Input::new()
+                if let Ok(input) = Input::with_theme(&ColorfulTheme::default())
                     .with_prompt(&field.prompt)
                     .validate_with(|input: &String| -> Result<(), &str> {
                         if input.parse::<f64>().is_ok() {
@@ -77,7 +132,10 @@ fn run_dialog(dialog: &MoreInfoRequest) -> Option<MoreInfoReplies> {
                 }
             }
             DialogFieldType::Boolean => {
-                if let Ok(confirmation) = Confirm::new().with_prompt(&field.prompt).interact() {
+                if let Ok(confirmation) = Confirm::with_theme(&ColorfulTheme::default())
+                    .with_prompt(&field.prompt)
+                    .interact()
+                {
                     replies
                         .0
                         .insert(field.key.clone(), Value::Bool(confirmation));
