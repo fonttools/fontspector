@@ -53,6 +53,20 @@ fn use_typo_metrics(t: &Testable, context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
+fn fix_use_typo_metrics(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
+    let f = testfont!(t);
+    if f.is_cjk_font(None) {
+        return Ok(FixResult::Unfixable);
+    }
+    let mut os2: fontations::write::tables::os2::Os2 = f.font().os2()?.to_owned_table();
+    os2.fs_selection |= SelectionFlags::USE_TYPO_METRICS;
+    t.set(f.rebuild_with_new_table(&os2)?);
+    Ok(FixResult::Fixed)
+}
+
 #[cfg(test)]
 mod tests {
     #![allow(clippy::unwrap_used, clippy::expect_used)]
@@ -110,15 +124,4 @@ mod tests {
         let results = run_check(use_typo_metrics, testable);
         assert_skip(&results);
     }
-}
-
-fn fix_use_typo_metrics(t: &mut Testable) -> FixFnResult {
-    let f = testfont!(t);
-    if f.is_cjk_font(None) {
-        return Ok(false);
-    }
-    let mut os2: fontations::write::tables::os2::Os2 = f.font().os2()?.to_owned_table();
-    os2.fs_selection |= SelectionFlags::USE_TYPO_METRICS;
-    t.set(f.rebuild_with_new_table(&os2)?);
-    Ok(true)
 }

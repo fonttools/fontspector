@@ -18,6 +18,9 @@ path = "src/main.rs"
 [dependencies]
 fontspector-checkapi = { path = "../fontspector-checkapi", version = "1.4.0" }
 log = { workspace = true }
+serde_json = { workspace = true }
+dialoguer = "0.12.0"
+termimad = "0"
 
 # Binary dependencies
 clap = { version = "4", features = ["derive"], optional = true }
@@ -32,4 +35,12 @@ profile-iso15008 = { path = "../profile-iso15008", version = "1.0.0", package = 
 
 [features]
 default = ["cli"]
-cli = ["clap", "env_logger", "profile-universal", "profile-opentype", "profile-googlefonts", "profile-fontwerk", "profile-iso15008"]
+cli = [
+    "clap",
+    "env_logger",
+    "profile-universal",
+    "profile-opentype",
+    "profile-googlefonts",
+    "profile-fontwerk",
+    "profile-iso15008",
+]

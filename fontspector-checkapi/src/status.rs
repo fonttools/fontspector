@@ -2,7 +2,7 @@ use std::{collections::HashMap, str::FromStr};
 
 use serde::{Deserialize, Serialize};
 
-use crate::{error::FontspectorError, Override};
+use crate::{error::FontspectorError, MoreInfoRequest, Override};
 #[derive(Debug, PartialEq, PartialOrd, Ord, Eq, Copy, Clone, Serialize, Deserialize, Hash)]
 #[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
 #[serde(rename_all = "UPPERCASE")]
@@ -137,6 +137,8 @@ pub enum Metadata {
         #[serde(skip_serializing_if = "Option::is_none")]
         context: Option<serde_json::Value>,
     },
+    /// A message to the user that, to fix this problem, more information will need to be provided
+    FixNeedsMoreInformation(MoreInfoRequest),
     /// A catch-all for other kinds of structured data.
     Other(serde_json::Value),
 }

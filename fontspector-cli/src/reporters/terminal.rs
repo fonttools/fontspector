@@ -8,7 +8,7 @@ use termimad::MadSkin;
 
 /// Wrap a check ID with an OSC 8 terminal hyperlink to the fontspector wiki page.
 /// Only emits OSC 8 escape sequences when the terminal supports ANSI output.
-fn check_id_link(check_id: &str) -> String {
+pub(crate) fn check_id_link(check_id: &str) -> String {
     if colored::control::SHOULD_COLORIZE.should_colorize() {
         let colored_id = check_id.bright_cyan();
         let wiki_slug = check_id.replace('/', "-");
@@ -122,7 +122,7 @@ impl Reporter for TerminalReporter {
                         Some(FixResult::Fixed) => {
                             termimad::print_inline("  Hotfix applied.\n")
                         }
-                        Some(FixResult::FixError(e)) => {
+                        Some(FixResult::FixFailed(e)) => {
                             termimad::print_inline(&format!("  Hotfix failed: {e:}\n"))
                         }
                         _ => {}
@@ -134,7 +134,7 @@ impl Reporter for TerminalReporter {
                         Some(FixResult::Fixed) => {
                             termimad::print_inline("  Source fix applied.\n")
                         }
-                        Some(FixResult::FixError(e)) => {
+                        Some(FixResult::FixFailed(e)) => {
                             termimad::print_inline(&format!("  Source fix failed: {e:}\n"))
                         }
                         _ => {}

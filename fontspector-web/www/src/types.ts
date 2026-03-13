@@ -56,10 +56,53 @@ export interface FontProblem {
   context: any | null;
 }
 
+export interface Choice {
+  /** The value returned when this choice is selected. */
+  value: string;
+  /** The human-readable text shown to the user. */
+  description: string;
+}
+
+export type ChoiceDialogFieldType = {
+  Choice: Choice[];
+};
+
+export type DialogFieldType =
+  | ChoiceDialogFieldType
+  | "Text"
+  | "Number"
+  | "Boolean";
+
+export interface DialogField {
+  /** Unique key for this field in the replies map. */
+  key: string;
+  /** Prompt shown to the user. */
+  prompt: string;
+  /** Control type for this field. */
+  field_type: DialogFieldType;
+}
+
+/**
+ * Newtype wrapper in Rust serialized as a plain array of dialog fields.
+ */
+export type MoreInfoRequest = DialogField[];
+
+export type MoreInfoReplyValue = string | number | boolean | null;
+
+/**
+ * Reply payload keyed by dialog field key.
+ */
+export type MoreInfoReply = Record<string, MoreInfoReplyValue>;
+
+export type FixNeedsMoreInformation = {
+  FixNeedsMoreInformation: MoreInfoRequest;
+};
+
 export type Metadata =
   | { GlyphProblem: GlyphProblem }
   | { TableProblem: TableProblem }
   | { FontProblem: FontProblem }
+  | FixNeedsMoreInformation
   | { Other: any };
 
 export function isGlyphProblem(
@@ -78,6 +121,20 @@ export function isFontProblem(
   metadata: Metadata,
 ): metadata is { FontProblem: FontProblem } {
   return "FontProblem" in metadata;
+}
+
+export function isFixNeedsMoreInformation(
+  metadata: Metadata,
+): metadata is FixNeedsMoreInformation {
+  return "FixNeedsMoreInformation" in metadata;
+}
+
+export function isChoiceDialogFieldType(
+  fieldType: DialogFieldType,
+): fieldType is ChoiceDialogFieldType {
+  return (
+    typeof fieldType === "object" && fieldType !== null && "Choice" in fieldType
+  );
 }
 
 export type Check = {
@@ -115,7 +172,7 @@ export interface SubresultWithCheck {
 export interface FixItem {
   filename: string;
   check_id: string;
-  details?: any;
+  details?: MoreInfoReply | null;
 }
 
 // Messages from the front-end to the web worker, and from the web worker to the front-end
@@ -137,6 +194,7 @@ export interface ReadyReply {
 export interface FixReply {
   id: "fix_result";
   zipfile: Uint8Array;
+  download?: boolean;
 }
 
 export type ReplyMessage =
@@ -151,6 +209,7 @@ export type Profile = keyof typeof PROFILES;
 export interface FixRequest {
   id: "fix";
   requests: FixItem[];
+  download?: boolean;
 }
 
 export interface RunCheckRequest {

@@ -2,20 +2,7 @@ use std::time::Duration;
 
 use serde::{ser::SerializeStruct, Serialize};
 
-use crate::{Check, CheckId, Status, StatusCode};
-
-#[derive(Debug, Clone, Serialize)]
-/// The result of a fix operation.
-pub enum FixResult {
-    /// A fix was available, but not requested
-    Available,
-    /// A fix was requested, but no fix was available
-    Unfixable,
-    /// A fix was applied
-    Fixed,
-    /// The fix failed, for some reason
-    FixError(String),
-}
+use crate::{Check, CheckId, FixResult, Status, StatusCode};
 
 #[derive(Debug, Clone)]
 /// The result of a check on one or more font files.

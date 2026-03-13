@@ -3,7 +3,8 @@ use std::time::Duration;
 use crate::{
     context::Context,
     error::FontspectorError,
-    prelude::FixFnResult,
+    fix::HotfixFunction,
+    prelude::FixResult,
     status::CheckFnResult,
     testable::{TestableCollection, TestableType},
     CheckResult, Registry, Status, Testable,
@@ -47,9 +48,6 @@ pub enum CheckImplementation<'a> {
     CheckAll(&'a CheckAllSignature),
 }
 
-/// The function signature for a hotfix function
-pub type HotfixFunction = dyn Fn(&mut Testable) -> FixFnResult;
-
 #[derive(Clone)]
 /// A check definition
 pub struct Check<'a> {
@@ -66,7 +64,7 @@ pub struct Check<'a> {
     /// Function pointer implementing a hotfix to the binary file
     pub hotfix: Option<&'a HotfixFunction>,
     /// Function pointer implementing a hotfix to the font source file
-    pub fix_source: Option<&'a dyn Fn(&Testable) -> FixFnResult>,
+    pub fix_source: Option<&'a dyn Fn(&Testable) -> FixResult>,
     /// A registered file type that this check applies to
     pub applies_to: &'a str,
     /// Additional flags for the check

@@ -40,7 +40,10 @@ fn dsig(t: &Testable, _context: &Context) -> CheckFnResult {
     }
 }
 
-fn delete_dsig(t: &mut Testable) -> FixFnResult {
+fn delete_dsig(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
     let dsig_tag = Tag::new(b"DSIG");
     let mut new_font = FontBuilder::new();
@@ -53,7 +56,7 @@ fn delete_dsig(t: &mut Testable) -> FixFnResult {
         }
     }
     t.set(new_font.build());
-    Ok(true)
+    Ok(FixResult::Fixed)
 }
 
 #[cfg(test)]
