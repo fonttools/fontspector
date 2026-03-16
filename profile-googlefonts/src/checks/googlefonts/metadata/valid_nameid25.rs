@@ -44,3 +44,55 @@ fn valid_nameid25(t: &Testable, _context: &Context) -> CheckFnResult {
     }
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::valid_nameid25;
+    use fontations::skrifa::raw::types::NameId;
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, set_name_entry, test_able},
+        StatusCode,
+    };
+
+    #[test]
+    fn test_check_metadata_valid_nameid25() {
+        assert_pass(&run_check(
+            valid_nameid25,
+            test_able("shantell/ShantellSans[BNCE,INFM,SPAC,wght].ttf"),
+        ));
+        assert_pass(&run_check(
+            valid_nameid25,
+            test_able("shantell/ShantellSans-Italic[BNCE,INFM,SPAC,wght].ttf"),
+        ));
+
+        let mut missing_italic = test_able("shantell/ShantellSans-Italic[BNCE,INFM,SPAC,wght].ttf");
+        set_name_entry(
+            &mut missing_italic,
+            3,
+            1,
+            0x409,
+            NameId::new(25),
+            "ShantellSans".to_string(),
+        );
+        assert_results_contain(
+            &run_check(valid_nameid25, missing_italic),
+            StatusCode::Fail,
+            Some("nameid25-missing-italic".to_string()),
+        );
+
+        let mut has_spaces = test_able("shantell/ShantellSans-Italic[BNCE,INFM,SPAC,wght].ttf");
+        set_name_entry(
+            &mut has_spaces,
+            3,
+            1,
+            0x409,
+            NameId::new(25),
+            "ShantellSans Italic".to_string(),
+        );
+        assert_results_contain(
+            &run_check(valid_nameid25, has_spaces),
+            StatusCode::Fail,
+            Some("nameid25-has-spaces".to_string()),
+        );
+    }
+}

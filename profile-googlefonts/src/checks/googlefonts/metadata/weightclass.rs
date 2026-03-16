@@ -130,3 +130,112 @@ fn weightclass(c: &TestableCollection, _context: &Context) -> CheckFnResult {
     }
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+
+    use super::weightclass;
+    use fontspector_checkapi::{
+        codetesting::{
+            assert_pass, assert_results_contain, run_check_with_config, set_weight_class, test_able,
+        },
+        StatusCode, Testable, TestableCollection, TestableType,
+    };
+
+    fn run(files: Vec<Testable>) -> Option<fontspector_checkapi::CheckResult> {
+        let collection = TestableCollection::from_testables(files, None);
+        run_check_with_config(
+            weightclass,
+            TestableType::Collection(&collection),
+            HashMap::new(),
+        )
+    }
+
+    fn cabinvf_with_weight(weight: u16) -> Testable {
+        let mdpb = test_able("cabinvf/METADATA.pb");
+        let text = String::from_utf8(mdpb.contents.clone())
+            .unwrap_or_else(|e| panic!("Invalid UTF-8 in cabinvf METADATA fixture: {e}"));
+        let updated = text.replacen(
+            "weight: 400\n  filename: \"Cabin[wdth,wght].ttf\"",
+            &format!("weight: {weight}\n  filename: \"Cabin[wdth,wght].ttf\""),
+            1,
+        );
+        Testable::new_with_contents("METADATA.pb", updated.into_bytes())
+    }
+
+    fn cabin_static_with_weight(weight: u16) -> Testable {
+        let mdpb = test_able("cabin/METADATA.pb");
+        let text = String::from_utf8(mdpb.contents.clone())
+            .unwrap_or_else(|e| panic!("Invalid UTF-8 in cabin METADATA fixture: {e}"));
+        let updated = text.replacen(
+            "weight: 400\n  filename: \"Cabin-Regular.ttf\"",
+            &format!("weight: {weight}\n  filename: \"Cabin-Regular.ttf\""),
+            1,
+        );
+        Testable::new_with_contents("METADATA.pb", updated.into_bytes())
+    }
+
+    #[test]
+    fn test_check_metadata_weightclass() {
+        assert_pass(&run(vec![
+            test_able("cabinvf/Cabin[wdth,wght].ttf"),
+            test_able("cabinvf/METADATA.pb"),
+        ]));
+
+        assert_results_contain(
+            &run(vec![
+                test_able("cabinvf/Cabin[wdth,wght].ttf"),
+                cabinvf_with_weight(500),
+            ]),
+            StatusCode::Fail,
+            Some("mismatch".to_string()),
+        );
+
+        assert_pass(&run(vec![
+            test_able("leaguegothic-vf/LeagueGothic[wdth].ttf"),
+            test_able("leaguegothic-vf/METADATA.pb"),
+        ]));
+
+        assert_pass(&run(vec![
+            test_able("cabin/Cabin-Regular.ttf"),
+            test_able("cabin/METADATA.pb"),
+        ]));
+
+        assert_results_contain(
+            &run(vec![
+                test_able("cabin/Cabin-Regular.ttf"),
+                cabin_static_with_weight(500),
+            ]),
+            StatusCode::Fail,
+            Some("mismatch".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_check_metadata_weightclass_static_weight_aliases() {
+        let mut thin = test_able("montserrat/Montserrat-Thin.ttf");
+        set_weight_class(&mut thin, 100)
+            .unwrap_or_else(|e| panic!("failed to set thin usWeightClass to 100: {e}"));
+        assert_pass(&run(vec![
+            thin.clone(),
+            test_able("montserrat/METADATA.pb"),
+        ]));
+
+        set_weight_class(&mut thin, 250)
+            .unwrap_or_else(|e| panic!("failed to set thin usWeightClass to 250: {e}"));
+        assert_pass(&run(vec![thin, test_able("montserrat/METADATA.pb")]));
+
+        let mut extra_light = test_able("montserrat/Montserrat-ExtraLight.ttf");
+        set_weight_class(&mut extra_light, 200)
+            .unwrap_or_else(|e| panic!("failed to set extralight usWeightClass to 200: {e}"));
+        assert_pass(&run(vec![
+            extra_light.clone(),
+            test_able("montserrat/METADATA.pb"),
+        ]));
+
+        set_weight_class(&mut extra_light, 275)
+            .unwrap_or_else(|e| panic!("failed to set extralight usWeightClass to 275: {e}"));
+        assert_pass(&run(vec![extra_light, test_able("montserrat/METADATA.pb")]));
+    }
+}

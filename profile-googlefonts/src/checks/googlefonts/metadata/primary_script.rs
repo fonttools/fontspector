@@ -109,12 +109,23 @@ fn primary_script(c: &TestableCollection, context: &Context) -> CheckFnResult {
 
 #[cfg(test)]
 mod tests {
-    use fontspector_checkapi::codetesting::{assert_pass, run_check_with_config, test_able};
+    use fontspector_checkapi::codetesting::{
+        assert_pass, assert_results_contain, run_check_with_config, test_able,
+    };
+    use fontspector_checkapi::{StatusCode, Testable};
 
     use fontspector_checkapi::TestableCollection;
     use std::collections::HashMap;
 
     use super::primary_script;
+
+    fn mutate_mdpb(path: &str, old: &str, new: &str) -> Testable {
+        let md = test_able(path);
+        let metadata = String::from_utf8(md.contents.clone())
+            .unwrap_or_else(|e| panic!("Invalid UTF-8 in METADATA fixture: {e}"));
+        let replaced = metadata.replacen(old, new, 1);
+        Testable::new_with_contents("METADATA.pb", replaced.into_bytes())
+    }
 
     #[allow(clippy::expect_used)]
     #[test]
@@ -125,6 +136,66 @@ mod tests {
             primary_script,
             fontspector_checkapi::TestableType::Collection(&TestableCollection::from_testables(
                 vec![testable, md],
+                None,
+            )),
+            HashMap::new(),
+        );
+        assert_pass(&results);
+
+        // Missing primary_script should warn.
+        let missing = mutate_mdpb(
+            "notosanskhudawadi/METADATA.pb",
+            "primary_script: \"Sind\"",
+            "primary_script: \"\"",
+        );
+        let results = run_check_with_config(
+            primary_script,
+            fontspector_checkapi::TestableType::Collection(&TestableCollection::from_testables(
+                vec![
+                    test_able("notosanskhudawadi/NotoSansKhudawadi-Regular.ttf"),
+                    missing,
+                ],
+                None,
+            )),
+            HashMap::new(),
+        );
+        assert_results_contain(
+            &results,
+            StatusCode::Warn,
+            Some("missing-primary-script".to_string()),
+        );
+
+        // Wrong primary_script should warn.
+        let wrong = mutate_mdpb(
+            "notosanskhudawadi/METADATA.pb",
+            "primary_script: \"Sind\"",
+            "primary_script: \"Arab\"",
+        );
+        let results = run_check_with_config(
+            primary_script,
+            fontspector_checkapi::TestableType::Collection(&TestableCollection::from_testables(
+                vec![
+                    test_able("notosanskhudawadi/NotoSansKhudawadi-Regular.ttf"),
+                    wrong,
+                ],
+                None,
+            )),
+            HashMap::new(),
+        );
+        assert_results_contain(
+            &results,
+            StatusCode::Warn,
+            Some("wrong-primary-script".to_string()),
+        );
+
+        // Latin primary script case should pass.
+        let results = run_check_with_config(
+            primary_script,
+            fontspector_checkapi::TestableType::Collection(&TestableCollection::from_testables(
+                vec![
+                    test_able("merriweather/Merriweather-Regular.ttf"),
+                    test_able("merriweather/METADATA.pb"),
+                ],
                 None,
             )),
             HashMap::new(),

@@ -184,3 +184,135 @@ fn consistent_with_fonts(c: &TestableCollection, _context: &Context) -> CheckFnR
     }
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    use std::{collections::HashMap, path::PathBuf};
+
+    use super::consistent_with_fonts;
+    use fontations::skrifa::raw::types::NameId;
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, set_name_entry, test_able, test_file},
+        StatusCode, Testable, TestableCollection, TestableType,
+    };
+
+    fn run(files: Vec<Testable>) -> Option<fontspector_checkapi::CheckResult> {
+        let collection = TestableCollection::from_testables(files, None);
+        fontspector_checkapi::codetesting::run_check_with_config(
+            consistent_with_fonts,
+            TestableType::Collection(&collection),
+            HashMap::new(),
+        )
+    }
+
+    fn rosarivo_collection() -> Vec<Testable> {
+        vec![
+            test_able("rosarivo/Rosarivo-Regular.ttf"),
+            test_able("rosarivo/Rosarivo-Italic.ttf"),
+            test_able("rosarivo/METADATA.pb"),
+        ]
+    }
+
+    #[test]
+    fn test_check_metadata_filenames() {
+        assert_pass(&run(rosarivo_collection()));
+
+        // Missing one declared file.
+        assert_results_contain(
+            &run(vec![
+                test_able("rosarivo/Rosarivo-Regular.ttf"),
+                test_able("rosarivo/METADATA.pb"),
+            ]),
+            StatusCode::Fail,
+            Some("file-not-found".to_string()),
+        );
+
+        // Cabin has extra TTF files not declared in METADATA.pb.
+        let mut files = vec![test_able("cabin/METADATA.pb")];
+        let cabin_dir = test_file("cabin");
+        let entries = std::fs::read_dir(&cabin_dir)
+            .unwrap_or_else(|e| panic!("Failed to read cabin test directory {:?}: {e}", cabin_dir));
+        for entry in entries {
+            let entry =
+                entry.unwrap_or_else(|e| panic!("Failed to iterate cabin test dir entry: {e}"));
+            let path: PathBuf = entry.path();
+            if path.extension().and_then(|e| e.to_str()) == Some("ttf") {
+                files.push(
+                    Testable::new(path)
+                        .unwrap_or_else(|e| panic!("Failed to load cabin font for test: {e}")),
+                );
+            }
+        }
+        assert_results_contain(
+            &run(files),
+            StatusCode::Fail,
+            Some("file-not-declared".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_check_metadata_nameid_family_and_full_names() {
+        assert_pass(&run(rosarivo_collection()));
+
+        let mut regular = test_able("rosarivo/Rosarivo-Regular.ttf");
+        set_name_entry(
+            &mut regular,
+            3,
+            1,
+            0x409,
+            NameId::FULL_NAME,
+            "This is utterly wrong!".to_string(),
+        );
+        assert_results_contain(
+            &run(vec![
+                regular,
+                test_able("rosarivo/Rosarivo-Italic.ttf"),
+                test_able("rosarivo/METADATA.pb"),
+            ]),
+            StatusCode::Fail,
+            Some("fullname-mismatch".to_string()),
+        );
+
+        let mut regular = test_able("rosarivo/Rosarivo-Regular.ttf");
+        set_name_entry(
+            &mut regular,
+            3,
+            1,
+            0x409,
+            NameId::FAMILY_NAME,
+            "Completely Wrong Family".to_string(),
+        );
+        assert_results_contain(
+            &run(vec![
+                regular,
+                test_able("rosarivo/Rosarivo-Italic.ttf"),
+                test_able("rosarivo/METADATA.pb"),
+            ]),
+            StatusCode::Fail,
+            Some("familyname-mismatch".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_check_metadata_valid_post_script_name_values() {
+        assert_pass(&run(rosarivo_collection()));
+
+        let mdpb = test_able("rosarivo/METADATA.pb");
+        let contents = String::from_utf8(mdpb.contents.clone())
+            .unwrap_or_else(|e| panic!("Invalid UTF-8 in METADATA fixture: {e}"));
+        let broken = contents.replacen(
+            "post_script_name: \"Rosarivo-Regular\"",
+            "post_script_name: \"WrongPSName\"",
+            1,
+        );
+        assert_results_contain(
+            &run(vec![
+                test_able("rosarivo/Rosarivo-Regular.ttf"),
+                test_able("rosarivo/Rosarivo-Italic.ttf"),
+                Testable::new_with_contents("METADATA.pb", broken.into_bytes()),
+            ]),
+            StatusCode::Fail,
+            Some("mismatch".to_string()),
+        );
+    }
+}

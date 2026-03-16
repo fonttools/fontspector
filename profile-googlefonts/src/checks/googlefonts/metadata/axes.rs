@@ -105,3 +105,72 @@ fn axes(c: &TestableCollection, context: &Context) -> CheckFnResult {
 
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used)]
+
+    use std::collections::HashMap;
+
+    use super::axes;
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, test_able},
+        StatusCode, Testable, TestableCollection, TestableType,
+    };
+
+    fn run(files: Vec<Testable>) -> Option<fontspector_checkapi::CheckResult> {
+        let collection = TestableCollection::from_testables(files, None);
+        fontspector_checkapi::codetesting::run_check_with_config(
+            axes,
+            TestableType::Collection(&collection),
+            HashMap::new(),
+        )
+    }
+
+    fn modified_metadata(old: &str, new: &str) -> Testable {
+        let original = test_able("cabinvf/METADATA.pb");
+        let text = String::from_utf8(original.contents).unwrap();
+        Testable::new_with_contents("METADATA.pb", text.replacen(old, new, 1).into_bytes())
+    }
+
+    #[test]
+    fn test_check_metadata_axes() {
+        let font = test_able("cabinvf/Cabin[wdth,wght].ttf");
+        let mdpb = test_able("cabinvf/METADATA.pb");
+
+        // Good: cabinvf axes are within registry bounds
+        assert_pass(&run(vec![font.clone(), mdpb]));
+
+        // Bad axis range: wdth min_value below registry minimum
+        let bad_range = modified_metadata("min_value: 75.0", "min_value: 20.0");
+        assert_results_contain(
+            &run(vec![font.clone(), bad_range]),
+            StatusCode::Fail,
+            Some("bad-axis-range".to_string()),
+        );
+
+        // Bad axis tag: unregistered tag
+        let bad_tag = modified_metadata("tag: \"wdth\"", "tag: \"crap\"");
+        assert_results_contain(
+            &run(vec![font.clone(), bad_tag]),
+            StatusCode::Fail,
+            Some("bad-axis-tag".to_string()),
+        );
+
+        // Missing axis: replace second axis tag so wght is absent from metadata
+        let missing = modified_metadata("tag: \"wght\"", "tag: \"wdth\"");
+        assert_results_contain(
+            &run(vec![font.clone(), missing]),
+            StatusCode::Fail,
+            Some("missing-axes".to_string()),
+        );
+
+        // Extra axis: add an axis that the font doesn't have
+        let extra = modified_metadata("tag: \"wght\"", "tag: \"ouch\"");
+        assert_results_contain(
+            &run(vec![font, extra]),
+            StatusCode::Fail,
+            Some("extra-axes".to_string()),
+        );
+    }
+}

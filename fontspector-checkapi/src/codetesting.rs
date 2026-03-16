@@ -7,16 +7,18 @@ use std::{
 };
 
 // No bad thing if we panic in tests
-use crate::{prelude::*, Check, CheckResult, Context, FileTypeConvert, StatusCode};
+use crate::{prelude::*, testfont, Check, CheckResult, Context, FileTypeConvert, StatusCode};
 use fontations::{
     skrifa::{
         raw::{types::NameId, TableProvider},
         GlyphNames, MetadataProvider,
     },
     write::{
+        from_obj::ToOwnedTable,
         tables::{
             cmap::Cmap,
             name::{Name, NameRecord},
+            os2::Os2,
         },
         FontBuilder,
     },
@@ -65,8 +67,18 @@ pub fn run_check_with_config(
     things: TestableType<'_>,
     config: HashMap<String, serde_json::Value>,
 ) -> Option<CheckResult> {
+    run_check_with_config_and_network(check, things, config, false)
+}
+
+/// Run a check on a font or collection with a given configuration and explicit network toggle.
+pub fn run_check_with_config_and_network(
+    check: Check<'_>,
+    things: TestableType<'_>,
+    config: HashMap<String, serde_json::Value>,
+    skip_network: bool,
+) -> Option<CheckResult> {
     let ctx: Context = Context {
-        skip_network: false,
+        skip_network,
         network_timeout: Some(10),
         configuration: config,
         check_metadata: check.metadata(),
@@ -205,6 +217,68 @@ pub fn set_name_entry(
         .build();
 
     font.contents = new_bytes;
+}
+
+/// Manipulate a font by removing name table entries for a given name ID.
+pub fn remove_name_entry(font: &mut Testable, nameid: NameId) {
+    let f = TTF.from_testable(font).unwrap();
+    let name = f.font().name().unwrap();
+
+    let mut new_records: Vec<NameRecord> = name
+        .name_record()
+        .iter()
+        .filter(|record| record.name_id() != nameid)
+        .map(|r| {
+            #[allow(clippy::unwrap_used)]
+            NameRecord::new(
+                r.platform_id(),
+                r.encoding_id(),
+                r.language_id(),
+                r.name_id(),
+                r.string(name.string_data())
+                    .unwrap()
+                    .chars()
+                    .collect::<String>()
+                    .into(),
+            )
+        })
+        .collect();
+    new_records.sort_by_key(|r| (r.platform_id, r.encoding_id, r.language_id, r.name_id));
+    let new_nametable = Name::new(new_records);
+    let new_bytes = FontBuilder::new()
+        .add_table(&new_nametable)
+        .unwrap()
+        .copy_missing_tables(f.font())
+        .build();
+
+    font.contents = new_bytes;
+}
+
+/// Remove a codepoint from the cmap of a font
+pub fn deencode_glyph(t: &mut Testable, codepoint: u32) -> Result<(), FontspectorError> {
+    let f = testfont!(t);
+    let charmap = f.font().charmap();
+    let mappings: Vec<_> = charmap
+        .mappings()
+        .filter(|(cp, _)| *cp != codepoint)
+        .collect();
+    let new_cmap = Cmap::from_mappings(
+        mappings
+            .into_iter()
+            .map(|(c, gid)| (char::from_u32(c).unwrap_or('\0'), gid)),
+    )
+    .map_err(|e| FontspectorError::General(format!("Failed to create new cmap: {e}")))?;
+    t.set(f.rebuild_with_new_table(&new_cmap)?);
+    Ok(())
+}
+
+/// Mutate OS/2 usWeightClass in a font (for testing purposes only).
+pub fn set_weight_class(t: &mut Testable, weight_class: u16) -> Result<(), FontspectorError> {
+    let f = testfont!(t);
+    let mut os2: Os2 = f.font().os2()?.to_owned_table();
+    os2.us_weight_class = weight_class;
+    t.set(f.rebuild_with_new_table(&os2)?);
+    Ok(())
 }
 
 /// Manipulate a font by remapping a glyph (for testing purposes only)
