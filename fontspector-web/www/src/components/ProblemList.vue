@@ -1,8 +1,21 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import FixDialog from './FixDialog.vue';
 import { renderMarkdown } from '../markdown';
 import { SEVERITY_COLOR } from '../constants';
-import { FixItem, FixRequest, isFontProblem, isGlyphProblem, isTableProblem, Metadata, SubresultWithCheck } from '../types';
+import {
+  FixItem,
+  FixRequest,
+  isFixNeedsMoreInformation,
+  isFontProblem,
+  isGlyphProblem,
+  isTableProblem,
+  MoreInfoReply,
+  MoreInfoRequest,
+  Status,
+  StatusCode,
+  SubresultWithCheck,
+} from '../types';
 import fbWorker from '../workersingleton';
 const props = defineProps<{
   resultClass: string,
@@ -38,6 +51,21 @@ function makeFixKey(checkId: string, filename: string): string {
   return `${checkId}::${filename}`;
 }
 
+function cloneReply(details: MoreInfoReply | null | undefined): MoreInfoReply | null {
+  return details ? { ...details } : null;
+}
+
+function getDialogRequest(statuses: Status[]): MoreInfoRequest | null {
+  for (const status of statuses) {
+    for (const metadata of status.metadata || []) {
+      if (isFixNeedsMoreInformation(metadata)) {
+        return metadata.FixNeedsMoreInformation;
+      }
+    }
+  }
+  return null;
+}
+
 function selectAllChildren(event: Event) {
   const checkbox = event.target as HTMLInputElement;
   const details = checkbox.closest("details");
@@ -46,7 +74,7 @@ function selectAllChildren(event: Event) {
   const container = details || checkbox.closest("div");
   if (!container) return;
 
-  const childCheckboxes = container.querySelectorAll("input[type=checkbox].individual-fix");
+  const childCheckboxes = container.querySelectorAll("input[type=checkbox].individual-fix:not(:disabled)");
   childCheckboxes.forEach(cb => {
     const checkId = cb.getAttribute("data-checkid");
     const filenames = JSON.parse(cb.getAttribute("data-filenames") || "[]");
@@ -57,7 +85,7 @@ function selectAllChildren(event: Event) {
           selectedFixRequests.value.set(key, {
             check_id: checkId,
             filename,
-            details: null,
+            details: cloneReply(dialogReplies.value.get(key)),
           });
         });
       } else {
@@ -77,28 +105,114 @@ function fileCount(results: SubresultWithCheck[]): number {
   }
   return files.size;
 }
-// Cluster check results affecting multiple files together
-function collateFiles(results: SubresultWithCheck[]): SubresultWithCheck[][] {
-  // Group by check_id + status content (message, code, severity)
-  // This way:
-  // - Identical issues across multiple files get grouped together
-  // - Different issues for the same file remain separate
-  // - Multiple subresults for the same issue in the same file also get grouped
-  const groups: Record<string, SubresultWithCheck[]> = {};
-  for (const res of results) {
-    // Create a key based on the check and the actual issue content
-    const key = JSON.stringify({
-      check_id: res.check.check_id,
-      message: res.status.message,
-      code: res.status.code,
-      severity: res.status.severity,
-    });
-    if (!groups[key]) groups[key] = [];
-    groups[key].push(res);
-  }
-  return Object.values(groups);
+
+type MessageVariant = {
+  signature: string;
+  severity: StatusCode;
+  code: string | null;
+  message: string | null;
+};
+
+type CollatedCheckGroup = {
+  check: SubresultWithCheck['check'];
+  filenames: string[];
+  messages: MessageVariant[];
+  dialogRequest: MoreInfoRequest | null;
+  worstSeverity: StatusCode;
+};
+
+const SEVERITY_ORDER: Record<StatusCode, number> = {
+  FATAL: 7,
+  ERROR: 6,
+  FAIL: 5,
+  WARN: 4,
+  INFO: 3,
+  PASS: 2,
+  SKIP: 1,
+};
+
+function resultFilename(res: SubresultWithCheck): string {
+  return res.check.filename || 'Family Check';
 }
-function fixAndDownload() {
+
+function statusSignature(res: SubresultWithCheck): string {
+  return JSON.stringify({
+    severity: res.status.severity,
+    code: res.status.code || null,
+    message: res.status.message || null,
+    dialogRequest: getDialogRequest([res.status]),
+  });
+}
+
+// Cluster by check first, then by file cohorts that share the same set of messages.
+function collateFiles(results: SubresultWithCheck[]): CollatedCheckGroup[] {
+  const checkGroups = new Map<string, SubresultWithCheck[]>();
+  for (const res of results) {
+    const key = res.check.check_id;
+    if (!checkGroups.has(key)) checkGroups.set(key, []);
+    checkGroups.get(key)!.push(res);
+  }
+
+  const collated: CollatedCheckGroup[] = [];
+  for (const entries of checkGroups.values()) {
+    const byFile = new Map<string, SubresultWithCheck[]>();
+    const messageBySignature = new Map<string, MessageVariant>();
+
+    for (const entry of entries) {
+      const filename = resultFilename(entry);
+      if (!byFile.has(filename)) byFile.set(filename, []);
+      byFile.get(filename)!.push(entry);
+
+      const signature = statusSignature(entry);
+      if (!messageBySignature.has(signature)) {
+        messageBySignature.set(signature, {
+          signature,
+          severity: entry.status.severity,
+          code: entry.status.code || null,
+          message: entry.status.message || null,
+        });
+      }
+    }
+
+    const cohorts = new Map<string, { filenames: string[]; signatures: string[] }>();
+    for (const [filename, fileEntries] of byFile.entries()) {
+      const signatures = Array.from(new Set(fileEntries.map((entry) => statusSignature(entry)))).sort();
+      const cohortKey = signatures.join('|::|');
+      if (!cohorts.has(cohortKey)) {
+        cohorts.set(cohortKey, { filenames: [], signatures });
+      }
+      cohorts.get(cohortKey)!.filenames.push(filename);
+    }
+
+    for (const cohort of cohorts.values()) {
+      const cohortEntries = entries.filter((entry) => cohort.filenames.includes(resultFilename(entry)));
+      const messages = cohort.signatures
+        .map((signature) => messageBySignature.get(signature))
+        .filter((msg): msg is MessageVariant => msg !== undefined);
+
+      const worstSeverity = messages.reduce<StatusCode>((worst, msg) => {
+        return SEVERITY_ORDER[msg.severity] > SEVERITY_ORDER[worst] ? msg.severity : worst;
+      }, messages[0]?.severity || entries[0].status.severity);
+
+      collated.push({
+        check: entries[0].check,
+        filenames: cohort.filenames.sort((a, b) => a.localeCompare(b)),
+        messages,
+        dialogRequest: getDialogRequest(cohortEntries.map((entry) => entry.status)),
+        worstSeverity,
+      });
+    }
+  }
+
+  return collated.sort((a, b) => {
+    const byName = a.check.check_name.localeCompare(b.check.check_name);
+    if (byName !== 0) return byName;
+    const byCount = b.filenames.length - a.filenames.length;
+    if (byCount !== 0) return byCount;
+    return a.filenames[0].localeCompare(b.filenames[0]);
+  });
+}
+function fix(download: boolean) {
   // Create a FixRequestPackage
   try {
     let items: FixItem[] = [];
@@ -106,20 +220,80 @@ function fixAndDownload() {
       // These are proxies, deproxify them
       check_id: item.check_id,
       filename: item.filename,
+      details: cloneReply(item.details),
     }));
     const fixRequestPackage: FixRequest = {
       id: "fix",
       requests: items,
+      download,
     };
     // Send it to the webworker
     console.log("Sending fix request package to worker:", fixRequestPackage);
     fbWorker.postMessage(fixRequestPackage);
+    // And empty our selection
+    selectedFixRequests.value.clear();
+    dialogReplies.value.clear();
+    dialogValidity.value.clear();
   } catch (e) {
     console.error("Error preparing fix request package:", e);
   }
 }
 
 const selectedFixRequests = ref<Map<string, FixItem>>(new Map());
+const dialogReplies = ref<Map<string, MoreInfoReply>>(new Map());
+const dialogValidity = ref<Map<string, boolean>>(new Map());
+
+function getDialogReplies(checkId: string, filenames: string[]): MoreInfoReply {
+  for (const filename of filenames) {
+    const existing = dialogReplies.value.get(makeFixKey(checkId, filename));
+    if (existing) {
+      return existing;
+    }
+  }
+  return {};
+}
+
+function isDialogValid(checkId: string, filenames: string[], dialogRequest: MoreInfoRequest | null): boolean {
+  if (!dialogRequest) {
+    return true;
+  }
+
+  for (const filename of filenames) {
+    const valid = dialogValidity.value.get(makeFixKey(checkId, filename));
+    if (typeof valid === 'boolean') {
+      return valid;
+    }
+  }
+
+  return false;
+}
+
+function updateDialogValidity(checkId: string, filenames: string[], valid: boolean) {
+  for (const filename of filenames) {
+    const key = makeFixKey(checkId, filename);
+    dialogValidity.value.set(key, valid);
+
+    if (!valid) {
+      selectedFixRequests.value.delete(key);
+    }
+  }
+}
+
+function updateDialogReplies(checkId: string, filenames: string[], replies: MoreInfoReply) {
+  for (const filename of filenames) {
+    const key = makeFixKey(checkId, filename);
+    const clonedReplies = { ...replies };
+    dialogReplies.value.set(key, clonedReplies);
+
+    const selected = selectedFixRequests.value.get(key);
+    if (selected) {
+      selectedFixRequests.value.set(key, {
+        ...selected,
+        details: clonedReplies,
+      });
+    }
+  }
+}
 
 function toggleFixRequest(checkId: string, filenames: string[], e: Event) {
   for (var filename of filenames) {
@@ -128,7 +302,7 @@ function toggleFixRequest(checkId: string, filenames: string[], e: Event) {
       selectedFixRequests.value.set(key, {
         check_id: checkId,
         filename,
-        details: null,
+        details: cloneReply(dialogReplies.value.get(key)),
       });
     } else {
       selectedFixRequests.value.delete(key);
@@ -149,49 +323,59 @@ function baseName(path: string): string {
       <span v-if="fixable" class="float-end">
         Fix all: <input type="checkbox" @change="selectAllChildren" /></span>
     </p>
-    <details v-for="(group, area) in groupByArea(results)" :key="area" open="true">
+    <details v-for="([area, group], idx) of Object.entries(groupByArea(results)).sort(([a], [b]) => a.localeCompare(b))"
+      :key="idx" open="true">
       <summary class="mb-2">{{ area }} <span v-if="fixable && collateFiles(group).length > 1" class="float-end">Fix {{
         group.length
           }} issues:
           <input type="checkbox" @change="selectAllChildren" /></span>
       </summary>
 
-      <details v-for="(resGroup, idx) in collateFiles(group)" :key="idx" class="mb-3">
-        <!-- Within this group, status and check are the same -->
+      <details v-for="(checkGroup, idx) in collateFiles(group)" :key="idx" class="mb-3">
         <summary>
-          <span :class="`badge status-badge text-bg-${SEVERITY_COLOR[resGroup[0].status.severity]} m-1`">{{
-            resGroup[0].status.severity
+          <span :class="`badge status-badge text-bg-${SEVERITY_COLOR[checkGroup.worstSeverity]} m-1`">{{
+            checkGroup.worstSeverity
             }}</span>
-          <span class="checkname">{{ resGroup[0].check.check_name }}</span>
-          <span v-if="resGroup.length > 1" class="affected-files"> (Affects {{ resGroup.length }} files)</span><span
-            v-if="resGroup.length == 1" class="affected-files"> (Affects {{ baseName(resGroup[0].check.filename ||
-              "whole family") }})</span>
+          <span class="checkname">{{ checkGroup.check.check_name }}</span>
+          <span v-if="checkGroup.filenames.length > 1" class="affected-files"> (Affects {{ checkGroup.filenames.length
+          }} files)</span><span v-if="checkGroup.filenames.length == 1" class="affected-files"> (Affects {{
+              baseName(checkGroup.filenames[0]) }})</span>
           <span v-if="fixable" style="float: right;">
             Fix:
-            <input type="checkbox" class="individual-fix" :data-checkid="resGroup[0].check.check_id"
-              :data-filenames="JSON.stringify(resGroup.map(r => r.check.filename || 'Family Check'))"
-              :checked="selectedFixRequests.has(makeFixKey(resGroup[0].check.check_id, resGroup[0].check.filename || 'Family Check'))"
-              @change="(e) => { toggleFixRequest(resGroup[0].check.check_id, resGroup.map(r => r.check.filename || 'Family Check'), e) }" />
+            <input type="checkbox" class="individual-fix" :data-checkid="checkGroup.check.check_id"
+              :data-filenames="JSON.stringify(checkGroup.filenames)"
+              :disabled="!isDialogValid(checkGroup.check.check_id, checkGroup.filenames, checkGroup.dialogRequest)"
+              :checked="checkGroup.filenames.every((filename) => selectedFixRequests.has(makeFixKey(checkGroup.check.check_id, filename)))"
+              @change="(e) => { toggleFixRequest(checkGroup.check.check_id, checkGroup.filenames, e) }" />
           </span>
         </summary>
-        <p class="affected-files" v-if="resGroup.length > 1">Affects
-        <ul>
-          <li v-for='file in resGroup.map(r => r.check.filename || "Family Check")'>
-            {{ file }}
-          </li>
-        </ul>
-        </p>
-        <p class="rationale" v-html="renderMarkdown(resGroup[0].check.check_rationale)"></p>
-        <p class="message" v-html="renderMarkdown(resGroup[0].status.message || '')"></p>
+        <div class="affected-files" v-if="checkGroup.filenames.length > 1">Affects
+          <ul>
+            <li v-for='file in checkGroup.filenames' :key='file'>
+              {{ file }}
+            </li>
+          </ul>
+        </div>
+        <p class="rationale" v-html="renderMarkdown(checkGroup.check.check_rationale)"></p>
+        <div v-for="message in checkGroup.messages" :key="message.signature" class="message-block">
+          <span :class="`badge text-bg-${SEVERITY_COLOR[message.severity]} m-1`">{{ message.severity }}</span>
+          <span v-if="message.code" class="message-code">{{ message.code }}</span>
+          <p class="message" v-html="renderMarkdown(message.message || '')"></p>
+        </div>
+        <FixDialog v-if="fixable && checkGroup.dialogRequest" :request="checkGroup.dialogRequest"
+          :model-value="getDialogReplies(checkGroup.check.check_id, checkGroup.filenames)"
+          @update:model-value="(value) => updateDialogReplies(checkGroup.check.check_id, checkGroup.filenames, value)"
+          @update:valid="(value) => updateDialogValidity(checkGroup.check.check_id, checkGroup.filenames, value)" />
       </details>
     </details>
     <div class="clearfix">
-      <div class="float-end" v-if="fixable"><button class="btn btn-primary" @click="fixAndDownload"
-          :disabled="selectedFixRequests.size == 0">Fix
-          {{ selectedFixRequests.size }} Selected Issues</button></div>
+      <div class="float-end" v-if="fixable">
+        <button class="btn btn-primary" @click="() => fix(false)" :disabled="selectedFixRequests.size == 0">Fix
+          {{ selectedFixRequests.size }} Selected Issues</button>
+        <button class="btn btn-primary" @click="() => fix(true)" :disabled="selectedFixRequests.size == 0">Fix and
+          Download</button>
+      </div>
     </div>
-
-
   </div>
 </template>
 
@@ -225,5 +409,16 @@ details+details {
   width: 55px;
   margin-right: 20px;
   display: inline-block;
+}
+
+.message-block {
+  margin-bottom: 30px;
+  margin-left: 30px;
+}
+
+.message-code {
+  color: #6c757d;
+  font-size: 0.9em;
+  margin-left: 4px;
 }
 </style>

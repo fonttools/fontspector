@@ -19,12 +19,19 @@
 //! }
 //! ```
 
-use fontspector_checkapi::{CheckId, FontspectorError, Plugin, Registry};
+use dialoguer::{theme::ColorfulTheme, Confirm, Input, Select};
+use fontspector_checkapi::{
+    CheckId, DialogFieldType, FixResult, FontspectorError, MoreInfoReplies, MoreInfoRequest,
+    Plugin, Registry,
+};
 use profile_fontwerk::Fontwerk;
 use profile_googlefonts::GoogleFonts;
 use profile_iso15008::Iso15008;
 use profile_opentype::OpenType;
 use profile_universal::Universal;
+use serde_json::Value;
+use std::io::Write;
+use termimad::MadSkin;
 
 #[doc(hidden)]
 pub fn get_registry() -> Registry<'static> {
@@ -62,7 +69,6 @@ pub type HotfixResult = Result<bool, FontspectorError>;
 ///
 /// * `testable` - A mutable reference to the testable (font) to modify
 /// * `check_ids` - A slice of check IDs to apply hotfixes for
-/// * `registry` - The registry containing the checks
 ///
 /// # Returns
 ///
@@ -89,23 +95,121 @@ pub fn apply_hotfixes(testable: &mut Testable, check_ids: &[CheckId]) -> HotfixR
         };
 
         log::info!("Applying hotfix for check '{}'", check_id);
-        match hotfix(testable) {
-            Ok(modified) => {
-                if modified {
-                    log::info!("Check '{}' modified the font", check_id);
-                    any_modified = true;
-                } else {
-                    log::debug!("Check '{}' made no modifications", check_id);
+        let mut options = None;
+        let mut header_shown = false;
+
+        loop {
+            match hotfix(testable, options) {
+                Ok(FixResult::MoreInfoNeeded(dialog)) => {
+                    if !header_shown {
+                        show_header(testable, check_id, check.title);
+                        header_shown = true;
+                    }
+
+                    options = run_dialog(&dialog);
+                    continue;
                 }
-            }
-            Err(e) => {
-                log::error!("Hotfix for '{}' failed: {}", check_id, e);
-                return Err(e);
+                Ok(hotfix_result) => {
+                    if matches!(hotfix_result, FixResult::Fixed) {
+                        log::info!("Check '{}' modified the font", check_id);
+                        any_modified = true;
+                    } else {
+                        log::debug!(
+                            "Check '{}' completed with result: {:?}",
+                            check_id,
+                            hotfix_result
+                        );
+                    }
+                    break;
+                }
+                Err(e) => {
+                    log::error!("Hotfix for '{}' failed: {}", check_id, e);
+                    return Err(e);
+                }
             }
         }
     }
 
     Ok(any_modified)
+}
+
+fn show_header(testable: &mut Testable, check_id: &str, check_name: &str) {
+    let skin = MadSkin::default();
+    let filename = testable.filename.to_string_lossy();
+    let _ = writeln!(std::io::stdout(), "Testing: {filename}");
+    let _ = writeln!(std::io::stdout(), "  Check: {check_id}\n");
+    let _ = writeln!(std::io::stdout(), "  {:}\n", check_name);
+    eprintln!(
+        "{}",
+        skin.term_text(
+            "More information was needed to fix this problem, so we will ask you some questions to help the process.\n"
+        )
+    );
+}
+
+fn run_dialog(dialog: &MoreInfoRequest) -> Option<MoreInfoReplies> {
+    let mut replies = MoreInfoReplies::default();
+    for field in &dialog.0 {
+        match &field.field_type {
+            DialogFieldType::Choice(choices) => {
+                let choice_keys = choices.iter().map(|x| x.value.clone()).collect::<Vec<_>>();
+                let items = choices
+                    .iter()
+                    .map(|x| x.description.clone())
+                    .collect::<Vec<_>>();
+                if let Ok(Some(selection)) = Select::with_theme(&ColorfulTheme::default())
+                    .with_prompt(&field.prompt)
+                    .items(&items)
+                    .interact_opt()
+                {
+                    replies.0.insert(
+                        field.key.clone(),
+                        Value::String(choice_keys.get(selection).cloned().unwrap_or_default()),
+                    );
+                }
+            }
+            DialogFieldType::Text => {
+                if let Ok(input) = Input::with_theme(&ColorfulTheme::default())
+                    .with_prompt(&field.prompt)
+                    .interact_text()
+                {
+                    replies.0.insert(field.key.clone(), Value::String(input));
+                }
+            }
+            DialogFieldType::Number => {
+                if let Ok(input) = Input::with_theme(&ColorfulTheme::default())
+                    .with_prompt(&field.prompt)
+                    .validate_with(|input: &String| -> Result<(), &str> {
+                        if input.parse::<f64>().is_ok() {
+                            Ok(())
+                        } else {
+                            Err("Please enter a valid number")
+                        }
+                    })
+                    .interact_text()
+                {
+                    if let Ok(number) = input.parse::<f64>() {
+                        #[allow(clippy::unwrap_used)]
+                        replies.0.insert(
+                            field.key.clone(),
+                            Value::Number(serde_json::Number::from_f64(number).unwrap()),
+                        );
+                    }
+                }
+            }
+            DialogFieldType::Boolean => {
+                if let Ok(confirmation) = Confirm::with_theme(&ColorfulTheme::default())
+                    .with_prompt(&field.prompt)
+                    .interact()
+                {
+                    replies
+                        .0
+                        .insert(field.key.clone(), Value::Bool(confirmation));
+                }
+            }
+        }
+    }
+    Some(replies)
 }
 
 #[cfg(test)]

@@ -1,24 +1,7 @@
 use fontations::skrifa::raw::TableProvider;
 use fontspector_checkapi::{prelude::*, FileTypeConvert, TestFont};
 
-use crate::checks::googlefonts::metadata::family_proto;
-
-fn gf_api_weight_name(weight: u16) -> &'static str {
-    match weight {
-        100 => "Thin",
-        200 => "ExtraLight",
-        250 => "Thin",
-        275 => "ExtraLight",
-        300 => "Light",
-        400 => "Regular",
-        500 => "Medium",
-        600 => "SemiBold",
-        700 => "Bold",
-        800 => "ExtraBold",
-        900 => "Black",
-        _ => "bad value",
-    }
-}
+use crate::{checks::googlefonts::metadata::family_proto, constants::gf_api_weight_name};
 
 fn css_weight_name(weight: u16) -> &'static str {
     match weight {

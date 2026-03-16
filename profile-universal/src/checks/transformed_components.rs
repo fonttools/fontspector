@@ -104,7 +104,10 @@ fn transformed_components(f: &Testable, context: &Context) -> CheckFnResult {
     }
 }
 
-fn decompose_transformed_components(t: &mut Testable) -> FixFnResult {
+fn decompose_transformed_components(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
     let loca = f.font().loca(None)?;
     let glyf = f.font().glyf()?;
@@ -134,7 +137,7 @@ fn decompose_transformed_components(t: &mut Testable) -> FixFnResult {
 pub(crate) fn decompose_components_impl(
     t: &mut Testable,
     decompose_order: &[GlyphId],
-) -> FixFnResult {
+) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
     if f.has_table(b"gvar") {
         return Err(FontspectorError::Fix(
@@ -184,7 +187,7 @@ pub(crate) fn decompose_components_impl(
     new_font.copy_missing_tables(f.font());
     let new_bytes = new_font.build();
     t.set(new_bytes);
-    Ok(true)
+    Ok(FixResult::Fixed)
 }
 
 fn decompose_glyph(

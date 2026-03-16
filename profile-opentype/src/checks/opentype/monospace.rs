@@ -1,10 +1,12 @@
 use std::collections::{HashMap, HashSet};
 
-use fontations::skrifa::{
-    raw::{tables::gdef::GlyphClassDef, ReadError, TableProvider},
-    GlyphId, MetadataProvider,
+use fontations::{
+    skrifa::{
+        raw::{tables::gdef::GlyphClassDef, ReadError, TableProvider},
+        GlyphId, MetadataProvider,
+    },
+    write::from_obj::ToOwnedTable,
 };
-use fontations::write::from_obj::ToOwnedTable;
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, TestFont};
 use unicode_properties::{GeneralCategory, UnicodeGeneralCategory};
 
@@ -161,7 +163,10 @@ fn monospace(t: &Testable, context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
-fn fix_monospace(t: &mut Testable) -> FixFnResult {
+fn fix_monospace(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
     let context = Context::default();
     let mut changed = false;
 
@@ -228,7 +233,11 @@ fn fix_monospace(t: &mut Testable) -> FixFnResult {
         }
     }
 
-    Ok(changed)
+    Ok(if changed {
+        FixResult::Fixed
+    } else {
+        FixResult::Unfixable
+    })
 }
 
 #[allow(clippy::indexing_slicing)] // Crossing my fingers here.

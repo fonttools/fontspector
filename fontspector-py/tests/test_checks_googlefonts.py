@@ -351,103 +351,119 @@ def test_check_production_encoded_glyphs(check, cabin_ttFonts):
 
 
 @pytest.mark.parametrize(
-    """fp,mod,result""",
+    """fp,mod,result,code""",
     [
         # tests from test_check_name_familyname:
-        (TEST_FILE("cabin/Cabin-Regular.ttf"), {}, PASS),
+        (TEST_FILE("cabin/Cabin-Regular.ttf"), {}, PASS, None),
         (
             TEST_FILE("cabin/Cabin-Regular.ttf"),
             {NameID.FONT_FAMILY_NAME: "Wrong"},
             FAIL,
+            "bad-names",
         ),
-        (TEST_FILE("overpassmono/OverpassMono-Regular.ttf"), {}, PASS),
-        (TEST_FILE("overpassmono/OverpassMono-Bold.ttf"), {}, PASS),
-        (TEST_FILE("overpassmono/OverpassMono-Regular.ttf"), {1: "Foo"}, FAIL),
-        (TEST_FILE("merriweather/Merriweather-Black.ttf"), {}, PASS),
-        (TEST_FILE("merriweather/Merriweather-LightItalic.ttf"), {}, PASS),
+        (TEST_FILE("overpassmono/OverpassMono-Regular.ttf"), {}, PASS, None),
+        (TEST_FILE("overpassmono/OverpassMono-Bold.ttf"), {}, PASS, None),
+        (
+            TEST_FILE("overpassmono/OverpassMono-Regular.ttf"),
+            {1: "Foo"},
+            FAIL,
+            "bad-names",
+        ),
+        (TEST_FILE("merriweather/Merriweather-Black.ttf"), {}, PASS, None),
+        (TEST_FILE("merriweather/Merriweather-LightItalic.ttf"), {}, PASS, None),
         (
             TEST_FILE("merriweather/Merriweather-LightItalic.ttf"),
             {NameID.FONT_FAMILY_NAME: "Merriweather Light Italic"},
             FAIL,
+            "bad-names",
         ),
-        (TEST_FILE("abeezee/ABeeZee-Regular.ttf"), {}, PASS),
+        (TEST_FILE("abeezee/ABeeZee-Regular.ttf"), {}, PASS, None),
         # tests from test_check_name_subfamilyname
-        (TEST_FILE("overpassmono/OverpassMono-Regular.ttf"), {}, PASS),
-        (TEST_FILE("overpassmono/OverpassMono-Bold.ttf"), {}, PASS),
-        (TEST_FILE("merriweather/Merriweather-Black.ttf"), {}, PASS),
-        (TEST_FILE("merriweather/Merriweather-LightItalic.ttf"), {}, PASS),
-        (TEST_FILE("montserrat/Montserrat-BlackItalic.ttf"), {}, PASS),
-        (TEST_FILE("montserrat/Montserrat-Black.ttf"), {}, PASS),
-        (TEST_FILE("montserrat/Montserrat-BoldItalic.ttf"), {}, PASS),
-        (TEST_FILE("montserrat/Montserrat-Bold.ttf"), {}, PASS),
-        (TEST_FILE("montserrat/Montserrat-ExtraBoldItalic.ttf"), {}, PASS),
-        (TEST_FILE("montserrat/Montserrat-ExtraBold.ttf"), {}, PASS),
-        (TEST_FILE("montserrat/Montserrat-ExtraLightItalic.ttf"), {}, PASS),
-        (TEST_FILE("montserrat/Montserrat-ExtraLight.ttf"), {}, PASS),
-        (TEST_FILE("montserrat/Montserrat-Italic.ttf"), {}, PASS),
-        (TEST_FILE("montserrat/Montserrat-LightItalic.ttf"), {}, PASS),
-        (TEST_FILE("montserrat/Montserrat-Light.ttf"), {}, PASS),
-        (TEST_FILE("montserrat/Montserrat-MediumItalic.ttf"), {}, PASS),
-        (TEST_FILE("montserrat/Montserrat-Medium.ttf"), {}, PASS),
-        (TEST_FILE("montserrat/Montserrat-Regular.ttf"), {}, PASS),
-        (TEST_FILE("montserrat/Montserrat-SemiBoldItalic.ttf"), {}, PASS),
-        (TEST_FILE("montserrat/Montserrat-SemiBold.ttf"), {}, PASS),
-        (TEST_FILE("montserrat/Montserrat-ThinItalic.ttf"), {}, PASS),
-        (TEST_FILE("montserrat/Montserrat-Thin.ttf"), {}, PASS),
+        (TEST_FILE("overpassmono/OverpassMono-Regular.ttf"), {}, PASS, None),
+        (TEST_FILE("overpassmono/OverpassMono-Bold.ttf"), {}, PASS, None),
+        (TEST_FILE("merriweather/Merriweather-Black.ttf"), {}, PASS, None),
+        (TEST_FILE("merriweather/Merriweather-LightItalic.ttf"), {}, PASS, None),
+        (TEST_FILE("montserrat/Montserrat-BlackItalic.ttf"), {}, PASS, None),
+        (TEST_FILE("montserrat/Montserrat-Black.ttf"), {}, PASS, None),
+        (TEST_FILE("montserrat/Montserrat-BoldItalic.ttf"), {}, PASS, None),
+        (TEST_FILE("montserrat/Montserrat-Bold.ttf"), {}, PASS, None),
+        (TEST_FILE("montserrat/Montserrat-ExtraBoldItalic.ttf"), {}, PASS, None),
+        (TEST_FILE("montserrat/Montserrat-ExtraBold.ttf"), {}, PASS, None),
+        (TEST_FILE("montserrat/Montserrat-ExtraLightItalic.ttf"), {}, PASS, None),
+        (TEST_FILE("montserrat/Montserrat-ExtraLight.ttf"), {}, PASS, None),
+        (TEST_FILE("montserrat/Montserrat-Italic.ttf"), {}, PASS, None),
+        (TEST_FILE("montserrat/Montserrat-LightItalic.ttf"), {}, PASS, None),
+        (TEST_FILE("montserrat/Montserrat-Light.ttf"), {}, PASS, None),
+        (TEST_FILE("montserrat/Montserrat-MediumItalic.ttf"), {}, PASS, None),
+        (TEST_FILE("montserrat/Montserrat-Medium.ttf"), {}, PASS, None),
+        (TEST_FILE("montserrat/Montserrat-Regular.ttf"), {}, PASS, None),
+        (TEST_FILE("montserrat/Montserrat-SemiBoldItalic.ttf"), {}, PASS, None),
+        (TEST_FILE("montserrat/Montserrat-SemiBold.ttf"), {}, PASS, None),
+        (TEST_FILE("montserrat/Montserrat-ThinItalic.ttf"), {}, PASS, None),
+        (TEST_FILE("montserrat/Montserrat-Thin.ttf"), {}, PASS, None),
         (
             TEST_FILE("montserrat/Montserrat-ThinItalic.ttf"),
             {NameID.FONT_SUBFAMILY_NAME: "Not a proper style"},
             FAIL,
+            "bad-names",
         ),
         # tests from test_check_name_fullfontname
-        (TEST_FILE("cabin/Cabin-Regular.ttf"), {}, PASS),
+        (TEST_FILE("cabin/Cabin-Regular.ttf"), {}, PASS, None),
+        (TEST_FILE("cabin/Cabin-Bold.ttf"), {}, PASS, None),
         # warn should be raised since full name is missing Regular
-        (TEST_FILE("cabin/Cabin-Regular.ttf"), {4: "Cabin"}, WARN),
-        (TEST_FILE("cabin/Cabin-BoldItalic.ttf"), {}, PASS),
+        (TEST_FILE("cabin/Cabin-Regular.ttf"), {4: "Cabin"}, WARN, "bad-names"),
+        (TEST_FILE("cabin/Cabin-BoldItalic.ttf"), {}, PASS, None),
         (
             TEST_FILE("cabin/Cabin-BoldItalic.ttf"),
             {NameID.FULL_FONT_NAME: "Make it fail"},
             FAIL,
+            "bad-names",
         ),
-        (TEST_FILE("abeezee/ABeeZee-Regular.ttf"), {}, PASS),
+        (TEST_FILE("abeezee/ABeeZee-Regular.ttf"), {}, PASS, None),
         # tests from test_check_name_typographicfamilyname
-        (TEST_FILE("montserrat/Montserrat-BoldItalic.ttf"), {}, PASS),
+        (TEST_FILE("montserrat/Montserrat-BoldItalic.ttf"), {}, PASS, None),
         (
             TEST_FILE("montserrat/Montserrat-BoldItalic.ttf"),
             {NameID.TYPOGRAPHIC_FAMILY_NAME: "Arbitrary name"},
             FAIL,
+            "bad-names",
         ),
-        (TEST_FILE("montserrat/Montserrat-ExtraLight.ttf"), {}, PASS),
+        (TEST_FILE("montserrat/Montserrat-ExtraLight.ttf"), {}, PASS, None),
         (
             TEST_FILE("montserrat/Montserrat-ExtraLight.ttf"),
             {NameID.TYPOGRAPHIC_FAMILY_NAME: "Foo"},
             FAIL,
+            "bad-names",
         ),
         (
             TEST_FILE("montserrat/Montserrat-ExtraLight.ttf"),
             {NameID.TYPOGRAPHIC_FAMILY_NAME: None},
             FAIL,
+            "bad-names",
         ),
         # tests from test_check_name_typographicsubfamilyname
-        (TEST_FILE("montserrat/Montserrat-BoldItalic.ttf"), {}, PASS),
+        (TEST_FILE("montserrat/Montserrat-BoldItalic.ttf"), {}, PASS, None),
         (
             TEST_FILE("montserrat/Montserrat-BoldItalic.ttf"),
             {NameID.TYPOGRAPHIC_SUBFAMILY_NAME: "Foo"},
             FAIL,
+            "unsupported-style",
         ),
-        (TEST_FILE("montserrat/Montserrat-ExtraLight.ttf"), {}, PASS),
+        (TEST_FILE("montserrat/Montserrat-ExtraLight.ttf"), {}, PASS, None),
         (
             TEST_FILE("montserrat/Montserrat-ExtraLight.ttf"),
             {NameID.TYPOGRAPHIC_SUBFAMILY_NAME: None},
             FAIL,
+            "bad-names",
         ),
         (
             TEST_FILE("montserrat/Montserrat-ExtraLight.ttf"),
             {NameID.TYPOGRAPHIC_SUBFAMILY_NAME: "Generic Name"},
             FAIL,
+            "unsupported-style",
         ),
         # variable font checks
-        (TEST_FILE("cabinvf/Cabin[wdth,wght].ttf"), {}, PASS),
+        (TEST_FILE("cabinvf/Cabin[wdth,wght].ttf"), {}, PASS, None),
         # Open Sans' origin is Light so this should pass
         (
             TEST_FILE("varfont/OpenSans[wdth,wght].ttf"),
@@ -456,6 +472,7 @@ def test_check_production_encoded_glyphs(check, cabin_ttFonts):
                 NameID.TYPOGRAPHIC_SUBFAMILY_NAME: "Light",
             },
             PASS,
+            None,
         ),
         (
             TEST_FILE("varfont/OpenSans[wdth,wght].ttf"),
@@ -464,8 +481,14 @@ def test_check_production_encoded_glyphs(check, cabin_ttFonts):
                 NameID.TYPOGRAPHIC_SUBFAMILY_NAME: "Condensed Light",
             },
             FAIL,
+            "bad-names",
         ),
-        (TEST_FILE("varfont/RobotoSerif[GRAD,opsz,wdth,wght].ttf"), {}, FAIL),
+        (
+            TEST_FILE("varfont/RobotoSerif[GRAD,opsz,wdth,wght].ttf"),
+            {},
+            FAIL,
+            "bad-names",
+        ),
         # Roboto Serif has an opsz axes so this should pass
         (
             TEST_FILE("varfont/RobotoSerif[GRAD,opsz,wdth,wght].ttf"),
@@ -478,8 +501,9 @@ def test_check_production_encoded_glyphs(check, cabin_ttFonts):
                 NameID.TYPOGRAPHIC_SUBFAMILY_NAME: None,
             },
             PASS,
+            None,
         ),
-        (TEST_FILE("varfont/Georama[wdth,wght].ttf"), {}, PASS),
+        (TEST_FILE("varfont/Georama[wdth,wght].ttf"), {}, PASS, None),
         # Georama's default fvar vals are wdth=62.5, wght=100
         # which means ExtraCondensed Thin should appear in the family name
         (
@@ -491,11 +515,12 @@ def test_check_production_encoded_glyphs(check, cabin_ttFonts):
                 NameID.TYPOGRAPHIC_SUBFAMILY_NAME: "ExtraCondensed Thin",
             },
             PASS,
+            None,
         ),
     ],
 )
 @check_id("googlefonts/font_names")
-def test_check_font_names(check, fp, mod, result):
+def test_check_font_names(check, fp, mod, result, code):
     """Check font names are correct"""
     # Please note: This check was introduced in
     # https://github.com/fonttools/fontbakery/pull/3800 which has replaced
@@ -538,7 +563,7 @@ def test_check_font_names(check, fp, mod, result):
         assert_results_contain(
             check(ttFont),
             FAIL,
-            "bad-names",
+            code,
             "with bad names",
         )
 
@@ -1401,5 +1426,3 @@ def test_check_STAT(check, fps, new_stat, result):
             "bad-axis-values",
             "with a bad font",
         )
-
-

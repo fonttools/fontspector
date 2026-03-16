@@ -57,18 +57,21 @@ fbWorker.onmessage = (event: any) => {
         }
     } else if (data.id == "fix_result") {
         console.log("Received fix result from worker, preparing download...");
-        const zipBlob = new Blob([data.zipfile as ArrayBufferView<ArrayBuffer>], { type: 'application/zip' });
-        const url = URL.createObjectURL(zipBlob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'fontspector-fix.zip';
-        a.click();
+        if (data.download) {
+            const zipBlob = new Blob([data.zipfile as ArrayBufferView<ArrayBuffer>], { type: 'application/zip' });
+            const url = URL.createObjectURL(zipBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'fontspector-fix.zip';
+            a.click();
+        }
         // Rerun the tests
         let contents = JSZip.loadAsync(data.zipfile).then((zip) => {
             const files: Record<string, Uint8Array> = {};
             const promises: any[] = [];
             zip.forEach((relativePath, zipEntry) => {
-                if (!zipEntry.dir) {
+                // Skip the log file
+                if (!zipEntry.dir && !relativePath.endsWith("fix_log.txt")) {
                     const promise = zipEntry.async("uint8array").then((content) => {
                         files[relativePath] = content;
                     });
@@ -77,7 +80,9 @@ fbWorker.onmessage = (event: any) => {
             });
             return Promise.all(promises).then(() => files);
         }).then((files) => {
-            create({ title: "Fix applied!", body: "Fixes have been applied, and the new fonts downloaded to your downloads folder. Check status has been updated.", variant: "success" });
+            if (data.download) {
+                create({ title: "Fix applied!", body: "Fixes have been applied, and the new fonts downloaded to your downloads folder. Check status has been updated.", variant: "success" });
+            }
             postToWorker({
                 id: "run_checks",
                 files,

@@ -72,7 +72,7 @@ fn caret_slope(t: &Testable, _context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
-// fn fix_post_italic_angle(t: &mut Testable) -> FixFnResult {
+// fn fix_post_italic_angle(t: &mut Testable, _replies: Option<MoreInfoReplies>) -> Result<FixResult, FontspectorError> {
 //     let f = fixfont!(t);
 //     let Some(style) = f.style() else {
 //         return Ok(false);
@@ -98,22 +98,26 @@ fn caret_slope(t: &Testable, _context: &Context) -> CheckFnResult {
 //     Ok(true)
 // }
 
-fn fix_caret_slope(t: &mut Testable) -> FixFnResult {
+fn fix_caret_slope(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
     let mut hhea: fontations::write::tables::hhea::Hhea = f.font().hhea()?.to_owned_table();
     let post = f.font().post()?;
     if post.italic_angle() == Fixed::ZERO {
         println!("Skipping fix_caret_slope for non-italic font");
-        return Ok(false);
+        return Ok(FixResult::Unfixable);
     }
     let upem = f.font().head()?.units_per_em();
     hhea.caret_slope_rise = upem as i16;
     hhea.caret_slope_run =
         (-post.italic_angle().to_f32().to_radians().tan() * upem as f32).round() as i16;
     t.set(f.rebuild_with_new_table(&hhea)?);
-    Ok(true)
+    Ok(FixResult::Fixed)
 }
 
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 #[cfg(test)]
 mod tests {
     use fontations::{skrifa::raw::TableProvider, write::from_obj::ToOwnedTable};

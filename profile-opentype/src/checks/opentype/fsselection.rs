@@ -69,6 +69,33 @@ fn fsselection(f: &Testable, _context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
+fn fix_fsselection(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
+    let f = testfont!(t);
+    let Some(style) = f.style() else {
+        return Ok(FixResult::Unfixable);
+    };
+    let mut os2: fontations::write::tables::os2::Os2 = f.font().os2()?.to_owned_table();
+    os2.fs_selection &= SelectionFlags::USE_TYPO_METRICS;
+    let bold_expected = style == "Bold" || style == "BoldItalic";
+    let italic_expected = style.contains("Italic");
+    let regular_expected = !bold_expected && !italic_expected;
+    if bold_expected {
+        os2.fs_selection |= SelectionFlags::BOLD;
+    }
+    if italic_expected {
+        os2.fs_selection |= SelectionFlags::ITALIC;
+    }
+    if regular_expected {
+        os2.fs_selection |= SelectionFlags::REGULAR;
+    }
+
+    t.set(f.rebuild_with_new_table(&os2)?);
+    Ok(FixResult::Fixed)
+}
+
 #[allow(clippy::unwrap_used, clippy::expect_used)]
 #[cfg(test)]
 mod tests {
@@ -204,28 +231,4 @@ mod tests {
             Some("fsselection-macstyle-italic".to_string()),
         );
     }
-}
-
-fn fix_fsselection(t: &mut Testable) -> FixFnResult {
-    let f = testfont!(t);
-    let Some(style) = f.style() else {
-        return Ok(false);
-    };
-    let mut os2: fontations::write::tables::os2::Os2 = f.font().os2()?.to_owned_table();
-    os2.fs_selection &= SelectionFlags::USE_TYPO_METRICS;
-    let bold_expected = style == "Bold" || style == "BoldItalic";
-    let italic_expected = style.contains("Italic");
-    let regular_expected = !bold_expected && !italic_expected;
-    if bold_expected {
-        os2.fs_selection |= SelectionFlags::BOLD;
-    }
-    if italic_expected {
-        os2.fs_selection |= SelectionFlags::ITALIC;
-    }
-    if regular_expected {
-        os2.fs_selection |= SelectionFlags::REGULAR;
-    }
-
-    t.set(f.rebuild_with_new_table(&os2)?);
-    Ok(true)
 }

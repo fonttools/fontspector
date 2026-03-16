@@ -69,6 +69,17 @@ fn fstype(t: &Testable, _context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
+fn fix_fstype(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
+    let f = testfont!(t);
+    let mut os2: fontations::write::tables::os2::Os2 = f.font().os2()?.to_owned_table();
+    os2.fs_type = 0;
+    t.set(f.rebuild_with_new_table(&os2)?);
+    Ok(FixResult::Fixed)
+}
+
 #[cfg(test)]
 mod tests {
     #![allow(clippy::unwrap_used, clippy::expect_used)]
@@ -102,12 +113,4 @@ mod tests {
         let results = run_check(fstype, testable);
         assert_results_contain(&results, StatusCode::Fail, Some("drm".to_string()));
     }
-}
-
-fn fix_fstype(t: &mut Testable) -> FixFnResult {
-    let f = testfont!(t);
-    let mut os2: fontations::write::tables::os2::Os2 = f.font().os2()?.to_owned_table();
-    os2.fs_type = 0;
-    t.set(f.rebuild_with_new_table(&os2)?);
-    Ok(true)
 }

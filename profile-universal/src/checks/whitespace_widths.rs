@@ -62,13 +62,15 @@ mod tests {
     #![allow(clippy::unwrap_used)]
 
     use super::whitespace_widths;
-    use fontations::read::TableProvider;
-    use fontations::skrifa::MetadataProvider;
-    use fontations::write::{from_obj::ToOwnedTable, tables::hmtx::Hmtx};
-    use fontspector_checkapi::codetesting::{
-        assert_pass, assert_results_contain, run_check, test_able,
+    use fontations::{
+        read::TableProvider,
+        skrifa::MetadataProvider,
+        write::{from_obj::ToOwnedTable, tables::hmtx::Hmtx},
     };
-    use fontspector_checkapi::{FileTypeConvert, StatusCode};
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        FileTypeConvert, StatusCode,
+    };
 
     #[test]
     fn test_whitespace_widths_pass() {
@@ -96,7 +98,10 @@ mod tests {
     }
 }
 
-fn fix_whitespace_widths(t: &mut Testable) -> FixFnResult {
+fn fix_whitespace_widths(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
     let mut hmtx: Hmtx = f.font().hmtx()?.to_owned_table();
     let charmap = f.font().charmap();
@@ -110,7 +115,7 @@ fn fix_whitespace_widths(t: &mut Testable) -> FixFnResult {
             nbspace_metric.advance = space_width;
         }
         t.set(f.rebuild_with_new_table(&hmtx)?);
-        return Ok(true);
+        return Ok(FixResult::Fixed);
     }
-    Ok(false)
+    Ok(FixResult::Unfixable)
 }

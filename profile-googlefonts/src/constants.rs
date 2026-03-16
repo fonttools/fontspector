@@ -111,3 +111,20 @@ pub(crate) static EXPECTED_COPYRIGHT_PATTERN: LazyLock<Regex> = LazyLock::new(||
             r#"copyright \d{4}(-\d{4})?(,\s*\d{4}(-\d{4})?)*,? (the .* project authors \([^\@]*\)|google llc. all rights reserved)"#,
         ).unwrap()
 });
+
+pub(crate) fn gf_api_weight_name(weight: u16) -> &'static str {
+    match weight {
+        100 => "Thin",
+        200 => "ExtraLight",
+        250 => "Thin",
+        275 => "ExtraLight",
+        300 => "Light",
+        400 => "Regular",
+        500 => "Medium",
+        600 => "SemiBold",
+        700 => "Bold",
+        800 => "ExtraBold",
+        900 => "Black",
+        _ => "bad value",
+    }
+}

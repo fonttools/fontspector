@@ -89,7 +89,10 @@ fn illegal_particles(t: &Testable, _context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
-fn fix_illegal_particles(t: &mut Testable) -> FixFnResult {
+fn fix_illegal_particles(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
     let name_table = f.font().name()?;
     let name_ids_to_fix = [NameId::FAMILY_NAME, NameId::TYPOGRAPHIC_FAMILY_NAME];
@@ -119,7 +122,7 @@ fn fix_illegal_particles(t: &mut Testable) -> FixFnResult {
 
     let new_name = Name::new(new_records);
     t.set(f.rebuild_with_new_table(&new_name)?);
-    Ok(true)
+    Ok(FixResult::Fixed)
 }
 
 #[cfg(test)]

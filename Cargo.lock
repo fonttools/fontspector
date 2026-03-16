@@ -1123,6 +1123,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "dialoguer"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "25f104b501bf2364e78d0d3974cbc774f738f5865306ed128e1e0d7499c0ad96"
+dependencies = [
+ "console",
+ "shell-words",
+ "tempfile",
+ "zeroize",
+]
+
+[[package]]
 name = "digest"
 version = "0.10.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1184,6 +1196,12 @@ dependencies = [
  "rust_decimal",
  "strum 0.27.2",
 ]
+
+[[package]]
+name = "edit-distance"
+version = "2.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "324d428080b707bac399325341bd61af5ded1b30f33b7c949792ca464733c2d5"
 
 [[package]]
 name = "ego-tree"
@@ -1520,6 +1538,7 @@ dependencies = [
  "clap",
  "colored",
  "csv",
+ "dialoguer",
  "duckdb",
  "env_logger",
  "fontc",
@@ -1603,6 +1622,7 @@ name = "fontspector-hotfix"
 version = "0.1.0"
 dependencies = [
  "clap",
+ "dialoguer",
  "env_logger",
  "fontspector-checkapi",
  "fontspector-profile-fontwerk",
@@ -1611,6 +1631,8 @@ dependencies = [
  "fontspector-profile-opentype",
  "fontspector-profile-universal",
  "log",
+ "serde_json",
+ "termimad",
 ]
 
 [[package]]
@@ -1651,6 +1673,7 @@ name = "fontspector-profile-googlefonts"
 version = "1.7.0"
 dependencies = [
  "chrono",
+ "edit-distance",
  "fontations",
  "fontspector-checkapi",
  "gf-metadata",
@@ -1784,6 +1807,7 @@ dependencies = [
  "fontspector-profile-universal",
  "js-sys",
  "serde",
+ "serde-wasm-bindgen",
  "serde_json",
  "wasm-bindgen",
  "zip 8.2.0",
@@ -4733,6 +4757,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "serde-wasm-bindgen"
+version = "0.6.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8302e169f0eddcc139c70f139d19d6467353af16f9fce27e8c30158036a1e16b"
+dependencies = [
+ "js-sys",
+ "serde",
+ "wasm-bindgen",
+]
+
+[[package]]
 name = "serde_core"
 version = "1.0.228"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4887,6 +4922,12 @@ dependencies = [
  "unicode-normalization",
  "unicode-properties",
 ]
+
+[[package]]
+name = "shell-words"
+version = "1.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dc6fe69c597f9c37bfeeeeeb33da3530379845f10be461a66d16d03eca2ded77"
 
 [[package]]
 name = "shlex"

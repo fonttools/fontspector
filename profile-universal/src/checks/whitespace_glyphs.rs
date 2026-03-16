@@ -47,7 +47,10 @@ fn whitespace_glyphs(t: &Testable, _context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
-fn fix_whitespace_glyphs(t: &mut Testable) -> FixFnResult {
+fn fix_whitespace_glyphs(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
     // If we have a space already, map 0xA0 to it in the cmap.
     let f = testfont!(t);
     let charmap = f.font().charmap();
@@ -60,7 +63,7 @@ fn fix_whitespace_glyphs(t: &mut Testable) -> FixFnResult {
             r.subtable(data)
                 .is_ok_and(|s| !matches!(s, CmapSubtable::Format4(_) | CmapSubtable::Format12(_)))
         }) {
-            return Ok(false);
+            return Ok(FixResult::Unfixable);
         }
         mappings.push((0xA0u32, space_gid));
         mappings.sort_by_key(|(c, _)| *c);
@@ -72,7 +75,7 @@ fn fix_whitespace_glyphs(t: &mut Testable) -> FixFnResult {
         .map_err(|e| FontspectorError::General(format!("Failed to create new cmap: {e}")))?;
 
         t.set(f.rebuild_with_new_table(&new_cmap)?);
-        return Ok(true);
+        return Ok(FixResult::Fixed);
     }
-    Ok(false)
+    Ok(FixResult::Unfixable)
 }

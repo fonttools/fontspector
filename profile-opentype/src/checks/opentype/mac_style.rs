@@ -50,6 +50,32 @@ fn mac_style(f: &Testable, _context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
+fn fix_mac_style(
+    f: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
+    let font = testfont!(f);
+    let mut head: fontations::write::tables::head::Head = font.font().head()?.to_owned_table();
+
+    let Some(style) = font.style() else {
+        return Ok(FixResult::Unfixable);
+    };
+    let mut bits = head.mac_style;
+    if style == "Bold" || style == "BoldItalic" {
+        bits.insert(MacStyle::BOLD);
+    } else {
+        bits.remove(MacStyle::BOLD);
+    }
+    if style.contains("Italic") {
+        bits.insert(MacStyle::ITALIC);
+    } else {
+        bits.remove(MacStyle::ITALIC);
+    }
+    head.mac_style = bits;
+    f.set(font.rebuild_with_new_table(&head)?);
+    Ok(FixResult::Fixed)
+}
+
 #[allow(clippy::unwrap_used, clippy::expect_used)]
 #[cfg(test)]
 mod tests {
@@ -138,27 +164,4 @@ mod tests {
         let result = run_check(mac_style, new_testable);
         assert_skip(&result);
     }
-}
-
-fn fix_mac_style(f: &mut Testable) -> FixFnResult {
-    let font = testfont!(f);
-    let mut head: fontations::write::tables::head::Head = font.font().head()?.to_owned_table();
-
-    let Some(style) = font.style() else {
-        return Ok(false);
-    };
-    let mut bits = head.mac_style;
-    if style == "Bold" || style == "BoldItalic" {
-        bits.insert(MacStyle::BOLD);
-    } else {
-        bits.remove(MacStyle::BOLD);
-    }
-    if style.contains("Italic") {
-        bits.insert(MacStyle::ITALIC);
-    } else {
-        bits.remove(MacStyle::ITALIC);
-    }
-    head.mac_style = bits;
-    f.set(font.rebuild_with_new_table(&head)?);
-    Ok(true)
 }

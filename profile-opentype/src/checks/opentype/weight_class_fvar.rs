@@ -38,24 +38,28 @@ fn weight_class_fvar(t: &Testable, _context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
-fn fix_weight_class_fvar(t: &mut Testable) -> FixFnResult {
+fn fix_weight_class_fvar(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
     if !f.is_variable_font() {
-        return Ok(false);
+        return Ok(FixResult::Unfixable);
     }
     let Some(fvar_value) = f
         .axis_ranges()
         .find(|(tag, _, _, _)| tag == "wght")
         .map(|(_, _, default, _)| default)
     else {
-        return Ok(false);
+        return Ok(FixResult::Unfixable);
     };
     let mut os2: fontations::write::tables::os2::Os2 = f.font().os2()?.to_owned_table();
     os2.us_weight_class = fvar_value as u16;
     t.set(f.rebuild_with_new_table(&os2)?);
-    Ok(true)
+    Ok(FixResult::Fixed)
 }
 
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 #[cfg(test)]
 mod tests {
     use fontations::{skrifa::raw::TableProvider, write::from_obj::ToOwnedTable};
