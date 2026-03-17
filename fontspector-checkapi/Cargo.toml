@@ -7,11 +7,17 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/fonttools/fontspector"
 homepage = "https://fonttools.github.io/fontspector"
 
+[[bin]]
+name = "dump-json-schema"
+required-features = ["schemars"]
+
 [lib]
 crate-type = ["cdylib", "rlib"]
 
 [features]
+default = []
 python = []
+schemars = ["dep:schemars"]
 
 [build-dependencies]
 minreq = { version = "2.6.0", features = ["https"] }
@@ -46,6 +52,9 @@ itertools = { workspace = true }
 
 kurbo = { workspace = true, optional = true }
 thiserror = "2.0.12"
+schemars = { version = "1.2.1", optional = true, features=["indexmap2"] }
+
+
 
 [lints]
 workspace = true
