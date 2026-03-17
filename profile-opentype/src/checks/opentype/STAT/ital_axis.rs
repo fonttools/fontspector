@@ -2,7 +2,7 @@ use fontations::skrifa::raw::{
     tables::stat::{AxisValue, AxisValueTableFlags},
     ReadError, TableProvider,
 };
-use fontspector_checkapi::{prelude::*, FileTypeConvert, TestFont};
+use fontspector_checkapi::{prelude::*, skip, FileTypeConvert, TestFont};
 
 fn segment_vf_collection(fonts: Vec<TestFont>) -> Vec<(Option<TestFont>, Option<TestFont>)> {
     let mut roman_italic = vec![];
@@ -217,6 +217,12 @@ fn check_ital_is_binary_and_last(t: &TestFont, is_italic: bool) -> Result<Vec<St
 )]
 fn ital_axis(c: &TestableCollection, _context: &Context) -> CheckFnResult {
     let fonts = TTF.from_collection(c);
+    let fonts: Vec<TestFont> = fonts.into_iter().filter(|f| f.is_variable_font()).collect();
+    skip!(
+        fonts.is_empty(),
+        "no-variable-fonts",
+        "No variable fonts in the collection"
+    );
     let mut problems = vec![];
 
     for pair in segment_vf_collection(fonts).into_iter() {
@@ -244,9 +250,9 @@ fn ital_axis(c: &TestableCollection, _context: &Context) -> CheckFnResult {
 #[cfg(test)]
 mod tests {
     use fontspector_checkapi::{
-        codetesting::{assert_pass, assert_results_contain, run_check_with_config, test_able},
+        codetesting::{assert_pass, assert_skip, run_check_with_config, test_able},
         prelude::*,
-        StatusCode, TestableType,
+        TestableType,
     };
     use std::collections::HashMap;
 
@@ -300,5 +306,23 @@ mod tests {
             HashMap::new(),
         );
         assert_pass(&result);
+    }
+
+    #[test]
+    fn test_stat_ital_axis_skip_statics() {
+        let testables: Vec<Testable> = vec![
+            test_able("cabin/Cabin-Regular.ttf"),
+            test_able("cabin/Cabin-Italic.ttf"),
+        ];
+        let collection = TestableCollection {
+            testables,
+            directory: "".to_string(),
+        };
+        let result = run_check_with_config(
+            super::ital_axis,
+            TestableType::Collection(&collection),
+            HashMap::new(),
+        );
+        assert_skip(&result);
     }
 }
