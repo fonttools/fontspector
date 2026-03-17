@@ -45,6 +45,7 @@ fn underline_thickness(c: &TestableCollection, _context: &Context) -> CheckFnRes
     })
 }
 
+#[allow(clippy::expect_used, clippy::unwrap_used)]
 #[cfg(test)]
 mod tests {
     use fontations::{skrifa::raw::TableProvider, write::from_obj::ToOwnedTable};

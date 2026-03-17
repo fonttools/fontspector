@@ -31,7 +31,7 @@ fn equal_font_versions(c: &TestableCollection, context: &Context) -> CheckFnResu
     )
 }
 
-#[allow(clippy::unwrap_used, clippy::expect_used)]
+#[allow(clippy::unwrap_used, clippy::expect_used, clippy::indexing_slicing)]
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -54,7 +54,7 @@ mod tests {
             "mada/Mada-Regular.ttf",
         ]
         .iter()
-        .map(|f| test_able(f))
+        .map(test_able)
         .collect();
         let collection = TestableCollection {
             testables,
@@ -80,7 +80,7 @@ mod tests {
             "mada/Mada-Regular.ttf",
         ]
         .iter()
-        .map(|f| test_able(f))
+        .map(test_able)
         .collect();
         // Modify the second font's version
         let new_bytes = {
