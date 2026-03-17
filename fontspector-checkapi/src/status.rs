@@ -3,6 +3,8 @@ use std::{collections::HashMap, str::FromStr};
 use serde::{Deserialize, Serialize};
 
 use crate::{error::FontspectorError, MoreInfoRequest, Override};
+
+#[cfg_attr(feature = "schemars", derive(schemars::JsonSchema))]
 #[derive(Debug, PartialEq, PartialOrd, Ord, Eq, Copy, Clone, Serialize, Deserialize, Hash)]
 #[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
 #[serde(rename_all = "UPPERCASE")]

@@ -5,6 +5,7 @@ use serde_json::Value;
 use crate::{Check, CheckId, Context, Registry, StatusCode, TestableType};
 use std::collections::HashMap;
 
+#[cfg_attr(feature = "schemars", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Clone, Debug)]
 /// An override directive
 ///
@@ -32,6 +33,7 @@ impl Override {
     }
 }
 
+#[cfg_attr(feature = "schemars", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Default)]
 /// A check profile
 ///
