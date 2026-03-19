@@ -1,12 +1,37 @@
-# Included profiles
-# include_profiles = ["googlefonts"]
-
-[sections]
-"Workspace checks" = [
-    "googlefonts/font_names",
-    "googlefonts/fstype",
-    "whitespace_glyphs",
-    "whitespace_widths",
-    "googlefonts/vertical_metrics",
-    "googlefonts/name/illegal_particles",
+#:schema ../resources/profile.schema.json
+sections = {}
+include_profiles = ["googlefonts"]
+exclude_checks = [
+    "googlefonts/font_copyright",
+    "googlefonts/metadata/unreachable_subsetting",
+    "unreachable_glyphs",
+    "nested_components",
+    "dotted_circle",
+    "hinting_impact",
+    "googlefonts/separator_glyphs",
+    "googlefonts/description/has_article",
+    "googlefonts/meta/script_lang_tags",
+    "googlefonts/old_ttfautohint",
+    # Skip all the outline checks
+    "outline_short_segments",
+    "outline_semi_vertical",
+    "outline_alignment_miss",
+    "outline_jaggy_segments",
+    "outline_colinear_vectors",
 ]
+[[overrides."opentype/xavgcharwidth"]]
+status = "SKIP"
+code = "xAvgCharWidth-close"
+reason = "Nobody's going to correct that"
+[[overrides.case_mapping]]
+status = "WARN"
+code = "missing-case-counterparts"
+reason = "We get what we're given from the foundry"
+[[overrides."googlefonts/glyph_coverage"]]
+status = "WARN"
+code = "missing-codepoints"
+reason = "We get what we're given from the foundry"
+[[overrides."googlefonts/gasp"]]
+status = "SKIP"
+code = "summary"
+reason = "Reduce number of INFOs by default"
