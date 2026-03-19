@@ -106,8 +106,7 @@ fn fix_caret_slope(
     let mut hhea: fontations::write::tables::hhea::Hhea = f.font().hhea()?.to_owned_table();
     let post = f.font().post()?;
     if post.italic_angle() == Fixed::ZERO {
-        println!("Skipping fix_caret_slope for non-italic font");
-        return Ok(FixResult::Unfixable);
+        return Ok(FixResult::NotBroken);
     }
     let upem = f.font().head()?.units_per_em();
     hhea.caret_slope_rise = upem as i16;

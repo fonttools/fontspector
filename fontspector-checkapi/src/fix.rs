@@ -16,6 +16,8 @@ pub enum FixResult {
     MoreInfoNeeded(MoreInfoRequest),
     /// A fix was applied
     Fixed,
+    /// Nothing to fix
+    NotBroken,
     /// The fix failed, for some reason
     FixFailed(String),
     // /// An error happened while trying to apply the fix
@@ -25,7 +27,7 @@ pub enum FixResult {
 impl FixResult {
     /// A helper function to check if the fix was successful
     pub fn is_success(&self) -> bool {
-        matches!(self, FixResult::Fixed)
+        matches!(self, FixResult::Fixed | FixResult::NotBroken)
     }
 }
 

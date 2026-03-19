@@ -76,7 +76,6 @@ fn field_values(t: &Testable, context: &Context) -> CheckFnResult {
         };
 
         let serialized = font_to_json(&font.font());
-        println!("Serialized: {:#?}", serialized);
         let mut incorrect = vec![];
         for (key, value) in config_for_this_font.iter() {
             let found = serialized.get(key);
