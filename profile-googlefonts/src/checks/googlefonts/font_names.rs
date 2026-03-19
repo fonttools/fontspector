@@ -29,6 +29,10 @@ impl StaticChecker {
         !STATIC_STYLE_NAMES.contains(&self.subfamily_name.as_str())
     }
 
+    fn regular_italic(&self) -> bool {
+        self.subfamily_name.to_lowercase() == "regular italic"
+    }
+
     fn weightclass_suggests_style_name(&self) -> Option<&'static str> {
         if self.weight_class != 400 {
             Some(gf_api_weight_name(self.weight_class))
@@ -144,6 +148,21 @@ fn font_names(t: &Testable, _context: &Context) -> CheckFnResult {
     if !f.is_variable_font() {
         let static_checker = StaticChecker::from_font(&f)?;
         if static_checker.non_google_style() {
+            if static_checker.regular_italic() {
+                // Common enough problem to special-case
+                let msg = "Subfamily name should be 'Italic' not 'Regular Italic'";
+                let mut status = Status::fail("regular-italic", msg);
+                status.add_metadata(Metadata::TableProblem {
+                    table_tag: "name".to_string(),
+                    field_name: Some("subfamily name".to_string()),
+                    message: "Subfamily name should be 'Italic' not 'Regular Italic'".to_string(),
+                    actual: Some(json!(static_checker.subfamily_name.clone())),
+                    expected: Some(json!("Italic")),
+                });
+                problems.push(status);
+                return return_result(problems);
+            }
+
             let Some(request) = static_checker.more_info() else {
                 return return_result(problems);
             };
@@ -312,8 +331,19 @@ fn fix_font_names(
             return Ok(FixResult::Fixed);
         }
     }
-    if let Some(more_info) = static_checker.more_info() {
-        return Ok(FixResult::MoreInfoNeeded(more_info));
+    if static_checker.regular_italic() {
+        let new_font = build_name_table(f.font(), None, Some("Italic"), &[], None)
+            .map_err(|e| FontspectorError::Fix(format!("Couldn't build name table: {e}")))?;
+        t.set(new_font);
+        return Ok(FixResult::Fixed);
     }
-    Ok(FixResult::Available)
+    if let Some(more_info) = static_checker.more_info() {
+        Ok(FixResult::MoreInfoNeeded(more_info))
+    } else {
+        // Apparently we know how to fix it
+        let new_binary = build_name_table(f.font(), None, None, &[], None)
+            .map_err(|e| FontspectorError::Fix(format!("Couldn't build name table: {e}")))?;
+        t.set(new_binary);
+        Ok(FixResult::Fixed)
+    }
 }
