@@ -51,4 +51,5 @@ export const PROFILES = {
   fontwerk: "Fontwerk",
   microsoft: "Microsoft",
   workspace: "Google Workspace",
+  typenetwork: "Type Network",
 };
