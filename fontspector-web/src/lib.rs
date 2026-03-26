@@ -65,7 +65,16 @@ fn register_profiles<'a>() -> Registry<'a> {
             .register_profile(name, profile)
             .expect("Couldn't register profile, fontspector bug");
     }
-
+    {
+        let (name, toml) = (
+            "typenetwork",
+            include_str!("../../profiles/typenetwork.toml"),
+        );
+        let profile = Profile::from_toml(toml).expect("Couldn't load profile, fontspector bug");
+        registry
+            .register_profile(name, profile)
+            .expect("Couldn't register profile, fontspector bug");
+    }
     {
         let (name, toml) = ("workspace", include_str!("../../profiles/workspace.toml"));
         let profile = Profile::from_toml(toml).expect("Couldn't load profile, fontspector bug");
