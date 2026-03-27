@@ -52,6 +52,7 @@ impl fontspector_checkapi::Plugin for OpenType {
             .add_and_register_check(checks::opentype::post_table_version)
             .add_and_register_check(checks::opentype::slant_direction)
             .add_and_register_check(checks::opentype::STAT::ital_axis)
+            .add_and_register_check(checks::opentype::STAT::no_duplicate_axis_values)
             .add_and_register_check(checks::opentype::unitsperem)
             .add_and_register_check(checks::opentype::varfont::distinct_instance_records)
             .add_and_register_check(checks::opentype::varfont::family_axis_ranges)
