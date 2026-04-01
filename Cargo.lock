@@ -1591,7 +1591,7 @@ dependencies = [
  "glob-match",
  "indexmap",
  "itertools 0.14.0",
- "kurbo 0.11.3",
+ "kurbo 0.13.0",
  "log",
  "minreq",
  "pluginator",
@@ -1699,7 +1699,7 @@ dependencies = [
  "image",
  "indexmap",
  "itertools 0.14.0",
- "kurbo 0.11.3",
+ "kurbo 0.13.0",
  "log",
  "num-traits",
  "protobuf",
@@ -1728,7 +1728,7 @@ dependencies = [
  "fontspector-checkapi",
  "harfrust 0.5.2",
  "itertools 0.14.0",
- "kurbo 0.11.3",
+ "kurbo 0.13.0",
 ]
 
 [[package]]
@@ -1750,7 +1750,7 @@ dependencies = [
  "fontspector-checkapi",
  "fontspector-checkhelper",
  "itertools 0.14.0",
- "kurbo 0.11.3",
+ "kurbo 0.13.0",
  "serde_json",
  "unicode-properties",
 ]
@@ -1778,7 +1778,7 @@ dependencies = [
  "humansize",
  "interpolatable",
  "itertools 0.14.0",
- "kurbo 0.11.3",
+ "kurbo 0.13.0",
  "log",
  "ordered-float",
  "reqwest",
@@ -2831,6 +2831,17 @@ dependencies = [
  "arrayvec",
  "euclid",
  "serde",
+ "smallvec",
+]
+
+[[package]]
+name = "kurbo"
+version = "0.13.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7564e90fe3c0d5771e1f0bc95322b21baaeaa0d9213fa6a0b61c99f8b17b3bfb"
+dependencies = [
+ "arrayvec",
+ "euclid",
  "smallvec",
 ]
 
