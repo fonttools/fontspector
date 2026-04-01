@@ -47,8 +47,8 @@ log = "0.4.14"
 itertools = "0.14.0"
 
 # Fontbakery bridge / Python module. Keep these two together
-pyo3 = "0.25"
-pythonize = "0.25"
+pyo3 = "0.28"
+pythonize = "0.28"
 
 indexmap = { version = "2", features = ["serde"] }
 tabled = "0.20.0"
