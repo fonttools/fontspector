@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "@popperjs/core": "^2.11.8",
-    "bootstrap-vue-next": "^0.43.8",
+    "bootstrap-vue-next": "^0.44.0",
     "jszip": "^3.10.1"
   }
 }
