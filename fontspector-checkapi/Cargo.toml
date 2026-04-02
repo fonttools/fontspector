@@ -21,7 +21,7 @@ schemars = ["dep:schemars"]
 
 [build-dependencies]
 minreq = { version = "2.6.0", features = ["https"] }
-scraper = "0.25.0"
+scraper = "0.26.0"
 regex = { workspace = true }
 
 [target.'cfg(not(target_family = "wasm"))'.dependencies]
