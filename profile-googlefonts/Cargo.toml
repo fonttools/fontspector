@@ -45,7 +45,7 @@ yeslogic-unicode-blocks = "0.2.0"
 unicode_names2 = { workspace = true }
 hashbrown = { workspace = true }
 
-scraper = { version = "0.25.0", default-features = false, features = [
+scraper = { version = "0.26.0", default-features = false, features = [
     "errors",
 ] }
 semver = "1.0.25"
