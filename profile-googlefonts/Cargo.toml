@@ -35,7 +35,7 @@ fontations = { workspace = true }
 kurbo = { workspace = true }
 log = { workspace = true }
 num-traits = "0.2.19"
-similar = "2.7.0" # For shaping check reports, OFL body diff
+similar = "3.0.0" # For shaping check reports, OFL body diff
 
 unicode-normalization = "0"
 unicode-properties = { workspace = true }
