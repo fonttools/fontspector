@@ -29,14 +29,15 @@ function downloadReport() {
 <template>
     <nav class="navbar bg-navbar px-5 mb-4">
         <a class="leftarrow text-secondary text-decoration-none" href="#" @click.prevent="resetState">←</a>
-        <a class="navbar-brand d-block" href="#" @click.prevent="resetState">
+        <a class="navbar-brand d-block">
             <img src="/lens.svg" width="60" height="60" class="d-inline-block align-top m-2" alt="" />
             <div class="d-inline-block align-middle">
                 Fontspector {{ state.view === 'classic' ? 'Check' : 'Problem' }} Report <br />
                 for <span id="font-name">{{ state.currentFontName }}</span>
             </div>
             <div class="fs-6 pl-4 text-muted">
-                Fontspector version {{ state.version }}
+                v{{ state.version }} –
+                <a href="https://github.com/fonttools/fontspector/issues">Report tool issues</a>
             </div>
 
         </a>
