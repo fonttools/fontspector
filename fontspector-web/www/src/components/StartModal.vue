@@ -148,6 +148,9 @@ function initDropzone() {
                       List all checks
                     </button>
                   </p>
+                  <p>
+                    <a href="https://github.com/fonttools/fontspector/issues">Report issues or ideas on Github</a>
+                  </p>
                 </div>
               </div>
             </div>
