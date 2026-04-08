@@ -12,6 +12,7 @@ export default defineConfig({
         {
           src: "node_modules/harfbuzzjs/hb.wasm",
           dest: ".",
+          rename: { stripBase: true },
         },
       ],
     }),
@@ -19,14 +20,12 @@ export default defineConfig({
   ],
   worker: {
     format: "es",
-    plugins: () => [
-      wasm(),
-    ],
+    plugins: () => [wasm()],
   },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      "pkg": path.resolve(__dirname, "../pkg"),
+      pkg: path.resolve(__dirname, "../pkg"),
     },
   },
   server: {
@@ -36,10 +35,10 @@ export default defineConfig({
   },
   css: {
     preprocessorOptions: {
-        scss: {
-            quietDeps: true,
-            silenceDeprecations: ['color-functions'],
-        }
+      scss: {
+        quietDeps: true,
+        silenceDeprecations: ["color-functions"],
+      },
     },
-  }
+  },
 });
