@@ -58,11 +58,11 @@ fn axes_match(c: &TestableCollection, context: &Context) -> CheckFnResult {
         let remote_style = remote_styles
             .iter()
             .flat_map(|s| TTF.from_testable(s))
-            .find(|remote_f| remote_f.best_subfamilyname() == our_subfamily_name)
-            .ok_or(FontspectorError::General(format!(
-                "No matching remote style for {}",
-                t.basename().unwrap_or("Regular".to_string())
-            )))?;
+            .find(|remote_f| remote_f.best_subfamilyname() == our_subfamily_name);
+        let Some(remote_style) = remote_style else {
+            // New style not present in the remote version; that's fine.
+            continue;
+        };
         let remote_axes = remote_style
             .font()
             .axes()
