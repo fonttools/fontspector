@@ -24,13 +24,13 @@
     "dropzone": "^6.0.0-beta.2",
     "harfbuzzjs": "^0.10.0",
     "jquery": "^4.0.0",
+    "rollup": "^4.60.1",
     "sass-embedded": "^1.97.3",
     "typescript": "^5.9.3",
-    "vite": "^8.0.0",
+    "vite": "^8.0.5",
     "vite-plugin-static-copy": "^4.0.0",
-    "vite-plugin-top-level-await": "^1.6.0",
     "vite-plugin-wasm": "^3.5.0",
-    "vue": "^3.5.29",
+    "vue": "^3.5.32",
     "vue-tsc": "^3.2.5"
   },
   "dependencies": {
