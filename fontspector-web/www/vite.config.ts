@@ -34,4 +34,12 @@ export default defineConfig({
       allow: [".."],
     },
   },
+  css: {
+    preprocessorOptions: {
+        scss: {
+            quietDeps: true,
+            silenceDeprecations: ['color-functions'],
+        }
+    },
+  }
 });
