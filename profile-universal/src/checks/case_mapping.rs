@@ -119,10 +119,10 @@ fn case_mapping(t: &Testable, context: &Context) -> CheckFnResult {
 #[cfg(test)]
 mod tests {
     use super::case_mapping;
-    use fontspector_checkapi::codetesting::{
-        assert_pass, assert_results_contain, run_check, test_able,
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        StatusCode,
     };
-    use fontspector_checkapi::StatusCode;
 
     #[test]
     fn test_case_mapping_fail() {

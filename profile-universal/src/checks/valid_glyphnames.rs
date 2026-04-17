@@ -1,7 +1,9 @@
 use std::collections::HashSet;
 
-use fontations::skrifa::raw::{types::Version16Dot16, TableProvider};
-use fontations::skrifa::{GlyphId as SkrifaGlyphId, MetadataProvider};
+use fontations::skrifa::{
+    raw::{types::Version16Dot16, TableProvider},
+    GlyphId as SkrifaGlyphId, MetadataProvider,
+};
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
 use itertools::Itertools;
 use serde_json::json;

@@ -129,18 +129,27 @@ fn consistent_with_fonts(c: &TestableCollection, _context: &Context) -> CheckFnR
                 ));
             }
         }
-        if font.is_ribbi() && !font.is_variable_font() {
-            for family_name in font.get_name_entry_strings(StringId::FAMILY_NAME) {
-                if proto.name() != family_name {
-                    problems.push(Status::fail(
+        let must_match = font.is_ribbi() && !font.is_variable_font();
+        for family_name in font.get_name_entry_strings(StringId::FAMILY_NAME) {
+            if proto.name() != family_name {
+                let problem = if must_match {
+                    Status::fail(
                     "familyname-mismatch",
                     &format!(
                     "METADATA.pb family name field \"{}\" does not match correct family name \"{}\".",
                     proto.name(),
                     family_name
-                ),
-                ));
-                }
+                ))
+                } else {
+                    Status::warn(
+                        "familyname-mismatch",
+                        &format!(
+                        "METADATA.pb family name field \"{}\" does not match correct family name \"{}\". This is a warning because the font is not a non-variable RIBBI.",
+                        proto.name(),
+                        family_name
+                    ) )
+                };
+                problems.push(problem);
             }
         }
 

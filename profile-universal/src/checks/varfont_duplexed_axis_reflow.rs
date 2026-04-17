@@ -309,8 +309,10 @@ fn grovel_item_variation_store(
 #[cfg(test)]
 mod tests {
     use super::varfont_duplexed_axis_reflow;
-    use fontspector_checkapi::codetesting::{assert_results_contain, run_check, test_able};
-    use fontspector_checkapi::StatusCode;
+    use fontspector_checkapi::{
+        codetesting::{assert_results_contain, run_check, test_able},
+        StatusCode,
+    };
 
     #[test]
     fn test_duplexed_axis_reflow_grad() {

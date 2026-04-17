@@ -37,10 +37,10 @@ mod tests {
 
     use super::no_copyright_on_description;
     use fontations::skrifa::raw::types::NameId;
-    use fontspector_checkapi::codetesting::{
-        assert_pass, assert_results_contain, run_check, set_name_entry, test_able,
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, set_name_entry, test_able},
+        StatusCode,
     };
-    use fontspector_checkapi::StatusCode;
 
     #[test]
     fn test_no_copyright_pass() {
