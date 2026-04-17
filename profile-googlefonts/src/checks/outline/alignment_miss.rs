@@ -170,10 +170,12 @@ fn alignment_miss(t: &Testable, context: &Context) -> CheckFnResult {
 mod tests {
     #![allow(clippy::unwrap_used)]
 
-    use fontspector_checkapi::codetesting::{
-        assert_messages_contain, assert_pass, assert_results_contain, run_check, test_able,
+    use fontspector_checkapi::{
+        codetesting::{
+            assert_messages_contain, assert_pass, assert_results_contain, run_check, test_able,
+        },
+        StatusCode,
     };
-    use fontspector_checkapi::StatusCode;
 
     #[test]
     fn test_outline_alignment_miss() {
@@ -196,8 +198,10 @@ mod tests {
 
     #[test]
     fn test_outline_alignment_miss_os2_low_version() {
-        use fontations::skrifa::raw::TableProvider;
-        use fontations::write::{from_obj::ToOwnedTable, FontBuilder};
+        use fontations::{
+            skrifa::raw::TableProvider,
+            write::{from_obj::ToOwnedTable, FontBuilder},
+        };
         use fontspector_checkapi::FileTypeConvert;
 
         let mut testable = test_able("merriweather/Merriweather-Regular.ttf");

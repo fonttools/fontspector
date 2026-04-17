@@ -34,10 +34,10 @@ fn empty_glyph_on_gid1_for_colrv0(t: &Testable, _context: &Context) -> CheckFnRe
 #[cfg(test)]
 mod tests {
     use super::empty_glyph_on_gid1_for_colrv0;
-    use fontspector_checkapi::codetesting::{
-        assert_pass, assert_results_contain, run_check, test_able,
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        StatusCode,
     };
-    use fontspector_checkapi::StatusCode;
 
     #[test]
     fn test_empty_glyph_gid1_not_empty() {

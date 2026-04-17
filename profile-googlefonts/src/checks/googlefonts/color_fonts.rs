@@ -57,10 +57,10 @@ fn color_fonts(t: &Testable, _context: &Context) -> CheckFnResult {
 #[cfg(test)]
 mod tests {
     use super::color_fonts;
-    use fontspector_checkapi::codetesting::{
-        add_table, assert_pass, assert_results_contain, run_check, test_able,
+    use fontspector_checkapi::{
+        codetesting::{add_table, assert_pass, assert_results_contain, run_check, test_able},
+        StatusCode,
     };
-    use fontspector_checkapi::StatusCode;
 
     #[test]
     fn test_color_fonts_colrv1_no_svg_static() {

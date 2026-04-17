@@ -162,10 +162,10 @@ mod tests {
     use std::collections::HashMap;
 
     use super::family_win_ascent_and_descent;
-    use fontspector_checkapi::codetesting::{
-        assert_results_contain, run_check_with_config, test_able,
+    use fontspector_checkapi::{
+        codetesting::{assert_results_contain, run_check_with_config, test_able},
+        StatusCode, TestableCollection, TestableType,
     };
-    use fontspector_checkapi::{StatusCode, TestableCollection, TestableType};
 
     #[test]
     fn test_family_win_ascent_descent_fail() {

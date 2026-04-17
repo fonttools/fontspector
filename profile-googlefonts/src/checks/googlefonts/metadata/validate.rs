@@ -295,11 +295,10 @@ mod tests {
     #![allow(clippy::unwrap_used)]
 
     use super::*;
-    use fontspector_checkapi::codetesting::{
-        assert_pass, assert_results_contain, run_check, test_able,
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        StatusCode, Testable,
     };
-    use fontspector_checkapi::StatusCode;
-    use fontspector_checkapi::Testable;
 
     fn replace_in_metadata(path: &str, old: &str, new: &str) -> Testable {
         let mdpb = test_able(path);

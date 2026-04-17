@@ -37,10 +37,10 @@ mod tests {
     #![allow(clippy::unwrap_used)]
 
     use super::mandatory_avar_table;
-    use fontspector_checkapi::codetesting::{
-        assert_pass, assert_results_contain, remove_table, run_check, test_able,
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, remove_table, run_check, test_able},
+        StatusCode,
     };
-    use fontspector_checkapi::StatusCode;
 
     #[test]
     fn test_mandatory_avar_pass() {

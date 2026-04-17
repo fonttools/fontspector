@@ -109,10 +109,10 @@ fn primary_script(c: &TestableCollection, context: &Context) -> CheckFnResult {
 
 #[cfg(test)]
 mod tests {
-    use fontspector_checkapi::codetesting::{
-        assert_pass, assert_results_contain, run_check_with_config, test_able,
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check_with_config, test_able},
+        StatusCode, Testable,
     };
-    use fontspector_checkapi::{StatusCode, Testable};
 
     use fontspector_checkapi::TestableCollection;
     use std::collections::HashMap;

@@ -56,11 +56,11 @@ mod tests {
     fn test_fail_both_vert_and_vrt2() {
         // Inject a GSUB table containing both 'vert' and 'vrt2' features
         // into Mada-Regular, which should trigger the check failure.
-        use fontations::skrifa::raw::types::Tag;
-        use fontations::skrifa::FontRef;
-        use fontations::write::FontBuilder;
-        use fontspector_checkapi::codetesting::assert_results_contain;
-        use fontspector_checkapi::StatusCode;
+        use fontations::{
+            skrifa::{raw::types::Tag, FontRef},
+            write::FontBuilder,
+        };
+        use fontspector_checkapi::{codetesting::assert_results_contain, StatusCode};
 
         // Minimal valid GSUB table with both vert and vrt2 features
         #[rustfmt::skip]

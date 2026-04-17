@@ -106,8 +106,10 @@ mod tests {
     use std::collections::HashMap;
 
     use super::family_vertical_metrics;
-    use fontspector_checkapi::codetesting::{assert_pass, run_check_with_config, test_able};
-    use fontspector_checkapi::{TestableCollection, TestableType};
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, run_check_with_config, test_able},
+        TestableCollection, TestableType,
+    };
 
     #[test]
     fn test_family_vertical_metrics_pass() {

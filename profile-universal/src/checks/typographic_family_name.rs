@@ -42,8 +42,10 @@ mod tests {
     use std::collections::HashMap;
 
     use super::typographic_family_name;
-    use fontspector_checkapi::codetesting::{assert_pass, run_check_with_config, test_able};
-    use fontspector_checkapi::{TestableCollection, TestableType};
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, run_check_with_config, test_able},
+        TestableCollection, TestableType,
+    };
 
     #[test]
     fn test_typographic_family_name_pass() {
