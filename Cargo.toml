@@ -42,7 +42,7 @@ toml = { version = "1.0.0", default-features = false, features = [
     "serde",
 ] }
 
-hashbrown = "0.16.0"
+hashbrown = "0.17.0"
 log = "0.4.14"
 itertools = "0.14.0"
 
