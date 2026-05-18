@@ -1,12 +1,12 @@
 //! Adobe Fonts Profile for Fontspector Checks
 mod checks;
 
-use fontspector_checkapi::{Override, ProfileBuilder, Registry, StatusCode};
+use fontspector_checkapi::{FontspectorError, Override, ProfileBuilder, Registry, StatusCode};
 
 ///  This is the main plugin struct for the Adobe Fonts profile.
 pub struct Adobe;
-impl fontspector_checkapi::Plugin for Adobe {
-    fn register(&self, cr: &mut Registry) -> Result<(), String> {
+impl fontspector_checkapi::ProfileProvider for Adobe {
+    fn register(&self, cr: &mut Registry) -> Result<(), FontspectorError> {
         let builder = ProfileBuilder::new()
             .include_profile("universal")
             .add_section("Adobe Fonts Checks")
@@ -71,6 +71,3 @@ impl fontspector_checkapi::Plugin for Adobe {
         builder.build("adobefonts", cr)
     }
 }
-
-#[cfg(not(target_family = "wasm"))]
-pluginator::plugin_implementation!(fontspector_checkapi::Plugin, Adobe);

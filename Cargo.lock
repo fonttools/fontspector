@@ -1555,7 +1555,6 @@ dependencies = [
  "fontc",
  "fontir",
  "fontspector-checkapi",
- "fontspector-fontbakery-bridge",
  "fontspector-profile-fontwerk",
  "fontspector-profile-googlefonts",
  "fontspector-profile-iso15008",
@@ -1594,7 +1593,6 @@ dependencies = [
  "kurbo 0.13.0",
  "log",
  "minreq",
- "pluginator",
  "regex",
  "schemars",
  "scraper",
@@ -1612,21 +1610,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.117",
-]
-
-[[package]]
-name = "fontspector-fontbakery-bridge"
-version = "1.3.0"
-dependencies = [
- "fontspector-checkapi",
- "fontspector-profile-fontwerk",
- "fontspector-profile-googlefonts",
- "fontspector-profile-opentype",
- "fontspector-profile-universal",
- "log",
- "pluginator",
- "pyo3",
- "serde_json",
 ]
 
 [[package]]
@@ -1760,7 +1743,7 @@ name = "fontspector-profile-testplugin"
 version = "0.1.0"
 dependencies = [
  "fontspector-checkapi",
- "pluginator",
+ "serde",
  "serde_json",
  "toml 1.1.2+spec-1.1.0",
 ]

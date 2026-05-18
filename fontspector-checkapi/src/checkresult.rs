@@ -1,10 +1,10 @@
 use std::time::Duration;
 
-use serde::{ser::SerializeStruct, Serialize};
+use serde::{ser::SerializeStruct, Deserialize, Serialize};
 
 use crate::{Check, CheckId, FixResult, Status, StatusCode};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize)]
 /// The result of a check on one or more font files.
 ///
 /// This struct is used to store the results of a check on one or more font files.
@@ -22,6 +22,7 @@ pub struct CheckResult {
     /// The file which was checked; if None, the check was run on all files
     pub filename: Option<String>,
     /// The source where this file came from, if any
+    #[serde(default)]
     pub source_filename: Option<String>,
     /// The section of the profile this check belongs to
     pub section: Option<String>,
@@ -31,7 +32,8 @@ pub struct CheckResult {
     pub hotfix_result: Option<FixResult>,
     /// If source fixing was attempted, the result of the source fix
     pub sourcefix_result: Option<FixResult>,
-    /// Time taken
+    /// Time taken — not serialized over the wire, defaults to zero
+    #[serde(default)]
     pub time: Duration,
     /// Whether or not a hotfix was available for this check
     pub hotfix_available: bool,

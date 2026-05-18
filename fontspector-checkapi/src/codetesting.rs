@@ -85,6 +85,7 @@ pub fn run_check_with_config_and_network(
         full_lists: true,
         cache: Default::default(),
         overrides: vec![],
+        check_id: None,
     };
     check.run(&things, &ctx, None)
 }

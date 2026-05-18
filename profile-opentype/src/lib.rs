@@ -1,11 +1,11 @@
 mod checks;
 
-use fontspector_checkapi::{ProfileBuilder, Registry};
+use fontspector_checkapi::{FontspectorError, ProfileBuilder, Registry};
 
 pub struct OpenType;
 
-impl fontspector_checkapi::Plugin for OpenType {
-    fn register(&self, cr: &mut Registry<'_>) -> Result<(), String> {
+impl fontspector_checkapi::ProfileProvider for OpenType {
+    fn register(&self, cr: &mut Registry<'_>) -> Result<(), FontspectorError> {
         let builder = ProfileBuilder::new();
         builder
             .add_section("Opentype Specification Checks")

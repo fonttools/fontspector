@@ -8,7 +8,7 @@ use fontspector_checkapi::StatusCode;
 pub struct Args {
     /// Plugins to load
     #[clap(long, value_delimiter = ',')]
-    pub plugins: Vec<String>,
+    pub plugin: Vec<String>,
 
     /// Profile to check
     #[clap(short, long, default_value = "universal")]

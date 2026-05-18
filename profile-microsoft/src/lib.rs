@@ -1,10 +1,10 @@
 mod checks;
 
-use fontspector_checkapi::{ProfileBuilder, Registry};
+use fontspector_checkapi::{FontspectorError, ProfileBuilder, Registry};
 
 pub struct Microsoft;
-impl fontspector_checkapi::Plugin for Microsoft {
-    fn register(&self, cr: &mut Registry) -> Result<(), String> {
+impl fontspector_checkapi::ProfileProvider for Microsoft {
+    fn register(&self, cr: &mut Registry) -> Result<(), FontspectorError> {
         let builder = ProfileBuilder::new()
             .include_profile("universal")
             .add_section("Metadata Checks")
@@ -35,6 +35,3 @@ impl fontspector_checkapi::Plugin for Microsoft {
         builder.build("microsoft", cr)
     }
 }
-
-#[cfg(not(target_family = "wasm"))]
-pluginator::plugin_implementation!(fontspector_checkapi::Plugin, Microsoft);

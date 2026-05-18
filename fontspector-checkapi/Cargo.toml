@@ -18,15 +18,12 @@ crate-type = ["cdylib", "rlib"]
 default = []
 python = []
 schemars = ["dep:schemars"]
+clap = []
 
 [build-dependencies]
 minreq = { version = "2.6.0", features = ["https"] }
 scraper = "0.26.0"
 regex = { workspace = true }
-
-[target.'cfg(not(target_family = "wasm"))'.dependencies]
-# Plugin architecture
-pluginator = { workspace = true }
 
 [dependencies]
 fontations = { workspace = true }
@@ -38,8 +35,8 @@ indexmap = { workspace = true }
 # Filetype
 glob-match = "0.2.1"
 
-# Needed so that we can refer to status codes on the command line
-clap = { version = "4", features = ["derive"], optional = true }
+# Argument parsing for plugin CLI
+clap = { version = "4", features = ["derive", "cargo"] }
 
 # Serializing and deserializing profiles
 toml = { workspace = true }
@@ -52,8 +49,7 @@ itertools = { workspace = true }
 
 kurbo = { workspace = true, optional = true }
 thiserror = "2.0.12"
-schemars = { version = "1.2.1", optional = true, features=["indexmap2"] }
-
+schemars = { version = "1.2.1", optional = true, features = ["indexmap2"] }
 
 
 [lints]

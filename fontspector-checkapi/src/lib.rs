@@ -35,6 +35,8 @@ mod font;
 mod gsub;
 /// [OutlinePen](https://docs.rs/skrifa/latest/skrifa/outline/trait.OutlinePen.html) implementations useful for check implementors
 pub mod pens;
+/// Utilities for building fontspector plugins
+pub mod plugin;
 /// Sets of checks that declare a particular "standard" of QA testing
 mod profile;
 /// The registry of checks and profiles
@@ -105,33 +107,12 @@ pub mod prelude {
     };
 }
 
-/// A plugin is a dynamic library that can be loaded by fontspector
+/// Something - a plugin or a crate - which provides profiles and checks to be registered with the fontspector registry.
 ///
 /// Plugins contain checks and profiles that can be registered with the fontspector
 /// registry. The plugin must implement this trait and provide a function that
-/// returns an instance of the plugin. See [pluginator](https://docs.rs/pluginator/0.1.0/pluginator/)
-pub trait Plugin {
+/// returns an instance of the plugin.
+pub trait ProfileProvider {
     /// Register the checks and profiles in the plugin with the registry
-    fn register(&self, cr: &mut Registry) -> Result<(), String>;
-}
-
-/// Load a plugin from a file
-///
-/// Loads a static library and returns a handle to the loaded plugin
-///
-/// # Safety
-///
-/// This function is unsafe because it loads a dynamic library from the filesystem.
-/// You're running arbitrary code at this point. Don't use `--plugin` if that
-/// bothers you.
-//
-// Sigh, this is a manual implementation of `pluginator::plugin_trait!` because
-// since that crate was written, macros are now normal items and get tested for
-// missing docs, but the pluginator macro doesn't produce any docs, and we can't
-// document macro-produced code ourselves, and argh.
-#[cfg(not(target_family = "wasm"))]
-pub unsafe fn load_plugin<Path: AsRef<std::path::Path>>(
-    path: Path,
-) -> Result<pluginator::LoadedPlugin<dyn Plugin>, pluginator::plugin::LoadingError> {
-    unsafe { pluginator::plugin::load(path) }
+    fn register(&self, cr: &mut Registry) -> Result<(), FontspectorError>;
 }

@@ -10,8 +10,8 @@ use serde_json::{json, Value};
 use wasm_bindgen::prelude::*;
 extern crate console_error_panic_hook;
 use fontspector_checkapi::{
-    Check, CheckResult, Context, HotfixFunction, Plugin, Profile, Registry, StatusCode, TestFont,
-    Testable, TestableCollection, TestableType,
+    Check, CheckResult, Context, HotfixFunction, Profile, ProfileProvider, Registry, StatusCode,
+    TestFont, Testable, TestableCollection, TestableType,
 };
 use profile_adobe::Adobe;
 use profile_fontwerk::Fontwerk;
@@ -62,7 +62,7 @@ fn register_profiles<'a>() -> Registry<'a> {
         let (name, toml) = ("fontbureau", include_str!("../../profiles/fontbureau.toml"));
         let profile = Profile::from_toml(toml).expect("Couldn't load profile, fontspector bug");
         registry
-            .register_profile(name, profile)
+            .register_profile(name, profile, true)
             .expect("Couldn't register profile, fontspector bug");
     }
     {
@@ -72,14 +72,14 @@ fn register_profiles<'a>() -> Registry<'a> {
         );
         let profile = Profile::from_toml(toml).expect("Couldn't load profile, fontspector bug");
         registry
-            .register_profile(name, profile)
+            .register_profile(name, profile, true)
             .expect("Couldn't register profile, fontspector bug");
     }
     {
         let (name, toml) = ("workspace", include_str!("../../profiles/workspace.toml"));
         let profile = Profile::from_toml(toml).expect("Couldn't load profile, fontspector bug");
         registry
-            .register_profile(name, profile)
+            .register_profile(name, profile, true)
             .expect("Couldn't register profile, fontspector bug");
     }
     registry
@@ -145,6 +145,7 @@ pub fn check_fonts(
         full_lists,
         cache: Default::default(),
         overrides: vec![],
+        check_id: None,
     };
     let all_testables: Vec<TestableType> = collection.collection_and_files().collect();
 

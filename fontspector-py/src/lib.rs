@@ -2,8 +2,8 @@ use std::{collections::HashMap, env, path::Path, vec};
 // Provide an environment where we can run fontbakery tests
 // as-is, but have them call a Rust implementation underneath
 use fontspector_checkapi::{
-    CheckImplementation, Context, Plugin, Registry, StatusCode, Testable, TestableCollection,
-    TestableType,
+    CheckImplementation, Context, ProfileProvider, Registry, StatusCode, Testable,
+    TestableCollection, TestableType,
 };
 use profile_fontwerk::Fontwerk;
 use profile_googlefonts::GoogleFonts;

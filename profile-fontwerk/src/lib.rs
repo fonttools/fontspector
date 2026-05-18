@@ -3,11 +3,11 @@ mod checks;
 use serde_json::json;
 use std::collections::HashMap;
 
-use fontspector_checkapi::{Override, ProfileBuilder, Registry, StatusCode};
+use fontspector_checkapi::{FontspectorError, Override, ProfileBuilder, Registry, StatusCode};
 
 pub struct Fontwerk;
-impl fontspector_checkapi::Plugin for Fontwerk {
-    fn register(&self, cr: &mut Registry) -> Result<(), String> {
+impl fontspector_checkapi::ProfileProvider for Fontwerk {
+    fn register(&self, cr: &mut Registry) -> Result<(), FontspectorError> {
         let builder = ProfileBuilder::new()
             .include_profile("googlefonts")
             .with_overrides("valid_glyphnames", vec![
@@ -68,6 +68,3 @@ impl fontspector_checkapi::Plugin for Fontwerk {
         builder.build("fontwerk", cr)
     }
 }
-
-#[cfg(not(target_family = "wasm"))]
-pluginator::plugin_implementation!(fontspector_checkapi::Plugin, Fontwerk);

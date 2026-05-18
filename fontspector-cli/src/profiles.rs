@@ -1,4 +1,4 @@
-use fontspector_checkapi::{Plugin, Profile, Registry};
+use fontspector_checkapi::{Profile, ProfileProvider, Registry};
 use profile_fontwerk::Fontwerk;
 use profile_googlefonts::GoogleFonts;
 use profile_iso15008::Iso15008;

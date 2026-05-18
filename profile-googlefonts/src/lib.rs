@@ -31,8 +31,8 @@ pub(crate) fn seems_like_gf_repo(c: &TestableCollection) -> bool {
 
 /// The main plugin struct for the Google Fonts profile.
 pub struct GoogleFonts;
-impl fontspector_checkapi::Plugin for GoogleFonts {
-    fn register(&self, cr: &mut Registry) -> Result<(), String> {
+impl fontspector_checkapi::ProfileProvider for GoogleFonts {
+    fn register(&self, cr: &mut Registry) -> Result<(), FontspectorError> {
         let mdpb = FileType::new("METADATA.pb");
         let desc = FileType::new("*.en_us.html");
         cr.register_filetype("MDPB", mdpb);
