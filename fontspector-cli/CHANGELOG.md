@@ -5,6 +5,107 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.7.0 (2026-05-18)
+
+### New Features
+
+ - <csr-id-d7a8e964d234b7bf1693e85a7610d9a1f78c572f/> Interactive fixing
+   * feat(googlefonts/canonical_filename): Add hotfix
+   
+   * chore(web): Hotfix testables all at once
+   
+   * chore(web): Improve display of fixables
+   
+   * chore(opentype/GDEF_non_mark_chars): Add metadata, sort output
+   
+   * chore: Thanks clippy
+   
+   * chore(googlefonts): Move style map into constants
+   
+   * feat(googlefonts/font_names): Detect bad styles based on typos and weightclass settings
+   
+   * chore(web): Improve message grouping (again)
+   
+   * chore: Adapt fix API to request and receive structured data
+   
+   * feat: WIP dialogues in hotfixes
+   
+   * feat(web): Fix but don't download
+   
+   * chore: Slightly better dialogue Ux
+   
+   * chore: Update web to new fix API
+   
+   * feat(googlefonts/font_names): Add interactive fix function for statics
+   
+   * chore: Update hotfix lib to new fix API
+   
+   * chore: Update web to new fix API
+   
+   * fix(googlefonts/font_names): Better problem reporting
+   
+   * fix(web): Loading spinner
+   
+   * chore: Thanks clippy
+   
+   * chore(web): Drop the log file properly
+   
+   * chore: Small web fixes
+   
+   * test: Fix up Python test
+ - <csr-id-1b0b7c4985d5903af154b602a8ae3462b4abe4b2/> make check IDs clickable in terminal output
+   * feat: make check IDs clickable with OSC 8 terminal hyperlinks
+   
+   Check IDs in terminal output now link to their wiki documentation page
+   using OSC 8 hyperlinks. Works in supported terminals (iTerm2, Windows
+   Terminal, GNOME Terminal, etc.).
+ - <csr-id-d718f3e5084f6afce5ecc1191953c06ca4545ea8/> New web interface with autofixing
+   * chore: WIP convert web version to Vite for potential updates
+   
+   * feat(web): Beautify web interface
+   
+   * feat(web): Dark mode
+   
+   * chore: Match CLI version
+   
+   * chore: Basic Google Workspace profile
+
+### Refactor
+
+ - <csr-id-7b32eca0846e594655f304250928295ffbf6496a/> New plugin architecture
+   * refactor: Remove fontbakery-bridge
+   
+   * refactor: New plugin architecture
+   
+   * feat: Demonstrate Python-based plugins
+   
+   * docs: New plugin architecture
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 4 commits contributed to the release over the course of 72 calendar days.
+ - 84 days passed between releases.
+ - 4 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 4 unique issues were worked on: [#654](https://github.com/fonttools/fontspector/issues/654), [#672](https://github.com/fonttools/fontspector/issues/672), [#710](https://github.com/fonttools/fontspector/issues/710), [#782](https://github.com/fonttools/fontspector/issues/782)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#654](https://github.com/fonttools/fontspector/issues/654)**
+    - New web interface with autofixing ([`d718f3e`](https://github.com/fonttools/fontspector/commit/d718f3e5084f6afce5ecc1191953c06ca4545ea8))
+ * **[#672](https://github.com/fonttools/fontspector/issues/672)**
+    - Make check IDs clickable in terminal output ([`1b0b7c4`](https://github.com/fonttools/fontspector/commit/1b0b7c4985d5903af154b602a8ae3462b4abe4b2))
+ * **[#710](https://github.com/fonttools/fontspector/issues/710)**
+    - Interactive fixing ([`d7a8e96`](https://github.com/fonttools/fontspector/commit/d7a8e964d234b7bf1693e85a7610d9a1f78c572f))
+ * **[#782](https://github.com/fonttools/fontspector/issues/782)**
+    - New plugin architecture ([`7b32eca`](https://github.com/fonttools/fontspector/commit/7b32eca0846e594655f304250928295ffbf6496a))
+</details>
+
 ## v1.6.0 (2026-02-23)
 
 ### New Features
@@ -22,7 +123,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 2 commits contributed to the release over the course of 5 calendar days.
+ - 3 commits contributed to the release over the course of 5 calendar days.
  - 16 days passed between releases.
  - 2 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 2 unique issues were worked on: [#627](https://github.com/fonttools/fontspector/issues/627), [#636](https://github.com/fonttools/fontspector/issues/636)
@@ -37,6 +138,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Add FATAL status code for critical font defects ([`3f4a6a7`](https://github.com/fonttools/fontspector/commit/3f4a6a7c04cfb3c7908ef9e58761613536160741))
  * **[#636](https://github.com/fonttools/fontspector/issues/636)**
     - Update rust crate zip to v8 ([`cb071e6`](https://github.com/fonttools/fontspector/commit/cb071e639e9d0486b891d902da5fa7f1e3c9701d))
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.5.0, fontspector-fontbakery-bridge v1.3.0, fontspector-profile-fontwerk v1.3.0, fontspector-profile-googlefonts v1.7.0, fontspector-profile-opentype v1.4.0, fontspector-profile-universal v1.7.0, fontspector-hotfix v0.1.0, fontspector v1.6.0, safety bump fontspector-hotfix v0.1.0 ([`cb2a669`](https://github.com/fonttools/fontspector/commit/cb2a669f1f0963a68ba22bdc1e0cd56e602219ca))
 </details>
 
 ## v1.5.4 (2026-02-06)

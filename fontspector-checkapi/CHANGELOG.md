@@ -5,6 +5,137 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.6.0 (2026-05-18)
+
+### Chore
+
+ - <csr-id-0d19fe268f4ca901c88f68cef20b7426b981029a/> Silence printlns
+
+### New Features
+
+ - <csr-id-22273f67f85127596c4d485dafaab8a1dc7fdc40/> Add JSON schema generation for Profiles
+ - <csr-id-d7a8e964d234b7bf1693e85a7610d9a1f78c572f/> Interactive fixing
+   * feat(googlefonts/canonical_filename): Add hotfix
+   
+   * chore(web): Hotfix testables all at once
+   
+   * chore(web): Improve display of fixables
+   
+   * chore(opentype/GDEF_non_mark_chars): Add metadata, sort output
+   
+   * chore: Thanks clippy
+   
+   * chore(googlefonts): Move style map into constants
+   
+   * feat(googlefonts/font_names): Detect bad styles based on typos and weightclass settings
+   
+   * chore(web): Improve message grouping (again)
+   
+   * chore: Adapt fix API to request and receive structured data
+   
+   * feat: WIP dialogues in hotfixes
+   
+   * feat(web): Fix but don't download
+   
+   * chore: Slightly better dialogue Ux
+   
+   * chore: Update web to new fix API
+   
+   * feat(googlefonts/font_names): Add interactive fix function for statics
+   
+   * chore: Update hotfix lib to new fix API
+   
+   * chore: Update web to new fix API
+   
+   * fix(googlefonts/font_names): Better problem reporting
+   
+   * fix(web): Loading spinner
+   
+   * chore: Thanks clippy
+   
+   * chore(web): Drop the log file properly
+   
+   * chore: Small web fixes
+   
+   * test: Fix up Python test
+ - <csr-id-c8cee5d0f71db89d3ee5b4bbc367a3f124d2ba05/> add no_vf_in_name check
+   * feat(googlefonts): add no_vf_in_name check
+   
+   Adds a check that FAILs when the family name contains "VF" as a
+   standalone word. Google Fonts does not want "VF" in family names since
+   many environments don't support variable fonts.
+ - <csr-id-d718f3e5084f6afce5ecc1191953c06ca4545ea8/> New web interface with autofixing
+   * chore: WIP convert web version to Vite for potential updates
+   
+   * feat(web): Beautify web interface
+   
+   * feat(web): Dark mode
+   
+   * chore: Match CLI version
+   
+   * chore: Basic Google Workspace profile
+
+### Bug Fixes
+
+ - <csr-id-c50585dec0eb8bbca6f22b7f3fcb1d23180aa8e6/> update rust crate scraper to 0.26.0
+
+### Refactor
+
+ - <csr-id-7b32eca0846e594655f304250928295ffbf6496a/> New plugin architecture
+   * refactor: Remove fontbakery-bridge
+   
+   * refactor: New plugin architecture
+   
+   * feat: Demonstrate Python-based plugins
+   
+   * docs: New plugin architecture
+
+### Test
+
+ - <csr-id-4e74f48adb3b84553b338ef4c3c25ab52f2db960/> Port more tests from Python to Rust
+   * test: Port metadata validation tests
+   
+   * test: Port more metadata/repo tests
+   
+   * test: Port more tests
+   
+   * test: Remove unnecessary tests
+   
+   * test: Add resources
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 8 commits contributed to the release over the course of 72 calendar days.
+ - 84 days passed between releases.
+ - 8 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 8 unique issues were worked on: [#654](https://github.com/fonttools/fontspector/issues/654), [#668](https://github.com/fonttools/fontspector/issues/668), [#710](https://github.com/fonttools/fontspector/issues/710), [#711](https://github.com/fonttools/fontspector/issues/711), [#713](https://github.com/fonttools/fontspector/issues/713), [#716](https://github.com/fonttools/fontspector/issues/716), [#742](https://github.com/fonttools/fontspector/issues/742), [#782](https://github.com/fonttools/fontspector/issues/782)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#654](https://github.com/fonttools/fontspector/issues/654)**
+    - New web interface with autofixing ([`d718f3e`](https://github.com/fonttools/fontspector/commit/d718f3e5084f6afce5ecc1191953c06ca4545ea8))
+ * **[#668](https://github.com/fonttools/fontspector/issues/668)**
+    - Add no_vf_in_name check ([`c8cee5d`](https://github.com/fonttools/fontspector/commit/c8cee5d0f71db89d3ee5b4bbc367a3f124d2ba05))
+ * **[#710](https://github.com/fonttools/fontspector/issues/710)**
+    - Interactive fixing ([`d7a8e96`](https://github.com/fonttools/fontspector/commit/d7a8e964d234b7bf1693e85a7610d9a1f78c572f))
+ * **[#711](https://github.com/fonttools/fontspector/issues/711)**
+    - Port more tests from Python to Rust ([`4e74f48`](https://github.com/fonttools/fontspector/commit/4e74f48adb3b84553b338ef4c3c25ab52f2db960))
+ * **[#713](https://github.com/fonttools/fontspector/issues/713)**
+    - Add JSON schema generation for Profiles ([`22273f6`](https://github.com/fonttools/fontspector/commit/22273f67f85127596c4d485dafaab8a1dc7fdc40))
+ * **[#716](https://github.com/fonttools/fontspector/issues/716)**
+    - Silence printlns ([`0d19fe2`](https://github.com/fonttools/fontspector/commit/0d19fe268f4ca901c88f68cef20b7426b981029a))
+ * **[#742](https://github.com/fonttools/fontspector/issues/742)**
+    - Update rust crate scraper to 0.26.0 ([`c50585d`](https://github.com/fonttools/fontspector/commit/c50585dec0eb8bbca6f22b7f3fcb1d23180aa8e6))
+ * **[#782](https://github.com/fonttools/fontspector/issues/782)**
+    - New plugin architecture ([`7b32eca`](https://github.com/fonttools/fontspector/commit/7b32eca0846e594655f304250928295ffbf6496a))
+</details>
+
 ## v1.5.0 (2026-02-23)
 
 ### New Features
@@ -32,7 +163,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 2 commits contributed to the release over the course of 5 calendar days.
+ - 3 commits contributed to the release over the course of 5 calendar days.
  - 16 days passed between releases.
  - 2 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 2 unique issues were worked on: [#627](https://github.com/fonttools/fontspector/issues/627), [#629](https://github.com/fonttools/fontspector/issues/629)
@@ -47,6 +178,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Add FATAL status code for critical font defects ([`3f4a6a7`](https://github.com/fonttools/fontspector/commit/3f4a6a7c04cfb3c7908ef9e58761613536160741))
  * **[#629](https://github.com/fonttools/fontspector/issues/629)**
     - Add machine-readable metadata to (almost) all checks ([`568958e`](https://github.com/fonttools/fontspector/commit/568958e9b33f5c11076dde02e89ce0a73bc6a07e))
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.5.0, fontspector-fontbakery-bridge v1.3.0, fontspector-profile-fontwerk v1.3.0, fontspector-profile-googlefonts v1.7.0, fontspector-profile-opentype v1.4.0, fontspector-profile-universal v1.7.0, fontspector-hotfix v0.1.0, fontspector v1.6.0, safety bump fontspector-hotfix v0.1.0 ([`cb2a669`](https://github.com/fonttools/fontspector/commit/cb2a669f1f0963a68ba22bdc1e0cd56e602219ca))
 </details>
 
 ## v1.4.0 (2026-02-06)

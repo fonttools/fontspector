@@ -5,6 +5,191 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.8.0 (2026-05-18)
+
+### Chore
+
+ - <csr-id-0d19fe268f4ca901c88f68cef20b7426b981029a/> Silence printlns
+
+### New Features
+
+ - <csr-id-d7a8e964d234b7bf1693e85a7610d9a1f78c572f/> Interactive fixing
+   * feat(googlefonts/canonical_filename): Add hotfix
+   
+   * chore(web): Hotfix testables all at once
+   
+   * chore(web): Improve display of fixables
+   
+   * chore(opentype/GDEF_non_mark_chars): Add metadata, sort output
+   
+   * chore: Thanks clippy
+   
+   * chore(googlefonts): Move style map into constants
+   
+   * feat(googlefonts/font_names): Detect bad styles based on typos and weightclass settings
+   
+   * chore(web): Improve message grouping (again)
+   
+   * chore: Adapt fix API to request and receive structured data
+   
+   * feat: WIP dialogues in hotfixes
+   
+   * feat(web): Fix but don't download
+   
+   * chore: Slightly better dialogue Ux
+   
+   * chore: Update web to new fix API
+   
+   * feat(googlefonts/font_names): Add interactive fix function for statics
+   
+   * chore: Update hotfix lib to new fix API
+   
+   * chore: Update web to new fix API
+   
+   * fix(googlefonts/font_names): Better problem reporting
+   
+   * fix(web): Loading spinner
+   
+   * chore: Thanks clippy
+   
+   * chore(web): Drop the log file properly
+   
+   * chore: Small web fixes
+   
+   * test: Fix up Python test
+ - <csr-id-a686d956816272b53b508192a64d084389d784c2/> add fvar_instance_ps_names check
+   * feat(googlefonts): add fvar_instance_ps_names check
+   
+   Fail when named instances in variable fonts lack PostScript name entries.
+   Without PostScript names, some applications (notably Adobe products) may
+   have trouble printing or embedding the font in PDFs.
+ - <csr-id-ec5d86f8e6b48051be61b822c5608fdc1fc3c071/> Various more hotfixes
+ - <csr-id-6d13d66f388920f2b8ebabca1679487d90b10b6f/> add no_vert_and_vrt2 check
+   * feat(universal): add no_vert_and_vrt2 check
+   
+   Adds a check that FAILs when a font has both 'vert' and 'vrt2' GSUB
+   features. The OT spec states 'vert' should never be used with 'vrt2'
+   since 'vrt2' is a superset. Having both causes installation failures
+   on Windows (e.g. Kinto Sans).
+ - <csr-id-74bc84280b54782a68489b065764dee8335352a9/> More autofixes
+   * chore(web): Don't offer to fix INFOs
+   
+   * feat: Various hotfixes
+   
+   * chore: Unused crate
+ - <csr-id-705321161bdbe62836fbc155cc769a589ecb7dd1/> Develop Workspace profile
+   * feat(workspace): Add illegal_particles check to workspace
+   
+   * chore(googlefonts/font_names): Add metadata to checkk
+   
+   * feat(whitespace_glyphs): Add autofix
+   
+   * feat(whitespace_widths): Add autofix
+ - <csr-id-b6ca460c3792b01bd1163892733814d09fe540cf/> split DSIG check from unwanted_tables
+   * feat(universal): split DSIG check from unwanted_tables
+   
+   Extracts the DSIG table detection into its own separate check so that
+   foundries who deliberately include a DSIG table can disable the DSIG
+   check independently without suppressing the entire unwanted_tables check.
+   
+   The new check uses WARN severity (rather than FAIL) since the DSIG table
+   is not harmful, just unnecessary for modern environments.
+ - <csr-id-69fc73fe9dec85b67c91b99e1aaca57c0cadfffc/> detect leading spaces in name table entries
+   Extends the name/trailing_spaces check to also detect leading spaces
+   in name table entries, reporting them as FAIL with code "leading-space".
+
+### Bug Fixes
+
+ - <csr-id-51f11da8ef49038ff43cab6e0244c0885d33127e/> Check full names match against METADATA for varfonts
+   * fix(googlefonts): Check full names match against METADATA for varfonts
+   
+   * chore: cargo fmt
+
+### Refactor
+
+ - <csr-id-7b32eca0846e594655f304250928295ffbf6496a/> New plugin architecture
+   * refactor: Remove fontbakery-bridge
+   
+   * refactor: New plugin architecture
+   
+   * feat: Demonstrate Python-based plugins
+   
+   * docs: New plugin architecture
+ - <csr-id-1d7ae179aa03daa7830b791dd3cbe17bcd179112/> merge zero_width_chars into base_has_width check
+   * feat(universal): add zero_width_chars check
+   
+   Warn when characters like U+FEFF ZERO WIDTH NO-BREAK SPACE, U+200B
+   ZERO WIDTH SPACE, U+200C ZWNJ, U+200D ZWJ, U+2060 WORD JOINER, and
+   U+FFFE have non-zero advance width in the hmtx table.
+
+### Test
+
+ - <csr-id-ae1f30c4751e7f76ee903ab072761af580ece7ca/> port Python tests to Rust (batch 3+4: universal, varfont, googlefonts)
+   * test: port googlefonts Python tests to Rust (batch 4)
+   
+   Port 26 Python test functions to Rust across 27 check files.
+   74 new Rust test functions added, covering checks for:
+   canonical_filename, color_fonts, description (eof_linebreak, git_url,
+   has_unsupported_elements, min_length, urls, valid_html), fstype, gasp,
+   has_ttfautohint_params, meta/script_lang_tags, name (description_max_length,
+   family_name_compliance, familyname_first_char, line_breaks, mandatory_entries,
+   rfn, version_format), render_own_name, unitsperem, use_typo_metrics,
+   varfont/has_HVAR, vendor_id, weightclass, axisregistry/fvar_axis_defaults.
+   
+   All 126 tests pass. Deleted 26 corresponding Python test functions.
+ - <csr-id-4e585b258f40165222b17804675635f31c0783ee/> port Python tests to Rust (batch 1)
+   * test: port Python tests to Rust (batch 1: cjk, empty_letters, nested_components, smallcaps, unwanted_tables)
+   
+   Port test_checks_cjk.py, test_checks_empty_letters.py, test_checks_glyf.py,
+   test_checks_smallcaps_before_ligatures.py, test_checks_unwanted_aat_tables.py,
+   and test_checks_unwanted_tables.py to Rust #[cfg(test)] modules in their
+   respective check files.
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 14 commits contributed to the release over the course of 72 calendar days.
+ - 84 days passed between releases.
+ - 14 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 14 unique issues were worked on: [#656](https://github.com/fonttools/fontspector/issues/656), [#659](https://github.com/fonttools/fontspector/issues/659), [#666](https://github.com/fonttools/fontspector/issues/666), [#680](https://github.com/fonttools/fontspector/issues/680), [#681](https://github.com/fonttools/fontspector/issues/681), [#693](https://github.com/fonttools/fontspector/issues/693), [#694](https://github.com/fonttools/fontspector/issues/694), [#696](https://github.com/fonttools/fontspector/issues/696), [#699](https://github.com/fonttools/fontspector/issues/699), [#702](https://github.com/fonttools/fontspector/issues/702), [#710](https://github.com/fonttools/fontspector/issues/710), [#716](https://github.com/fonttools/fontspector/issues/716), [#775](https://github.com/fonttools/fontspector/issues/775), [#782](https://github.com/fonttools/fontspector/issues/782)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#656](https://github.com/fonttools/fontspector/issues/656)**
+    - Detect leading spaces in name table entries ([`69fc73f`](https://github.com/fonttools/fontspector/commit/69fc73fe9dec85b67c91b99e1aaca57c0cadfffc))
+ * **[#659](https://github.com/fonttools/fontspector/issues/659)**
+    - Split DSIG check from unwanted_tables ([`b6ca460`](https://github.com/fonttools/fontspector/commit/b6ca460c3792b01bd1163892733814d09fe540cf))
+ * **[#666](https://github.com/fonttools/fontspector/issues/666)**
+    - Add no_vert_and_vrt2 check ([`6d13d66`](https://github.com/fonttools/fontspector/commit/6d13d66f388920f2b8ebabca1679487d90b10b6f))
+ * **[#680](https://github.com/fonttools/fontspector/issues/680)**
+    - Merge zero_width_chars into base_has_width check ([`1d7ae17`](https://github.com/fonttools/fontspector/commit/1d7ae179aa03daa7830b791dd3cbe17bcd179112))
+ * **[#681](https://github.com/fonttools/fontspector/issues/681)**
+    - Add fvar_instance_ps_names check ([`a686d95`](https://github.com/fonttools/fontspector/commit/a686d956816272b53b508192a64d084389d784c2))
+ * **[#693](https://github.com/fonttools/fontspector/issues/693)**
+    - Develop Workspace profile ([`7053211`](https://github.com/fonttools/fontspector/commit/705321161bdbe62836fbc155cc769a589ecb7dd1))
+ * **[#694](https://github.com/fonttools/fontspector/issues/694)**
+    - More autofixes ([`74bc842`](https://github.com/fonttools/fontspector/commit/74bc84280b54782a68489b065764dee8335352a9))
+ * **[#696](https://github.com/fonttools/fontspector/issues/696)**
+    - Various more hotfixes ([`ec5d86f`](https://github.com/fonttools/fontspector/commit/ec5d86f8e6b48051be61b822c5608fdc1fc3c071))
+ * **[#699](https://github.com/fonttools/fontspector/issues/699)**
+    - Port Python tests to Rust (batch 1) ([`4e585b2`](https://github.com/fonttools/fontspector/commit/4e585b258f40165222b17804675635f31c0783ee))
+ * **[#702](https://github.com/fonttools/fontspector/issues/702)**
+    - Port Python tests to Rust (batch 3+4: universal, varfont, googlefonts) ([`ae1f30c`](https://github.com/fonttools/fontspector/commit/ae1f30c4751e7f76ee903ab072761af580ece7ca))
+ * **[#710](https://github.com/fonttools/fontspector/issues/710)**
+    - Interactive fixing ([`d7a8e96`](https://github.com/fonttools/fontspector/commit/d7a8e964d234b7bf1693e85a7610d9a1f78c572f))
+ * **[#716](https://github.com/fonttools/fontspector/issues/716)**
+    - Silence printlns ([`0d19fe2`](https://github.com/fonttools/fontspector/commit/0d19fe268f4ca901c88f68cef20b7426b981029a))
+ * **[#775](https://github.com/fonttools/fontspector/issues/775)**
+    - Check full names match against METADATA for varfonts ([`51f11da`](https://github.com/fonttools/fontspector/commit/51f11da8ef49038ff43cab6e0244c0885d33127e))
+ * **[#782](https://github.com/fonttools/fontspector/issues/782)**
+    - New plugin architecture ([`7b32eca`](https://github.com/fonttools/fontspector/commit/7b32eca0846e594655f304250928295ffbf6496a))
+</details>
+
 ## v1.7.0 (2026-02-23)
 
 ### New Features
@@ -37,7 +222,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 2 commits contributed to the release over the course of 3 calendar days.
+ - 3 commits contributed to the release over the course of 3 calendar days.
  - 16 days passed between releases.
  - 2 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 2 unique issues were worked on: [#628](https://github.com/fonttools/fontspector/issues/628), [#629](https://github.com/fonttools/fontspector/issues/629)
@@ -52,6 +237,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Update file size checks ([`eb14259`](https://github.com/fonttools/fontspector/commit/eb142594b74d95a8deda5bdd16faf71dbdf34d0a))
  * **[#629](https://github.com/fonttools/fontspector/issues/629)**
     - Add machine-readable metadata to (almost) all checks ([`568958e`](https://github.com/fonttools/fontspector/commit/568958e9b33f5c11076dde02e89ce0a73bc6a07e))
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.5.0, fontspector-fontbakery-bridge v1.3.0, fontspector-profile-fontwerk v1.3.0, fontspector-profile-googlefonts v1.7.0, fontspector-profile-opentype v1.4.0, fontspector-profile-universal v1.7.0, fontspector-hotfix v0.1.0, fontspector v1.6.0, safety bump fontspector-hotfix v0.1.0 ([`cb2a669`](https://github.com/fonttools/fontspector/commit/cb2a669f1f0963a68ba22bdc1e0cd56e602219ca))
 </details>
 
 ## v1.6.0 (2026-02-06)
@@ -106,9 +293,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  * **Uncategorized**
     - Release fontspector-checkapi v1.4.0, fontspector-profile-fontwerk v1.2.3, fontspector-profile-googlefonts v1.6.1, fontspector-profile-opentype v1.3.1, fontspector-profile-universal v1.6.0, fontspector v1.5.4 ([`b27d3e3`](https://github.com/fonttools/fontspector/commit/b27d3e3ab7e2cf650a02883d776808bde0611edd))
 </details>
-
-<csr-unknown>
- Improve warning message, fixes #609<csr-unknown/>
 
 ## v1.5.0 (2026-02-04)
 
