@@ -1,7 +1,7 @@
 use fontspector_checkapi::{prelude::*, DialogField};
 use serde_json::json;
 
-struct Test;
+pub struct Test;
 
 #[check(
     id = "test/say_hello",
@@ -10,12 +10,12 @@ struct Test;
     proposal = "https://github.com/simoncozens/fontspector/commit/5fdf9750991176c8e2776557ce6c17c642c24a73"
 )]
 fn say_hello(_c: &Testable, context: &Context) -> CheckFnResult {
-    println!("Hello from the test plugin!");
+    eprintln!("Hello from the test plugin!");
     context
         .cache
         .write()?
         .insert("Hello".to_string(), json!("World"));
-    println!("My context was: {context:?}");
+    eprintln!("My context was: {context:?}");
     return_result(vec![])
 }
 
@@ -109,8 +109,8 @@ fn hotfix_with_dialogue(
     Ok(FixResult::Fixed)
 }
 
-impl fontspector_checkapi::Plugin for Test {
-    fn register(&self, cr: &mut Registry) -> Result<(), String> {
+impl fontspector_checkapi::ProfileProvider for Test {
+    fn register(&self, cr: &mut Registry) -> Result<(), FontspectorError> {
         let toml = FileType::new("*.toml");
         cr.register_filetype("TOML", toml);
 
@@ -126,6 +126,3 @@ impl fontspector_checkapi::Plugin for Test {
         )
     }
 }
-
-#[cfg(not(target_family = "wasm"))]
-pluginator::plugin_implementation!(fontspector_checkapi::Plugin, Test);

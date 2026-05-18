@@ -13,7 +13,7 @@ readme = "../README.md"
 pkg-url = "{ repo }/releases/download/fontspector-v{ version }/{ name }-v{ version }-{target}{ archive-suffix }"
 
 [features]
-python = ["dep:fontbakery-bridge", "fontspector-checkapi/python"]
+python = ["fontspector-checkapi/python"]
 fontc = ["dep:fontc", "dep:glyphs2fontir", "dep:fontir"]
 
 [build-dependencies]
@@ -23,11 +23,10 @@ quote = "1.0"
 shadow-rs = "1.1.1"
 
 [dependencies]
-fontspector-checkapi = { path = "../fontspector-checkapi", features = [
+fontspector-checkapi = { path = "../fontspector-checkapi", version = "1.0.0", features = [
     "clap",
-], version = "1.0.0" }
+] }
 # These profiles are baked-in
-fontbakery-bridge = { path = "../fontbakery-bridge", optional = true, version = "1.0.0", package = "fontspector-fontbakery-bridge" }
 profile-universal = { path = "../profile-universal", version = "1.0.0", package = "fontspector-profile-universal" }
 profile-fontwerk = { path = "../profile-fontwerk", version = "1.0.0", package = "fontspector-profile-fontwerk" }
 profile-opentype = { path = "../profile-opentype", version = "1.0.0", package = "fontspector-profile-opentype" }

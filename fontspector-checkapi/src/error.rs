@@ -71,6 +71,17 @@ pub enum FontspectorError {
     /// Something else happened when fixing the font
     #[error("Something went wrong while fixing: {0}")]
     Fix(String),
+    /// Check applies to a filetype that isn't registered in the registry
+    #[error("Check {check_id} applies to unknown filetype {filetype}")]
+    UnknownFileType {
+        /// The id of the check that applies to the unknown filetype
+        check_id: String,
+        /// The unknown filetype
+        filetype: String,
+    },
+    /// A profile includes another profile that isn't registered in the registry
+    #[error("Profile includes unknown profile: {0}")]
+    UnknownProfile(String),
 }
 
 impl From<std::string::FromUtf8Error> for FontspectorError {

@@ -89,7 +89,7 @@ impl std::fmt::Display for StatusCode {
     }
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 /// Metadata about a check result, which can be used by the reporter to provide
 /// additional information about the check result. This is intended to make the
 /// results of checks machine readable, for display in font editors or other tools.
@@ -144,7 +144,7 @@ pub enum Metadata {
     /// A catch-all for other kinds of structured data.
     Other(serde_json::Value),
 }
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 /// A status message from a check
 ///
 /// This is a subresult, in the sense that a check may return multiple failures
@@ -160,7 +160,7 @@ pub struct Status {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub code: Option<String>,
     /// Additional metadata provided to the reporter
-    #[serde(skip_serializing_if = "Vec::is_empty")]
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub metadata: Vec<Metadata>,
 }
 

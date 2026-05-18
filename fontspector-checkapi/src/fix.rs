@@ -5,7 +5,7 @@ use serde_json::Value;
 
 use crate::{FontspectorError, Testable};
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 /// The result of a fix operation.
 pub enum FixResult {
     /// A fix was available, but not requested
@@ -31,12 +31,12 @@ impl FixResult {
     }
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 /// A request for more information from the user, in order to apply a fix.
 pub struct MoreInfoRequest(pub Vec<DialogField>);
 
 /// A field in a dialog request, which can be of various types (choice, text, number, boolean)
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DialogField {
     /// A unique key for this field, which will be used to identify the user's response
     pub key: String,
@@ -47,7 +47,7 @@ pub struct DialogField {
 }
 
 /// A single choice in a choice field, with a value and a description
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Choice {
     /// The value that will be returned if the user selects this choice
     pub value: String,
@@ -56,7 +56,7 @@ pub struct Choice {
 }
 
 /// The type of a dialog field, which determines how the user input should be requested
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum DialogFieldType {
     /// A field where the user must choose one of several options
     Choice(Vec<Choice>),

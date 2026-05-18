@@ -7,6 +7,10 @@ publish = false
 [lib]
 crate-type = ["cdylib", "rlib"]
 
+[[bin]]
+name = "microsoft-fontspectorplugin"
+path = "src/main.rs"
+
 [dependencies]
 fontspector-checkapi = { path = "../fontspector-checkapi", features = [
     "kurbo",

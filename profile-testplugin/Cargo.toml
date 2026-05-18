@@ -5,16 +5,17 @@ edition = "2021"
 publish = false
 
 [lib]
-crate-type = ["cdylib"]
+name = "fontspector_profile_testplugin"
+
+[[bin]]
+name = "testplugin-fontspectorplugin"
+path = "src/main.rs"
 
 [dependencies]
 fontspector-checkapi = { path = "../fontspector-checkapi" }
 toml = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
-
-[target.'cfg(not(target_family = "wasm"))'.dependencies]
-# Plugin architecture
-pluginator = { workspace = true }
 
 [lints]
 workspace = true

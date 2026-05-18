@@ -2,7 +2,10 @@ use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use crate::{Check, CheckId, Context, Registry, StatusCode, TestableType};
+use crate::{
+    plugin::current_executable_is_plugin, Check, CheckId, Context, FontspectorError, Registry,
+    StatusCode, TestableType,
+};
 use std::collections::HashMap;
 
 #[cfg_attr(feature = "schemars", derive(schemars::JsonSchema))]
@@ -103,7 +106,7 @@ impl Profile {
     /// This function checks that all the checks in the profile are known to the
     /// registry, resolving any included profiles and excluded checks, and that
     /// any filetypes used in checks are known to the registry.
-    pub fn validate(&mut self, registry: &Registry) -> Result<(), String> {
+    pub fn validate(&mut self, registry: &Registry) -> Result<(), FontspectorError> {
         // Resolve "include_profiles" and "exclude_checks" here
         for included_profile_str in self.include_profiles.iter() {
             if let Some(profile) = registry.profiles.get(included_profile_str) {
@@ -123,7 +126,9 @@ impl Profile {
                     }
                 }
             } else {
-                return Err(format!("Unknown profile: {included_profile_str}"));
+                return Err(FontspectorError::UnknownProfile(
+                    included_profile_str.clone(),
+                ));
             }
         }
 
@@ -149,10 +154,10 @@ impl Profile {
 
         for check in registry.checks.values() {
             if !registry.filetypes.contains_key(check.applies_to) {
-                return Err(format!(
-                    "Check {} applies to unknown filetype {}",
-                    check.id, check.applies_to
-                ));
+                return Err(FontspectorError::UnknownFileType {
+                    check_id: check.id.to_string(),
+                    filetype: check.applies_to.to_string(),
+                });
             }
         }
         Ok(())
@@ -185,7 +190,7 @@ impl Profile {
                     continue;
                 }
                 // The profile itself may have excluded this check
-                if self.exclude_checks.contains(check_id) {
+                if self.exclude_checks.contains(&check_id.to_string()) {
                     continue;
                 }
                 if registry.checks.contains_key(check_id) {
@@ -370,11 +375,14 @@ impl<'a> ProfileBuilder<'a> {
     }
 
     /// Register the profile
-    pub fn build(self, name: &str, registry: &mut Registry<'a>) -> Result<(), String> {
+    pub fn build(self, name: &str, registry: &mut Registry<'a>) -> Result<(), FontspectorError> {
         for check in self.checks_to_register {
             registry.register_check(check);
         }
-        registry.register_profile(name, self.profile)
+        // Plugin profiles are lazy loaded and validated at use time, not in their
+        // own executable. This allows them to reference built-in fontspector plugins
+        // without having to link to them.
+        registry.register_profile(name, self.profile, !current_executable_is_plugin())
     }
 }
 

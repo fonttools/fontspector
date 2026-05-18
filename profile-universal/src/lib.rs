@@ -1,13 +1,13 @@
 pub mod checks;
 
-use fontspector_checkapi::{ProfileBuilder, Registry};
+use fontspector_checkapi::{FontspectorError, ProfileBuilder, Registry};
 use serde_json::json;
 use std::collections::HashMap;
 
 pub struct Universal;
 
-impl fontspector_checkapi::Plugin for Universal {
-    fn register(&self, cr: &mut Registry<'_>) -> Result<(), String> {
+impl fontspector_checkapi::ProfileProvider for Universal {
+    fn register(&self, cr: &mut Registry<'_>) -> Result<(), FontspectorError> {
         // Fontwerk check, not added to profile but here's a good place to put it.
         cr.register_check(checks::ytlc_sanity);
 

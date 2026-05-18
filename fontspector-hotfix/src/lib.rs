@@ -22,7 +22,7 @@
 use dialoguer::{theme::ColorfulTheme, Confirm, Input, Select};
 use fontspector_checkapi::{
     CheckId, DialogFieldType, FixResult, FontspectorError, MoreInfoReplies, MoreInfoRequest,
-    Plugin, Registry,
+    ProfileProvider, Registry,
 };
 use profile_fontwerk::Fontwerk;
 use profile_googlefonts::GoogleFonts;
