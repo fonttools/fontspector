@@ -115,7 +115,7 @@ In the simplest case, we write the Python script under the assumption that `font
 
 ```python
 #!/usr/bin/env python3
-from fontspectorapi import PASS, Message, check, plugin_main
+from fontspectorapi import *
 
 @check(
     id="python/example",
@@ -123,11 +123,11 @@ from fontspectorapi import PASS, Message, check, plugin_main
     rationale="Example check",
     proposal="https://example.com",
 )
-def example(font_file, context):
+def example(font_file: TTFont, context: CheckContext) -> CheckStatuses:
     yield PASS, Message("ok", f"Checked {font_file}")
 
 
-def register(plugin):
+def register(plugin: Plugin) -> None:
     plugin.register_simple_profile("python-example", [example])
 
 
@@ -175,7 +175,7 @@ Here's the earlier example rewritten to use `uv`:
 # ]
 # ///
 
-from fontspectorapi import PASS, Message, check, plugin_main
+from fontspectorapi import *
 
 @check(
     id="python/example",
@@ -183,11 +183,11 @@ from fontspectorapi import PASS, Message, check, plugin_main
     rationale="Example check",
     proposal="https://example.com",
 )
-def example(font_file, context):
+def example(font_file: TTFont, context: CheckContext) -> CheckStatuses:
     yield PASS, Message("ok", f"Checked {font_file}")
 
 
-def register(plugin):
+def register(plugin: Plugin) -> None:
     plugin.register_simple_profile("python-example", [example])
 
 
