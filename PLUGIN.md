@@ -102,14 +102,14 @@ It also includes a port of Fontbakery's `utils` module, for common helper functi
 
 Authoring model:
 
-1. Import status constants, Message, check decorator, and plugin_main.
-2. Decorate check functions with @check(...).
+1. Import status constants, `Message`, `check` decorator, and `plugin_main`.
+2. Decorate check functions with `@check(...)`.
 3. Yield statuses in a FontBakery-like style:
-   - yield PASS
-   - yield PASS, "message"
-   - yield FAIL, Message("code", "message")
-4. Register checks and profiles in register(plugin).
-5. Call plugin_main(register, plugin_name="...") from __main__.
+   - `yield PASS`
+   - `yield PASS, "message"`
+   - `yield FAIL, Message("code", "message")`
+4. Register checks and profiles in `register(plugin)`.
+5. Call `plugin_main(register, plugin_name="...")` from `__main__`.
 
 In the simplest case, we write the Python script under the assumption that `fontspector` will be called with an active virtual environment that has `fontspectorapi` available:
 
