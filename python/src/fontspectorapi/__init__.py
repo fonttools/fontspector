@@ -15,6 +15,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+import traceback
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tuple, Union
 
@@ -344,6 +345,7 @@ def plugin_main(
         result = plugin.run_check(check_id, files)
     except Exception as e:  # pragma: no cover - demo plugin boundary
         print(f"Error: {e}", file=sys.stderr)
+        print(traceback.format_exc(), file=sys.stderr)
         return 1
 
     print(json.dumps(result, indent=2))
