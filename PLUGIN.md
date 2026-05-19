@@ -97,7 +97,8 @@ fontspector --plugin /path/to/myplugin-fontspectorplugin --profile myprofile -L
 
 ## Writing plugins in Python
 
-This repository includes a helper runtime in python/fontspectorapi.py and an example in python/exampleplugin.py.
+This repository provides the `fontspectorapi` package to allow you to write checks in Python.
+It also includes a port of Fontbakery's `utils` module, for common helper functions you may need (especially if you're migrating away from Fontbakery).
 
 Authoring model:
 
@@ -110,7 +111,7 @@ Authoring model:
 4. Register checks and profiles in register(plugin).
 5. Call plugin_main(register, plugin_name="...") from __main__.
 
-Minimal example:
+In the simplest case, we write the Python script under the assumption that `fontspector` will be called with an active virtual environment that has `fontspectorapi` available:
 
 ```python
 #!/usr/bin/env python3
@@ -134,9 +135,15 @@ if __name__ == "__main__":
     raise SystemExit(plugin_main(register, plugin_name="python-example-plugin"))
 ```
 
-Collection checks are supported by setting runs_on_collection=True in @check and accepting a list of files.
+Make sure the script is marked as executable:
 
-Explicit profiles are also supported via ProfileDefinition, including include_profiles and exclude_checks.
+```shell
+chmod +x myplugin.py
+```
+
+Collection checks are supported by setting `runs_on_collection=True` in `@check` and accepting a list of files.
+
+Explicit profiles are also supported via `ProfileDefinition`, including `include_profiles` and `exclude_checks`.
 
 ```python
 from fontspectorapi import ProfileDefinition
@@ -150,6 +157,47 @@ plugin.register_profile(
     ),
 )
 ```
+
+### Self-contained Python plugin using `uv`
+
+If you don't want to build the scaffolding around `fontspector` to set up a virtual environment with `fontspectorapi` available, consider using [`uv`](https://docs.astral.sh/uv/).
+
+As long as `uv` is available in `$PATH`, it can handle installing any dependencies you need (even Python if necessary!), all without any external orchestration.
+
+Here's the earlier example rewritten to use `uv`:
+
+```python
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.0"
+# dependencies = [
+#     "fontspectorapi",
+# ]
+# ///
+
+from fontspectorapi import PASS, Message, check, plugin_main
+
+@check(
+    id="python/example",
+    title="Example",
+    rationale="Example check",
+    proposal="https://example.com",
+)
+def example(font_file, context):
+    yield PASS, Message("ok", f"Checked {font_file}")
+
+
+def register(plugin):
+    plugin.register_simple_profile("python-example", [example])
+
+
+if __name__ == "__main__":
+    raise SystemExit(plugin_main(register, plugin_name="python-example-plugin"))
+```
+
+The updated shebang and [inline metadata](https://docs.astral.sh/uv/guides/scripts/#declaring-script-dependencies) allows `uv` to set up the necessary environment ahead of execution.
+If you want your dependencies to be reproducible across platforms, you can `uv lock --script myplugin.py` and then add the `--locked` flag to the plugin's shebang - just make sure to commit your lockfile alongside the script.
+You still only need to provide `fontspector` with the Python file as the plugin.
 
 ## Plugin API protocol (language-agnostic)
 
