@@ -369,6 +369,7 @@ def plugin_main(
         result = plugin.run_check(check_id, files)
     except Exception as e:  # pragma: no cover - demo plugin boundary
         print(f"Error: {e}", file=sys.stderr)
+        traceback.print_exc(file=sys.stderr)
         return 1
 
     print(json.dumps(result, indent=2))
