@@ -364,6 +364,8 @@ def plugin_main(
         return 2
 
     try:
+        # This should be provided by _parse_cli when mode isn't "metadata"
+        assert check_id, "check_id not provided"
         result = plugin.run_check(check_id, files)
     except Exception as e:  # pragma: no cover - demo plugin boundary
         print(f"Error: {e}", file=sys.stderr)
