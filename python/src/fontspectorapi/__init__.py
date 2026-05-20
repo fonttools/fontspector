@@ -57,6 +57,10 @@ StatusYield = Union[
 ]
 
 CheckStatuses = Iterator[StatusYield]
+CheckFn = Union[
+    Callable[[str, CheckContext], CheckStatuses],
+    Callable[[list[str], CheckContext], CheckStatuses],
+]
 
 
 @dataclass
@@ -70,7 +74,7 @@ class CheckDefinition:
     metadata: Dict[str, Any]
     hotfix_available: bool = False
     sourcefix_available: bool = False
-    func: Optional[Callable[..., CheckStatuses]] = None
+    func: Optional[CheckFn] = None
 
 
 @dataclass
@@ -94,7 +98,7 @@ class Plugin:
     def register_filetype(self, name: str, pattern: str) -> None:
         self._filetypes[name] = pattern
 
-    def register_check(self, fn: Callable[..., CheckStatuses]) -> None:
+    def register_check(self, fn: CheckFn) -> None:
         meta = getattr(fn, "_fontspector_check", None)
         if meta is None:
             raise ValueError("Function is missing @check metadata")
@@ -113,7 +117,7 @@ class Plugin:
     def register_simple_profile(
         self,
         profile_name: str,
-        check_fns: Sequence[Callable[..., CheckStatuses]],
+        check_fns: Sequence[CheckFn],
         section_name: Optional[str] = None,
     ) -> None:
         for fn in check_fns:
@@ -237,7 +241,7 @@ def check(
     applies_to: str = "TTF",
     runs_on_collection: bool = False,
     metadata: Optional[Dict[str, Any]] = None,
-) -> Callable[[Callable[..., CheckStatuses]], Callable[..., CheckStatuses]]:
+) -> Callable[[CheckFn], CheckFn]:
     """Attach check metadata to a function."""
 
     if proposal is None:
@@ -247,7 +251,7 @@ def check(
     else:
         proposal_list = list(proposal)
 
-    def decorator(fn: Callable[..., CheckStatuses]) -> Callable[..., CheckStatuses]:
+    def decorator(fn: CheckFn) -> CheckFn:
         fn._fontspector_check = {
             "id": id,
             "title": title,
