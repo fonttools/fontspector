@@ -201,7 +201,7 @@ class Plugin:
                         dict(
                             severity=ERROR,
                             code=e.__class__.__name__,
-                            message=f"{e}\n{traceback.print_exc()}",
+                            message=f"{e}\n{traceback.format_exc()}",
                         )
                     )
                     # ...but keep running
@@ -210,7 +210,7 @@ class Plugin:
                 dict(
                     severity=ERROR,
                     code=e.__class__.__name__,
-                    message=f"unable to run check: {e}\n{traceback.print_exc()}",
+                    message=f"unable to run check: {e}\n{traceback.format_exc()}",
                 )
             )
         worst = worst_status(statuses)
