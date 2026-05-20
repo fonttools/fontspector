@@ -17,6 +17,7 @@ import json
 import sys
 import traceback
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Callable, Dict, Iterator, List, Optional, Sequence, Tuple, Union
 
 SKIP = "SKIP"
@@ -45,7 +46,7 @@ class CheckContext:
 
     check_id: str
     check_metadata: Dict[str, Any]
-    files: List[str]
+    files: List[Path]
     cache: Dict[str, Any] = field(default_factory=dict)
 
 
@@ -58,8 +59,8 @@ StatusYield = Union[
 
 CheckStatuses = Iterator[StatusYield]
 CheckFn = Union[
-    Callable[[str, CheckContext], CheckStatuses],
-    Callable[[list[str], CheckContext], CheckStatuses],
+    Callable[[Path, CheckContext], CheckStatuses],
+    Callable[[list[Path], CheckContext], CheckStatuses],
 ]
 
 
@@ -170,7 +171,7 @@ class Plugin:
             "filetypes": self._filetypes,
         }
 
-    def run_check(self, check_id: str, files: Sequence[str]) -> Dict[str, Any]:
+    def run_check(self, check_id: str, files: Sequence[Path]) -> Dict[str, Any]:
         if check_id not in self._checks:
             raise ValueError(f"Unknown check id: {check_id}")
 
@@ -193,7 +194,7 @@ class Plugin:
             if check_def.runs_on_collection:
                 yielded = check_def.func(list(files), context)
             else:
-                yielded = check_def.func(str(files[0]), context)
+                yielded = check_def.func(files[0], context)
 
             while True:
                 try:
@@ -321,18 +322,18 @@ def _build_parser() -> argparse.ArgumentParser:
         "--metadata", action="store_true", help="Emit plugin metadata as JSON"
     )
     parser.add_argument("--check", dest="check_id", help="Run a check by id")
-    parser.add_argument("files", nargs="*", help="Input files")
+    parser.add_argument("files", nargs="*", help="Input files", type=Path)
     return parser
 
 
-def _parse_cli(argv: Sequence[str]) -> Tuple[str, Optional[str], List[str]]:
+def _parse_cli(argv: Sequence[str]) -> Tuple[str, Optional[str], List[Path]]:
     if len(argv) >= 2 and argv[1] == "metadata":
         return ("metadata", None, [])
 
     if len(argv) >= 2 and argv[1] == "check":
         if len(argv) < 4:
             raise ValueError("Usage: check <CHECK_ID> <FILE> [<FILE> ...]")
-        return ("check", argv[2], list(argv[3:]))
+        return ("check", argv[2], list(map(Path, argv[3:])))
 
     parser = _build_parser()
     args = parser.parse_args(argv[1:])
