@@ -17,7 +17,7 @@ import json
 import sys
 import traceback
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tuple, Union
+from typing import Any, Callable, Dict, Iterator, List, Optional, Sequence, Tuple, Union
 
 SKIP = "SKIP"
 INFO = "INFO"
@@ -56,7 +56,7 @@ StatusYield = Union[
     Tuple[str, str, str],
 ]
 
-CheckStatuses = Iterable[StatusYield]
+CheckStatuses = Iterator[StatusYield]
 
 
 @dataclass
@@ -190,7 +190,6 @@ class Plugin:
                 yielded = check_def.func(list(files), context)
             else:
                 yielded = check_def.func(str(files[0]), context)
-            yielded = iter(yielded)
 
             while True:
                 try:
