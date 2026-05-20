@@ -13,6 +13,7 @@ fontspector subprocess plugins:
 from __future__ import annotations
 
 import argparse
+import inspect
 import json
 import sys
 import traceback
@@ -59,6 +60,8 @@ StatusYield = Union[
 
 CheckStatuses = Iterator[StatusYield]
 CheckFn = Union[
+    Callable[[Path], CheckStatuses],
+    Callable[[list[Path]], CheckStatuses],
     Callable[[Path, CheckContext], CheckStatuses],
     Callable[[list[Path], CheckContext], CheckStatuses],
 ]
@@ -189,12 +192,23 @@ class Plugin:
         )
 
         statuses = []
-        filename = None if check_def.runs_on_collection else str(files[0])
+        if check_def.runs_on_collection:
+            filename = None
+            path_arg = list(files)
+        else:
+            filename = str(files[0])
+            path_arg = files[0]
+
         try:
-            if check_def.runs_on_collection:
-                yielded = check_def.func(list(files), context)
-            else:
-                yielded = check_def.func(files[0], context)
+            match count_pos_args(check_def.func):
+                case 1:
+                    yielded = check_def.func(path_arg)  # type: ignore
+                case 2:
+                    yielded = check_def.func(path_arg, context)  # type: ignore
+                case n:
+                    raise ValueError(
+                        f"{check_def.func.__name__} should have 1 or 2 positional arguments, but has {n}"
+                    )
 
             while True:
                 try:
@@ -297,6 +311,14 @@ def to_status(item: StatusYield) -> Dict[str, Any]:
     raise ValueError(
         "Check yielded an invalid status item. Expected STATUS, "
         "(STATUS, message), (STATUS, Message), or (STATUS, code, message)."
+    )
+
+
+def count_pos_args(fn: Callable) -> int:
+    return sum(
+        param.kind == inspect.Parameter.POSITIONAL_ONLY
+        or param.kind == inspect.Parameter.POSITIONAL_OR_KEYWORD
+        for param in inspect.signature(fn).parameters.values()
     )
 
 
