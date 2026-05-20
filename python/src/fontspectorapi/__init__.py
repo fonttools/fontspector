@@ -183,14 +183,37 @@ class Plugin:
             files=list(files),
         )
 
-        if check_def.runs_on_collection:
-            yielded = check_def.func(list(files), context)
-            filename = None
-        else:
-            yielded = check_def.func(str(files[0]), context)
-            filename = str(files[0])
+        statuses = []
+        filename = None if check_def.runs_on_collection else str(files[0])
+        try:
+            if check_def.runs_on_collection:
+                yielded = check_def.func(list(files), context)
+            else:
+                yielded = check_def.func(str(files[0]), context)
+            yielded = iter(yielded)
 
-        statuses = [to_status(item) for item in yielded]
+            while True:
+                try:
+                    statuses.append(next(yielded))
+                except StopIteration:
+                    break
+                except Exception as e:
+                    statuses.append(
+                        dict(
+                            severity=ERROR,
+                            code=e.__class__.__name__,
+                            message=f"{e}\n{traceback.print_exc()}",
+                        )
+                    )
+                    # ...but keep running
+        except Exception as e:
+            statuses.append(
+                dict(
+                    severity=ERROR,
+                    code=e.__class__.__name__,
+                    message=f"unable to run check: {e}\n{traceback.print_exc()}",
+                )
+            )
         worst = worst_status(statuses)
 
         return {
@@ -345,7 +368,6 @@ def plugin_main(
         result = plugin.run_check(check_id, files)
     except Exception as e:  # pragma: no cover - demo plugin boundary
         print(f"Error: {e}", file=sys.stderr)
-        print(traceback.format_exc(), file=sys.stderr)
         return 1
 
     print(json.dumps(result, indent=2))
