@@ -193,7 +193,7 @@ class Plugin:
 
             while True:
                 try:
-                    statuses.append(next(yielded))
+                    statuses.append(to_status(next(yielded)))
                 except StopIteration:
                     break
                 except Exception as e:
