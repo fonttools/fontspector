@@ -4,7 +4,7 @@ version = "0.1.0"
 authors = [
     { name = "Simon Cozens", email = "simon@simon-cozens.org" },
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
     "fonttools>=4.57.0",
 ]

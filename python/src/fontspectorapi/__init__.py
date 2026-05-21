@@ -13,10 +13,13 @@ fontspector subprocess plugins:
 from __future__ import annotations
 
 import argparse
+import inspect
 import json
 import sys
+import traceback
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tuple, Union
+from pathlib import Path
+from typing import Any, Callable, Dict, Iterator, List, Optional, Sequence, Tuple, Union
 
 SKIP = "SKIP"
 INFO = "INFO"
@@ -44,7 +47,7 @@ class CheckContext:
 
     check_id: str
     check_metadata: Dict[str, Any]
-    files: List[str]
+    files: List[Path]
     cache: Dict[str, Any] = field(default_factory=dict)
 
 
@@ -55,7 +58,13 @@ StatusYield = Union[
     Tuple[str, str, str],
 ]
 
-CheckStatuses = Iterable[StatusYield]
+CheckStatuses = Iterator[StatusYield]
+CheckFn = Union[
+    Callable[[Path], CheckStatuses],
+    Callable[[list[Path]], CheckStatuses],
+    Callable[[Path, CheckContext], CheckStatuses],
+    Callable[[list[Path], CheckContext], CheckStatuses],
+]
 
 
 @dataclass
@@ -69,7 +78,7 @@ class CheckDefinition:
     metadata: Dict[str, Any]
     hotfix_available: bool = False
     sourcefix_available: bool = False
-    func: Optional[Callable[..., CheckStatuses]] = None
+    func: Optional[CheckFn] = None
 
 
 @dataclass
@@ -93,7 +102,7 @@ class Plugin:
     def register_filetype(self, name: str, pattern: str) -> None:
         self._filetypes[name] = pattern
 
-    def register_check(self, fn: Callable[..., CheckStatuses]) -> None:
+    def register_check(self, fn: CheckFn) -> None:
         meta = getattr(fn, "_fontspector_check", None)
         if meta is None:
             raise ValueError("Function is missing @check metadata")
@@ -112,7 +121,7 @@ class Plugin:
     def register_simple_profile(
         self,
         profile_name: str,
-        check_fns: Sequence[Callable[..., CheckStatuses]],
+        check_fns: Sequence[CheckFn],
         section_name: Optional[str] = None,
     ) -> None:
         for fn in check_fns:
@@ -165,7 +174,7 @@ class Plugin:
             "filetypes": self._filetypes,
         }
 
-    def run_check(self, check_id: str, files: Sequence[str]) -> Dict[str, Any]:
+    def run_check(self, check_id: str, files: Sequence[Path]) -> Dict[str, Any]:
         if check_id not in self._checks:
             raise ValueError(f"Unknown check id: {check_id}")
 
@@ -182,14 +191,47 @@ class Plugin:
             files=list(files),
         )
 
+        statuses = []
         if check_def.runs_on_collection:
-            yielded = check_def.func(list(files), context)
             filename = None
+            path_arg = list(files)
         else:
-            yielded = check_def.func(str(files[0]), context)
             filename = str(files[0])
+            path_arg = files[0]
 
-        statuses = [to_status(item) for item in yielded]
+        try:
+            match count_pos_args(check_def.func):
+                case 1:
+                    yielded = check_def.func(path_arg)  # type: ignore
+                case 2:
+                    yielded = check_def.func(path_arg, context)  # type: ignore
+                case n:
+                    raise ValueError(
+                        f"{check_def.func.__name__} should have 1 or 2 positional arguments, but has {n}"
+                    )
+
+            while True:
+                try:
+                    statuses.append(to_status(next(yielded)))
+                except StopIteration:
+                    break
+                except Exception as e:
+                    statuses.append(
+                        dict(
+                            severity=ERROR,
+                            code=e.__class__.__name__,
+                            message=f"{e}\n{traceback.format_exc()}",
+                        )
+                    )
+                    # ...but keep running
+        except Exception as e:
+            statuses.append(
+                dict(
+                    severity=ERROR,
+                    code=e.__class__.__name__,
+                    message=f"unable to run check: {e}\n{traceback.format_exc()}",
+                )
+            )
         worst = worst_status(statuses)
 
         return {
@@ -214,7 +256,7 @@ def check(
     applies_to: str = "TTF",
     runs_on_collection: bool = False,
     metadata: Optional[Dict[str, Any]] = None,
-) -> Callable[[Callable[..., CheckStatuses]], Callable[..., CheckStatuses]]:
+) -> Callable[[CheckFn], CheckFn]:
     """Attach check metadata to a function."""
 
     if proposal is None:
@@ -224,7 +266,7 @@ def check(
     else:
         proposal_list = list(proposal)
 
-    def decorator(fn: Callable[..., CheckStatuses]) -> Callable[..., CheckStatuses]:
+    def decorator(fn: CheckFn) -> CheckFn:
         fn._fontspector_check = {
             "id": id,
             "title": title,
@@ -272,6 +314,14 @@ def to_status(item: StatusYield) -> Dict[str, Any]:
     )
 
 
+def count_pos_args(fn: Callable) -> int:
+    return sum(
+        param.kind == inspect.Parameter.POSITIONAL_ONLY
+        or param.kind == inspect.Parameter.POSITIONAL_OR_KEYWORD
+        for param in inspect.signature(fn).parameters.values()
+    )
+
+
 def normalize_severity(value: str) -> str:
     sev = str(value).upper()
     if sev not in VALID_SEVERITIES:
@@ -294,18 +344,18 @@ def _build_parser() -> argparse.ArgumentParser:
         "--metadata", action="store_true", help="Emit plugin metadata as JSON"
     )
     parser.add_argument("--check", dest="check_id", help="Run a check by id")
-    parser.add_argument("files", nargs="*", help="Input files")
+    parser.add_argument("files", nargs="*", help="Input files", type=Path)
     return parser
 
 
-def _parse_cli(argv: Sequence[str]) -> Tuple[str, Optional[str], List[str]]:
+def _parse_cli(argv: Sequence[str]) -> Tuple[str, Optional[str], List[Path]]:
     if len(argv) >= 2 and argv[1] == "metadata":
         return ("metadata", None, [])
 
     if len(argv) >= 2 and argv[1] == "check":
         if len(argv) < 4:
             raise ValueError("Usage: check <CHECK_ID> <FILE> [<FILE> ...]")
-        return ("check", argv[2], list(argv[3:]))
+        return ("check", argv[2], list(map(Path, argv[3:])))
 
     parser = _build_parser()
     args = parser.parse_args(argv[1:])
@@ -341,9 +391,12 @@ def plugin_main(
         return 2
 
     try:
+        # This should be provided by _parse_cli when mode isn't "metadata"
+        assert check_id, "check_id not provided"
         result = plugin.run_check(check_id, files)
     except Exception as e:  # pragma: no cover - demo plugin boundary
         print(f"Error: {e}", file=sys.stderr)
+        traceback.print_exc(file=sys.stderr)
         return 1
 
     print(json.dumps(result, indent=2))
