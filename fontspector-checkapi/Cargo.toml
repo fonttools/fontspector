@@ -22,7 +22,7 @@ clap = []
 
 [build-dependencies]
 minreq = { version = "2.6.0", features = ["https"] }
-scraper = "0.26.0"
+scraper = "0.27.0"
 regex = { workspace = true }
 
 [dependencies]
