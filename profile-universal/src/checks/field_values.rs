@@ -23,7 +23,7 @@ struct TableEntry {
 
     ```
     [field_values]
-    hhea.ascent = 927
+    hhea.ascender = 927
     \"OS/2.sxHeight\" = 518 # Key needs to be escaped because of / in OS/2
     name.versionString = { \"en-us\" = \"Version 1.008\" } # Languages must be present
     fvar.axes = {
@@ -40,9 +40,12 @@ struct TableEntry {
 
     ```
     [field_values.\"Foo-Regular.ttf\"]
-    hhea.ascent = 990
+    hhea.ascender = 990
     [field_values.\"Foo-Bold.ttf\"]
-    hhea.ascent = 1020
+    hhea.ascender = 1020
+    ```
+
+    Field names should be `camelcase` forms of the names given in the OpenType specification.
     ",
     proposal = "https://github.com/fonttools/fontspector/issues/404",
     title = "Ensure field data is as expected."
@@ -57,7 +60,11 @@ fn field_values(t: &Testable, context: &Context) -> CheckFnResult {
     );
     if let Some(config) = config.as_object() {
         // If the config is a table of tables, specialize it by font filename
-        let config_for_this_font = if config.values().all(|v| v.is_object()) {
+        let config_for_this_font = if config.values().all(|v| v.is_object())
+            && config
+                .keys()
+                .all(|k| k.ends_with(".ttf") || k.ends_with(".otf"))
+        {
             if let Some(specific) =
                 config.get(&t.basename().unwrap_or("<Unnamed Font>".to_string()))
             {
@@ -79,14 +86,45 @@ fn field_values(t: &Testable, context: &Context) -> CheckFnResult {
         let mut incorrect = vec![];
         for (key, value) in config_for_this_font.iter() {
             let found = serialized.get(key);
-            if found != Some(value) {
-                incorrect.push(TableEntry {
-                    field: key.clone(),
-                    expected: value.clone().to_string(),
-                    found: found
-                        .cloned()
-                        .map_or("<Not present>".to_string(), |f| f.to_string()),
-                });
+            match found {
+                Some(found) if equal_enough(found, value) => continue,
+                Some(found) => {
+                    incorrect.push(TableEntry {
+                        field: key.clone(),
+                        expected: value.clone().to_string(),
+                        found: found.to_string(),
+                    });
+                }
+                None => {
+                    // No field for this key? Maybe the key was spelt wrong
+                    #[expect(
+                        clippy::unwrap_used,
+                        reason = "Since the config is validated to be an object, we can be sure that this unwrap won't panic"
+                    )]
+                    let suggestion = did_you_mean(
+                        key,
+                        serialized.as_object().unwrap().keys().cloned().collect(),
+                    );
+                    if let Some(suggestion) = suggestion {
+                        incorrect.push(TableEntry {
+                            field: key.clone(),
+                            expected: value.clone().to_string(),
+                            found: format!(
+                                "<Not present> (Did you mean {}?
+                            )",
+                                suggestion
+                            ),
+                        });
+                        continue;
+                    } else {
+                        incorrect.push(TableEntry {
+                            field: key.clone(),
+                            expected: value.clone().to_string(),
+                            found: "<Not present>".to_string(),
+                        });
+                        continue;
+                    }
+                }
             }
         }
         if incorrect.is_empty() {
@@ -104,6 +142,72 @@ fn field_values(t: &Testable, context: &Context) -> CheckFnResult {
             "Configuration for field_values is not an object".to_string(),
         ));
     }
+}
+
+fn did_you_mean(key: &str, options: Vec<String>) -> Option<String> {
+    let mut best_distance = usize::MAX;
+    let mut best_option = None;
+    for option in options {
+        let distance = edit_distance(key, &option);
+        if distance < best_distance {
+            best_distance = distance;
+            best_option = Some(option);
+        }
+    }
+    // Only suggest if the distance is reasonably small; otherwise we might be suggesting something completely different
+    if best_distance <= 3 {
+        best_option
+    } else {
+        None
+    }
+}
+
+#[allow(clippy::indexing_slicing, clippy::needless_range_loop)] // It's not my code; taken from edit_distance crate
+pub fn edit_distance(a: impl AsRef<str>, b: impl AsRef<str>) -> usize {
+    let len_a = a.as_ref().chars().count();
+    let len_b = b.as_ref().chars().count();
+    if len_a < len_b {
+        return edit_distance(b, a);
+    }
+    // handle special case of 0 length
+    if len_a == 0 {
+        return len_b;
+    } else if len_b == 0 {
+        return len_a;
+    }
+
+    let len_b = len_b + 1;
+
+    let mut pre;
+    let mut tmp;
+    let mut cur = vec![0; len_b];
+
+    // initialize string b
+    for i in 1..len_b {
+        cur[i] = i;
+    }
+
+    // calculate edit distance
+    for (i, ca) in a.as_ref().chars().enumerate() {
+        // get first column for this row
+        pre = cur[0];
+        cur[0] = i + 1;
+        for (j, cb) in b.as_ref().chars().enumerate() {
+            tmp = cur[j + 1];
+            cur[j + 1] = std::cmp::min(
+                // deletion
+                tmp + 1,
+                std::cmp::min(
+                    // insertion
+                    cur[j] + 1,
+                    // match or substitution
+                    pre + if ca == cb { 0 } else { 1 },
+                ),
+            );
+            pre = tmp;
+        }
+    }
+    cur[len_b - 1]
 }
 
 // Flatten the map: `{ table: { field: value} }` -> ` { table.field: value }`
@@ -219,6 +323,28 @@ fn serialize_fvar_table(font: &FontRef) -> Value {
     Value::Object(map)
 }
 
+fn equal_enough(v1: &Value, v2: &Value) -> bool {
+    match (v1, v2) {
+        (Value::Number(n1), Value::Number(n2)) => {
+            // Allow numbers to be equal if they are close enough, to account for floating point imprecision
+            let f1 = n1.as_f64().unwrap_or(0.0);
+            let f2 = n2.as_f64().unwrap_or(0.0);
+            (f1 - f2).abs() < 0.01
+        }
+        (Value::String(s1), Value::String(s2)) => s1 == s2,
+        (Value::Object(o1), Value::Object(o2)) => {
+            // For objects, we require all keys in the config to be present and correct in the found value, but the found value can have extra keys
+            o1.iter().all(|(k, v)| {
+                if let Some(found_value) = o2.get(k) {
+                    equal_enough(v, found_value)
+                } else {
+                    false
+                }
+            })
+        }
+        _ => v1 == v2,
+    }
+}
 pub(crate) trait ToValue {
     fn serialize(&self) -> Value;
 }
@@ -379,5 +505,83 @@ impl DenormalizeLocation for FontRef<'_> {
             );
         }
         Ok(map)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+
+    use super::*;
+    use fontspector_checkapi::codetesting::{assert_pass, run_check_with_config, test_able};
+
+    #[test]
+    fn test_field_values_simple() {
+        let t1 = test_able("mada/Mada-Regular.ttf");
+
+        let config = json!({
+                "hhea.ascender": 900,
+                "hhea.descender": -300,
+                "OS/2.sxHeight": 486,
+        });
+        let results = run_check_with_config(
+            field_values,
+            TestableType::Single(&t1),
+            HashMap::from_iter([("field_values".to_string(), config)]),
+        );
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_field_values_per_font() {
+        let t1 = test_able("mada/Mada-Regular.ttf");
+
+        let config = json!({
+                "hhea.ascender": 900,
+                "hhea.descender": -300,
+                "OS/2.sxHeight": 486,
+        });
+        let not_my_config = json!({
+                "hhea.ascender": 901,
+                "hhea.descender": -301,
+                "OS/2.sxHeight": 485,
+        });
+        let results = run_check_with_config(
+            field_values,
+            TestableType::Single(&t1),
+            HashMap::from_iter([(
+                "field_values".to_string(),
+                json!({
+                   "Mada-Regular.ttf": config,
+                   "Mada-Nonsuch.ttf": not_my_config
+                }),
+            )]),
+        );
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_field_values_variable() {
+        let t1 = test_able("cabinvf/Cabin[wdth,wght].ttf");
+
+        let config: Value = json!({
+                "fvar.axes": {
+                    "wdth": { "name": "Width", "min": 75, "max": 100, "default": 100 },
+                    "wght": { "name": "Weight", "min": 400, "max": 700, "default": 400 },
+                },
+                "fvar.namedInstances": {
+                    "Regular": { "wdth": 100, "wght": 400 },
+                    "Medium": { "wdth": 100, "wght": 500 },
+                    "SemiBold": { "wdth": 100, "wght": 600 },
+                    "Bold": { "wdth": 100, "wght": 700 },
+                },
+        });
+        let results = run_check_with_config(
+            field_values,
+            TestableType::Single(&t1),
+            HashMap::from_iter([("field_values".to_string(), config)]),
+        );
+        println!("Results: {:#?}", results);
+        assert_pass(&results);
     }
 }

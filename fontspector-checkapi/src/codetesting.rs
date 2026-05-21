@@ -95,7 +95,12 @@ pub fn run_check_with_config_and_network(
 /// Takes a `CheckResult` and asserts that the worst status is `Pass`
 pub fn assert_pass(check_result: &Option<CheckResult>) {
     let status = check_result.as_ref().unwrap().worst_status();
-    assert_eq!(status, StatusCode::Pass);
+    assert_eq!(
+        status,
+        StatusCode::Pass,
+        "Expected check to pass, but got status {:?}",
+        status
+    );
 }
 /// Assert that a check is skipped
 ///
