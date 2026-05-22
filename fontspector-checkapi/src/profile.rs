@@ -38,6 +38,7 @@ impl Override {
 
 #[cfg_attr(feature = "schemars", derive(schemars::JsonSchema))]
 #[derive(Serialize, Deserialize, Default)]
+#[serde(default)]
 /// A check profile
 ///
 /// A check profile is a collection of checks that are run together. Vendors
@@ -56,7 +57,6 @@ pub struct Profile {
     /// The list of checks to be run is organised into a number of named
     /// sections, with a list of check IDs in each section.
     pub sections: IndexMap<String, Vec<CheckId>>,
-    #[serde(default)]
     /// The list of profiles to include
     ///
     /// Other profiles can be included by name. For example, the `universal`
@@ -66,19 +66,16 @@ pub struct Profile {
     /// they can list all the checks they want to run manually to avoid
     /// surprises when new checks are implemented on profiles they intend to use.
     include_profiles: Vec<String>,
-    #[serde(default)]
     /// Checks to exclude from included profiles
     ///
     /// When including a profile, it is possible to exclude certain checks
     /// from that profile. This is useful when a vendor wants to use a profile
     /// in part, excluding certain checks.
     exclude_checks: Vec<CheckId>,
-    #[serde(default)]
     /// Overrides
     ///
     /// Override the severity of included checks. See [Override] for more information.
     pub overrides: HashMap<CheckId, Vec<Override>>,
-    #[serde(default)]
     /// Configuration defaults
     ///
     /// Each check is passed a [Context] object, which (among other things) contains
@@ -90,7 +87,6 @@ pub struct Profile {
     configuration_defaults: HashMap<CheckId, HashMap<String, serde_json::Value>>,
 
     #[cfg(feature = "python")]
-    #[serde(default)]
     /// Code files to include to register Python-based checks
     pub check_definitions: Vec<String>,
 }
