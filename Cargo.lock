@@ -1675,7 +1675,7 @@ dependencies = [
 
 [[package]]
 name = "fontspector-checkapi"
-version = "1.6.0"
+version = "1.7.0"
 dependencies = [
  "clap",
  "fontations",
@@ -1708,7 +1708,7 @@ dependencies = [
 
 [[package]]
 name = "fontspector-hotfix"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "clap",
  "dialoguer",
@@ -1759,7 +1759,7 @@ dependencies = [
 
 [[package]]
 name = "fontspector-profile-googlefonts"
-version = "1.8.0"
+version = "1.8.1"
 dependencies = [
  "chrono",
  "edit-distance",
@@ -1844,7 +1844,7 @@ dependencies = [
 
 [[package]]
 name = "fontspector-profile-universal"
-version = "1.8.0"
+version = "1.8.1"
 dependencies = [
  "fontations",
  "fontdrasil",
