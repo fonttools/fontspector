@@ -1,4 +1,5 @@
 //! Simple CLI tool for applying hotfixes to font binaries
+use std::io::IsTerminal as _;
 
 #[cfg(feature = "cli")]
 use clap::Parser;
@@ -27,6 +28,11 @@ struct Args {
     #[arg(short = 'o', long = "output", value_name = "OUTPUT")]
     output: Option<String>,
 
+    /// Non-interactive mode (don't prompt for additional information)
+    /// Automatically set if input is not a TTY
+    #[arg(short = 'n', long = "non-interactive")]
+    non_interactive: bool,
+
     /// Verbose output
     #[arg(short = 'v', long = "verbose")]
     verbose: bool,
@@ -45,6 +51,12 @@ fn main() {
 
     // Determine which check IDs to use
     let mut check_ids = args.checks.clone();
+
+    let mut interactive = !args.non_interactive;
+    // If input is not a TTY, force non-interactive mode
+    if !std::io::stdin().is_terminal() {
+        interactive = false;
+    }
 
     // If a profile is specified, get all check IDs from it
     if let Some(profile_name) = &args.profile {
@@ -77,7 +89,7 @@ fn main() {
     });
 
     // Apply hotfixes
-    match fontspector_hotfix::apply_hotfixes(&mut testable, &check_ids) {
+    match fontspector_hotfix::apply_hotfixes(&mut testable, &check_ids, interactive) {
         Ok(modified) => {
             if modified {
                 // Save the file

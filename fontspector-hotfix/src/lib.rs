@@ -78,7 +78,11 @@ pub type HotfixResult = Result<bool, FontspectorError>;
 /// # Errors
 ///
 /// Returns an error if any hotfix function encounters an error during execution.
-pub fn apply_hotfixes(testable: &mut Testable, check_ids: &[CheckId]) -> HotfixResult {
+pub fn apply_hotfixes(
+    testable: &mut Testable,
+    check_ids: &[CheckId],
+    interactive: bool,
+) -> HotfixResult {
     let mut any_modified = false;
 
     let registry = get_registry();
@@ -101,12 +105,20 @@ pub fn apply_hotfixes(testable: &mut Testable, check_ids: &[CheckId]) -> HotfixR
         loop {
             match hotfix(testable, options) {
                 Ok(FixResult::MoreInfoNeeded(dialog)) => {
-                    if !header_shown {
-                        show_header(testable, check_id, check.title);
-                        header_shown = true;
-                    }
+                    if !interactive {
+                        log::error!(
+                            "Hotfix for '{}' requires more information, but interactive mode is disabled",
+                            check_id
+                        );
+                        break;
+                    } else {
+                        if !header_shown {
+                            show_header(testable, check_id, check.title);
+                            header_shown = true;
+                        }
 
-                    options = run_dialog(&dialog);
+                        options = run_dialog(&dialog);
+                    }
                     continue;
                 }
                 Ok(hotfix_result) => {
