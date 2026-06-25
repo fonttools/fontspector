@@ -369,7 +369,6 @@ fn group_inputs(args: &mut Args) -> Vec<TestableCollection> {
         .inputs
         .iter()
         .map(PathBuf::from)
-        .filter(|x| x.is_file())
         .filter(|x| x.parent().is_some());
     inputs
         .map(|file| {
