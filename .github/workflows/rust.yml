@@ -25,14 +25,18 @@ jobs:
           cache-workspace-crates: true
       - name: Build
         run: cargo build
+      - name: Install uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
       - name: Run tests
         run: |
           cargo test --verbose --workspace --exclude fontspector-web
-          pip install maturin pytest
+          uv venv .venv
+          . .venv/bin/activate
+          uv pip install maturin pytest
           cd fontspector-py
           maturin build
-          pip install ../target/wheels/fontspector*.whl
-          pytest tests --verbose
+          uv pip install ../target/wheels/fontspector*.whl
+          uv run pytest tests --verbose
 
   formatting:
     runs-on: ubuntu-latest

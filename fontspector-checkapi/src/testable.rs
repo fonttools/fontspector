@@ -26,6 +26,14 @@ impl Testable {
     ///
     /// The contents are resolved from the filesystem.
     pub fn new<P: Into<PathBuf> + AsRef<Path>>(filename: P) -> Result<Self, std::io::Error> {
+        if filename.as_ref().is_dir() {
+            // treat directories as files with empty contents
+            return Ok(Self {
+                filename: filename.into(),
+                source: None,
+                contents: Vec::new(),
+            });
+        }
         let contents = std::fs::read(&filename)?;
         Ok(Self {
             filename: filename.into(),
