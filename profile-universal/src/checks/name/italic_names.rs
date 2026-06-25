@@ -92,8 +92,16 @@ fn italic_names(t: &Testable, _context: &Context) -> CheckFnResult {
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::unwrap_used)]
+
     use super::italic_names;
-    use fontspector_checkapi::codetesting::{assert_pass, assert_skip, run_check, test_able};
+    use fontations::skrifa::raw::types::NameId;
+    use fontspector_checkapi::{
+        codetesting::{
+            assert_pass, assert_results_contain, assert_skip, run_check, set_name_entry, test_able,
+        },
+        StatusCode,
+    };
 
     #[test]
     fn test_italic_names_skip_regular() {
@@ -107,5 +115,81 @@ mod tests {
         let testable = test_able("cabin/Cabin-Italic.ttf");
         let results = run_check(italic_names, testable);
         assert_pass(&results);
+    }
+
+    #[test]
+    fn test_italic_names_fail_bad_familyname() {
+        let mut testable = test_able("cabin/Cabin-Italic.ttf");
+        set_name_entry(
+            &mut testable,
+            3,
+            1,
+            0x0409,
+            NameId::FAMILY_NAME,
+            "Cabin Italic".to_string(),
+        );
+        let results = run_check(italic_names, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("bad-familyname".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_italic_names_fail_bad_subfamilyname() {
+        let mut testable = test_able("cabin/Cabin-Italic.ttf");
+        set_name_entry(
+            &mut testable,
+            3,
+            1,
+            0x0409,
+            NameId::SUBFAMILY_NAME,
+            "Regular".to_string(),
+        );
+        let results = run_check(italic_names, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("bad-subfamilyname".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_italic_names_fail_bad_typographicfamilyname() {
+        let mut testable = test_able("shantell/ShantellSans-Italic[BNCE,INFM,SPAC,wght].ttf");
+        set_name_entry(
+            &mut testable,
+            3,
+            1,
+            0x0409,
+            NameId::TYPOGRAPHIC_FAMILY_NAME,
+            "Shantell Sans Italic".to_string(),
+        );
+        let results = run_check(italic_names, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("bad-typographicfamilyname".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_italic_names_fail_bad_typographicsubfamilyname() {
+        let mut testable = test_able("shantell/ShantellSans-Italic[BNCE,INFM,SPAC,wght].ttf");
+        set_name_entry(
+            &mut testable,
+            3,
+            1,
+            0x0409,
+            NameId::TYPOGRAPHIC_SUBFAMILY_NAME,
+            "Light".to_string(),
+        );
+        let results = run_check(italic_names, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("bad-typographicsubfamilyname".to_string()),
+        );
     }
 }

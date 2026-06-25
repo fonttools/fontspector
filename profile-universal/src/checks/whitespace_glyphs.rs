@@ -79,3 +79,45 @@ fn fix_whitespace_glyphs(
     }
     Ok(FixResult::Unfixable)
 }
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used)]
+
+    use super::whitespace_glyphs;
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, deencode_glyph, run_check, test_able},
+        StatusCode,
+    };
+
+    #[test]
+    fn test_whitespace_glyphs_pass() {
+        let testable = test_able("mada/Mada-Regular.ttf");
+        let results = run_check(whitespace_glyphs, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_whitespace_glyphs_missing_nbsp() {
+        let mut testable = test_able("mada/Mada-Regular.ttf");
+        deencode_glyph(&mut testable, 0x00A0).unwrap();
+        let results = run_check(whitespace_glyphs, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("missing-whitespace-glyph-0x00A0".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_whitespace_glyphs_missing_space() {
+        let mut testable = test_able("mada/Mada-Regular.ttf");
+        deencode_glyph(&mut testable, 0x0020).unwrap();
+        let results = run_check(whitespace_glyphs, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("missing-whitespace-glyph-0x0020".to_string()),
+        );
+    }
+}

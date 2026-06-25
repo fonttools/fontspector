@@ -1,15 +1,9 @@
-import glob
-import math
 import os
-from pathlib import Path
 import shutil
-import tempfile
+from pathlib import Path
 
 import pytest
-import requests
 from conftest import check_id
-from fontTools.ttLib import TTFont
-
 from fontbakery.checks.vendorspecific.googlefonts.conditions import (
     expected_font_names,
 )
@@ -20,10 +14,8 @@ from fontbakery.codetesting import (
     assert_results_contain,
     assert_SKIP,
     portable_path,
-    MockContext,
 )
 from fontbakery.constants import (
-    OFL_BODY_TEXT,
     MacintoshEncodingID,
     MacintoshLanguageID,
     NameID,
@@ -31,8 +23,9 @@ from fontbakery.constants import (
     WindowsEncodingID,
     WindowsLanguageID,
 )
-from fontbakery.status import DEBUG, ERROR, FAIL, FATAL, INFO, PASS, SKIP, WARN
+from fontbakery.status import DEBUG, ERROR, FAIL, INFO, PASS, SKIP, WARN
 from fontbakery.testable import Font
+from fontTools.ttLib import TTFont
 
 check_statuses = (ERROR, FAIL, SKIP, PASS, WARN, INFO, DEBUG)
 
@@ -188,17 +181,6 @@ def test_check_description_broken_links(check, tmp_path):
     #     "timeout",
     #     "with a description file containing a URL that times out...",
     # )
-
-
-@check_id("googlefonts/metadata/validate")
-def test_check_metadata_validate(check):
-    """Check METADATA.pb parse correctly."""
-
-    good = TEST_FILE("stixtwomath/METADATA.pb")
-    assert_PASS(check(good), "with a good METADATA.pb file...")
-
-    bad = TEST_FILE("broken_metadata/METADATA.pb")
-    assert list(check(bad))[0].status == FATAL
 
 
 @pytest.mark.skip("Check not ported yet.")
@@ -568,26 +550,6 @@ def test_check_font_names(check, fp, mod, result, code):
         )
 
 
-@pytest.mark.skip("Check not ported yet.")
-@check_id("googlefonts/varfont/generate_static")
-def test_check_varfont_generate_static(check):
-    """Check a static ttf can be generated from a variable font."""
-
-    ttFont = TTFont(TEST_FILE("cabinvfbeta/CabinVFBeta.ttf"))
-    assert_PASS(check(ttFont))
-
-    # Mangle the coordinates of the first named instance
-    # to deliberately break the variable font.
-    ttFont["fvar"].instances[0].coordinates = {"fooo": 400.0, "baar": 100.0}
-    msg = assert_results_contain(check(ttFont), FAIL, "varlib-mutator")
-    assert "fontTools.varLib.mutator failed" in msg
-
-    # Now delete the fvar table to exercise a SKIP result due an unfulfilled condition.
-    del ttFont["fvar"]
-    msg = assert_results_contain(check(ttFont), SKIP, "unfulfilled-conditions")
-    assert "Unfulfilled Conditions: is_variable_font" in msg
-
-
 @check_id("googlefonts/fvar_instances")
 def test_check_fvar_instances__another_test(check):  # TODO: REVIEW THIS.
     """Check variable font instances."""
@@ -855,16 +817,7 @@ def test_check_vertical_metrics(check):
 
 @check_id("googlefonts/vertical_metrics_regressions")
 def test_check_vertical_metrics_regressions(check):
-    def new_context():
-        context = MockContext(
-            testables=[Font(x) for x in cabin_fonts], config={"skip_network": False}
-        )
-        for testable in context.testables:
-            testable.context = context
-        return context
-
     # Cabin test family should match by default
-    context = new_context()
     assert_PASS(check([TEST_FILE("cabin/Cabin-Regular.ttf")]), "with a good family...")
 
     # FAIL with changed vertical metric values

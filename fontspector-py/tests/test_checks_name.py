@@ -1,16 +1,15 @@
 import pytest
-from fontTools.ttLib import TTFont
-
 from conftest import check_id
 from fontbakery.codetesting import (
-    assert_PASS,
-    assert_SKIP,
-    assert_results_contain,
     GLYPHSAPP_TEST_FILE,
     TEST_FILE,
+    assert_PASS,
+    assert_results_contain,
+    assert_SKIP,
 )
 from fontbakery.constants import NameID
 from fontbakery.status import FAIL, WARN
+from fontTools.ttLib import TTFont
 
 
 @pytest.fixture
@@ -240,97 +239,3 @@ def DISABLED_test_check_glyphs_file_name_family_and_style_max_length(check):
             check(glyphsFile), WARN, "too-long", "with a too long stylename..."
         )
 
-
-
-
-
-@check_id("name/no_copyright_on_description")
-def test_check_name_no_copyright_on_description(check):
-    """Description strings in the name table must not contain copyright info."""
-
-    # Our reference Mada Regular is know to be good here.
-    ttFont = TTFont(TEST_FILE("mada/Mada-Regular.ttf"))
-    assert_PASS(check(ttFont), "with a good font...")
-
-    # here we add a "Copyright" string to a NameID.DESCRIPTION
-    for i, name in enumerate(ttFont["name"].names):
-        if name.nameID == NameID.DESCRIPTION:
-            ttFont["name"].names[i].string = "Copyright".encode(name.getEncoding())
-
-    assert_results_contain(
-        check(ttFont), FAIL, "copyright-on-description", "with a bad font..."
-    )
-
-
-@check_id("name/italic_names")
-def test_check_italic_names(check):
-    def get_name(font, nameID):
-        for entry in font["name"].names:
-            if entry.nameID == nameID:
-                return entry.toUnicode()
-
-    def set_name(font, nameID, string):
-        for record in font["name"].names:
-            if record.nameID == nameID:
-                old_string = record.toUnicode()
-                if string != old_string:
-                    font["name"].setName(
-                        string,
-                        record.nameID,
-                        record.platformID,
-                        record.platEncID,
-                        record.langID,
-                    )
-
-    # Fonts without Name ID 16 & 17
-
-    # PASS or SKIP
-    ttFont = TTFont(TEST_FILE("cabin/Cabin-Regular.ttf"))
-    assert_SKIP(check(ttFont))
-
-    ttFont = TTFont(TEST_FILE("cabin/Cabin-Italic.ttf"))
-    assert_PASS(check(ttFont))
-
-    ttFont = TTFont(TEST_FILE("cabin/Cabin-Medium.ttf"))
-    assert_SKIP(check(ttFont))
-
-    ttFont = TTFont(TEST_FILE("cabin/Cabin-Bold.ttf"))
-    assert_SKIP(check(ttFont))
-
-    ttFont = TTFont(TEST_FILE("cabin/Cabin-BoldItalic.ttf"))
-    assert_PASS(check(ttFont))
-
-    # FAIL
-    ttFont = TTFont(TEST_FILE("cabin/Cabin-Italic.ttf"))
-    set_name(ttFont, 1, get_name(ttFont, 1) + " Italic")
-    assert_results_contain(check(ttFont), FAIL, "bad-familyname")
-
-    ttFont = TTFont(TEST_FILE("cabin/Cabin-Italic.ttf"))
-    set_name(ttFont, 2, "Regular")
-    assert_results_contain(check(ttFont), FAIL, "bad-subfamilyname")
-
-    # This file is faulty as-is
-    ttFont = TTFont(TEST_FILE("cabin/Cabin-MediumItalic.ttf"))
-    assert_results_contain(check(ttFont), FAIL, "bad-subfamilyname")
-    # Fix it
-    set_name(ttFont, 1, "Cabin Medium")
-    set_name(ttFont, 2, "Italic")
-    assert_PASS(check(ttFont))
-
-    # Fonts with Name ID 16 & 17
-
-    # PASS or SKIP
-    ttFont = TTFont(TEST_FILE("shantell/ShantellSans[BNCE,INFM,SPAC,wght].ttf"))
-    assert_SKIP(check(ttFont))
-
-    ttFont = TTFont(TEST_FILE("shantell/ShantellSans-Italic[BNCE,INFM,SPAC,wght].ttf"))
-    assert_PASS(check(ttFont))
-
-    # FAIL
-    ttFont = TTFont(TEST_FILE("shantell/ShantellSans-Italic[BNCE,INFM,SPAC,wght].ttf"))
-    set_name(ttFont, 16, "Shantell Sans Italic")
-    assert_results_contain(check(ttFont), FAIL, "bad-typographicfamilyname")
-
-    ttFont = TTFont(TEST_FILE("shantell/ShantellSans-Italic[BNCE,INFM,SPAC,wght].ttf"))
-    set_name(ttFont, 17, "Light")
-    assert_results_contain(check(ttFont), FAIL, "bad-typographicsubfamilyname")

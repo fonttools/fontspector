@@ -191,4 +191,12 @@ mod tests {
             Some("xAvgCharWidth-wrong".to_string()),
         );
     }
+
+    // TODO: The Python test also covers the following edge cases which
+    // require font subsetting (via fontTools.subset) - hard to port:
+    // 1. Subset font to [a-z, space], OS/2 version=2, xAvgCharWidth=447 -> PASS
+    // 2. Subset font, xAvgCharWidth=450 -> INFO "xAvgCharWidth-close"
+    // 3. Subset font, xAvgCharWidth=500 -> WARN "xAvgCharWidth-wrong"
+    // 4. Further subset font (removing 'a') -> ERROR
+    // These could be covered by pre-building subsetted font fixtures.
 }
