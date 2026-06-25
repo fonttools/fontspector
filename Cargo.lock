@@ -1772,7 +1772,7 @@ dependencies = [
  "google-fonts-languages",
  "google-fonts-subsets",
  "harfrust 0.6.0",
- "hashbrown 0.17.0",
+ "hashbrown 0.17.1",
  "image",
  "indexmap",
  "itertools 0.14.0",
@@ -1851,7 +1851,7 @@ dependencies = [
  "fontspector-checkapi",
  "fontspector-checkhelper",
  "freetype-rs",
- "hashbrown 0.17.0",
+ "hashbrown 0.17.1",
  "humansize",
  "interpolatable",
  "itertools 0.14.0",
@@ -2346,9 +2346,9 @@ checksum = "841d1cc9bed7f9236f321df977030373f4a4163ae1a7dbfe1a51a2c1a51d9100"
 
 [[package]]
 name = "hashbrown"
-version = "0.17.0"
+version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4f467dd6dccf739c208452f8014c75c18bb8301b050ad1cfb27153803edb0f51"
+checksum = "ed5909b6e89a2db4456e54cd5f673791d7eca6732202bbf2a9cc504fe2f9b84a"
 dependencies = [
  "allocator-api2",
  "equivalent",
@@ -2738,7 +2738,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d466e9454f08e4a911e14806c24e16fba1b4c121d1ea474396f396069cf949d9"
 dependencies = [
  "equivalent",
- "hashbrown 0.17.0",
+ "hashbrown 0.17.1",
  "serde",
  "serde_core",
 ]
