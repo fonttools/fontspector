@@ -34,9 +34,12 @@ def filename_has_ttf_suffix(font_file: str, _context):
     if font_file.lower().endswith(".ttf"):
         yield PASS, "File looks like a TTF"
     else:
-        yield FAIL, Message(
-            "filename-suffix",
-            "Input file does not end with .ttf",
+        yield (
+            FAIL,
+            Message(
+                "filename-suffix",
+                "Input file does not end with .ttf",
+            ),
         )
 
 
@@ -53,16 +56,38 @@ def collection_file_extensions_match(files, _context):
     if len(extensions) <= 1:
         yield PASS, "Collection uses a consistent file extension"
     else:
-        yield FAIL, Message(
-            "mixed-extensions",
-            f"Collection has mixed extensions: {extensions}",
+        yield (
+            FAIL,
+            Message(
+                "mixed-extensions",
+                f"Collection has mixed extensions: {extensions}",
+            ),
         )
+
+
+@check(
+    id="python/glyphspackage_parses",
+    title="Check that a .glyphspackage file is valid",
+    rationale="Demonstrates that custom directory-based filetypes can be registered and used.",
+    proposal="https://github.com/fonttools/fontspector",
+)
+def glyphspackage_parses(file, _context):
+    """Fail when the .glyphspackage file is not valid."""
+    import glyphsLib
+
+    try:
+        glyphsLib.load(file)
+        yield PASS, "Glyphs package is valid"
+    except Exception as e:
+        yield FAIL, Message("invalid-glyphspackage", str(e))
 
 
 def register(plugin):
     plugin.register_check(say_hello)
     plugin.register_check(filename_has_ttf_suffix)
     plugin.register_check(collection_file_extensions_match)
+    plugin.register_check(glyphspackage_parses)
+    plugin.register_filetype("GLYPHSPACKAGE", "*.glyphspackage")
 
     plugin.register_profile(
         "python-example-base",
@@ -72,6 +97,7 @@ def register(plugin):
                     "python/say_hello",
                     "python/filename_has_ttf_suffix",
                     "python/collection_file_extensions_match",
+                    "python/glyphspackage_parses",
                 ]
             }
         ),
