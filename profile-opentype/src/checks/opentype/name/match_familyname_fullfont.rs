@@ -104,4 +104,16 @@ mod tests {
         let result = run_check(match_familyname_fullfont, testable);
         assert_pass(&result);
     }
+
+    #[test]
+    fn test_match_familyname_fullfont_fail_missing_full_name() {
+        let mut testable = test_able("mada/Mada-Regular.ttf");
+        fontspector_checkapi::codetesting::remove_name_entry(&mut testable, NameId::FULL_NAME);
+        let result = run_check(match_familyname_fullfont, testable);
+        assert_results_contain(
+            &result,
+            StatusCode::Fail,
+            Some("missing-full-name".to_string()),
+        );
+    }
 }

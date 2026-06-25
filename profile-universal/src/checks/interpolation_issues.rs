@@ -328,3 +328,40 @@ fn get_point_by_index_at_location(
         .map(|p| (p.x as f32, p.y as f32));
     points
 }
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        StatusCode,
+    };
+
+    use super::interpolation_issues;
+
+    #[test]
+    fn test_interpolation_issues_pass() {
+        let testable = test_able("cabinvf/Cabin[wdth,wght].ttf");
+        let results = run_check(interpolation_issues, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_interpolation_issues_skip_static() {
+        let testable = test_able("mada/Mada-Regular.ttf");
+        let results = run_check(interpolation_issues, testable);
+        assert_results_contain(&results, StatusCode::Skip, Some("not-variable".to_string()));
+    }
+
+    #[test]
+    fn test_interpolation_issues_warn() {
+        let testable = test_able("notosansbamum/NotoSansBamum[wght].ttf");
+        let results = run_check(interpolation_issues, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Warn,
+            Some("interpolation-issue".to_string()),
+        );
+    }
+}
