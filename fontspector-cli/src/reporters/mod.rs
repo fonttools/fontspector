@@ -79,7 +79,8 @@ impl RunResults {
     }
 
     pub fn len(&self) -> usize {
-        self.results.len()
+        // Normally we want the count of subresults, not the count of checks.
+        self.iter().map(|r| r.subresults.len()).sum()
     }
 }
 
