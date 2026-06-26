@@ -2223,13 +2223,12 @@ dependencies = [
 
 [[package]]
 name = "google-fonts-languages"
-version = "0.7.7"
+version = "0.7.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8fe180b8735d2804f098df3fb976014f7578a65b72bcdca016273ed3194c7a41"
+checksum = "28f863745d41f0983351c704e35ca1240774d534f1c6f8c944ed766f4b54f309"
 dependencies = [
- "bytes",
  "glob",
- "itertools 0.13.0",
+ "itertools 0.14.0",
  "prettyplease",
  "proc-macro2",
  "prost",
