@@ -5,7 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.8.2 (2026-06-26)
+
+## v1.8.1 (2026-05-27)
+
+### Bug Fixes
+
+ - <csr-id-ae0a71feb2175d183f54bfc0c19e38bad0eae8bb/> update rust crate scraper to 0.27.0
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 2 commits contributed to the release.
+ - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
+ - 1 unique issue was worked on: [#799](https://github.com/fonttools/fontspector/issues/799)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#799](https://github.com/fonttools/fontspector/issues/799)**
+    - Update rust crate scraper to 0.27.0 ([`ae0a71f`](https://github.com/fonttools/fontspector/commit/ae0a71feb2175d183f54bfc0c19e38bad0eae8bb))
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.7.0, fontspector-profile-googlefonts v1.8.1, fontspector-profile-universal v1.8.1, fontspector-hotfix v0.3.0, safety bump fontspector-hotfix v0.3.0 ([`4d8f418`](https://github.com/fonttools/fontspector/commit/4d8f41871df584797c2a918d2614a84b583b689d))
+</details>
+
 ## v1.8.0 (2026-05-18)
+
+<csr-id-7b32eca0846e594655f304250928295ffbf6496a/>
+<csr-id-4e74f48adb3b84553b338ef4c3c25ab52f2db960/>
+<csr-id-ae1f30c4751e7f76ee903ab072761af580ece7ca/>
 
 ### New Features
 
@@ -170,7 +202,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 19 commits contributed to the release over the course of 72 calendar days.
+ - 20 commits contributed to the release over the course of 72 calendar days.
  - 84 days passed between releases.
  - 19 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 20 unique issues were worked on: [#657](https://github.com/fonttools/fontspector/issues/657), [#658](https://github.com/fonttools/fontspector/issues/658), [#668](https://github.com/fonttools/fontspector/issues/668), [#675](https://github.com/fonttools/fontspector/issues/675), [#676](https://github.com/fonttools/fontspector/issues/676), [#677](https://github.com/fonttools/fontspector/issues/677), [#682](https://github.com/fonttools/fontspector/issues/682), [#693](https://github.com/fonttools/fontspector/issues/693), [#696](https://github.com/fonttools/fontspector/issues/696), [#702](https://github.com/fonttools/fontspector/issues/702), [#710](https://github.com/fonttools/fontspector/issues/710), [#711](https://github.com/fonttools/fontspector/issues/711), [#717](https://github.com/fonttools/fontspector/issues/717), [#742](https://github.com/fonttools/fontspector/issues/742), [#747](https://github.com/fonttools/fontspector/issues/747), [#763](https://github.com/fonttools/fontspector/issues/763), [#775](https://github.com/fonttools/fontspector/issues/775), [#778](https://github.com/fonttools/fontspector/issues/778), [#779](https://github.com/fonttools/fontspector/issues/779), [#782](https://github.com/fonttools/fontspector/issues/782)
@@ -221,6 +253,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Metadata/license also checks license matches license file ([`6bf4ec9`](https://github.com/fonttools/fontspector/commit/6bf4ec9902139b558e6c4390ac0df3dfb0cc6b44))
  * **[#782](https://github.com/fonttools/fontspector/issues/782)**
     - New plugin architecture ([`7b32eca`](https://github.com/fonttools/fontspector/commit/7b32eca0846e594655f304250928295ffbf6496a))
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.6.0, fontspector-profile-fontwerk v1.3.1, fontspector-profile-googlefonts v1.8.0, fontspector-profile-iso15008 v1.0.6, fontspector-profile-opentype v1.5.0, fontspector-profile-universal v1.8.0, fontspector-hotfix v0.2.0, fontspector v1.7.0, safety bump fontspector-hotfix v0.2.0 ([`b319e16`](https://github.com/fonttools/fontspector/commit/b319e16d70daabfed30fcb18d66b8400c00fd32f))
 </details>
 
 ## v1.7.0 (2026-02-23)
