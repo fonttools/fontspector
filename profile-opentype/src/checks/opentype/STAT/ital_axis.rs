@@ -6,7 +6,7 @@ use fontations::{
     },
     types::NameId,
 };
-use fontspector_checkapi::{prelude::*, skip, FileTypeConvert, TestFont};
+use fontspector_checkapi::{prelude::*, FileTypeConvert, TestFont};
 
 fn segment_collection(fonts: Vec<TestFont>) -> Vec<(Option<TestFont>, Option<TestFont>)> {
     let mut roman_italic = vec![];
@@ -235,7 +235,7 @@ fn ital_axis(c: &TestableCollection, _context: &Context) -> CheckFnResult {
             // static font is recommend to have a STAT table
             return Ok(Status::just_one_warn(
                 "no-stat-table",
-                &format!("Static font is missing the 'STAT' table."),
+                &format!("Static font is missing the 'STAT' table.".to_string()),
             ));
         }
     }
@@ -268,10 +268,8 @@ fn ital_axis(c: &TestableCollection, _context: &Context) -> CheckFnResult {
 mod tests {
     use super::*;
     use fontspector_checkapi::{
-        StatusCode,
-        Testable,
-        codetesting::{assert_pass, assert_skip, run_check_with_config, test_able, assert_results_contain},
-        TestableType,
+        codetesting::{assert_pass, assert_results_contain, run_check_with_config, test_able},
+        StatusCode, Testable, TestableType,
     };
     use std::collections::HashMap;
 
