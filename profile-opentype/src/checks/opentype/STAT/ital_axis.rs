@@ -223,12 +223,6 @@ fn check_ital_is_binary_and_last(t: &TestFont, is_italic: bool) -> Result<Vec<St
 )]
 fn ital_axis(c: &TestableCollection, _context: &Context) -> CheckFnResult {
     let fonts = TTF.from_collection(c);
-    let fonts: Vec<TestFont> = fonts.into_iter().filter(|f| f.is_variable_font()).collect();
-    skip!(
-        fonts.is_empty(),
-        "no-variable-fonts",
-        "No variable fonts in the collection"
-    );
 
     for font in fonts.iter() {
         if font.has_table(b"gvar") && !font.has_table(b"STAT") {
@@ -331,24 +325,6 @@ mod tests {
             HashMap::new(),
         );
         assert_pass(&result);
-    }
-
-    #[test]
-    fn test_stat_ital_axis_skip_statics() {
-        let testables: Vec<Testable> = vec![
-            test_able("cabin/Cabin-Regular.ttf"),
-            test_able("cabin/Cabin-Italic.ttf"),
-        ];
-        let collection = TestableCollection {
-            testables,
-            directory: "".to_string(),
-        };
-        let result = run_check_with_config(
-            super::ital_axis,
-            TestableType::Collection(&collection),
-            HashMap::new(),
-        );
-        assert_skip(&result);
     }
 
     #[test]
