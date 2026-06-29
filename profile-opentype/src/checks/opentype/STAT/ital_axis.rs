@@ -329,9 +329,10 @@ mod tests {
 
     #[test]
     fn test_ital_axis_static_fonts_missing_stat() {
-        let testable_1 = test_able("montserrat/Montserrat-Regular.ttf");
-        let testable_2 = test_able("montserrat/Montserrat-Italic.ttf");
-        let testables: Vec<Testable> = vec![testable_1, testable_2];
+        let testables: Vec<Testable> = vec![
+            test_able("cabin/Cabin-Regular.ttf"),
+            test_able("cabin/Cabin-Italic.ttf"),
+        ];
         let collection = TestableCollection {
             testables,
             directory: "".to_string(),
