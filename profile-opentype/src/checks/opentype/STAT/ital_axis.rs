@@ -22,12 +22,15 @@ fn segment_collection(fonts: Vec<TestFont>) -> Vec<(Option<TestFont>, Option<Tes
         {
             let suspected_roman_family_name = name.to_string();
             if let Some(index) = non_italics.iter().position(|f| {
-                f.font()
+                if let Some(other_name) = f
+                    .font()
                     .localized_strings(NameId::FAMILY_NAME)
                     .english_or_first()
-                    .expect("No Family Name")
-                    .to_string()
-                    == suspected_roman_family_name
+                {
+                    other_name.to_string() == suspected_roman_family_name
+                } else {
+                    false
+                }
             }) {
                 let roman = non_italics.swap_remove(index);
                 roman_italic.push((Some(roman), Some(italic)));
