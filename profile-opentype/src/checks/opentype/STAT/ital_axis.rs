@@ -343,15 +343,15 @@ mod tests {
     }
 
     #[test]
-    fn test_stat_ital_axis_standalone_italic_pass() {
-        // A standalone italic with a valid ital axis should pass
-        let testables: Vec<Testable> = vec![test_able(
-            "shantell/ShantellSans-Italic[BNCE,INFM,SPAC,wght].ttf",
-        )];
+    fn test_ital_axis_static_fonts_missing_stat() {
+        let testable_1 = test_able("montserrat/Montserrat-Regular.ttf");
+        let testable_2 = test_able("montserrat/Montserrat-Italic.ttf");
+        let testables: Vec<Testable> = vec![testable_1, testable_2];
         let collection = TestableCollection {
             testables,
             directory: "".to_string(),
         };
+
         let result = run_check_with_config(
             super::ital_axis,
             TestableType::Collection(&collection),
@@ -364,10 +364,29 @@ mod tests {
     fn test_stat_ital_axis_roman_only_pass() {
         let testables: Vec<Testable> =
             vec![test_able("shantell/ShantellSans[BNCE,INFM,SPAC,wght].ttf")];
+
+        let results = run_check_with_config(
+            ital_axis,
+            TestableType::Collection(&collection),
+            HashMap::new(),
+        );
+        assert_results_contain(
+            &results,
+            StatusCode::Warn,
+            Some("no-stat-table".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_ital_axis_skip_static_fonts() {
+        let testable_1 = test_able("notosans/static/NotoSans-Black.ttf");
+        let testable_2 = test_able("notosans/static/NotoSans-BlackItalic.ttf");
+        let testables: Vec<Testable> = vec![testable_1, testable_2];
         let collection = TestableCollection {
             testables,
             directory: "".to_string(),
         };
+
         let result = run_check_with_config(
             super::ital_axis,
             TestableType::Collection(&collection),
