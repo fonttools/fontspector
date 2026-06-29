@@ -75,7 +75,7 @@ fn italic_names(t: &Testable, _context: &Context) -> CheckFnResult {
         .next()
     {
         if !typo_subfamily_name.ends_with("Italic") {
-            let message = "Name ID 16 (Typographic Family Name) must contain 'Italic'.";
+            let message = "Name ID 17 (Typographic Subfamily Name) must contain 'Italic'.";
             let mut status = Status::fail("bad-typographicsubfamilyname", message);
             status.add_metadata(Metadata::TableProblem {
                 table_tag: "name".to_string(),
