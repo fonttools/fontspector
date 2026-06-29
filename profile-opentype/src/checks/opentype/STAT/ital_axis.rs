@@ -349,7 +349,7 @@ mod tests {
     }
 
     #[test]
-    fn test_ital_axis_skip_static_fonts() {
+    fn test_ital_axis_static_fonts_with_stat() {
         let testable_1 = test_able("notosans/static/NotoSans-Black.ttf");
         let testable_2 = test_able("notosans/static/NotoSans-BlackItalic.ttf");
         let testables: Vec<Testable> = vec![testable_1, testable_2];
