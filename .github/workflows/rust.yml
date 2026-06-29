@@ -65,6 +65,24 @@ jobs:
       - name: Lint for warnings
         run: cargo clippy --all-targets --all-features -- -D warnings
 
+  wasm-still-builds:
+    name: Check that the web site still builds
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - name: Install protoc
+        run: sudo apt-get update && sudo apt-get install protobuf-compiler
+      - name: Install wasm-pack
+        run: cargo install wasm-pack
+      - name: Build
+        run: cd fontspector-web; RUSTFLAGS='-C target-feature=+bulk-memory' wasm-pack build
+      - name: Build web site
+        run: |
+          cd fontspector-web/www
+          npm install
+          npm run build
+
   deploy-binaries:
     name: Build and upload binaries
     permissions:
