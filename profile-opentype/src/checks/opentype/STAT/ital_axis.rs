@@ -229,13 +229,13 @@ fn ital_axis(c: &TestableCollection, _context: &Context) -> CheckFnResult {
             // variable font must have a STAT table
             return Ok(Status::just_one_fail(
                 "no-stat-table",
-                &format!("Variable font is missing the 'STAT' table."),
+                "Variable font is missing the 'STAT' table.",
             ));
         } else if !font.has_table(b"gvar") && !font.has_table(b"STAT") {
             // static font is recommend to have a STAT table
             return Ok(Status::just_one_warn(
                 "no-stat-table",
-                &format!("Static font is missing the 'STAT' table.".to_string()),
+                "Static font is missing the 'STAT' table.",
             ));
         }
     }
