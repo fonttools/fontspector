@@ -4,8 +4,8 @@ use fontspector_checkapi::{prelude::*, FileTypeConvert, StatusCode};
 #[check(
     id = "typographic_family_name",
     rationale = "
-        Check whether Name ID 16 (Typographic Family name) is consistent
-        across the set of fonts.
+        Check whether the Typographic Family name (ID 16, falling back to ID 1)
+        is consistent across the set of fonts.
     ",
     proposal = "https://github.com/fonttools/fontbakery/pull/4567",
     title = "Typographic Family name consistency.",
@@ -16,8 +16,12 @@ fn typographic_family_name(c: &TestableCollection, context: &Context) -> CheckFn
     let items: Vec<_> = ttfs
         .iter()
         .map(|f| {
+            // Prefer name ID 16, but name ID 1 is considered the typographic
+            // family name in its absence.
+            // https://learn.microsoft.com/en-us/typography/opentype/spec/name#name-ids
             let name = f
                 .get_name_entry_strings(NameId::TYPOGRAPHIC_FAMILY_NAME)
+                .chain(f.get_name_entry_strings(NameId::FAMILY_NAME))
                 .next()
                 .unwrap_or("<missing>".to_string());
             #[allow(clippy::unwrap_used)]
@@ -32,7 +36,7 @@ fn typographic_family_name(c: &TestableCollection, context: &Context) -> CheckFn
         context,
         &items,
         "inconsistency",
-        "Name ID 16 (Typographic Family name) is not consistent across fonts.",
+        "Typographic Family name is not consistent across fonts.",
         StatusCode::Fail,
     )
 }
@@ -43,8 +47,8 @@ mod tests {
 
     use super::typographic_family_name;
     use fontspector_checkapi::{
-        codetesting::{assert_pass, run_check_with_config, test_able},
-        TestableCollection, TestableType,
+        codetesting::{assert_pass, assert_results_contain, run_check_with_config, test_able},
+        StatusCode, TestableCollection, TestableType,
     };
 
     #[test]
@@ -62,5 +66,41 @@ mod tests {
             HashMap::new(),
         );
         assert_pass(&results);
+    }
+
+    /// Test a family relying on ID 16 falling back to ID 1 still passes.
+    #[test]
+    fn test_typographic_family_name_fallback_pass() {
+        let testables = vec![
+            test_able("merriweather/Merriweather-Regular.ttf"),
+            test_able("merriweather/Merriweather-Black.ttf"),
+        ];
+        let collection = TestableCollection::from_testables(testables, None);
+        let results = run_check_with_config(
+            typographic_family_name,
+            TestableType::Collection(&collection),
+            HashMap::new(),
+        );
+        assert_pass(&results);
+    }
+
+    /// Test that TTFs from different families fail.
+    #[test]
+    fn test_typographic_family_name_fail() {
+        let testables = vec![
+            test_able("cabin/Cabin-Regular.ttf"),
+            test_able("merriweather/Merriweather-Regular.ttf"),
+        ];
+        let collection = TestableCollection::from_testables(testables, None);
+        let results = run_check_with_config(
+            typographic_family_name,
+            TestableType::Collection(&collection),
+            HashMap::new(),
+        );
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("inconsistency".to_string()),
+        );
     }
 }
