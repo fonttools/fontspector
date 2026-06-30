@@ -47,7 +47,7 @@ itertools = "0.15.0"
 
 # Fontbakery bridge / Python module. Keep these two together
 pyo3 = "0.25"
-pythonize = "0.25"
+pythonize = "0.29"
 
 indexmap = { version = "2", features = ["serde"] }
 tabled = "0.21.0"
