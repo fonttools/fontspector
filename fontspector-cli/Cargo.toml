@@ -20,7 +20,7 @@ fontc = ["dep:fontc", "dep:glyphs2fontir", "dep:fontir"]
 walkdir = "2.5"
 zip = "8"
 quote = "1.0"
-shadow-rs = "1.1.1"
+shadow-rs = "2.0.0"
 
 [dependencies]
 fontspector-checkapi = { path = "../fontspector-checkapi", version = "1.0.0", features = [
@@ -39,7 +39,7 @@ env_logger = "0.11"
 rayon = "1.0.1"
 indicatif = { version = "0.18", features = ["rayon"] }
 homedir = "0.3.4"
-shadow-rs = { version = "1.1.1", default-features = false }
+shadow-rs = { version = "2.0.0", default-features = false }
 toml = { workspace = true }
 
 # Terminal reporter
