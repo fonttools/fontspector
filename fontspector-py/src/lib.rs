@@ -91,7 +91,7 @@ impl CheckTester {
             .get_item(0)
             .map_err(|_| PyValueError::new_err("No args found"))?;
         let testables = if first_arg.is_instance_of::<PyList>() {
-            let first_arg: &Bound<PyList> = first_arg.downcast()?;
+            let first_arg: &Bound<PyList> = first_arg.cast()?;
             first_arg
                 .iter()
                 .map(|a| obj_to_testable(py, &a))
