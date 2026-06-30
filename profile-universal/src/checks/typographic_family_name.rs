@@ -47,8 +47,8 @@ mod tests {
 
     use super::typographic_family_name;
     use fontspector_checkapi::{
-        codetesting::{assert_pass, run_check_with_config, test_able},
-        TestableCollection, TestableType,
+        codetesting::{assert_pass, assert_results_contain, run_check_with_config, test_able},
+        StatusCode, TestableCollection, TestableType,
     };
 
     #[test]
@@ -66,5 +66,41 @@ mod tests {
             HashMap::new(),
         );
         assert_pass(&results);
+    }
+
+    /// Test a family relying on ID 16 falling back to ID 1 still passes.
+    #[test]
+    fn test_typographic_family_name_fallback_pass() {
+        let testables = vec![
+            test_able("merriweather/Merriweather-Regular.ttf"),
+            test_able("merriweather/Merriweather-Black.ttf"),
+        ];
+        let collection = TestableCollection::from_testables(testables, None);
+        let results = run_check_with_config(
+            typographic_family_name,
+            TestableType::Collection(&collection),
+            HashMap::new(),
+        );
+        assert_pass(&results);
+    }
+
+    /// Test that TTFs from different families fail.
+    #[test]
+    fn test_typographic_family_name_fail() {
+        let testables = vec![
+            test_able("cabin/Cabin-Regular.ttf"),
+            test_able("merriweather/Merriweather-Regular.ttf"),
+        ];
+        let collection = TestableCollection::from_testables(testables, None);
+        let results = run_check_with_config(
+            typographic_family_name,
+            TestableType::Collection(&collection),
+            HashMap::new(),
+        );
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("inconsistency".to_string()),
+        );
     }
 }
