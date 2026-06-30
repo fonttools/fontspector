@@ -1508,9 +1508,9 @@ dependencies = [
 
 [[package]]
 name = "font-types"
-version = "0.11.3"
+version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5b38ad915f6dadd993ced50848a8291a543bd41ca62bc10740d5e64e2ab4cfd7"
+checksum = "81bf886368962a7d8456f136073ed33ed1b0770c690d2063731bb6a776e99f33"
 dependencies = [
  "bytemuck",
 ]
@@ -1771,7 +1771,7 @@ dependencies = [
  "google-fonts-glyphsets",
  "google-fonts-languages",
  "google-fonts-subsets",
- "harfrust 0.6.0",
+ "harfrust 0.11.0",
  "hashbrown 0.17.1",
  "image",
  "indexmap",
@@ -1803,7 +1803,7 @@ version = "1.0.7"
 dependencies = [
  "fontations",
  "fontspector-checkapi",
- "harfrust 0.6.0",
+ "harfrust 0.11.0",
  "itertools 0.15.0",
  "kurbo 0.13.1",
 ]
@@ -1814,7 +1814,7 @@ version = "0.1.0"
 dependencies = [
  "fontations",
  "fontspector-checkapi",
- "harfrust 0.6.0",
+ "harfrust 0.11.0",
  "pluginator",
  "regex",
 ]
@@ -2308,14 +2308,13 @@ dependencies = [
 
 [[package]]
 name = "harfrust"
-version = "0.6.0"
+version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a9ce5e848d21ba97a324266e41c70e0eb5e2577a610c1fbd546e15096f2e8e37"
+checksum = "ba3ba1ee6b7b39a19f97aff9425483783340c646f579bd7abedf0036e776654a"
 dependencies = [
  "bitflags",
  "bytemuck",
- "core_maths",
- "read-fonts 0.39.2",
+ "read-fonts 0.40.2",
  "smallvec",
 ]
 
@@ -3491,9 +3490,9 @@ dependencies = [
 
 [[package]]
 name = "once_cell"
-version = "1.21.3"
+version = "1.21.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "42f5e15c9953c5e4ccceeb2e7382a716482c34515315f7b03532b8b4e8393d2d"
+checksum = "9f7c3e4beb33f85d45ae3e3a1792185706c8e16d043238c593331cc7cd313b50"
 
 [[package]]
 name = "once_cell_polyfill"
@@ -4416,13 +4415,13 @@ dependencies = [
 
 [[package]]
 name = "read-fonts"
-version = "0.39.2"
+version = "0.40.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c4ed38b89c2c77ff968c524145ad65fb010f38af5c7a224b53b81d47ac2daa81"
+checksum = "487889119a5f19ff7c0a20637196bdc76b9f54ebec17e3588b5d75e4999f8773"
 dependencies = [
  "bytemuck",
- "core_maths",
- "font-types 0.11.3",
+ "font-types 0.12.0",
+ "once_cell",
 ]
 
 [[package]]
