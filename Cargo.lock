@@ -1658,7 +1658,7 @@ dependencies = [
  "homedir",
  "indexmap",
  "indicatif",
- "itertools 0.14.0",
+ "itertools 0.15.0",
  "log",
  "markdown",
  "quote",
@@ -1683,7 +1683,7 @@ dependencies = [
  "fontspector-checkhelper",
  "glob-match",
  "indexmap",
- "itertools 0.14.0",
+ "itertools 0.15.0",
  "kurbo 0.13.1",
  "log",
  "minreq",
@@ -1730,7 +1730,7 @@ version = "1.0.0"
 dependencies = [
  "fontations",
  "fontspector-checkapi",
- "itertools 0.14.0",
+ "itertools 0.15.0",
  "pluginator",
 ]
 
@@ -1751,7 +1751,7 @@ version = "1.3.2"
 dependencies = [
  "fontations",
  "fontspector-checkapi",
- "itertools 0.14.0",
+ "itertools 0.15.0",
  "pluginator",
  "regex",
  "serde_json",
@@ -1775,7 +1775,7 @@ dependencies = [
  "hashbrown 0.17.1",
  "image",
  "indexmap",
- "itertools 0.14.0",
+ "itertools 0.15.0",
  "kurbo 0.13.1",
  "log",
  "num-traits",
@@ -1804,7 +1804,7 @@ dependencies = [
  "fontations",
  "fontspector-checkapi",
  "harfrust 0.6.0",
- "itertools 0.14.0",
+ "itertools 0.15.0",
  "kurbo 0.13.1",
 ]
 
@@ -1826,7 +1826,7 @@ dependencies = [
  "fontations",
  "fontspector-checkapi",
  "fontspector-checkhelper",
- "itertools 0.14.0",
+ "itertools 0.15.0",
  "kurbo 0.13.1",
  "serde_json",
  "unicode-properties",
@@ -1854,7 +1854,7 @@ dependencies = [
  "hashbrown 0.17.1",
  "humansize",
  "interpolatable",
- "itertools 0.14.0",
+ "itertools 0.15.0",
  "kurbo 0.13.1",
  "log",
  "ordered-float",
@@ -2838,6 +2838,15 @@ name = "itertools"
 version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2b192c782037fadd9cfa75548310488aabdbf3d2da73885b31bd0abd03351285"
+dependencies = [
+ "either",
+]
+
+[[package]]
+name = "itertools"
+version = "0.15.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8b4baf93f58d4425749ca49a51c50ebab072c5df6994d08fed93541c331481dc"
 dependencies = [
  "either",
 ]
