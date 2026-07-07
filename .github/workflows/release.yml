@@ -32,10 +32,15 @@ jobs:
       - name: Run smart release
         run: |-
           PUBLISHABLE_CRATES=$(python3 scripts/publishable.py)
+          ANY_PUBLISHED=0
           for crate in $PUBLISHABLE_CRATES; do
             echo "Publishing $crate"
-            cargo smart-release $crate --no-changelog-preview --allow-fully-generated-changelogs --update-crates-index --execute || exit 1
+            cargo smart-release $crate --no-changelog-preview --allow-fully-generated-changelogs --update-crates-index --execute && ANY_PUBLISHED=1
           done
+          if [ $ANY_PUBLISHED -eq 0 ]; then
+            echo "No crates were published."
+            exit 1
+          fi
       - name: Find Cargo version of fontspector crate
         id: find_version
         run: |-
