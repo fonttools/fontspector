@@ -5,7 +5,92 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.6.0 (2026-07-07)
+
+### New Features
+
+ - <csr-id-d787043511a3ce9b7a98a49aa6cbc0ee60ceb026/> add fsselection_wws check
+   * feat(opentype): add fsselection_wws check
+   
+   Warn when OS/2 fsSelection bit 8 (WWS) is inconsistent with name
+   table entries. If name IDs 21/22 are absent (font naming is already
+   WWS-conformant), the WWS bit should be set. If name IDs 21/22 are
+   present, the WWS bit should not be set.
+
+### Refactor
+
+ - <csr-id-7f61c7af0c64770e5b5c53f3aa757492c80d4e29/> make it more general (except other file name + except static fonts)
+   * refactor(segment_vf_collection): more general (don't look for file name)
+   
+   * test: add Noto Sans resources for unittests
+   
+   * fix(ital_axis): don't skip static fonts (they can have STAT tables as well)
+   
+   * test(test_ital_axis_skip_static_fonts): better name
+   
+   * test(test_ital_axis_static_fonts_missing_stat): use static fonts without STAT table from 'main'
+   
+   * refactor(ital_axis): remove obsolete imports and fix formatting
+   
+   * fix: don't use !format!() if it's a string without variables.
+   
+   * fix(ital_axis): issue with panic
+   
+   ---------
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 2 commits contributed to the release.
+ - 11 days passed between releases.
+ - 2 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 2 unique issues were worked on: [#684](https://github.com/fonttools/fontspector/issues/684), [#847](https://github.com/fonttools/fontspector/issues/847)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#684](https://github.com/fonttools/fontspector/issues/684)**
+    - Add fsselection_wws check ([`d787043`](https://github.com/fonttools/fontspector/commit/d787043511a3ce9b7a98a49aa6cbc0ee60ceb026))
+ * **[#847](https://github.com/fonttools/fontspector/issues/847)**
+    - Make it more general (except other file name + except static fonts) ([`7f61c7a`](https://github.com/fonttools/fontspector/commit/7f61c7af0c64770e5b5c53f3aa757492c80d4e29))
+</details>
+
+## v1.5.1 (2026-06-26)
+
+### Test
+
+ - <csr-id-35b60e025c28d65cb2c858691bf11d001da34802/> Move more tests from Python to Rust
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 2 commits contributed to the release.
+ - 39 days passed between releases.
+ - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
+ - 1 unique issue was worked on: [#825](https://github.com/fonttools/fontspector/issues/825)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#825](https://github.com/fonttools/fontspector/issues/825)**
+    - Move more tests from Python to Rust ([`35b60e0`](https://github.com/fonttools/fontspector/commit/35b60e025c28d65cb2c858691bf11d001da34802))
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.7.1, fontspector-profile-fontwerk v1.3.2, fontspector-profile-googlefonts v1.8.2, fontspector-profile-iso15008 v1.0.7, fontspector-profile-opentype v1.5.1, fontspector-profile-universal v1.8.2, fontspector-hotfix v0.3.1, fontspector v1.7.2 ([`accdd2a`](https://github.com/fonttools/fontspector/commit/accdd2a9c3ab285e71e5a047120cbe366cd80a84))
+</details>
+
 ## v1.5.0 (2026-05-18)
+
+<csr-id-0d19fe268f4ca901c88f68cef20b7426b981029a/>
+<csr-id-7b32eca0846e594655f304250928295ffbf6496a/>
+<csr-id-21088abcfe9357b6c28be5ce87557d306e8b93e2/>
 
 ### Chore
 
@@ -124,7 +209,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 8 commits contributed to the release over the course of 72 calendar days.
+ - 9 commits contributed to the release over the course of 72 calendar days.
  - 84 days passed between releases.
  - 8 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 8 unique issues were worked on: [#665](https://github.com/fonttools/fontspector/issues/665), [#679](https://github.com/fonttools/fontspector/issues/679), [#694](https://github.com/fonttools/fontspector/issues/694), [#700](https://github.com/fonttools/fontspector/issues/700), [#710](https://github.com/fonttools/fontspector/issues/710), [#712](https://github.com/fonttools/fontspector/issues/712), [#716](https://github.com/fonttools/fontspector/issues/716), [#782](https://github.com/fonttools/fontspector/issues/782)
@@ -151,6 +236,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Silence printlns ([`0d19fe2`](https://github.com/fonttools/fontspector/commit/0d19fe268f4ca901c88f68cef20b7426b981029a))
  * **[#782](https://github.com/fonttools/fontspector/issues/782)**
     - New plugin architecture ([`7b32eca`](https://github.com/fonttools/fontspector/commit/7b32eca0846e594655f304250928295ffbf6496a))
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.6.0, fontspector-profile-fontwerk v1.3.1, fontspector-profile-googlefonts v1.8.0, fontspector-profile-iso15008 v1.0.6, fontspector-profile-opentype v1.5.0, fontspector-profile-universal v1.8.0, fontspector-hotfix v0.2.0, fontspector v1.7.0, safety bump fontspector-hotfix v0.2.0 ([`b319e16`](https://github.com/fonttools/fontspector/commit/b319e16d70daabfed30fcb18d66b8400c00fd32f))
 </details>
 
 ## v1.4.0 (2026-02-23)
