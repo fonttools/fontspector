@@ -5,7 +5,92 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.7.3 (2026-07-07)
+
+### Bug Fixes
+
+ - <csr-id-7b8cb1dcc2b9ec5313f68b3e0ca0acae412e495d/> update rust crate shadow-rs to v2
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 1 commit contributed to the release over the course of 1 calendar day.
+ - 11 days passed between releases.
+ - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
+ - 1 unique issue was worked on: [#859](https://github.com/fonttools/fontspector/issues/859)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#859](https://github.com/fonttools/fontspector/issues/859)**
+    - Update rust crate shadow-rs to v2 ([`7b8cb1d`](https://github.com/fonttools/fontspector/commit/7b8cb1dcc2b9ec5313f68b3e0ca0acae412e495d))
+</details>
+
+## v1.7.2 (2026-06-26)
+
+### New Features
+
+ - <csr-id-19ed6fcc69c3e11cb7a21942761b7172a9468c38/> Allow directories to be testables
+   * fix(api): Allow directories to be testables
+   
+   * fix(cli): Allow directories to be testables
+   
+   * feat(python): Demonstrate Glyphspackage tests
+   
+   * chore: Use uv for better dependency resolution in tests
+
+### Bug Fixes
+
+ - <csr-id-a13f564184b3963eaf47c7a87cf857253786b10f/> Sum total of check results, not total of checks, fixes #816
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 3 commits contributed to the release over the course of 1 calendar day.
+ - 2 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 1 unique issue was worked on: [#823](https://github.com/fonttools/fontspector/issues/823)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#823](https://github.com/fonttools/fontspector/issues/823)**
+    - Allow directories to be testables ([`19ed6fc`](https://github.com/fonttools/fontspector/commit/19ed6fcc69c3e11cb7a21942761b7172a9468c38))
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.7.1, fontspector-profile-fontwerk v1.3.2, fontspector-profile-googlefonts v1.8.2, fontspector-profile-iso15008 v1.0.7, fontspector-profile-opentype v1.5.1, fontspector-profile-universal v1.8.2, fontspector-hotfix v0.3.1, fontspector v1.7.2 ([`accdd2a`](https://github.com/fonttools/fontspector/commit/accdd2a9c3ab285e71e5a047120cbe366cd80a84))
+    - Sum total of check results, not total of checks, fixes #816 ([`a13f564`](https://github.com/fonttools/fontspector/commit/a13f564184b3963eaf47c7a87cf857253786b10f))
+</details>
+
+## v1.7.1 (2026-05-29)
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 1 commit contributed to the release.
+ - 0 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 0 issues like '(#ID)' were seen in commit messages
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **Uncategorized**
+    - Release fontspector v1.7.1 ([`36365bd`](https://github.com/fonttools/fontspector/commit/36365bde4bbd119e5f4711b96ea5a6f07104fe3c))
+</details>
+
 ## v1.7.0 (2026-05-18)
+
+<csr-id-7b32eca0846e594655f304250928295ffbf6496a/>
 
 ### New Features
 
@@ -85,7 +170,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 4 commits contributed to the release over the course of 72 calendar days.
+ - 5 commits contributed to the release over the course of 72 calendar days.
  - 84 days passed between releases.
  - 4 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 4 unique issues were worked on: [#654](https://github.com/fonttools/fontspector/issues/654), [#672](https://github.com/fonttools/fontspector/issues/672), [#710](https://github.com/fonttools/fontspector/issues/710), [#782](https://github.com/fonttools/fontspector/issues/782)
@@ -104,6 +189,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Interactive fixing ([`d7a8e96`](https://github.com/fonttools/fontspector/commit/d7a8e964d234b7bf1693e85a7610d9a1f78c572f))
  * **[#782](https://github.com/fonttools/fontspector/issues/782)**
     - New plugin architecture ([`7b32eca`](https://github.com/fonttools/fontspector/commit/7b32eca0846e594655f304250928295ffbf6496a))
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.6.0, fontspector-profile-fontwerk v1.3.1, fontspector-profile-googlefonts v1.8.0, fontspector-profile-iso15008 v1.0.6, fontspector-profile-opentype v1.5.0, fontspector-profile-universal v1.8.0, fontspector-hotfix v0.2.0, fontspector v1.7.0, safety bump fontspector-hotfix v0.2.0 ([`b319e16`](https://github.com/fonttools/fontspector/commit/b319e16d70daabfed30fcb18d66b8400c00fd32f))
 </details>
 
 ## v1.6.0 (2026-02-23)

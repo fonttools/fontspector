@@ -1636,7 +1636,7 @@ dependencies = [
 
 [[package]]
 name = "fontspector"
-version = "1.7.2"
+version = "1.7.3"
 dependencies = [
  "chrono",
  "clap",
