@@ -8,8 +8,10 @@ env:
   GH_TOKEN: ${{ github.token }}
 
 jobs:
-  build:
+  make-release:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.find_version.outputs.VERSION }}
 
     steps:
       - uses: actions/checkout@v7
@@ -28,4 +30,32 @@ jobs:
       - name: Install smart release
         run: cargo install cargo-smart-release
       - name: Run smart release
-        run: cargo smart-release `python3 scripts/publishable.py` --no-changelog-preview --allow-fully-generated-changelogs --update-crates-index --execute
+        run: |-
+          PUBLISHABLE_CRATES=$(python3 scripts/publishable.py)
+          for crate in $PUBLISHABLE_CRATES; do
+            echo "Publishing $crate"
+            cargo smart-release $crate --no-changelog-preview --allow-fully-generated-changelogs --update-crates-index --execute || exit 1
+          done
+      - name: Find Cargo version of fontspector crate
+        id: find_version
+        run: |-
+          VERSION=$(cargo metadata --format-version 1 --no-deps | jq -r '.packages[] | select(.name == "fontspector") | .version')
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+      - name: Create GitHub release
+        run: |-
+          git tag -l --format='%(contents)' "fontspector-v${{ env.VERSION }}" > /tmp/release_body.md
+          gh release create "fontspector-v${{ env.VERSION }}" \
+            --title "Release v${{ env.VERSION }}" \
+            --notes-file /tmp/release_body.md
+  build-artefacts:
+    needs: make-release
+    permissions:
+      contents: write
+      id-token: write
+    uses: ./.github/workflows/build-binary.yml
+    with:
+      version: ${{ needs.make-release.outputs.version }}
+      upload-to-release: true
+      release-tag: fontspector-v${{ needs.make-release.outputs.version }}
+      checkout-ref: fontspector-v${{ needs.make-release.outputs.version }}

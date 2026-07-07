@@ -83,88 +83,31 @@ jobs:
           npm install
           npm run build
 
-  deploy-binaries:
-    name: Build and upload binaries
-    permissions:
-      contents: write
-      id-token: write
-    runs-on: ${{ matrix.os.os }}
-    # Only build on main or tag
+  compute-version:
+    runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-          - build: linux
-            os: ubuntu-22.04
-            target: x86_64-unknown-linux-gnu
-
-          - build: macos
-            os: macos-latest
-            target: x86_64-apple-darwin
-
-          - build: macos-m1
-            os: macos-latest
-            target: aarch64-apple-darwin
-
-          - build: windows-gnu
-            os: windows-latest
-            target: x86_64-pc-windows-gnu
-        # python: ["3.9", "3.10", "3.11", "3.12", "3.13"]
-
+    outputs:
+      version: ${{ steps.version.outputs.VERSION }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-        with:
-          submodules: recursive
-      - run: rustup toolchain install stable --profile minimal
-      - if: matrix.os.target == 'x86_64-apple-darwin'
-        run: rustup target add x86_64-apple-darwin
-      - uses: Swatinem/rust-cache@v2
-        with:
-          cache-workspace-crates: true
-          add-job-id-key: false
-
-      # - name: Set up python
-      #   uses: actions/setup-python@v5
-      #   with:
-      #     python-version: ${{ matrix.python }}
-      - name: Build
-        run: cargo build --verbose --release --target ${{ matrix.os.target }}
+      - uses: actions/checkout@v7
       - name: Decide on our version name (tag or "dev")
         id: version
         shell: bash
         run: |
-          if [ -n "$GITHUB_REF" ]; then
-              if [[ "$GITHUB_REF" == refs/tags/fontspector-v* ]]; then
-                  echo "VERSION=${GITHUB_REF/refs\/tags\/fontspector-/}" >> $GITHUB_ENV
-              else
-                  echo "VERSION=dev" >> $GITHUB_ENV
-              fi
+          if [[ "$GITHUB_REF" == refs/tags/fontspector-v* ]]; then
+            VERSION="${GITHUB_REF#refs/tags/fontspector-v}"
           else
-              echo "VERSION=dev" >> $GITHUB_ENV
+            VERSION="dev"
           fi
-      - name: Build archive
-        shell: bash
-        run: |
-          # dirname="fontspector-${{ env.VERSION }}-${{ matrix.os.target }}-py${{ matrix.python }}"
-          dirname="fontspector-${{ env.VERSION }}-${{ matrix.os.target }}"
-          mkdir "$dirname"
-          if [ "${{ matrix.os.os }}" = "windows-latest" ]; then
-              mv "target/${{ matrix.os.target }}/release/"*.exe "$dirname"
-              7z a "$dirname.zip" "$dirname"
-              echo "ASSET=$dirname.zip" >> $GITHUB_ENV
-          else
-              mv "target/${{ matrix.os.target }}/release/fontspector" "$dirname"
-              tar -czf "$dirname.tar.gz" "$dirname"
-              echo "ASSET=$dirname.tar.gz" >> $GITHUB_ENV
-          fi
-      - uses: actions/upload-artifact@v7
-        with:
-          name: ${{ env.ASSET }}
-          path: ${{ env.ASSET }}
-      - if: contains(github.ref, 'refs/tags/fontspector-v')
-        name: Add artefact to release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload fontspector-${{ env.VERSION }} ${{ env.ASSET }}
+          echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
+
+  deploy-binaries:
+    name: Build and upload binaries
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
+    needs: compute-version
+    permissions:
+      contents: write
+      id-token: write
+    uses: ./.github/workflows/build-binary.yml
+    with:
+      version: ${{ needs.compute-version.outputs.version }}
