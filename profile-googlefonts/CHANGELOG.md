@@ -5,7 +5,50 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.8.3 (2026-07-07)
+
+### Bug Fixes
+
+ - <csr-id-7385e1c694ed99a2df0b367845f844f108e846b1/> Also support CFF fonts, fixes #863
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 1 commit contributed to the release over the course of 1 calendar day.
+ - 11 days passed between releases.
+ - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
+ - 1 unique issue was worked on: [#864](https://github.com/fonttools/fontspector/issues/864)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#864](https://github.com/fonttools/fontspector/issues/864)**
+    - Also support CFF fonts, fixes #863 ([`7385e1c`](https://github.com/fonttools/fontspector/commit/7385e1c694ed99a2df0b367845f844f108e846b1))
+</details>
+
 ## v1.8.2 (2026-06-26)
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 1 commit contributed to the release.
+ - 0 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 0 issues like '(#ID)' were seen in commit messages
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.7.1, fontspector-profile-fontwerk v1.3.2, fontspector-profile-googlefonts v1.8.2, fontspector-profile-iso15008 v1.0.7, fontspector-profile-opentype v1.5.1, fontspector-profile-universal v1.8.2, fontspector-hotfix v0.3.1, fontspector v1.7.2 ([`accdd2a`](https://github.com/fonttools/fontspector/commit/accdd2a9c3ab285e71e5a047120cbe366cd80a84))
+</details>
 
 ## v1.8.1 (2026-05-27)
 
