@@ -5,7 +5,102 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.8.3 (2026-07-07)
+
+### Bug Fixes
+
+ - <csr-id-b6bc6561e19bca3cef1652489c3111ac8641be02/> fallback to name ID 1 when 16 is absent
+   * fix(typographic_family_name): fallback to name ID 1 when 16 is absent
+   
+   Compilers may omit name ID 16 when it is redundant in the eyes of the
+   spec (identical to name ID 1), and so this fixes false positives in a
+   few families.
+   
+   (the upstream fix fonttools/fontbakery#5012 takes the same approach)
+   
+   * test(typographic_family_name): cover fallback pass, and general fail
+ - <csr-id-4a76eb131b22c7f45456fcfed56280b66646046c/> wrong message, must be name ID 17 and not 16.
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 2 commits contributed to the release.
+ - 11 days passed between releases.
+ - 2 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 2 unique issues were worked on: [#846](https://github.com/fonttools/fontspector/issues/846), [#857](https://github.com/fonttools/fontspector/issues/857)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#846](https://github.com/fonttools/fontspector/issues/846)**
+    - Wrong message, must be name ID 17 and not 16. ([`4a76eb1`](https://github.com/fonttools/fontspector/commit/4a76eb131b22c7f45456fcfed56280b66646046c))
+ * **[#857](https://github.com/fonttools/fontspector/issues/857)**
+    - Fallback to name ID 1 when 16 is absent ([`b6bc656`](https://github.com/fonttools/fontspector/commit/b6bc6561e19bca3cef1652489c3111ac8641be02))
+</details>
+
+## v1.8.2 (2026-06-26)
+
+### Test
+
+ - <csr-id-35b60e025c28d65cb2c858691bf11d001da34802/> Move more tests from Python to Rust
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 2 commits contributed to the release.
+ - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
+ - 1 unique issue was worked on: [#825](https://github.com/fonttools/fontspector/issues/825)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#825](https://github.com/fonttools/fontspector/issues/825)**
+    - Move more tests from Python to Rust ([`35b60e0`](https://github.com/fonttools/fontspector/commit/35b60e025c28d65cb2c858691bf11d001da34802))
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.7.1, fontspector-profile-fontwerk v1.3.2, fontspector-profile-googlefonts v1.8.2, fontspector-profile-iso15008 v1.0.7, fontspector-profile-opentype v1.5.1, fontspector-profile-universal v1.8.2, fontspector-hotfix v0.3.1, fontspector v1.7.2 ([`accdd2a`](https://github.com/fonttools/fontspector/commit/accdd2a9c3ab285e71e5a047120cbe366cd80a84))
+</details>
+
+## v1.8.1 (2026-05-27)
+
+### Bug Fixes
+
+ - <csr-id-f71f89d30d9a0ed390cd15b4abe438db398a456d/> Improve documentation, equality comparison, add tests
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 2 commits contributed to the release.
+ - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
+ - 1 unique issue was worked on: [#803](https://github.com/fonttools/fontspector/issues/803)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#803](https://github.com/fonttools/fontspector/issues/803)**
+    - Improve documentation, equality comparison, add tests ([`f71f89d`](https://github.com/fonttools/fontspector/commit/f71f89d30d9a0ed390cd15b4abe438db398a456d))
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.7.0, fontspector-profile-googlefonts v1.8.1, fontspector-profile-universal v1.8.1, fontspector-hotfix v0.3.0, safety bump fontspector-hotfix v0.3.0 ([`4d8f418`](https://github.com/fonttools/fontspector/commit/4d8f41871df584797c2a918d2614a84b583b689d))
+</details>
+
 ## v1.8.0 (2026-05-18)
+
+<csr-id-0d19fe268f4ca901c88f68cef20b7426b981029a/>
+<csr-id-7b32eca0846e594655f304250928295ffbf6496a/>
+<csr-id-1d7ae179aa03daa7830b791dd3cbe17bcd179112/>
+<csr-id-ae1f30c4751e7f76ee903ab072761af580ece7ca/>
+<csr-id-4e585b258f40165222b17804675635f31c0783ee/>
 
 ### Chore
 
@@ -149,7 +244,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 14 commits contributed to the release over the course of 72 calendar days.
+ - 15 commits contributed to the release over the course of 72 calendar days.
  - 84 days passed between releases.
  - 14 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 14 unique issues were worked on: [#656](https://github.com/fonttools/fontspector/issues/656), [#659](https://github.com/fonttools/fontspector/issues/659), [#666](https://github.com/fonttools/fontspector/issues/666), [#680](https://github.com/fonttools/fontspector/issues/680), [#681](https://github.com/fonttools/fontspector/issues/681), [#693](https://github.com/fonttools/fontspector/issues/693), [#694](https://github.com/fonttools/fontspector/issues/694), [#696](https://github.com/fonttools/fontspector/issues/696), [#699](https://github.com/fonttools/fontspector/issues/699), [#702](https://github.com/fonttools/fontspector/issues/702), [#710](https://github.com/fonttools/fontspector/issues/710), [#716](https://github.com/fonttools/fontspector/issues/716), [#775](https://github.com/fonttools/fontspector/issues/775), [#782](https://github.com/fonttools/fontspector/issues/782)
@@ -188,6 +283,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Check full names match against METADATA for varfonts ([`51f11da`](https://github.com/fonttools/fontspector/commit/51f11da8ef49038ff43cab6e0244c0885d33127e))
  * **[#782](https://github.com/fonttools/fontspector/issues/782)**
     - New plugin architecture ([`7b32eca`](https://github.com/fonttools/fontspector/commit/7b32eca0846e594655f304250928295ffbf6496a))
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.6.0, fontspector-profile-fontwerk v1.3.1, fontspector-profile-googlefonts v1.8.0, fontspector-profile-iso15008 v1.0.6, fontspector-profile-opentype v1.5.0, fontspector-profile-universal v1.8.0, fontspector-hotfix v0.2.0, fontspector v1.7.0, safety bump fontspector-hotfix v0.2.0 ([`b319e16`](https://github.com/fonttools/fontspector/commit/b319e16d70daabfed30fcb18d66b8400c00fd32f))
 </details>
 
 ## v1.7.0 (2026-02-23)
