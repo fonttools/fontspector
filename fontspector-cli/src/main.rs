@@ -325,7 +325,7 @@ fn group_inputs(args: &mut Args) -> Vec<TestableCollection> {
         if let Ok(input) = fontc::Input::new(&path) {
             use fontc::Input;
 
-            log::info!("Compiling {}", &path.display());
+            log::info!("Compiling {}", path.display());
             let flags = fontc::Flags::default();
             #[allow(clippy::expect_used)] // You are on your own
             let source = match input {
