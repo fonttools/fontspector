@@ -132,7 +132,7 @@ fn detect_outliers(
                 font.glyph_name_for_id(*glyph),
                 variation * 100.0,
                 measurement_name,
-                &location_names.get(loc).unwrap_or(&"<unknown>".to_string()),
+                location_names.get(loc).unwrap_or(&"<unknown>".to_string()),
                 mean * 100.0,
                 std_dev * 100.0,
                 z_score

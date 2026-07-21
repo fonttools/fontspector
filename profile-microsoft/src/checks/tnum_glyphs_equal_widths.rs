@@ -74,6 +74,7 @@ fn tnum_glyphs_equal_widths(t: &Testable, context: &Context) -> CheckFnResult {
     };
 
     let variations_to_test: Vec<Vec<harfrust::Variation>> = if f.is_variable_font() {
+        #[allow(clippy::unwrap_used)] // if it was a Tag before it can be one again
         f.named_instances()
             .map(|(_name, coordinates)| {
                 coordinates
