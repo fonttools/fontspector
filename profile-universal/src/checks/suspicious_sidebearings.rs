@@ -4,12 +4,15 @@ use fontations::{
     skrifa::{
         metrics::GlyphMetrics,
         prelude::{LocationRef, NormalizedCoord, Size},
+        raw::TableProvider,
         MetadataProvider,
     },
     types::GlyphId,
 };
 use fontdrasil::types::Axes;
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata, TestFont};
+use fontspector_checkapi::{
+    prelude::*, skip, testfont, FileTypeConvert, FontspectorError, Metadata, TestFont,
+};
 use hashbrown::HashMap;
 use itertools::Itertools;
 use ordered_float::OrderedFloat;
@@ -29,6 +32,10 @@ fn denormalize_location(normalized_coords: &[NormalizedCoord], axes: &Axes) -> V
         })
         .collect()
 }
+
+// Backstop for pathological fonts: the number of gvar/HVAR peaks is linear
+// in the size of the font data, but cap it anyway.
+const MAX_LOCATIONS: usize = 10_000;
 
 // Stolen from fontheight.
 //
@@ -74,13 +81,129 @@ pub fn interesting_locations(t: &TestFont) -> Vec<Vec<NormalizedCoord>> {
         .collect()
 }
 
+/// Gets the locations of the font's actual masters, plus the default
+/// location and any named instances.
+///
+/// Master positions are harvested from the peak tuples of every gvar tuple
+/// variation, plus the region peaks of the HVAR variation store (which can
+/// drive advance widths independently of gvar). Unlike a cartesian product
+/// of axis extremes, the number of locations this returns is linear in the
+/// size of the font data, so it stays tractable for fonts with many axes.
+///
+/// Locations are returned in normalized coordinate space, which is where
+/// the deltas actually apply. This deliberately avoids round-tripping
+/// through user space, which is not well-defined for fonts with avar
+/// version 2 cross-axis mappings.
+///
+/// Falls back to [`interesting_locations`] if the font has no gvar or HVAR
+/// variation data at all (e.g. a CFF2-flavoured variable font without HVAR).
+pub fn designspace_peaks(t: &TestFont) -> Vec<Vec<NormalizedCoord>> {
+    let axis_count = t.font().axes().len();
+    let mut locations: BTreeSet<Vec<NormalizedCoord>> = BTreeSet::new();
+
+    if let Ok(gvar) = t.font().gvar() {
+        for glyph in t.all_glyphs() {
+            if let Ok(Some(variations)) = gvar.glyph_variation_data(glyph) {
+                for tuple in variations.tuples() {
+                    let peak: Vec<NormalizedCoord> =
+                        tuple.peak().values().iter().map(|v| v.get()).collect();
+                    if peak.len() == axis_count {
+                        locations.insert(peak);
+                    }
+                }
+            }
+        }
+    }
+
+    if let Ok(region_list) = t
+        .font()
+        .hvar()
+        .and_then(|hvar| hvar.item_variation_store())
+        .and_then(|store| store.variation_region_list())
+    {
+        for region in region_list.variation_regions().iter().flatten() {
+            let peak: Vec<NormalizedCoord> = region
+                .region_axes()
+                .iter()
+                .map(|axis| axis.peak_coord())
+                .collect();
+            if peak.len() == axis_count {
+                locations.insert(peak);
+            }
+        }
+    }
+
+    if locations.is_empty() {
+        return interesting_locations(t);
+    }
+
+    locations.insert(vec![NormalizedCoord::default(); axis_count]);
+    for instance in t.font().named_instances().iter() {
+        locations.insert(instance.location().coords().to_vec());
+    }
+
+    locations.into_iter().take(MAX_LOCATIONS).collect()
+}
+
+struct LocationInfo {
+    name: String,
+    userspace: Option<std::collections::HashMap<String, f32>>,
+}
+
+fn describe_locations(
+    locs: &[Vec<NormalizedCoord>],
+    f: &TestFont,
+) -> Result<Vec<LocationInfo>, FontspectorError> {
+    let axes = f.fontdrasil_axes()?.unwrap_or_default();
+    // avar version 2 cross-axis mappings cannot be reliably inverted, so for
+    // such fonts we describe locations in normalized coordinates instead of
+    // pretending we know the user-space equivalent.
+    let has_avar2 = f
+        .font()
+        .avar()
+        .map(|avar| avar.var_store().is_some())
+        .unwrap_or(false);
+    Ok(locs
+        .iter()
+        .map(|loc| {
+            let user = denormalize_location(loc, &axes);
+            let non_default: Vec<String> = if has_avar2 {
+                loc.iter()
+                    .zip(axes.iter())
+                    .filter(|(coord, _)| coord.to_f32() != 0.0)
+                    .map(|(coord, axis)| format!("{}={:.2}", axis.tag, coord.to_f32()))
+                    .collect()
+            } else {
+                loc.iter()
+                    .zip(user.iter())
+                    .filter(|(coord, _)| coord.to_f32() != 0.0)
+                    .map(|(_, (tag, value))| format!("{}={:.2}", tag, value))
+                    .collect()
+            };
+            let name = if non_default.is_empty() {
+                "the default location".to_string()
+            } else if has_avar2 {
+                format!("{} (normalized)", non_default.join(", "))
+            } else {
+                non_default.join(", ")
+            };
+            let userspace = (!has_avar2).then(|| {
+                user.iter()
+                    .map(|(tag, value)| (tag.clone(), *value as f32))
+                    .collect()
+            });
+            LocationInfo { name, userspace }
+        })
+        .collect())
+}
+
 fn detect_outliers(
     some_measurement: &HashMap<GlyphId, Vec<f32>>,
     z_score_threshold: f32,
     code: &str,
     measurement_name: &str,
     font: &TestFont,
-    location_names: &[String],
+    locations: &[LocationInfo],
 ) -> Vec<Status> {
     let mut problems = vec![];
 
@@ -132,7 +255,7 @@ fn detect_outliers(
                 font.glyph_name_for_id(*glyph),
                 variation * 100.0,
                 measurement_name,
-                location_names.get(loc).unwrap_or(&"<unknown>".to_string()),
+                locations.get(loc).map(|l| l.name.as_str()).unwrap_or("<unknown>"),
                 mean * 100.0,
                 std_dev * 100.0,
                 z_score
@@ -152,10 +275,10 @@ fn detect_outliers(
         let location_descriptions: Vec<String> = outliers
             .iter()
             .map(|(loc, _)| {
-                location_names
+                locations
                     .get(*loc)
-                    .unwrap_or(&"<unknown>".to_string())
-                    .to_string()
+                    .map(|l| l.name.clone())
+                    .unwrap_or_else(|| "<unknown>".to_string())
             })
             .collect();
 
@@ -168,9 +291,7 @@ fn detect_outliers(
         );
         let mut status = Status::warn(code, &message);
         for (loc, z_score) in outliers {
-            let userspace_location = location_names
-                .get(loc)
-                .and_then(|name| parse_location_map(name));
+            let userspace_location = locations.get(loc).and_then(|l| l.userspace.clone());
             status.add_metadata(Metadata::GlyphProblem {
                 glyph_name: font.glyph_name_for_id_synthesise(glyph),
                 glyph_id: glyph.to_u32(),
@@ -184,24 +305,6 @@ fn detect_outliers(
         problems.push(status);
     }
     problems
-}
-
-fn parse_location_map(location_name: &str) -> Option<std::collections::HashMap<String, f32>> {
-    if location_name == "<unknown>" {
-        return None;
-    }
-    let mut map = std::collections::HashMap::new();
-    for part in location_name.split(", ") {
-        let mut iter = part.split('=');
-        let tag = iter.next()?;
-        let value = iter.next()?;
-        if iter.next().is_some() {
-            return None;
-        }
-        let parsed = value.parse::<f32>().ok()?;
-        map.insert(tag.to_string(), parsed);
-    }
-    Some(map)
 }
 
 fn right_side_bearing(glyph: GlyphId, metrics: &GlyphMetrics) -> f32 {
@@ -233,17 +336,8 @@ fn suspicious_sidebearings(t: &Testable, _context: &Context) -> CheckFnResult {
     );
     let mut problems = vec![];
 
-    let locs = interesting_locations(&f);
-    let axes = f.fontdrasil_axes()?.unwrap_or_default();
-    let location_names: Vec<String> = locs
-        .iter()
-        .map(|loc| {
-            denormalize_location(loc, &axes)
-                .iter()
-                .map(|(axis, coord)| format!("{}={:.2}", axis, coord))
-                .join(", ")
-        })
-        .collect();
+    let locs = designspace_peaks(&f);
+    let locations = describe_locations(&locs, &f)?;
 
     let mut left_sidebearing = HashMap::new();
     let mut right_sidebearing = HashMap::new();
@@ -310,7 +404,7 @@ fn suspicious_sidebearings(t: &Testable, _context: &Context) -> CheckFnResult {
         "large-lsb-variation",
         "left sidebearings",
         &f,
-        &location_names,
+        &locations,
     ));
     problems.extend(detect_outliers(
         &right_sidebearing,
@@ -318,7 +412,7 @@ fn suspicious_sidebearings(t: &Testable, _context: &Context) -> CheckFnResult {
         "large-rsb-variation",
         "right sidebearings",
         &f,
-        &location_names,
+        &locations,
     ));
     problems.extend(detect_outliers(
         &advance_width,
@@ -326,7 +420,7 @@ fn suspicious_sidebearings(t: &Testable, _context: &Context) -> CheckFnResult {
         "large-aw-variation",
         "advance widths",
         &f,
-        &location_names,
+        &locations,
     ));
 
     return_result(problems)
