@@ -10,6 +10,8 @@ env:
 jobs:
   make-release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     outputs:
       version: ${{ steps.find_version.outputs.VERSION }}
 
@@ -48,6 +50,7 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
       - name: Create GitHub release
+        continue-on-error: true
         run: |-
           git tag -l --format='%(contents)' "fontspector-v${{ env.VERSION }}" > /tmp/release_body.md
           gh release create "fontspector-v${{ env.VERSION }}" \
