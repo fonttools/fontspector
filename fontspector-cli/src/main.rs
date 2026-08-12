@@ -169,7 +169,7 @@ fn main() {
             network_timeout: Some(10), // XXX
             configuration: HashMap::new(),
             check_metadata: serde_json::Value::Null,
-            full_lists: args.full_lists,
+            full_lists: args.full_lists || args.verbose > 0,
             cache: Default::default(),
             overrides,
             check_id: None,

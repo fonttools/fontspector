@@ -38,7 +38,7 @@ pub struct Args {
     #[clap(short = 'x', long)]
     pub exclude_checkid: Option<Vec<String>>,
 
-    /// Report full lists of items instead of abbreviated lists
+    /// Report full lists of items instead of abbreviated lists (also implied by --verbose)
     #[clap(long)]
     pub full_lists: bool,
 
