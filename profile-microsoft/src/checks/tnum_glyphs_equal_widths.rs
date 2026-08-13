@@ -13,7 +13,8 @@ fn verify_widths(shaper: &Shaper, text: &str) -> HashMap<i32, Vec<GlyphId>> {
         ..,
     )];
     buffer.guess_segment_properties();
-    let glyph_buffer = shaper.shape(buffer, &features);
+    let shaper_options = harfrust::ShapeOptions::new().features(&features);
+    let glyph_buffer = shaper.shape(buffer, shaper_options);
     glyph_buffer
         .glyph_infos()
         .iter()

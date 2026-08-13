@@ -52,8 +52,8 @@ pub(crate) fn create_buffer_and_run(
         })
         .collect::<Result<Vec<_>, _>>()
         .map_err(|e| FontspectorError::Shaping(format!("Bad feature tag: {e}")))?;
-
-    Ok(shaper.shape(buffer, &features))
+    let shape_options = harfrust::ShapeOptions::new().features(&features);
+    Ok(shaper.shape(buffer, shape_options))
 }
 
 pub(crate) trait ShapingCheck {
