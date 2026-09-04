@@ -7,6 +7,7 @@ use fontspector_checkapi::{
 };
 use profile_fontwerk::Fontwerk;
 use profile_googlefonts::GoogleFonts;
+use profile_monotype::Monotype;
 use profile_opentype::OpenType;
 use profile_universal::Universal;
 use pyo3::{
@@ -79,6 +80,9 @@ impl CheckTester {
         })?;
         Fontwerk.register(&mut registry).map_err(|_| {
             PyValueError::new_err("Couldn't register Fontwerk profile, fontspector bug")
+        })?;
+        Monotype.register(&mut registry).map_err(|_| {
+            PyValueError::new_err("Couldn't register Monotype profile, fontspector bug")
         })?;
 
         let check = registry
@@ -185,6 +189,9 @@ fn registered_checks() -> PyResult<Vec<String>> {
     })?;
     Fontwerk.register(&mut registry).map_err(|_| {
         PyValueError::new_err("Couldn't register Fontwerk profile, fontspector bug")
+    })?;
+    Monotype.register(&mut registry).map_err(|_| {
+        PyValueError::new_err("Couldn't register Monotype profile, fontspector bug")
     })?;
     Ok(registry.checks.keys().cloned().collect())
 }

@@ -32,6 +32,7 @@ profile-opentype = { path = "../profile-opentype", version = "1.0.0", package = 
 profile-googlefonts = { path = "../profile-googlefonts", version = "1.0.0", package = "fontspector-profile-googlefonts", optional = true }
 profile-fontwerk = { path = "../profile-fontwerk", version = "1.0.0", package = "fontspector-profile-fontwerk", optional = true }
 profile-iso15008 = { path = "../profile-iso15008", version = "1.0.0", package = "fontspector-profile-iso15008", optional = true }
+profile-monotype = { path = "../profile-monotype", version = "1.0.0", package = "fontspector-profile-monotype", optional = true }
 
 [features]
 default = ["cli"]
@@ -43,4 +44,5 @@ cli = [
     "profile-googlefonts",
     "profile-fontwerk",
     "profile-iso15008",
+    "profile-monotype",
 ]
