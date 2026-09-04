@@ -2,6 +2,7 @@ use fontspector_checkapi::{Profile, ProfileProvider, Registry};
 use profile_fontwerk::Fontwerk;
 use profile_googlefonts::GoogleFonts;
 use profile_iso15008::Iso15008;
+use profile_monotype::Monotype;
 use profile_opentype::OpenType;
 use profile_universal::Universal;
 use std::{io::Read, path::PathBuf};
@@ -68,4 +69,8 @@ pub(crate) fn register_core_profiles(args: &Args, registry: &mut Registry<'stati
     Fontwerk
         .register(registry)
         .expect("Couldn't register fontwerk profile, fontspector bug");
+    #[allow(clippy::expect_used)] // If this fails, I *want* to panic
+    Monotype
+        .register(registry)
+        .expect("Couldn't register monotype profile, fontspector bug");
 }
