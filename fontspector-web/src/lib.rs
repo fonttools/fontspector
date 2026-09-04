@@ -18,6 +18,7 @@ use profile_fontwerk::Fontwerk;
 use profile_googlefonts::GoogleFonts;
 use profile_iso15008::Iso15008;
 use profile_microsoft::Microsoft;
+use profile_monotype::Monotype;
 use profile_opentype::OpenType;
 use profile_universal::Universal;
 use std::io::Write;
@@ -57,6 +58,9 @@ fn register_profiles<'a>() -> Registry<'a> {
     Fontwerk
         .register(&mut registry)
         .expect("Couldn't register Fontwerk profile, fontspector bug");
+    Monotype
+        .register(&mut registry)
+        .expect("Couldn't register Monotype profile, fontspector bug");
 
     {
         let (name, toml) = ("fontbureau", include_str!("../../profiles/fontbureau.toml"));

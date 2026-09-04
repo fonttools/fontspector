@@ -52,4 +52,5 @@ export const PROFILES = {
   microsoft: "Microsoft",
   workspace: "Google Workspace",
   typenetwork: "Type Network",
+  monotype: "Monotype",
 };
