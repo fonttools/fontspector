@@ -37,7 +37,7 @@ wasm-pack build
 cd www; npm install; npm run build
 ```
 
-The results appear in `../docs/`.
+The results appear in `dist/`.
 
 ## Contributing
 
