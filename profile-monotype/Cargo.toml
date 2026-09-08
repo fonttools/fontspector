@@ -15,11 +15,7 @@ crate-type = ["cdylib", "rlib"]
 fontspector-checkapi = { path = "../fontspector-checkapi", features = [
     "kurbo",
 ], version = "1.0.0" }
-fontations = { workspace = true }
+skrifa = { workspace = true }
 itertools = { workspace = true }
 serde_json = { workspace = true }
 regex = { workspace = true }
-
-[target.'cfg(not(target_family = "wasm"))'.dependencies]
-# Plugin architecture
-pluginator = { workspace = true }

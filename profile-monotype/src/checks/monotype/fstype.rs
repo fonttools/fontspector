@@ -1,5 +1,5 @@
-use fontations::skrifa::raw::TableProvider;
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use skrifa::raw::TableProvider;
 
 // TODO: maybe move this to universal and
 // replace fontwerk/embedding_bit and other similar checks

@@ -1828,12 +1828,11 @@ dependencies = [
 name = "fontspector-profile-monotype"
 version = "1.0.0"
 dependencies = [
- "fontations",
  "fontspector-checkapi",
  "itertools 0.15.0",
- "pluginator",
  "regex",
  "serde_json",
+ "skrifa 0.46.2",
 ]
 
 [[package]]
