@@ -1,8 +1,8 @@
-use fontations::skrifa::{raw::tables::gdef::GlyphClassDef, MetadataProvider};
 use fontspector_checkapi::{
     pens::AreaPen, prelude::*, skip, testfont, FileTypeConvert, Metadata, DEFAULT_LOCATION,
 };
 use serde_json::json;
+use skrifa::{raw::tables::gdef::GlyphClassDef, MetadataProvider};
 
 const ARABIC_LETTER_HAMZA: u32 = 0x0621;
 const ARABIC_LETTER_HIGH_HAMZA: u32 = 0x0674;

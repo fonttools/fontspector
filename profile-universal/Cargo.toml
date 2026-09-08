@@ -19,14 +19,15 @@ freetype-rs = { version = "0", features = [
 reqwest = { version = "0.12", features = ["blocking"] } # For fontdata namecheck
 
 [dependencies]
-interpolatable = { version = "1.1", features = [
+interpolatable = { version = "1.2", features = [
     "fontations",
 ], git = "https://github.com/simoncozens/interpolatable" } # For interpolation_issues
 fontspector-checkapi = { path = "../fontspector-checkapi", version = "1.0.0", features = [
     "kurbo",
 ] }
 fontspector-checkhelper = { workspace = true }
-fontations = { workspace = true }
+skrifa = { workspace = true, features = ["traversal"] }
+write-fonts = { workspace = true }
 itertools = { workspace = true }
 unicode-properties = { workspace = true }
 unicode_names2 = { workspace = true }
@@ -37,7 +38,7 @@ serde_json = { workspace = true }
 hashbrown = { workspace = true }
 kurbo = { workspace = true }
 stringcase = "0.4.0"
-fontdrasil = "0.4.0"
+fontdrasil = { workspace = true }
 ordered-float = "5.1.0"
 
 [lints]

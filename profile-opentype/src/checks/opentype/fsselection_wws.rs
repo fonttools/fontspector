@@ -1,6 +1,6 @@
-use fontations::skrifa::raw::{tables::os2::SelectionFlags, types::NameId, TableProvider};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
+use skrifa::raw::{tables::os2::SelectionFlags, types::NameId, TableProvider};
 
 #[check(
     id = "opentype/fsselection_wws",
@@ -80,8 +80,12 @@ fn fsselection_wws(t: &Testable, _context: &Context) -> CheckFnResult {
 mod tests {
     #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-    use fontations::skrifa::raw::tables::os2::SelectionFlags;
-    use fontations::write::{
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check},
+        StatusCode, Testable,
+    };
+    use skrifa::raw::tables::os2::SelectionFlags;
+    use write_fonts::{
         tables::{
             maxp::Maxp,
             name::{Name, NameRecord},
@@ -89,10 +93,6 @@ mod tests {
         },
         types::NameId,
         FontBuilder,
-    };
-    use fontspector_checkapi::{
-        codetesting::{assert_pass, assert_results_contain, run_check},
-        StatusCode, Testable,
     };
 
     use super::fsselection_wws;

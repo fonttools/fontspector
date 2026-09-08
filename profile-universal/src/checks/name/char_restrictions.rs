@@ -1,6 +1,6 @@
-use fontations::skrifa::raw::types::NameId;
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
+use skrifa::raw::types::NameId;
 
 #[check(
     id = "name/char_restrictions",
@@ -104,11 +104,11 @@ mod tests {
     #![allow(clippy::unwrap_used)]
 
     use super::char_restrictions;
-    use fontations::skrifa::raw::types::NameId;
     use fontspector_checkapi::{
         codetesting::{assert_pass, assert_results_contain, run_check, set_name_entry, test_able},
         StatusCode,
     };
+    use skrifa::raw::types::NameId;
 
     #[test]
     fn test_char_restrictions_pass() {

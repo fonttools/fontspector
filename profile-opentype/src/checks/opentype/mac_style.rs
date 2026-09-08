@@ -1,8 +1,6 @@
-use fontations::{
-    skrifa::raw::{tables::head::MacStyle, TableProvider},
-    write::from_obj::ToOwnedTable,
-};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use skrifa::raw::{tables::head::MacStyle, TableProvider};
+use write_fonts::from_obj::ToOwnedTable;
 
 #[check(
     id = "opentype/mac_style",
@@ -55,7 +53,7 @@ fn fix_mac_style(
     _replies: Option<MoreInfoReplies>,
 ) -> Result<FixResult, FontspectorError> {
     let font = testfont!(f);
-    let mut head: fontations::write::tables::head::Head = font.font().head()?.to_owned_table();
+    let mut head: write_fonts::tables::head::Head = font.font().head()?.to_owned_table();
 
     let Some(style) = font.style() else {
         return Ok(FixResult::Unfixable);
@@ -91,8 +89,7 @@ mod tests {
     ) -> Option<fontspector_checkapi::CheckResult> {
         let mut testable = test_able("cabin/Cabin-Regular.ttf");
         let f = TTF.from_testable(&testable).unwrap();
-        let mut head: fontations::write::tables::head::Head =
-            f.font().head().unwrap().to_owned_table();
+        let mut head: write_fonts::tables::head::Head = f.font().head().unwrap().to_owned_table();
         head.mac_style = mac_style_value;
         testable.set(f.rebuild_with_new_table(&head).unwrap());
         let new_testable = Testable::new_with_contents(
@@ -154,8 +151,7 @@ mod tests {
     fn test_mac_style_no_style_skip() {
         let mut testable = test_able("cabin/Cabin-Regular.ttf");
         let f = TTF.from_testable(&testable).unwrap();
-        let mut head: fontations::write::tables::head::Head =
-            f.font().head().unwrap().to_owned_table();
+        let mut head: write_fonts::tables::head::Head = f.font().head().unwrap().to_owned_table();
         head.mac_style = MacStyle::empty();
         testable.set(f.rebuild_with_new_table(&head).unwrap());
         // Use a filename that doesn't encode a recognizable style

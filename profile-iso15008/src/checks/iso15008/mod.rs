@@ -11,11 +11,11 @@ mod proportions;
 use kurbo::{ParamCurve, Shape};
 pub use proportions::proportions;
 mod stem_width;
-use fontations::skrifa::{
+use harfrust::{ShaperData, UnicodeBuffer};
+use skrifa::{
     prelude::{LocationRef, Size},
     MetadataProvider,
 };
-use harfrust::{ShaperData, UnicodeBuffer};
 
 pub use stem_width::stem_width;
 
@@ -29,7 +29,7 @@ fn find_stem_width(f: &TestFont) -> Option<f64> {
     Some(intersections[1] - intersections[0])
 }
 
-fn x_height_intersections(f: &TestFont, glyph_id: fontations::skrifa::GlyphId) -> Option<Vec<f64>> {
+fn x_height_intersections(f: &TestFont, glyph_id: skrifa::GlyphId) -> Option<Vec<f64>> {
     let mut bezpen = BezGlyph(vec![]);
     f.draw_glyph(glyph_id, &mut bezpen, DEFAULT_LOCATION).ok()?;
     let all_bounds = bezpen

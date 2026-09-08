@@ -1,5 +1,5 @@
-use fontations::skrifa::MetadataProvider;
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
+use skrifa::MetadataProvider;
 
 #[check(
     id = "opentype/fvar/axis_ranges_correct",

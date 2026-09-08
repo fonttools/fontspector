@@ -1,8 +1,8 @@
 use std::collections::HashSet;
 
-use fontations::skrifa::Tag;
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
+use skrifa::Tag;
 
 #[check(
     id = "cjk_chws_feature",

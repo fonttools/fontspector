@@ -4,37 +4,35 @@ use crate::{
     filetype::FileTypeConvert,
     Context, FileType, Testable,
 };
-use fontations::{
-    read::{tables::name::NameString, TopLevelTable},
-    skrifa::{
-        font::FontRef,
-        outline::{DrawSettings, OutlinePen},
-        prelude::Size,
-        raw::{
-            tables::{
-                gdef::GlyphClassDef,
-                glyf::Glyph,
-                gpos::{PairPos, PairPosFormat1, PairPosFormat2, PositionSubtables},
-                head::MacStyle,
-                layout::{Feature, FeatureRecord},
-                os2::SelectionFlags,
-            },
-            ReadError, TableProvider,
-        },
-        setting::VariationSetting,
-        string::StringId,
-        GlyphId, GlyphId16, GlyphNames, MetadataProvider, Tag,
-    },
-    write::{validate::Validate, FontWrite},
-};
 use fontdrasil::coords::{CoordConverter, DesignCoord, NormalizedCoord, UserCoord};
 use itertools::Either;
+use skrifa::{
+    font::FontRef,
+    outline::{DrawSettings, OutlinePen},
+    prelude::Size,
+    raw::{tables::name::NameString, TopLevelTable},
+    raw::{
+        tables::{
+            gdef::GlyphClassDef,
+            glyf::Glyph,
+            gpos::{PairPos, PairPosFormat1, PairPosFormat2, PositionSubtables},
+            head::MacStyle,
+            layout::{Feature, FeatureRecord},
+            os2::SelectionFlags,
+        },
+        ReadError, TableProvider,
+    },
+    setting::VariationSetting,
+    string::StringId,
+    GlyphId, GlyphId16, GlyphNames, MetadataProvider, Tag,
+};
 use std::{
     collections::{BTreeMap, HashMap, HashSet},
     error::Error,
     fmt::{Debug, Formatter},
     path::{Path, PathBuf},
 };
+use write_fonts::{validate::Validate, FontWrite};
 
 /// A Font to be tested
 pub struct TestFont<'a> {
@@ -81,6 +79,11 @@ impl TestFont<'_> {
             font_data,
             glyph_count,
         })
+    }
+
+    /// The underlying font data for this TestFont
+    pub fn font_data(&self) -> &[u8] {
+        self.font_data
     }
 
     /// A [read-fonts](https://docs.rs/read-fonts/) font object
@@ -515,7 +518,7 @@ impl TestFont<'_> {
         &self,
         table: &T,
     ) -> Result<Vec<u8>, FontspectorError> {
-        let mut new_font = fontations::write::FontBuilder::new();
+        let mut new_font = write_fonts::FontBuilder::new();
         new_font.add_table(table)?;
         new_font.copy_missing_tables(self.font());
         Ok(new_font.build())
@@ -549,8 +552,7 @@ impl TestFont<'_> {
                         converter: CoordConverter::default_normalization(min, default, max),
                         hidden: axis.is_hidden(),
                         // Argh version incompatibilities
-                        tag: fontdrasil::types::Tag::new_checked(axis.tag().to_string().as_bytes())
-                            .unwrap(),
+                        tag: Tag::new_checked(axis.tag().to_string().as_bytes()).unwrap(),
                         name: self.get_best_name(&[axis.name_id()]).unwrap_or_default(),
                         min,
                         default,
@@ -581,6 +583,9 @@ impl TestFont<'_> {
                             .position(|(_, to)| to.to_f64() == 0.0)
                             .unwrap_or(0);
                         fd_axis.converter = CoordConverter::new(desired_mapping, default_idx)
+                            .unwrap_or_else(|_| {
+                                CoordConverter::default_normalization(min, default, max)
+                            })
                     }
                     fd_axis
                 })

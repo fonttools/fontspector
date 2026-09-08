@@ -1,8 +1,8 @@
-use fontations::skrifa::{
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
+use skrifa::{
     raw::types::{F2Dot14, NameId},
     MetadataProvider,
 };
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
 
 #[check(
     id = "opentype/varfont/valid_default_instance_nameids",

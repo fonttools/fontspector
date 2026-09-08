@@ -1,5 +1,5 @@
-use fontations::skrifa::{raw::types::Tag, MetadataProvider};
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
+use skrifa::{raw::types::Tag, MetadataProvider};
 
 #[check(
     id = "googlefonts/varfont/slnt_needs_italic",
@@ -44,17 +44,15 @@ fn slnt_needs_italic(t: &Testable, _context: &Context) -> CheckFnResult {
 mod tests {
     #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-    use fontations::{
-        skrifa::raw::TableProvider,
-        write::{
-            from_obj::ToOwnedTable,
-            tables::fvar::{Fvar, VariationAxisRecord},
-            FontBuilder,
-        },
-    };
     use fontspector_checkapi::{
         codetesting::{assert_results_contain, assert_skip, run_check, test_able},
         FileTypeConvert, StatusCode, TTF,
+    };
+    use skrifa::raw::TableProvider;
+    use write_fonts::{
+        from_obj::ToOwnedTable,
+        tables::fvar::{Fvar, VariationAxisRecord},
+        FontBuilder,
     };
 
     use super::slnt_needs_italic;
@@ -90,12 +88,12 @@ mod tests {
 
         let mut fvar: Fvar = f.font().fvar().unwrap().to_owned_table();
         fvar.axis_instance_arrays.axes.push(VariationAxisRecord {
-            axis_tag: fontations::write::types::Tag::new(b"ital"),
-            min_value: fontations::write::types::Fixed::from_f64(0.0),
-            default_value: fontations::write::types::Fixed::from_f64(0.0),
-            max_value: fontations::write::types::Fixed::from_f64(1.0),
+            axis_tag: write_fonts::types::Tag::new(b"ital"),
+            min_value: write_fonts::types::Fixed::from_f64(0.0),
+            default_value: write_fonts::types::Fixed::from_f64(0.0),
+            max_value: write_fonts::types::Fixed::from_f64(1.0),
             flags: 0,
-            axis_name_id: fontations::write::types::NameId::new(256),
+            axis_name_id: write_fonts::types::NameId::new(256),
         });
         // Clear instances to avoid axis_count mismatch
         fvar.axis_instance_arrays.instances.clear();

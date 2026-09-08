@@ -1,5 +1,5 @@
-use fontations::skrifa::string::StringId;
 use fontspector_checkapi::{constants::RIBBI_STYLE_NAMES, prelude::*, testfont, FileTypeConvert};
+use skrifa::string::StringId;
 
 #[check(
     id = "googlefonts/name/mandatory_entries",
@@ -51,11 +51,11 @@ fn mandatory_entries(t: &Testable, _context: &Context) -> CheckFnResult {
 mod tests {
     #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-    use fontations::skrifa::raw::types::NameId;
     use fontspector_checkapi::{
         codetesting::{assert_pass, assert_results_contain, run_check, set_name_entry, test_able},
         StatusCode,
     };
+    use skrifa::raw::types::NameId;
 
     use super::mandatory_entries;
 

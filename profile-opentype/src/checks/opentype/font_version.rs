@@ -1,9 +1,9 @@
-use fontations::skrifa::{
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
+use skrifa::{
     raw::{types::NameId, TableProvider},
     MetadataProvider,
 };
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
-use serde_json::json;
 
 fn parse_version(v: impl Iterator<Item = char>) -> String {
     let mut result = String::new();
@@ -98,11 +98,12 @@ fn font_version(f: &Testable, _context: &Context) -> CheckFnResult {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use fontations::{skrifa::raw::TableProvider, write::from_obj::ToOwnedTable};
     use fontspector_checkapi::{
         codetesting::{assert_pass, assert_results_contain, run_check, set_name_entry, test_able},
         StatusCode,
     };
+    use skrifa::raw::TableProvider;
+    use write_fonts::from_obj::ToOwnedTable;
 
     #[test]
     fn test_parser() {
@@ -126,9 +127,8 @@ mod tests {
     fn test_font_version_near_mismatch() {
         let mut testable = test_able("nunito/Nunito-Regular.ttf");
         let f = TTF.from_testable(&testable).unwrap();
-        let mut head: fontations::write::tables::head::Head =
-            f.font().head().unwrap().to_owned_table();
-        head.font_revision = fontations::skrifa::raw::types::Fixed::from_f64(1.00098);
+        let mut head: write_fonts::tables::head::Head = f.font().head().unwrap().to_owned_table();
+        head.font_revision = skrifa::raw::types::Fixed::from_f64(1.00098);
         testable.set(f.rebuild_with_new_table(&head).unwrap());
         set_name_entry(
             &mut testable,
@@ -154,9 +154,8 @@ mod tests {
     fn test_font_version_fail_mismatch() {
         let mut testable = test_able("nunito/Nunito-Regular.ttf");
         let f = TTF.from_testable(&testable).unwrap();
-        let mut head: fontations::write::tables::head::Head =
-            f.font().head().unwrap().to_owned_table();
-        head.font_revision = fontations::skrifa::raw::types::Fixed::from_f64(3.1);
+        let mut head: write_fonts::tables::head::Head = f.font().head().unwrap().to_owned_table();
+        head.font_revision = skrifa::raw::types::Fixed::from_f64(3.1);
         testable.set(f.rebuild_with_new_table(&head).unwrap());
         set_name_entry(
             &mut testable,

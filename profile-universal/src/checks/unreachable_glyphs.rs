@@ -1,6 +1,9 @@
 use std::collections::HashSet;
 
-use fontations::skrifa::{
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, GetSubstitutionMap, Metadata};
+use itertools::Itertools;
+use serde_json::json;
+use skrifa::{
     charmap::MapVariant,
     raw::{
         tables::{
@@ -11,9 +14,6 @@ use fontations::skrifa::{
     },
     GlyphId, MetadataProvider,
 };
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, GetSubstitutionMap, Metadata};
-use itertools::Itertools;
-use serde_json::json;
 
 #[check(
     id = "unreachable_glyphs",

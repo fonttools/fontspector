@@ -1,11 +1,12 @@
 use edit_distance::edit_distance;
-use fontations::{read::TableProvider, skrifa::string::StringId};
 use fontspector_checkapi::{
     constants::STATIC_STYLE_NAMES, prelude::*, testfont, Choice, DialogField, DialogFieldType,
     FileTypeConvert, Metadata, TestFont,
 };
 use google_fonts_axisregistry::build_name_table;
 use serde_json::json;
+use skrifa::raw::TableProvider;
+use skrifa::string::StringId;
 use tabled::builder::Builder;
 
 use crate::{constants::gf_api_weight_name, utils::build_expected_font};
@@ -297,7 +298,7 @@ fn fix_font_names(
         return Ok(FixResult::Unfixable);
     }
     if f.is_variable_font() {
-        let new_binary = build_name_table(f.font(), None, None, &[], None)
+        let new_binary = build_name_table(f.font_data(), None, None, &[], None)
             .map_err(|e| FontspectorError::Fix(format!("Couldn't build name table: {e}")))?;
         t.set(new_binary);
         return Ok(FixResult::Fixed);
@@ -314,25 +315,32 @@ fn fix_font_names(
         } else if action == "promote" {
             let family_name = f.best_familyname().unwrap_or("Unknown".to_string());
             let new_family_name = format!("{} {}", family_name, static_checker.subfamily_name);
-            let new_font =
-                build_name_table(f.font(), Some(&new_family_name), Some("Regular"), &[], None)
-                    .map_err(|e| {
-                        FontspectorError::Fix(format!(
-                            "Couldn't build name table with promoted family name: {e}"
-                        ))
-                    })?;
+            let new_font = build_name_table(
+                f.font_data(),
+                Some(&new_family_name),
+                Some("Regular"),
+                &[],
+                None,
+            )
+            .map_err(|e| {
+                FontspectorError::Fix(format!(
+                    "Couldn't build name table with promoted family name: {e}"
+                ))
+            })?;
             t.set(new_font);
             return Ok(FixResult::Fixed);
         } else if action.starts_with("change:") {
             let new_style_name = action.strip_prefix("change:").unwrap_or("");
-            let new_font = build_name_table(f.font(), None, Some(new_style_name), &[], None)
-                .map_err(|e| FontspectorError::Fix(format!("Couldn't build name table: {e}")))?;
+            let new_font = build_name_table(f.font_data(), None, Some(new_style_name), &[], None)
+                .map_err(|e| {
+                FontspectorError::Fix(format!("Couldn't build name table: {e}"))
+            })?;
             t.set(new_font);
             return Ok(FixResult::Fixed);
         }
     }
     if static_checker.regular_italic() {
-        let new_font = build_name_table(f.font(), None, Some("Italic"), &[], None)
+        let new_font = build_name_table(f.font_data(), None, Some("Italic"), &[], None)
             .map_err(|e| FontspectorError::Fix(format!("Couldn't build name table: {e}")))?;
         t.set(new_font);
         return Ok(FixResult::Fixed);
@@ -341,7 +349,7 @@ fn fix_font_names(
         Ok(FixResult::MoreInfoNeeded(more_info))
     } else {
         // Apparently we know how to fix it
-        let new_binary = build_name_table(f.font(), None, None, &[], None)
+        let new_binary = build_name_table(f.font_data(), None, None, &[], None)
             .map_err(|e| FontspectorError::Fix(format!("Couldn't build name table: {e}")))?;
         t.set(new_binary);
         Ok(FixResult::Fixed)

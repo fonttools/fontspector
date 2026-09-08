@@ -1,5 +1,5 @@
-use fontations::skrifa::string::StringId;
 use fontspector_checkapi::{prelude::*, FileTypeConvert, TestFont};
+use skrifa::string::StringId;
 
 fn is_manually_hinted(font: &TestFont) -> bool {
     let is_hinted = font.has_table(b"fpgm");

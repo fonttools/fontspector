@@ -15,7 +15,8 @@ path = "src/main.rs"
 fontspector-checkapi = { path = "../fontspector-checkapi", features = [
     "kurbo",
 ] }
-fontations = { workspace = true }
+skrifa = { workspace = true }
+write-fonts = { workspace = true }
 regex = { workspace = true }
 harfrust = { workspace = true }
 

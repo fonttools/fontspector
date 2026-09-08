@@ -1,6 +1,6 @@
-use fontations::skrifa::GlyphNames;
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
 use hashbrown::HashSet;
+use skrifa::GlyphNames;
 
 #[check(
     id = "has_glyphs",

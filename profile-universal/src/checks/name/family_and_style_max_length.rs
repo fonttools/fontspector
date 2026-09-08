@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
-use fontations::skrifa::raw::{tables::name::Name, types::NameId, TableProvider};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
+use skrifa::raw::{tables::name::Name, types::NameId, TableProvider};
 
 fn strip_ribbi(name: &str) -> String {
     name.replace(" Regular", "")

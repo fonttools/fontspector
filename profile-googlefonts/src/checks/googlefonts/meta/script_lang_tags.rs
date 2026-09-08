@@ -1,9 +1,9 @@
-use fontations::skrifa::raw::{
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use itertools::Itertools;
+use skrifa::raw::{
     tables::meta::{DataMapRecord, Metadata::ScriptLangTags},
     FontData, TableProvider,
 };
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
-use itertools::Itertools;
 
 fn dump_data_map(
     d: &DataMapRecord,

@@ -8,16 +8,16 @@ use thiserror::Error;
 pub enum FontspectorError {
     /// A problem with skrifa reading the font binary
     #[error("Error reading font file: {0}")]
-    FontRead(#[from] fontations::read::ReadError),
+    FontRead(#[from] skrifa::raw::ReadError),
     /// A problem with skrifa writing the font binary
     #[error("Error writing font file: {0}")]
-    FontWrite(#[from] fontations::write::error::Error),
+    FontWrite(#[from] write_fonts::error::Error),
     /// A problem with skrifa producing a the font binary
     #[error("Error building font file: {0}")]
-    FontBuild(#[from] fontations::write::BuilderError),
+    FontBuild(#[from] write_fonts::BuilderError),
     /// A problem with skrifa outline code
     #[error("Error drawing glyph: {0}")]
-    Draw(#[from] fontations::skrifa::outline::DrawError),
+    Draw(#[from] skrifa::outline::DrawError),
     /// Just a skip
     #[error("Skipping check: {message} [{code}]")]
     Skip {

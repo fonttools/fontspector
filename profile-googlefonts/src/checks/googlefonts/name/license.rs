@@ -1,5 +1,5 @@
-use fontations::skrifa::{raw::TableProvider, string::StringId};
 use fontspector_checkapi::{prelude::*, FileTypeConvert};
+use skrifa::{raw::TableProvider, string::StringId};
 
 #[check(
     id = "googlefonts/name/license",
@@ -122,7 +122,7 @@ fn license(c: &TestableCollection, _context: &Context) -> CheckFnResult {
 mod tests {
     use std::collections::HashMap;
 
-    use fontations::skrifa::raw::types::NameId;
+    use skrifa::raw::types::NameId;
 
     use super::license;
     use fontspector_checkapi::{

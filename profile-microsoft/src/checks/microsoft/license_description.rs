@@ -1,5 +1,5 @@
-use fontations::skrifa::string::StringId;
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use skrifa::string::StringId;
 
 const MS_LICENSE_DESCRIPTION: &str = "Microsoft supplied font. You may use this font to create, display, and print content as permitted by the license terms or terms of use, of the Microsoft product, service, or content in which this font was included. You may only (i) embed this font in content as permitted by the embedding restrictions included in this font; and (ii) temporarily download this font to a printer or other output device to help print content. Any other use is prohibited.";
 

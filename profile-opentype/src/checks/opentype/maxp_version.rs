@@ -1,9 +1,7 @@
-use fontations::{
-    skrifa::raw::TableProvider,
-    write::{from_obj::ToOwnedTable, tables::maxp::Maxp},
-};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata, TestFont};
 use serde_json::json;
+use skrifa::raw::TableProvider;
+use write_fonts::{from_obj::ToOwnedTable, tables::maxp::Maxp};
 
 enum VersionStatus {
     Ok,

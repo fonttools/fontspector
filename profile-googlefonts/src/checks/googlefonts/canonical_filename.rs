@@ -28,7 +28,8 @@ use serde_json::json;
 fn canonical_filename(t: &Testable, _context: &Context) -> CheckFnResult {
     let f = testfont!(t);
     let current_filename = t.basename().unwrap_or_default();
-    let expected_filename = build_filename(f.font(), &t.extension().unwrap_or_default());
+    let expected_filename = build_filename(f.font_data(), &t.extension().unwrap_or_default())
+        .map_err(|e| FontspectorError::General(format!("Couldn't build expected filename: {e}")))?;
     let mut problems = vec![];
     if current_filename != expected_filename {
         let msg = "Font filename does not match canonical format";
@@ -55,7 +56,8 @@ fn fix_canonical_filename(
     _replies: Option<MoreInfoReplies>,
 ) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
-    let expected_filename = build_filename(f.font(), &t.extension().unwrap_or_default());
+    let expected_filename = build_filename(f.font_data(), &t.extension().unwrap_or_default())
+        .map_err(|e| FontspectorError::Fix(format!("Couldn't build expected filename: {e}")))?;
     t.set_filename(&expected_filename);
     Ok(FixResult::Fixed)
 }

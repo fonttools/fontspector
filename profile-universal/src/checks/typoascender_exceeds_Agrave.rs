@@ -1,13 +1,11 @@
-use fontations::{
-    skrifa::{
-        prelude::{LocationRef, Size},
-        raw::TableProvider,
-        MetadataProvider,
-    },
-    write::from_obj::ToOwnedTable,
-};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
+use skrifa::{
+    prelude::{LocationRef, Size},
+    raw::TableProvider,
+    MetadataProvider,
+};
+use write_fonts::from_obj::ToOwnedTable;
 
 #[check(
     id = "typoascender_exceeds_Agrave",
@@ -86,7 +84,7 @@ fn fix_typoascender_exceeds_Agrave(
     else {
         return Ok(FixResult::Unfixable);
     };
-    let mut os2: fontations::write::tables::os2::Os2 = f.font().os2()?.to_owned_table();
+    let mut os2: write_fonts::tables::os2::Os2 = f.font().os2()?.to_owned_table();
     if (os2.s_typo_ascender as f32) < bounds.y_max {
         os2.s_typo_ascender = bounds.y_max.ceil() as i16;
         t.set(f.rebuild_with_new_table(&os2)?);

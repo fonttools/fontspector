@@ -1,7 +1,7 @@
 use super::family_proto;
-use fontations::skrifa::string::StringId;
 use fontspector_checkapi::{prelude::*, FileTypeConvert, TestFont};
 use gf_metadata::FontProto;
+use skrifa::string::StringId;
 
 #[check(
     id = "googlefonts/metadata/consistent_with_fonts",
@@ -199,11 +199,11 @@ mod tests {
     use std::{collections::HashMap, path::PathBuf};
 
     use super::consistent_with_fonts;
-    use fontations::skrifa::raw::types::NameId;
     use fontspector_checkapi::{
         codetesting::{assert_pass, assert_results_contain, set_name_entry, test_able, test_file},
         StatusCode, Testable, TestableCollection, TestableType,
     };
+    use skrifa::raw::types::NameId;
 
     fn run(files: Vec<Testable>) -> Option<fontspector_checkapi::CheckResult> {
         let collection = TestableCollection::from_testables(files, None);

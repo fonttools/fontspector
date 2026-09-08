@@ -16,7 +16,8 @@ fontspector-checkapi = { path = "../fontspector-checkapi", features = [
     "kurbo",
 ], version = "1.0.0" }
 fontspector-checkhelper = { workspace = true }
-fontations = { workspace = true }
+skrifa = { workspace = true }
+write-fonts = { workspace = true }
 itertools = { workspace = true }
 unicode-properties = { workspace = true }
 kurbo = { workspace = true } # For italic angle check

@@ -1,10 +1,8 @@
-use fontations::{
-    read::{tables::cmap::CmapSubtable, TableProvider},
-    skrifa::MetadataProvider,
-    write::tables::cmap::Cmap,
-};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
+use skrifa::raw::{tables::cmap::CmapSubtable, TableProvider};
+use skrifa::MetadataProvider;
+use write_fonts::tables::cmap::Cmap;
 
 #[check(
     id = "whitespace_glyphs",

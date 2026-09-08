@@ -1,9 +1,7 @@
-use fontations::{
-    skrifa::raw::{types::NameId, TableProvider},
-    write::tables::name::{Name, NameRecord},
-};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
+use skrifa::raw::{types::NameId, TableProvider};
+use write_fonts::tables::name::{Name, NameRecord};
 
 const ILLEGAL_PARTICLES: &[&str] = &["VF"];
 

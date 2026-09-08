@@ -8,20 +8,18 @@ use std::{
 
 // No bad thing if we panic in tests
 use crate::{prelude::*, testfont, Check, CheckResult, Context, FileTypeConvert, StatusCode};
-use fontations::{
-    skrifa::{
-        raw::{types::NameId, TableProvider},
-        GlyphNames, MetadataProvider,
+use skrifa::{
+    raw::{types::NameId, TableProvider},
+    GlyphNames, MetadataProvider,
+};
+use write_fonts::{
+    from_obj::ToOwnedTable,
+    tables::{
+        cmap::Cmap,
+        name::{Name, NameRecord},
+        os2::Os2,
     },
-    write::{
-        from_obj::ToOwnedTable,
-        tables::{
-            cmap::Cmap,
-            name::{Name, NameRecord},
-            os2::Os2,
-        },
-        FontBuilder,
-    },
+    FontBuilder,
 };
 
 /// The root of the workspace, used to locate test resources
@@ -329,7 +327,7 @@ pub fn remap_glyph(
 ///
 /// This rebuilds the font without the specified table using write-fonts FontBuilder.
 pub fn remove_table(font: &mut Testable, table_tag: &[u8; 4]) {
-    use fontations::skrifa::{font::FontRef, Tag};
+    use skrifa::{font::FontRef, Tag};
 
     let f = FontRef::new(&font.contents).unwrap();
     let tag_to_remove = Tag::new(table_tag);
@@ -352,7 +350,7 @@ pub fn remove_table(font: &mut Testable, table_tag: &[u8; 4]) {
 /// This adds a table with minimal dummy data using write-fonts FontBuilder.
 /// The table won't be valid but will be detected by has_table().
 pub fn add_table(font: &mut Testable, table_tag: &[u8; 4]) {
-    use fontations::skrifa::{font::FontRef, Tag};
+    use skrifa::{font::FontRef, Tag};
 
     let f = FontRef::new(&font.contents).unwrap();
     let new_tag = Tag::new(table_tag);

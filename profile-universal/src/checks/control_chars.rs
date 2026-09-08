@@ -1,11 +1,9 @@
-use fontations::{
-    read::{tables::cmap::CmapSubtable, TableProvider},
-    skrifa::MetadataProvider,
-    types::GlyphId,
-    write::tables::cmap::Cmap,
-};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
+use skrifa::raw::{tables::cmap::CmapSubtable, TableProvider};
+use skrifa::MetadataProvider;
+use write_fonts::tables::cmap::Cmap;
+use write_fonts::types::GlyphId;
 
 #[check(
     id = "control_chars",

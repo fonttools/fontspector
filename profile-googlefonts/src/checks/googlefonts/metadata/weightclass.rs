@@ -1,5 +1,5 @@
-use fontations::skrifa::raw::TableProvider;
 use fontspector_checkapi::{prelude::*, FileTypeConvert, TestFont};
+use skrifa::raw::TableProvider;
 
 use crate::{checks::googlefonts::metadata::family_proto, constants::gf_api_weight_name};
 

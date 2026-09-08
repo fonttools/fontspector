@@ -1,9 +1,7 @@
-use fontations::{
-    skrifa::raw::TableProvider,
-    write::tables::name::{Name, NameRecord},
-};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
+use skrifa::raw::TableProvider;
+use write_fonts::tables::name::{Name, NameRecord};
 
 #[check(
     id = "no_mac_entries",

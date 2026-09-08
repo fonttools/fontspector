@@ -1,7 +1,7 @@
-use fontations::skrifa::MetadataProvider;
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
 use google_fonts_axisregistry::AxisRegistry;
 use serde_json::json;
+use skrifa::MetadataProvider;
 
 /// Known parametric axis tags from the Google Fonts axis registry.
 /// These axes control fine-grained typographic parameters and should
@@ -73,14 +73,12 @@ fn parametric_axes_hidden(t: &Testable, _context: &Context) -> CheckFnResult {
 mod tests {
     #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-    use fontations::{
-        skrifa::raw::TableProvider,
-        write::{from_obj::ToOwnedTable, tables::fvar::Fvar, FontBuilder},
-    };
     use fontspector_checkapi::{
         codetesting::{assert_pass, assert_results_contain, assert_skip, run_check, test_able},
         FileTypeConvert, StatusCode, TTF,
     };
+    use skrifa::raw::TableProvider;
+    use write_fonts::{from_obj::ToOwnedTable, tables::fvar::Fvar, FontBuilder};
 
     use super::parametric_axes_hidden;
 
@@ -110,20 +108,20 @@ mod tests {
         // Add a parametric axis (XOPQ) with flags=0 (not hidden)
         fvar.axis_instance_arrays
             .axes
-            .push(fontations::write::tables::fvar::VariationAxisRecord {
-                axis_tag: fontations::write::types::Tag::new(b"XOPQ"),
-                min_value: fontations::write::types::Fixed::from_f64(10.0),
-                default_value: fontations::write::types::Fixed::from_f64(88.0),
-                max_value: fontations::write::types::Fixed::from_f64(200.0),
+            .push(write_fonts::tables::fvar::VariationAxisRecord {
+                axis_tag: write_fonts::types::Tag::new(b"XOPQ"),
+                min_value: write_fonts::types::Fixed::from_f64(10.0),
+                default_value: write_fonts::types::Fixed::from_f64(88.0),
+                max_value: write_fonts::types::Fixed::from_f64(200.0),
                 flags: 0, // NOT hidden — should trigger fail
-                axis_name_id: fontations::write::types::NameId::new(256),
+                axis_name_id: write_fonts::types::NameId::new(256),
             });
 
         // Add a third coordinate to each instance for the new axis
         for instance in &mut fvar.axis_instance_arrays.instances {
             instance
                 .coordinates
-                .push(fontations::write::types::Fixed::from_f64(88.0));
+                .push(write_fonts::types::Fixed::from_f64(88.0));
         }
 
         let new_bytes = FontBuilder::new()

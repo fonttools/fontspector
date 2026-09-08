@@ -1,12 +1,12 @@
-use fontations::skrifa::{
-    prelude::{LocationRef, Size},
-    raw::{types::BoundingBox, TableProvider},
-    MetadataProvider,
-};
 use fontspector_checkapi::{
     pens::BezGlyph, prelude::*, testfont, FileTypeConvert, DEFAULT_LOCATION,
 };
 use kurbo::{BezPath, ParamCurve};
+use skrifa::{
+    prelude::{LocationRef, Size},
+    raw::{types::BoundingBox, TableProvider},
+    MetadataProvider,
+};
 
 fn x_leftmost_intersection(paths: &[BezPath], y: f32, x_min: f32, x_max: f32) -> Option<f32> {
     let mut y_adjust = 0.0;
@@ -149,19 +149,19 @@ fn italic_angle(t: &Testable, context: &Context) -> CheckFnResult {
 #[allow(clippy::unwrap_used, clippy::expect_used)]
 #[cfg(test)]
 mod tests {
-    use fontations::{skrifa::raw::TableProvider, write::from_obj::ToOwnedTable};
     use fontspector_checkapi::{
         codetesting::{assert_pass, assert_results_contain, run_check, test_able},
         prelude::*,
         FileTypeConvert, StatusCode,
     };
+    use skrifa::raw::TableProvider;
+    use write_fonts::from_obj::ToOwnedTable;
 
     fn make_testable_with_angle_and_style(angle: f32, style: &str) -> Testable {
         let source = test_able("cabin/Cabin-Regular.ttf");
         let f = TTF.from_testable(&source).unwrap();
-        let mut post: fontations::write::tables::post::Post =
-            f.font().post().unwrap().to_owned_table();
-        post.italic_angle = fontations::types::Fixed::from_f64(angle as f64);
+        let mut post: write_fonts::tables::post::Post = f.font().post().unwrap().to_owned_table();
+        post.italic_angle = write_fonts::types::Fixed::from_f64(angle as f64);
         let new_bytes = f.rebuild_with_new_table(&post).unwrap();
         let filename = format!("TestFont-{style}.ttf");
         Testable::new_with_contents(filename, new_bytes)

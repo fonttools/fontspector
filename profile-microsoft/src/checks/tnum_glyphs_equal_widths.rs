@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
-use fontations::skrifa::GlyphId;
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
 use harfrust::{Shaper, ShaperData, UnicodeBuffer};
+use skrifa::GlyphId;
 
 fn verify_widths(shaper: &Shaper, text: &str) -> HashMap<i32, Vec<GlyphId>> {
     let mut buffer = UnicodeBuffer::new();

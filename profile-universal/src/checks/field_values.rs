@@ -1,11 +1,10 @@
-use fontations::{
-    read::FontRef,
-    skrifa::{instance::Location, raw::TableProvider, MetadataProvider},
-    types::NameId,
-};
-use fontdrasil::coords::{CoordConverter, DesignCoord, NormalizedCoord, UserCoord};
+use fontdrasil::coords::{NormalizedCoord, NormalizedLocation, UserSpace};
+use fontdrasil::types::Axes;
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
+use skrifa::raw::FontRef;
+use skrifa::{raw::TableProvider, MetadataProvider};
 use tabled::{Table, Tabled};
+use write_fonts::types::NameId;
 
 #[derive(Tabled)]
 struct TableEntry {
@@ -82,7 +81,7 @@ fn field_values(t: &Testable, context: &Context) -> CheckFnResult {
             config
         };
 
-        let serialized = font_to_json(&font.font());
+        let serialized = font_to_json(&font.font(), font.fontdrasil_axes()?.as_ref());
         let mut incorrect = vec![];
         for (key, value) in config_for_this_font.iter() {
             let found = serialized.get(key);
@@ -229,7 +228,7 @@ fn flatten_map(
 
 // This code taken from diffenator3's ttj crate
 
-pub fn font_to_json(font: &FontRef) -> Value {
+pub fn font_to_json(font: &FontRef, axes: Option<&Axes>) -> Value {
     let mut map = Map::new();
 
     // Some tables are serialized by using read_font's traversal feature; typically those which
@@ -256,12 +255,12 @@ pub fn font_to_json(font: &FontRef) -> Value {
 
     // Other tables require a bit of massaging to produce information which makes sense to test.
     map.insert("name".to_string(), serialize_name_table(font));
-    map.insert("fvar".to_string(), serialize_fvar_table(font));
+    map.insert("fvar".to_string(), serialize_fvar_table(font, axes));
     Value::Object(flatten_map(&map))
 }
 
-use fontations::read::traversal::{FieldType, SomeArray, SomeTable};
 use serde_json::{json, Map, Number, Value};
+use skrifa::raw::traversal::{FieldType, SomeArray, SomeTable};
 
 fn serialize_name_table<'a>(font: &(impl MetadataProvider<'a> + TableProvider<'a>)) -> Value {
     let mut map = Map::new();
@@ -288,7 +287,7 @@ fn serialize_name_table<'a>(font: &(impl MetadataProvider<'a> + TableProvider<'a
     Value::Object(map)
 }
 
-fn serialize_fvar_table(font: &FontRef) -> Value {
+fn serialize_fvar_table(font: &FontRef, axes: Option<&Axes>) -> Value {
     let mut map = Map::new();
     if !font.axes().is_empty() {
         let mut axes_map = Map::new();
@@ -314,8 +313,27 @@ fn serialize_fvar_table(font: &FontRef) -> Value {
                 .localized_strings(instance.subfamily_name_id())
                 .english_or_first()
                 .map_or("Unknown instance".to_string(), |f| f.to_string());
-            if let Ok(location) = font.denormalize_location(instance.location()) {
-                instances_map.insert(name, location.into());
+            if let Some(axes) = axes {
+                let location_normalized = instance.location();
+                let mut location_normalized_fontdrasil: NormalizedLocation =
+                    NormalizedLocation::new();
+                for (tag_ix, coord) in location_normalized.coords().iter().enumerate() {
+                    if let Some(tag) = axes.axis_order().get(tag_ix) {
+                        location_normalized_fontdrasil
+                            .insert(*tag, NormalizedCoord::new(coord.to_f64()));
+                    }
+                }
+                if let Ok(location_user_fontdrasil) =
+                    location_normalized_fontdrasil.convert::<UserSpace>(axes)
+                {
+                    instances_map.insert(
+                        name,
+                        location_user_fontdrasil
+                            .iter()
+                            .map(|(tag, coord)| (tag.to_string(), json!(&coord.to_f64())))
+                            .collect(),
+                    );
+                }
             }
         }
         map.insert("namedInstances".to_string(), Value::Object(instances_map));
@@ -374,6 +392,7 @@ impl<'a> ToValue for FieldType<'a> {
             Self::Fixed(arg0) => Value::Number(Number::from(arg0.to_i32())),
             Self::LongDateTime(arg0) => Value::Number(arg0.as_secs().into()),
             Self::GlyphId16(arg0) => Value::String(format!("g{}", arg0.to_u16())),
+            Self::GlyphId24(arg0) => Value::String(format!("g{}", arg0.to_u32())),
             Self::NameId(arg0) => Value::String(arg0.to_string()),
             Self::StringOffset(string) => match &string.target {
                 Ok(arg0) => Value::String(arg0.as_ref().iter_chars().collect()),
@@ -416,95 +435,6 @@ impl<'a> ToValue for dyn SomeTable<'a> + 'a {
             field_num += 1;
         }
         Value::Object(map)
-    }
-}
-
-fn lerp(a: f32, b: f32, t: f32) -> f32 {
-    a + (b - a) * t
-}
-fn poor_mans_denormalize(
-    peak: f32,
-    axis: &fontations::read::tables::fvar::VariationAxisRecord,
-) -> f32 {
-    if peak > 0.0 {
-        lerp(
-            axis.default_value().to_f32(),
-            axis.max_value().to_f32(),
-            peak,
-        )
-    } else {
-        lerp(
-            axis.default_value().to_f32(),
-            axis.min_value().to_f32(),
-            -peak,
-        )
-    }
-}
-
-pub trait DenormalizeLocation {
-    /// Given a normalized location tuple, turn it back into a friendly representation in userspace
-    fn denormalize_location(
-        &self,
-        location: Location,
-    ) -> Result<Map<String, Value>, FontspectorError>;
-}
-
-impl DenormalizeLocation for FontRef<'_> {
-    fn denormalize_location(
-        &self,
-        location: Location,
-    ) -> Result<Map<String, Value>, FontspectorError> {
-        let all_axes = self.fvar()?.axes()?;
-        let mut map = Map::new();
-        for (axis_index, axis) in all_axes.iter().enumerate() {
-            // Start with a default convertor, may edit later
-            let mut converter = CoordConverter::unmapped(
-                UserCoord::new(axis.min_value().to_f64()),
-                UserCoord::new(axis.max_value().to_f64()),
-                UserCoord::new(axis.min_value().to_f64()),
-            );
-            // If there is an avar table, we denormalize its mappings and use it
-            if let Ok(avar) = self.avar() {
-                if let Some(Ok(segment_map)) = avar.axis_segment_maps().get(axis_index) {
-                    let default_idx = segment_map
-                        .axis_value_maps
-                        .iter()
-                        .position(|avm| avm.from_coordinate().to_f32() == 0.0)
-                        .unwrap_or(0);
-                    let normalized_map = segment_map
-                        .axis_value_maps
-                        .iter()
-                        .map(|axis_value_map| {
-                            (
-                                UserCoord::new(poor_mans_denormalize(
-                                    axis_value_map.from_coordinate().to_f32(),
-                                    axis,
-                                ) as f64),
-                                DesignCoord::new(poor_mans_denormalize(
-                                    axis_value_map.to_coordinate().to_f32(),
-                                    axis,
-                                ) as f64),
-                            )
-                        })
-                        .collect::<Vec<_>>();
-                    converter = CoordConverter::new(normalized_map, default_idx);
-                }
-            }
-            let coord = location
-                .coords()
-                .get(axis_index)
-                .ok_or(FontspectorError::General(
-                    "Not enough axes in fvar table".to_string(),
-                ))?
-                .to_f32() as f64;
-            let normalized_value = NormalizedCoord::new(coord);
-            // Denormalize to userspace!
-            map.insert(
-                axis.axis_tag().to_string(),
-                json!(normalized_value.to_user(&converter).to_f64()),
-            );
-        }
-        Ok(map)
     }
 }
 

@@ -1,6 +1,6 @@
-use fontations::skrifa::raw::TableProvider;
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
+use skrifa::raw::TableProvider;
 
 #[check(
     id = "opentype/post_table_version",
@@ -107,12 +107,13 @@ fn post_table_version(t: &Testable, _context: &Context) -> CheckFnResult {
 #[allow(clippy::expect_used, clippy::unwrap_used)]
 #[cfg(test)]
 mod tests {
-    use fontations::{skrifa::raw::TableProvider, write::from_obj::ToOwnedTable};
     use fontspector_checkapi::{
         codetesting::{assert_pass, assert_results_contain, run_check, test_able},
         prelude::*,
         FileTypeConvert, StatusCode,
     };
+    use skrifa::raw::TableProvider;
+    use write_fonts::from_obj::ToOwnedTable;
 
     #[test]
     fn test_post_table_version_ttf_format2_pass() {
@@ -125,9 +126,8 @@ mod tests {
     fn test_post_table_version_ttf_format3_warn() {
         let mut testable = test_able("mada/Mada-Regular.ttf");
         let f = TTF.from_testable(&testable).unwrap();
-        let mut post: fontations::write::tables::post::Post =
-            f.font().post().unwrap().to_owned_table();
-        post.version = fontations::skrifa::raw::types::Version16Dot16::new(3, 0);
+        let mut post: write_fonts::tables::post::Post = f.font().post().unwrap().to_owned_table();
+        post.version = skrifa::raw::types::Version16Dot16::new(3, 0);
         testable.set(f.rebuild_with_new_table(&post).unwrap());
         let result = run_check(super::post_table_version, testable);
         assert_results_contain(
@@ -141,9 +141,8 @@ mod tests {
     fn test_post_table_version_ttf_format4_fail() {
         let mut testable = test_able("mada/Mada-Regular.ttf");
         let f = TTF.from_testable(&testable).unwrap();
-        let mut post: fontations::write::tables::post::Post =
-            f.font().post().unwrap().to_owned_table();
-        post.version = fontations::skrifa::raw::types::Version16Dot16::new(4, 0);
+        let mut post: write_fonts::tables::post::Post = f.font().post().unwrap().to_owned_table();
+        post.version = skrifa::raw::types::Version16Dot16::new(4, 0);
         testable.set(f.rebuild_with_new_table(&post).unwrap());
         let result = run_check(super::post_table_version, testable);
         assert_results_contain(

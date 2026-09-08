@@ -1,5 +1,5 @@
-use fontations::skrifa::raw::{tables::stat::AxisValue, TableProvider};
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
+use skrifa::raw::{tables::stat::AxisValue, TableProvider};
 
 #[check(
     id = "microsoft/STAT_axis_values",

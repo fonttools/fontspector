@@ -1,9 +1,9 @@
-use fontations::skrifa::raw::{
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
+use skrifa::raw::{
     tables::stat::{AxisValue, AxisValueTableFlags},
     TableProvider,
 };
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
-use serde_json::json;
 
 #[check(
     id = "googlefonts/STAT/opsz_not_elided",
@@ -80,13 +80,13 @@ fn opsz_not_elided(t: &Testable, _context: &Context) -> CheckFnResult {
 mod tests {
     #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-    use fontations::write::{
-        tables::stat::{AxisRecord, AxisValue, AxisValueTableFlags, Stat},
-        FontBuilder,
-    };
     use fontspector_checkapi::{
         codetesting::{assert_results_contain, assert_skip, run_check, test_able},
         FileTypeConvert, StatusCode, TTF,
+    };
+    use write_fonts::{
+        tables::stat::{AxisRecord, AxisValue, AxisValueTableFlags, Stat},
+        FontBuilder,
     };
 
     use super::opsz_not_elided;
@@ -109,7 +109,7 @@ mod tests {
     #[test]
     #[allow(clippy::unwrap_used)]
     fn test_warn_elidable_opsz() {
-        use fontations::write::types::{Fixed, NameId, Tag};
+        use write_fonts::types::{Fixed, NameId, Tag};
 
         // Start from Inter and replace STAT with one that has an elidable opsz axis value
         let mut testable = test_able("varfont/inter/Inter[slnt,wght].ttf");

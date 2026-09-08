@@ -1,6 +1,7 @@
-use fontations::{skrifa::raw::TableProvider, write::from_obj::ToOwnedTable};
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
+use skrifa::raw::TableProvider;
+use write_fonts::from_obj::ToOwnedTable;
 
 #[check(
     id = "os2_metrics_match_hhea",
@@ -97,7 +98,7 @@ fn fix_os2_metrics_match_hhea(
 ) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
     let hhea = f.font().hhea()?;
-    let mut os2: fontations::write::tables::os2::Os2 = f.font().os2()?.to_owned_table();
+    let mut os2: write_fonts::tables::os2::Os2 = f.font().os2()?.to_owned_table();
     os2.s_typo_ascender = hhea.ascender().to_i16();
     os2.s_typo_descender = hhea.descender().to_i16();
     os2.s_typo_line_gap = hhea.line_gap().to_i16();

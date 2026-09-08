@@ -1,12 +1,12 @@
 use std::collections::HashSet;
 
-use fontations::skrifa::{
-    raw::{types::Version16Dot16, TableProvider},
-    GlyphId as SkrifaGlyphId, MetadataProvider,
-};
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
 use itertools::Itertools;
 use serde_json::json;
+use skrifa::{
+    raw::{types::Version16Dot16, TableProvider},
+    GlyphId as SkrifaGlyphId, MetadataProvider,
+};
 
 enum NameValidity {
     OK,

@@ -1,6 +1,6 @@
-use fontations::skrifa::MetadataProvider;
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
 use itertools::Itertools;
+use skrifa::MetadataProvider;
 
 use google_fonts_axisregistry::AxisRegistry;
 

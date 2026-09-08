@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
-use fontations::skrifa::MetadataProvider;
 use fontspector_checkapi::{prelude::*, skip, FileTypeConvert, Metadata};
 use serde_json::json;
+use skrifa::MetadataProvider;
 
 #[check(
     id = "varfont/consistent_axes",

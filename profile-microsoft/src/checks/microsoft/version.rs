@@ -1,8 +1,8 @@
 use std::sync::LazyLock;
 
-use fontations::skrifa::string::StringId;
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
 use regex::Regex;
+use skrifa::string::StringId;
 
 #[allow(clippy::unwrap_used)]
 static VERSION_PATTERN: LazyLock<Regex> =

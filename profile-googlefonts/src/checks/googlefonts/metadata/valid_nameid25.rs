@@ -1,5 +1,5 @@
-use fontations::skrifa::string::StringId;
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
+use skrifa::string::StringId;
 
 // This is not actually googlefonts/metadata (in the sense of METADATA.pb) related, but we
 // keep the check ID for legacy reasons.
@@ -48,11 +48,11 @@ fn valid_nameid25(t: &Testable, _context: &Context) -> CheckFnResult {
 #[cfg(test)]
 mod tests {
     use super::valid_nameid25;
-    use fontations::skrifa::raw::types::NameId;
     use fontspector_checkapi::{
         codetesting::{assert_pass, assert_results_contain, run_check, set_name_entry, test_able},
         StatusCode,
     };
+    use skrifa::raw::types::NameId;
 
     #[test]
     fn test_check_metadata_valid_nameid25() {

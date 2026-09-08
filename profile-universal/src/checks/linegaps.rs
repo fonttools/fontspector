@@ -1,6 +1,7 @@
-use fontations::{skrifa::raw::TableProvider, write::from_obj::ToOwnedTable};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
+use skrifa::raw::TableProvider;
+use write_fonts::from_obj::ToOwnedTable;
 
 #[check(
     id = "linegaps",
@@ -67,8 +68,8 @@ fn fix_linegaps(
     _replies: Option<MoreInfoReplies>,
 ) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
-    let mut os2: fontations::write::tables::os2::Os2 = f.font().os2()?.to_owned_table();
-    let mut hhea: fontations::write::tables::hhea::Hhea = f.font().hhea()?.to_owned_table();
+    let mut os2: write_fonts::tables::os2::Os2 = f.font().os2()?.to_owned_table();
+    let mut hhea: write_fonts::tables::hhea::Hhea = f.font().hhea()?.to_owned_table();
     os2.s_typo_line_gap = 0;
     hhea.line_gap = 0.into();
     // Rebuild with both tables

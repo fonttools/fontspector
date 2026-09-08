@@ -1,6 +1,6 @@
-use fontations::skrifa::raw::TableProvider;
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
+use skrifa::raw::TableProvider;
 
 #[check(
     id = "opentype/unitsperem",
@@ -59,11 +59,12 @@ fn unitsperem(f: &Testable, _context: &Context) -> CheckFnResult {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use fontations::{skrifa::raw::TableProvider, write::from_obj::ToOwnedTable};
     use fontspector_checkapi::{
         codetesting::{assert_pass, assert_results_contain, run_check, test_able},
         StatusCode,
     };
+    use skrifa::raw::TableProvider;
+    use write_fonts::from_obj::ToOwnedTable;
 
     #[test]
     fn test_unitsperem_pass() {
@@ -76,8 +77,7 @@ mod tests {
     fn test_unitsperem_warn_suboptimal() {
         let mut testable = test_able("mada/Mada-Regular.ttf");
         let f = TTF.from_testable(&testable).unwrap();
-        let mut head: fontations::write::tables::head::Head =
-            f.font().head().unwrap().to_owned_table();
+        let mut head: write_fonts::tables::head::Head = f.font().head().unwrap().to_owned_table();
         head.units_per_em = 100;
         testable.set(f.rebuild_with_new_table(&head).unwrap());
         let result = run_check(unitsperem, testable);
@@ -88,8 +88,7 @@ mod tests {
     fn test_unitsperem_fail_out_of_range() {
         let mut testable = test_able("mada/Mada-Regular.ttf");
         let f = TTF.from_testable(&testable).unwrap();
-        let mut head: fontations::write::tables::head::Head =
-            f.font().head().unwrap().to_owned_table();
+        let mut head: write_fonts::tables::head::Head = f.font().head().unwrap().to_owned_table();
         head.units_per_em = 0;
         testable.set(f.rebuild_with_new_table(&head).unwrap());
         let result = run_check(unitsperem, testable);

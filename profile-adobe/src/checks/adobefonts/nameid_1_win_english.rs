@@ -1,5 +1,5 @@
-use fontations::skrifa::{raw::TableProvider, string::StringId};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use skrifa::{raw::TableProvider, string::StringId};
 
 #[check(
     id = "adobefonts/nameid_1_win_english",

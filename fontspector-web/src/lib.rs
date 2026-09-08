@@ -243,7 +243,7 @@ pub fn fix_fonts(fonts: &JsValue, requests: &JsValue) -> Result<Uint8Array, JsVa
     // avoid mutably borrowing the same testable multiple times.
     let mut to_fix: BTreeMap<String, (&mut Testable, Vec<FixRequest<'_>>)> = BTreeMap::new();
     let mut filenames_we_need = BTreeSet::new();
-    for request in js_sys::try_iter(requests)?.ok_or_else(|| "not iterable!")? {
+    for request in js_sys::try_iter(requests)?.ok_or("not iterable!")? {
         let request = request?;
         let filename = Reflect::get(&request, &JsValue::from_str("filename"))?
             .as_string()
@@ -260,7 +260,7 @@ pub fn fix_fonts(fonts: &JsValue, requests: &JsValue) -> Result<Uint8Array, JsVa
         }
     }
     // Next pass gathers fix functions and dialogue options
-    for request in js_sys::try_iter(requests)?.ok_or_else(|| "not iterable!")? {
+    for request in js_sys::try_iter(requests)?.ok_or("not iterable!")? {
         let request = request?;
         let check_id = Reflect::get(&request, &JsValue::from_str("check_id"))?
             .as_string()

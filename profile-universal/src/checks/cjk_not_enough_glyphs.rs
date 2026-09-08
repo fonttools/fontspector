@@ -1,6 +1,6 @@
-use fontations::skrifa::raw::TableProvider;
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata, TestFont};
 use serde_json::json;
+use skrifa::raw::TableProvider;
 
 const CJK_CODEPAGE_BITS: [u8; 5] = [17, 18, 19, 20, 21];
 

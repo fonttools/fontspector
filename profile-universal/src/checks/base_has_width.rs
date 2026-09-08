@@ -1,11 +1,11 @@
 use std::collections::HashMap;
 
-use fontations::skrifa::{
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
+use skrifa::{
     raw::{tables::gdef::GlyphClassDef, TableProvider},
     GlyphId, MetadataProvider,
 };
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
-use serde_json::json;
 use unicode_properties::{GeneralCategory, UnicodeGeneralCategory};
 
 fn is_space(c: char) -> bool {

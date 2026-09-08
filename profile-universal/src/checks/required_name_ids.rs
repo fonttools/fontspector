@@ -1,9 +1,9 @@
-use fontations::skrifa::string::StringId;
 use fontspector_checkapi::{
     get_name_entry_string, get_name_platform_tuples, prelude::*, testfont, FileTypeConvert,
     Metadata, PlatformSelector,
 };
 use serde_json::json;
+use skrifa::string::StringId;
 
 use std::vec;
 

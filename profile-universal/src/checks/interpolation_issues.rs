@@ -1,14 +1,14 @@
-use fontations::skrifa::{
-    raw::{ReadError, TableProvider},
-    setting::{Setting, VariationSetting},
-    GlyphId, Tag,
-};
 use fontdrasil::coords::{NormalizedCoord, NormalizedLocation};
 use fontspector_checkapi::{
     pens::BezGlyph, prelude::*, skip, testfont, FileTypeConvert, Metadata, TestFont,
 };
 use interpolatable::{run_tests, Problem, ProblemDetails};
 use serde_json::json;
+use skrifa::{
+    raw::{ReadError, TableProvider},
+    setting::{Setting, VariationSetting},
+    GlyphId, Tag,
+};
 use std::collections::HashMap;
 
 fn denormalize_location(
@@ -24,7 +24,12 @@ fn denormalize_location(
         .filter(|&(_axis, peak)| *peak != 0.0)
         .map(|(axis, peak)| (axis.tag, NormalizedCoord::new(*peak as f64)))
         .collect();
-    let user = loc.to_user(&all_axes);
+    let user = loc.to_user(&all_axes).map_err(|e| {
+        FontspectorError::General(format!(
+            "Failed to convert location to user coordinates: {}",
+            e
+        ))
+    })?;
     // And now back to skrifa
     Ok(user
         .iter()
@@ -169,16 +174,17 @@ fn interpolation_issues(t: &Testable, _context: &Context) -> CheckFnResult {
     let mut locations: Vec<Vec<VariationSetting>> = vec![vec![]];
     for gid in f.all_glyphs() {
         let glyphname = f.glyph_name_for_id_synthesise(gid);
-        let mut default_glyph = interpolatable::Glyph::new_from_font(&font, gid, &[]).ok_or(
-            FontspectorError::General(format!("Can't convert glyph {glyphname}")),
-        )?;
+        let mut default_glyph = interpolatable::Glyph::new_from_font(f.font_data(), gid, &[])
+            .ok_or(FontspectorError::General(format!(
+                "Can't convert glyph {glyphname}"
+            )))?;
         default_glyph.master_name = "default".to_string();
         default_glyph.master_index = 0;
 
         if let Ok(variations) = glyph_variations(&f, gid) {
             for variation in variations {
                 let mut glyph_instance =
-                    interpolatable::Glyph::new_from_font(&font, gid, &variation).ok_or(
+                    interpolatable::Glyph::new_from_font(f.font_data(), gid, &variation).ok_or(
                         FontspectorError::General(format!("Can't convert glyph {glyphname}")),
                     )?;
                 glyph_instance.master_name = variation

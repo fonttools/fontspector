@@ -137,8 +137,8 @@ fn fix_fvar_instances(
     if !f.is_variable_font() {
         return Ok(FixResult::Unfixable);
     }
-    let new_binary =
-        build_fvar_instances(f.font(), None).map_err(|e| FontspectorError::Fix(e.to_string()))?;
+    let new_binary = build_fvar_instances(&t.contents, None)
+        .map_err(|e| FontspectorError::Fix(e.to_string()))?;
     t.set(new_binary);
     Ok(FixResult::Fixed)
 }
