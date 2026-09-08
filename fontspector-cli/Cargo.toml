@@ -32,6 +32,7 @@ profile-fontwerk = { path = "../profile-fontwerk", version = "1.0.0", package = 
 profile-opentype = { path = "../profile-opentype", version = "1.0.0", package = "fontspector-profile-opentype" }
 profile-iso15008 = { path = "../profile-iso15008", version = "1.0.0", package = "fontspector-profile-iso15008" }
 profile-googlefonts = { path = "../profile-googlefonts", version = "1.0.0", package = "fontspector-profile-googlefonts" }
+profile-monotype = { path = "../profile-monotype", version = "1.0.0", package = "fontspector-profile-monotype" }
 clap = { version = "4", features = ["derive", "string"] }
 itertools = { workspace = true }
 log = { workspace = true }

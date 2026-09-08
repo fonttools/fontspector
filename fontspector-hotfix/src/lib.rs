@@ -27,6 +27,7 @@ use fontspector_checkapi::{
 use profile_fontwerk::Fontwerk;
 use profile_googlefonts::GoogleFonts;
 use profile_iso15008::Iso15008;
+use profile_monotype::Monotype;
 use profile_opentype::OpenType;
 use profile_universal::Universal;
 use serde_json::Value;
@@ -51,6 +52,9 @@ pub fn get_registry() -> Registry<'static> {
     Fontwerk
         .register(&mut registry)
         .expect("Couldn't register fontwerk profile");
+    Monotype
+        .register(&mut registry)
+        .expect("Couldn't register monotype profile");
     registry
 }
 

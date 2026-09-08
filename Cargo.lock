@@ -1649,6 +1649,7 @@ dependencies = [
  "fontspector-profile-fontwerk",
  "fontspector-profile-googlefonts",
  "fontspector-profile-iso15008",
+ "fontspector-profile-monotype",
  "fontspector-profile-opentype",
  "fontspector-profile-universal",
  "glyphs2fontir",
@@ -1715,6 +1716,7 @@ dependencies = [
  "fontspector-profile-fontwerk",
  "fontspector-profile-googlefonts",
  "fontspector-profile-iso15008",
+ "fontspector-profile-monotype",
  "fontspector-profile-opentype",
  "fontspector-profile-universal",
  "log",
@@ -1823,6 +1825,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "fontspector-profile-monotype"
+version = "1.0.0"
+dependencies = [
+ "fontspector-checkapi",
+ "itertools 0.15.0",
+ "regex",
+ "serde_json",
+ "skrifa 0.46.2",
+]
+
+[[package]]
 name = "fontspector-profile-opentype"
 version = "1.6.0"
 dependencies = [
@@ -1879,6 +1892,7 @@ dependencies = [
  "fontspector-profile-fontwerk",
  "fontspector-profile-googlefonts",
  "fontspector-profile-iso15008",
+ "fontspector-profile-monotype",
  "fontspector-profile-opentype",
  "fontspector-profile-universal",
  "pyo3",
@@ -1897,6 +1911,7 @@ dependencies = [
  "fontspector-profile-googlefonts",
  "fontspector-profile-iso15008",
  "fontspector-profile-microsoft",
+ "fontspector-profile-monotype",
  "fontspector-profile-opentype",
  "fontspector-profile-universal",
  "js-sys",
