@@ -174,7 +174,7 @@ fn interpolation_issues(t: &Testable, _context: &Context) -> CheckFnResult {
     let mut locations: Vec<Vec<VariationSetting>> = vec![vec![]];
     for gid in f.all_glyphs() {
         let glyphname = f.glyph_name_for_id_synthesise(gid);
-        let mut default_glyph = interpolatable::Glyph::new_from_font(&f.font_data(), gid, &[])
+        let mut default_glyph = interpolatable::Glyph::new_from_font(f.font_data(), gid, &[])
             .ok_or(FontspectorError::General(format!(
                 "Can't convert glyph {glyphname}"
             )))?;
@@ -184,7 +184,7 @@ fn interpolation_issues(t: &Testable, _context: &Context) -> CheckFnResult {
         if let Ok(variations) = glyph_variations(&f, gid) {
             for variation in variations {
                 let mut glyph_instance =
-                    interpolatable::Glyph::new_from_font(&f.font_data(), gid, &variation).ok_or(
+                    interpolatable::Glyph::new_from_font(f.font_data(), gid, &variation).ok_or(
                         FontspectorError::General(format!("Can't convert glyph {glyphname}")),
                     )?;
                 glyph_instance.master_name = variation

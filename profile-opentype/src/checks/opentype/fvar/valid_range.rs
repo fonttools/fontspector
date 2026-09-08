@@ -129,9 +129,7 @@ mod tests {
 
         for axis in &mut fvar.axis_instance_arrays.axes {
             if axis.axis_tag == write_fonts::types::Tag::new(b"wght") {
-                let temp = axis.min_value;
-                axis.min_value = axis.max_value;
-                axis.max_value = temp;
+                std::mem::swap(&mut axis.min_value, &mut axis.max_value);
             }
         }
 
