@@ -1,5 +1,5 @@
-use fontations::skrifa::raw::TableProvider;
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use skrifa::raw::TableProvider;
 
 #[check(
     id = "googlefonts/name/line_breaks",
@@ -42,11 +42,11 @@ fn line_breaks(t: &Testable, _context: &Context) -> CheckFnResult {
 mod tests {
     #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-    use fontations::skrifa::raw::types::NameId;
     use fontspector_checkapi::{
         codetesting::{assert_pass, assert_results_contain, run_check, set_name_entry, test_able},
         StatusCode,
     };
+    use skrifa::raw::types::NameId;
 
     use super::line_breaks;
 

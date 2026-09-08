@@ -1,8 +1,8 @@
-use fontations::skrifa::{GlyphId, MetadataProvider};
 use fontspector_checkapi::{
     pens::HasInkPen, prelude::*, testfont, FileTypeConvert, Metadata, DEFAULT_LOCATION,
 };
 use serde_json::json;
+use skrifa::{GlyphId, MetadataProvider};
 
 #[check(
     id="mandatory_glyphs",

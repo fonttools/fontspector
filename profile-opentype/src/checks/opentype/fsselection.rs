@@ -1,11 +1,9 @@
-use fontations::{
-    skrifa::raw::{
-        tables::{head::MacStyle, os2::SelectionFlags},
-        TableProvider,
-    },
-    write::from_obj::ToOwnedTable,
-};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use skrifa::raw::{
+    tables::{head::MacStyle, os2::SelectionFlags},
+    TableProvider,
+};
+use write_fonts::from_obj::ToOwnedTable;
 
 #[check(
     id = "opentype/fsselection",
@@ -77,7 +75,7 @@ fn fix_fsselection(
     let Some(style) = f.style() else {
         return Ok(FixResult::Unfixable);
     };
-    let mut os2: fontations::write::tables::os2::Os2 = f.font().os2()?.to_owned_table();
+    let mut os2: write_fonts::tables::os2::Os2 = f.font().os2()?.to_owned_table();
     os2.fs_selection &= SelectionFlags::USE_TYPO_METRICS;
     let bold_expected = style == "Bold" || style == "BoldItalic";
     let italic_expected = style.contains("Italic");
@@ -109,16 +107,13 @@ mod tests {
         fs_selection: SelectionFlags,
         style: &str,
     ) -> Option<fontspector_checkapi::CheckResult> {
-        use fontations::{
-            skrifa::raw::{tables::head::MacStyle, TableProvider},
-            write::from_obj::ToOwnedTable,
-        };
+        use skrifa::raw::{tables::head::MacStyle, TableProvider};
+        use write_fonts::from_obj::ToOwnedTable;
         let mut testable = test_able("cabin/Cabin-Regular.ttf");
         // First update OS/2 fsSelection
         let new_bytes = {
             let f = TTF.from_testable(&testable).unwrap();
-            let mut os2: fontations::write::tables::os2::Os2 =
-                f.font().os2().unwrap().to_owned_table();
+            let mut os2: write_fonts::tables::os2::Os2 = f.font().os2().unwrap().to_owned_table();
             os2.fs_selection = fs_selection;
             f.rebuild_with_new_table(&os2).unwrap()
         };
@@ -126,7 +121,7 @@ mod tests {
         // Then update head macStyle to match
         let new_bytes = {
             let f = TTF.from_testable(&testable).unwrap();
-            let mut head: fontations::write::tables::head::Head =
+            let mut head: write_fonts::tables::head::Head =
                 f.font().head().unwrap().to_owned_table();
             let mut mac_style = MacStyle::empty();
             if fs_selection.contains(SelectionFlags::BOLD) {
@@ -192,8 +187,7 @@ mod tests {
         let mut testable = test_able("cabin/Cabin-Regular.ttf");
         let new_bytes = {
             let f = TTF.from_testable(&testable).unwrap();
-            let mut os2: fontations::write::tables::os2::Os2 =
-                f.font().os2().unwrap().to_owned_table();
+            let mut os2: write_fonts::tables::os2::Os2 = f.font().os2().unwrap().to_owned_table();
             os2.fs_selection |= SelectionFlags::BOLD;
             os2.fs_selection.remove(SelectionFlags::REGULAR);
             f.rebuild_with_new_table(&os2).unwrap()
@@ -215,8 +209,7 @@ mod tests {
         let mut testable = test_able("cabin/Cabin-Regular.ttf");
         let new_bytes = {
             let f = TTF.from_testable(&testable).unwrap();
-            let mut os2: fontations::write::tables::os2::Os2 =
-                f.font().os2().unwrap().to_owned_table();
+            let mut os2: write_fonts::tables::os2::Os2 = f.font().os2().unwrap().to_owned_table();
             os2.fs_selection |= SelectionFlags::ITALIC;
             os2.fs_selection.remove(SelectionFlags::REGULAR);
             f.rebuild_with_new_table(&os2).unwrap()

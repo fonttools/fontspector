@@ -1,6 +1,6 @@
-use fontations::skrifa::MetadataProvider;
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
+use skrifa::MetadataProvider;
 
 #[check(
     id = "opentype/fvar/valid_range",
@@ -71,14 +71,12 @@ fn valid_range(t: &Testable, _context: &Context) -> CheckFnResult {
 mod tests {
     #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-    use fontations::{
-        skrifa::raw::TableProvider,
-        write::{from_obj::ToOwnedTable, tables::fvar::Fvar, FontBuilder},
-    };
     use fontspector_checkapi::{
         codetesting::{assert_pass, assert_results_contain, assert_skip, run_check, test_able},
         FileTypeConvert, StatusCode, TTF,
     };
+    use skrifa::raw::TableProvider;
+    use write_fonts::{from_obj::ToOwnedTable, tables::fvar::Fvar, FontBuilder};
 
     use super::valid_range;
 
@@ -103,7 +101,7 @@ mod tests {
         let mut fvar: Fvar = f.font().fvar().unwrap().to_owned_table();
 
         for axis in &mut fvar.axis_instance_arrays.axes {
-            if axis.axis_tag == fontations::write::types::Tag::new(b"wght") {
+            if axis.axis_tag == write_fonts::types::Tag::new(b"wght") {
                 axis.max_value = axis.min_value;
             }
         }
@@ -130,7 +128,7 @@ mod tests {
         let mut fvar: Fvar = f.font().fvar().unwrap().to_owned_table();
 
         for axis in &mut fvar.axis_instance_arrays.axes {
-            if axis.axis_tag == fontations::write::types::Tag::new(b"wght") {
+            if axis.axis_tag == write_fonts::types::Tag::new(b"wght") {
                 let temp = axis.min_value;
                 axis.min_value = axis.max_value;
                 axis.max_value = temp;
@@ -159,8 +157,8 @@ mod tests {
         let mut fvar: Fvar = f.font().fvar().unwrap().to_owned_table();
 
         for axis in &mut fvar.axis_instance_arrays.axes {
-            if axis.axis_tag == fontations::write::types::Tag::new(b"wght") {
-                axis.default_value = fontations::write::types::Fixed::from_f64(50.0);
+            if axis.axis_tag == write_fonts::types::Tag::new(b"wght") {
+                axis.default_value = write_fonts::types::Fixed::from_f64(50.0);
             }
         }
 
@@ -186,8 +184,8 @@ mod tests {
         let mut fvar: Fvar = f.font().fvar().unwrap().to_owned_table();
 
         for axis in &mut fvar.axis_instance_arrays.axes {
-            if axis.axis_tag == fontations::write::types::Tag::new(b"wght") {
-                axis.default_value = fontations::write::types::Fixed::from_f64(1100.0);
+            if axis.axis_tag == write_fonts::types::Tag::new(b"wght") {
+                axis.default_value = write_fonts::types::Fixed::from_f64(1100.0);
             }
         }
 

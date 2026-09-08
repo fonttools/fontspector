@@ -1,8 +1,8 @@
 use std::collections::{HashMap, HashSet};
 
-use fontations::skrifa::{raw::TableProvider, GlyphId, MetadataProvider};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
 use itertools::Itertools;
+use skrifa::{raw::TableProvider, GlyphId, MetadataProvider};
 
 const COMMON_WIDTH_MATH_CHARS: [char; 314] = [
     '+', '<', '=', '>', '¬', '±', '×', '÷', '∈', '∉', '∋', '∌', '−', '∓', '∔', '∝', '∟', '∠', '∡',

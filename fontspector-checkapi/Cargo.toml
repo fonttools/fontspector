@@ -26,7 +26,8 @@ scraper = "0.27.0"
 regex = { workspace = true }
 
 [dependencies]
-fontations = { workspace = true }
+skrifa = { workspace = true }
+write-fonts = { workspace = true }
 fontdrasil = { workspace = true }
 
 fontspector-checkhelper = { workspace = true }

@@ -1,7 +1,7 @@
 use std::ascii::escape_default;
 
-use fontations::skrifa::raw::types::{CFF_SFNT_VERSION, TT_SFNT_VERSION};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use skrifa::raw::types::{CFF_SFNT_VERSION, TT_SFNT_VERSION};
 
 fn escape_bytes<B: AsRef<[u8]>>(buf: B) -> String {
     String::from_utf8(

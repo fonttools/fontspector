@@ -1,5 +1,5 @@
-use fontations::skrifa::raw::types::NameId;
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use skrifa::raw::types::NameId;
 
 #[check(
     id = "googlefonts/name/familyname_first_char",
@@ -30,11 +30,11 @@ fn familyname_first_char(t: &Testable, _context: &Context) -> CheckFnResult {
 mod tests {
     #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-    use fontations::skrifa::raw::types::NameId;
     use fontspector_checkapi::{
         codetesting::{assert_pass, assert_results_contain, run_check, set_name_entry, test_able},
         StatusCode,
     };
+    use skrifa::raw::types::NameId;
 
     use super::familyname_first_char;
 

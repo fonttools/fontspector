@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
-use fontations::skrifa::{
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use skrifa::{
     raw::{
         tables::{
             glyf::{Glyf, Glyph},
@@ -10,7 +11,6 @@ use fontations::skrifa::{
     },
     GlyphId,
 };
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
 
 use super::transformed_components::decompose_components_impl;
 

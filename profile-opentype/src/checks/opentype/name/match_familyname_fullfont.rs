@@ -1,5 +1,5 @@
-use fontations::skrifa::raw::types::NameId;
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use skrifa::raw::types::NameId;
 
 #[check(
     id = "opentype/name/match_familyname_fullfont",
@@ -66,11 +66,11 @@ fn match_familyname_fullfont(t: &Testable, _context: &Context) -> CheckFnResult 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use fontations::skrifa::raw::types::NameId;
     use fontspector_checkapi::{
         codetesting::{assert_pass, assert_results_contain, run_check, set_name_entry, test_able},
         StatusCode,
     };
+    use skrifa::raw::types::NameId;
 
     #[test]
     fn test_match_familyname_fullfont_pass() {

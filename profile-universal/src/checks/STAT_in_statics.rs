@@ -1,11 +1,11 @@
 use std::collections::HashMap;
 
-use fontations::skrifa::{
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
+use skrifa::{
     raw::{tables::stat::AxisValue, TableProvider},
     Tag,
 };
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
-use serde_json::json;
 
 #[check(
     id = "STAT_in_statics",

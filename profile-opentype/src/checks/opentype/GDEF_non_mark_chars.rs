@@ -1,6 +1,6 @@
 use crate::checks::opentype::GDEF_mark_chars::is_nonspacing_mark;
-use fontations::skrifa::{raw::TableProvider, GlyphId16, MetadataProvider};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
+use skrifa::{raw::TableProvider, GlyphId16, MetadataProvider};
 
 fn swaption<T, U>(a: T, b: Option<U>) -> Option<(T, U)> {
     b.map(|b| (a, b))

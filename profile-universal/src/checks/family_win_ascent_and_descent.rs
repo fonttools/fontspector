@@ -1,9 +1,9 @@
-use fontations::skrifa::raw::{
+use fontspector_checkapi::{prelude::*, FileTypeConvert, Metadata, TestFont};
+use serde_json::json;
+use skrifa::raw::{
     tables::glyf::{Glyph, SimpleGlyph},
     TableProvider,
 };
-use fontspector_checkapi::{prelude::*, FileTypeConvert, Metadata, TestFont};
-use serde_json::json;
 
 #[derive(Debug, Default)]
 struct Metrics {

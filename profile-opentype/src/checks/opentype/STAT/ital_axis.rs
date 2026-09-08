@@ -1,12 +1,10 @@
-use fontations::skrifa::MetadataProvider;
-use fontations::{
-    skrifa::raw::{
-        tables::stat::{AxisValue, AxisValueTableFlags},
-        ReadError, TableProvider,
-    },
-    types::NameId,
-};
 use fontspector_checkapi::{prelude::*, FileTypeConvert, TestFont};
+use skrifa::raw::{
+    tables::stat::{AxisValue, AxisValueTableFlags},
+    ReadError, TableProvider,
+};
+use skrifa::MetadataProvider;
+use write_fonts::types::NameId;
 
 fn segment_collection(fonts: Vec<TestFont>) -> Vec<(Option<TestFont>, Option<TestFont>)> {
     let mut roman_italic = vec![];

@@ -1,8 +1,8 @@
 use std::path::PathBuf;
 
-use fontations::skrifa::raw::{types::FWord, TableProvider};
 use fontspector_checkapi::{prelude::*, skip, FileTypeConvert};
 use itertools::Itertools;
+use skrifa::raw::{types::FWord, TableProvider};
 
 #[check(
     id = "opentype/family/underline_thickness",
@@ -48,13 +48,14 @@ fn underline_thickness(c: &TestableCollection, _context: &Context) -> CheckFnRes
 #[allow(clippy::expect_used, clippy::unwrap_used)]
 #[cfg(test)]
 mod tests {
-    use fontations::{skrifa::raw::TableProvider, write::from_obj::ToOwnedTable};
     use fontspector_checkapi::{
         codetesting::{assert_pass, assert_results_contain, run_check_with_config, test_able},
         prelude::*,
         FileTypeConvert, StatusCode, TestableType,
     };
+    use skrifa::raw::TableProvider;
     use std::collections::HashMap;
+    use write_fonts::from_obj::ToOwnedTable;
 
     #[test]
     fn test_underline_thickness_pass() {
@@ -83,11 +84,9 @@ mod tests {
     fn test_underline_thickness_inconsistent() {
         let mut mada_black = test_able("mada/Mada-Black.ttf");
         let f = TTF.from_testable(&mada_black).unwrap();
-        let mut post: fontations::write::tables::post::Post =
-            f.font().post().unwrap().to_owned_table();
+        let mut post: write_fonts::tables::post::Post = f.font().post().unwrap().to_owned_table();
         let original = post.underline_thickness;
-        post.underline_thickness =
-            fontations::skrifa::raw::types::FWord::new(original.to_i16() + 1);
+        post.underline_thickness = skrifa::raw::types::FWord::new(original.to_i16() + 1);
         mada_black.set(f.rebuild_with_new_table(&post).unwrap());
         let testables: Vec<Testable> = vec![mada_black, test_able("mada/Mada-Regular.ttf")];
         let collection = TestableCollection {

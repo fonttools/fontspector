@@ -1,9 +1,7 @@
-use fontations::{
-    skrifa::{raw::TableProvider, GlyphId, MetadataProvider},
-    write::from_obj::ToOwnedTable,
-};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata, TestFont};
 use serde_json::json;
+use skrifa::{raw::TableProvider, GlyphId, MetadataProvider};
+use write_fonts::from_obj::ToOwnedTable;
 
 const AVG_CHAR_WEIGHTS: [(char, u32); 27] = [
     ('a', 64),
@@ -139,7 +137,7 @@ fn fix_xavgcharwidth(
 ) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
     let (_, expected) = compute_expected_xavgcharwidth(&f)?;
-    let mut os2: fontations::write::tables::os2::Os2 = f.font().os2()?.to_owned_table();
+    let mut os2: write_fonts::tables::os2::Os2 = f.font().os2()?.to_owned_table();
     os2.x_avg_char_width = expected as i16;
     t.set(f.rebuild_with_new_table(&os2)?);
     Ok(FixResult::Fixed)
@@ -149,11 +147,12 @@ fn fix_xavgcharwidth(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use fontations::{skrifa::raw::TableProvider, write::from_obj::ToOwnedTable};
     use fontspector_checkapi::{
         codetesting::{assert_pass, assert_results_contain, run_check, test_able},
         StatusCode,
     };
+    use skrifa::raw::TableProvider;
+    use write_fonts::from_obj::ToOwnedTable;
 
     #[test]
     fn test_xavgcharwidth_pass() {
@@ -166,7 +165,7 @@ mod tests {
     fn test_xavgcharwidth_close() {
         let mut testable = test_able("nunito/Nunito-Regular.ttf");
         let f = TTF.from_testable(&testable).unwrap();
-        let mut os2: fontations::write::tables::os2::Os2 = f.font().os2().unwrap().to_owned_table();
+        let mut os2: write_fonts::tables::os2::Os2 = f.font().os2().unwrap().to_owned_table();
         os2.x_avg_char_width = 556;
         testable.set(f.rebuild_with_new_table(&os2).unwrap());
         let result = run_check(xavgcharwidth, testable);
@@ -181,7 +180,7 @@ mod tests {
     fn test_xavgcharwidth_wrong() {
         let mut testable = test_able("nunito/Nunito-Regular.ttf");
         let f = TTF.from_testable(&testable).unwrap();
-        let mut os2: fontations::write::tables::os2::Os2 = f.font().os2().unwrap().to_owned_table();
+        let mut os2: write_fonts::tables::os2::Os2 = f.font().os2().unwrap().to_owned_table();
         os2.x_avg_char_width = 500;
         testable.set(f.rebuild_with_new_table(&os2).unwrap());
         let result = run_check(xavgcharwidth, testable);

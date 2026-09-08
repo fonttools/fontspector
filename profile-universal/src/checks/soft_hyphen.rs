@@ -1,11 +1,9 @@
-use fontations::{
-    read::{tables::cmap::CmapSubtable, TableProvider},
-    skrifa::MetadataProvider,
-    types::GlyphId,
-    write::tables::cmap::Cmap,
-};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata, MoreInfoReplies};
 use serde_json::json;
+use skrifa::raw::{tables::cmap::CmapSubtable, TableProvider};
+use skrifa::MetadataProvider;
+use write_fonts::tables::cmap::Cmap;
+use write_fonts::types::GlyphId;
 
 #[check(
     id = "soft_hyphen",
@@ -86,11 +84,12 @@ mod tests {
     #![allow(clippy::unwrap_used)]
 
     use super::soft_hyphen;
-    use fontations::{skrifa::MetadataProvider, write::tables::cmap::Cmap};
     use fontspector_checkapi::{
         codetesting::{assert_pass, assert_results_contain, run_check, test_able},
         FileTypeConvert, StatusCode,
     };
+    use skrifa::MetadataProvider;
+    use write_fonts::tables::cmap::Cmap;
 
     #[test]
     fn test_soft_hyphen_warn() {

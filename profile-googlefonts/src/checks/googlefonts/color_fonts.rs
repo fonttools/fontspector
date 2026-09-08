@@ -1,5 +1,5 @@
-use fontations::skrifa::raw::TableProvider;
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use skrifa::raw::TableProvider;
 
 const NANOEMOJI_ADVICE : &str = "You can do it by using the maximum_color tool provided by the nanoemoji project:\nhttps://github.com/googlefonts/nanoemoji";
 

@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
-use fontations::skrifa::raw::types::NameId;
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use skrifa::raw::types::NameId;
 
 #[check(
     id = "opentype/name/postscript_name_consistency",
@@ -37,11 +37,11 @@ fn postscript_name_consistency(t: &Testable, _context: &Context) -> CheckFnResul
 #[cfg(test)]
 mod tests {
     use super::*;
-    use fontations::skrifa::raw::types::NameId;
     use fontspector_checkapi::{
         codetesting::{assert_pass, assert_results_contain, run_check, test_able},
         StatusCode,
     };
+    use skrifa::raw::types::NameId;
 
     #[test]
     fn test_postscript_name_consistency_pass() {
@@ -52,10 +52,8 @@ mod tests {
 
     #[test]
     fn test_postscript_name_consistency_fail() {
-        use fontations::{
-            skrifa::raw::TableProvider,
-            write::tables::name::{Name, NameRecord},
-        };
+        use skrifa::raw::TableProvider;
+        use write_fonts::tables::name::{Name, NameRecord};
         let mut testable = test_able("source-sans-pro/TTF/SourceSansPro-Regular.ttf");
         // Add a Mac platform name entry with a different PostScript name
         // We must keep existing entries and add a new one (not replace)
@@ -94,7 +92,7 @@ mod tests {
                 .then(a.name_id.cmp(&b.name_id))
         });
         let new_nametable = Name::new(new_records);
-        let new_bytes = fontations::write::FontBuilder::new()
+        let new_bytes = write_fonts::FontBuilder::new()
             .add_table(&new_nametable)
             .unwrap()
             .copy_missing_tables(f.font())

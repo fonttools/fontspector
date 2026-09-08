@@ -1,6 +1,6 @@
-use fontations::skrifa::raw::TableProvider;
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
+use skrifa::raw::TableProvider;
 
 const RECOMMENDED: [u16; 11] = [16, 32, 64, 128, 256, 500, 512, 1000, 1024, 2000, 2048];
 
@@ -64,13 +64,12 @@ mod tests {
     use super::unitsperem;
 
     fn set_units_per_em(testable: &mut fontspector_checkapi::Testable, upm: u16) {
-        use fontations::{skrifa::raw::TableProvider, write::from_obj::ToOwnedTable};
+        use {skrifa::raw::TableProvider, write_fonts::from_obj::ToOwnedTable};
 
         let f = fontspector_checkapi::prelude::TTF
             .from_testable(testable)
             .unwrap();
-        let mut head: fontations::write::tables::head::Head =
-            f.font().head().unwrap().to_owned_table();
+        let mut head: write_fonts::tables::head::Head = f.font().head().unwrap().to_owned_table();
         head.units_per_em = upm;
         testable.set(f.rebuild_with_new_table(&head).unwrap());
     }

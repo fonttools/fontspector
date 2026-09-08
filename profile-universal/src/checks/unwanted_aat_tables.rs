@@ -1,6 +1,6 @@
-use fontations::write::FontBuilder;
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
+use write_fonts::FontBuilder;
 
 const UNWANTED_TABLES: [&[u8; 4]; 23] = [
     b"acnt", b"ankr", b"bdat", b"bhed", b"bloc", b"bmap", b"bsln", b"EBSC", b"fdsc", b"feat",

@@ -1,6 +1,6 @@
-use fontations::skrifa::MetadataProvider;
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
+use skrifa::MetadataProvider;
 
 #[check(
     id = "fvar_name_entries",

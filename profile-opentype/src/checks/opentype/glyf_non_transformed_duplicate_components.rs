@@ -1,12 +1,12 @@
-use fontations::skrifa::{
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
+use skrifa::{
     raw::{
         tables::glyf::{Anchor, Glyph},
         TableProvider,
     },
     GlyphId,
 };
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
-use serde_json::json;
 use std::collections::HashSet;
 
 #[check(

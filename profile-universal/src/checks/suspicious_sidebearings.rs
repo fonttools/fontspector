@@ -1,14 +1,5 @@
 use std::collections::BTreeSet;
 
-use fontations::{
-    skrifa::{
-        metrics::GlyphMetrics,
-        prelude::{LocationRef, NormalizedCoord, Size},
-        raw::TableProvider,
-        MetadataProvider,
-    },
-    types::GlyphId,
-};
 use fontdrasil::types::Axes;
 use fontspector_checkapi::{
     prelude::*, skip, testfont, FileTypeConvert, FontspectorError, Metadata, TestFont,
@@ -17,6 +8,13 @@ use hashbrown::HashMap;
 use itertools::Itertools;
 use ordered_float::OrderedFloat;
 use serde_json::json;
+use skrifa::{
+    metrics::GlyphMetrics,
+    prelude::{LocationRef, NormalizedCoord, Size},
+    raw::TableProvider,
+    MetadataProvider,
+};
+use write_fonts::types::GlyphId;
 
 fn denormalize_location(normalized_coords: &[NormalizedCoord], axes: &Axes) -> Vec<(String, f64)> {
     normalized_coords

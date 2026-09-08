@@ -1,6 +1,6 @@
-use fontations::skrifa::{raw::TableProvider, Tag};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
+use skrifa::{raw::TableProvider, Tag};
 use std::cmp::Ordering;
 
 #[check(

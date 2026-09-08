@@ -1,5 +1,5 @@
-use fontations::skrifa::MetadataProvider;
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
+use skrifa::MetadataProvider;
 
 #[check(
     id = "varfont/unsupported_axes",

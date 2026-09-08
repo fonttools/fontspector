@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
-use fontations::skrifa::{raw::tables::os2::SelectionFlags, string::StringId};
 use fontspector_checkapi::{prelude::*, FileTypeConvert};
+use skrifa::{raw::tables::os2::SelectionFlags, string::StringId};
 
 #[check(
     id = "opentype/family/bold_italic_unique_for_nameid1",
@@ -52,15 +52,13 @@ fn bold_italic_unique_for_nameid1(c: &TestableCollection, _context: &Context) ->
 #[cfg(test)]
 mod tests {
     use super::*;
-    use fontations::{
-        skrifa::raw::{tables::os2::SelectionFlags, TableProvider},
-        write::from_obj::ToOwnedTable,
-    };
     use fontspector_checkapi::{
         codetesting::{assert_pass, assert_results_contain, run_check_with_config, test_able},
         StatusCode, TestableCollection, TestableType,
     };
+    use skrifa::raw::{tables::os2::SelectionFlags, TableProvider};
     use std::collections::HashMap;
+    use write_fonts::from_obj::ToOwnedTable;
 
     #[test]
     fn test_bold_italic_unique_pass() {
@@ -99,8 +97,7 @@ mod tests {
         // Make the italic font also have the bold bit set, duplicating BoldItalic
         let new_bytes = {
             let f = TTF.from_testable(&testables[2]).unwrap();
-            let mut os2: fontations::write::tables::os2::Os2 =
-                f.font().os2().unwrap().to_owned_table();
+            let mut os2: write_fonts::tables::os2::Os2 = f.font().os2().unwrap().to_owned_table();
             os2.fs_selection |= SelectionFlags::BOLD;
             f.rebuild_with_new_table(&os2).unwrap()
         };

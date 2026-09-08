@@ -1,5 +1,5 @@
-use fontations::skrifa::raw::TableProvider;
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use skrifa::raw::TableProvider;
 
 #[check(
     id = "opentype/loca/maxp_num_glyphs",

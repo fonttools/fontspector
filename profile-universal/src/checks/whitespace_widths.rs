@@ -1,9 +1,7 @@
-use fontations::{
-    skrifa::{raw::TableProvider, MetadataProvider},
-    write::{from_obj::ToOwnedTable, tables::hmtx::Hmtx},
-};
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
+use skrifa::{raw::TableProvider, MetadataProvider};
+use write_fonts::{from_obj::ToOwnedTable, tables::hmtx::Hmtx};
 
 #[check(
     id = "whitespace_widths",
@@ -62,15 +60,12 @@ mod tests {
     #![allow(clippy::unwrap_used)]
 
     use super::whitespace_widths;
-    use fontations::{
-        read::TableProvider,
-        skrifa::MetadataProvider,
-        write::{from_obj::ToOwnedTable, tables::hmtx::Hmtx},
-    };
     use fontspector_checkapi::{
         codetesting::{assert_pass, assert_results_contain, run_check, test_able},
         FileTypeConvert, StatusCode,
     };
+    use skrifa::{raw::TableProvider, MetadataProvider};
+    use write_fonts::{from_obj::ToOwnedTable, tables::hmtx::Hmtx};
 
     #[test]
     fn test_whitespace_widths_pass() {

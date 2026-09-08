@@ -1,8 +1,8 @@
-use fontations::skrifa::MetadataProvider;
 use fontspector_checkapi::{
     pens::BezGlyph, prelude::*, skip, testfont, FileTypeConvert, DEFAULT_LOCATION,
 };
 use harfrust::UnicodeBuffer;
+use skrifa::MetadataProvider;
 use unicode_canonical_combining_class::{get_canonical_combining_class, CanonicalCombiningClass};
 use yeslogic_unicode_blocks::{
     COMBINING_DIACRITICAL_MARKS, COMBINING_DIACRITICAL_MARKS_EXTENDED,

@@ -1,13 +1,13 @@
 use std::collections::HashSet;
 
-use fontations::skrifa::{
-    raw::{tables::gsub::SubstitutionLookupList, ReadError, TableProvider},
-    GlyphId16, MetadataProvider,
-};
 use fontspector_checkapi::{
     prelude::*, skip, testfont, FileTypeConvert, GetSubstitutionMap, Metadata,
 };
 use serde_json::json;
+use skrifa::{
+    raw::{tables::gsub::SubstitutionLookupList, ReadError, TableProvider},
+    GlyphId16, MetadataProvider,
+};
 use unicode_properties::{GeneralCategory, UnicodeGeneralCategory};
 
 #[check(

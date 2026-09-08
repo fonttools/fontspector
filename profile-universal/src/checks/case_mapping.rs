@@ -1,7 +1,8 @@
-use fontations::{skrifa::MetadataProvider, types::GlyphId};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
+use skrifa::MetadataProvider;
 use unicode_properties::{GeneralCategoryGroup, UnicodeGeneralCategory};
+use write_fonts::types::GlyphId;
 
 fn swapcase(c: &char) -> Option<char> {
     if c.is_uppercase() {

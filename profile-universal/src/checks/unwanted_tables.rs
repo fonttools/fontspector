@@ -1,5 +1,6 @@
-use fontations::{skrifa::raw::types::Tag, write::FontBuilder};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use skrifa::raw::types::Tag;
+use write_fonts::FontBuilder;
 
 const UNWANTED_TABLES: [(Tag, &str); 16] = [
     (Tag::new(b"FFTM"), "Table contains redundant FontForge timestamp info"),

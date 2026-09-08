@@ -1,6 +1,6 @@
-use fontations::skrifa::raw::types::NameId;
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
+use skrifa::raw::types::NameId;
 
 #[check(
     id = "name/italic_names",
@@ -95,13 +95,13 @@ mod tests {
     #![allow(clippy::unwrap_used)]
 
     use super::italic_names;
-    use fontations::skrifa::raw::types::NameId;
     use fontspector_checkapi::{
         codetesting::{
             assert_pass, assert_results_contain, assert_skip, run_check, set_name_entry, test_able,
         },
         StatusCode,
     };
+    use skrifa::raw::types::NameId;
 
     #[test]
     fn test_italic_names_skip_regular() {

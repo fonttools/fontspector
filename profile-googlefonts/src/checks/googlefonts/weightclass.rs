@@ -1,11 +1,9 @@
-use fontations::{
-    skrifa::{raw::TableProvider, FontRef},
-    write::from_obj::ToOwnedTable,
-};
 use fontspector_checkapi::{
     constants::OutlineType, prelude::*, testfont, FileTypeConvert, Metadata,
 };
 use serde_json::json;
+use skrifa::{raw::TableProvider, FontRef};
+use write_fonts::from_obj::ToOwnedTable;
 
 use crate::utils::build_expected_font;
 
@@ -157,7 +155,7 @@ fn fix_weightclass(
     let f = testfont!(t);
     let expected_names = build_expected_font(&f, &[])?;
     let expected_value = FontRef::new(&expected_names)?.os2()?.us_weight_class();
-    let mut os2: fontations::write::tables::os2::Os2 = f.font().os2()?.to_owned_table();
+    let mut os2: write_fonts::tables::os2::Os2 = f.font().os2()?.to_owned_table();
     os2.us_weight_class = expected_value;
     t.set(f.rebuild_with_new_table(&os2)?);
     Ok(FixResult::Fixed)

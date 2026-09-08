@@ -1,5 +1,5 @@
-use fontations::skrifa::raw::{ReadError, TableProvider};
 use fontspector_checkapi::{prelude::*, FileTypeConvert, StatusCode};
+use skrifa::raw::{ReadError, TableProvider};
 
 #[check(
     id = "opentype/family/equal_font_versions",
@@ -35,12 +35,13 @@ fn equal_font_versions(c: &TestableCollection, context: &Context) -> CheckFnResu
 #[cfg(test)]
 mod tests {
     use super::*;
-    use fontations::{skrifa::raw::TableProvider, write::from_obj::ToOwnedTable};
     use fontspector_checkapi::{
         codetesting::{assert_pass, assert_results_contain, run_check_with_config, test_able},
         StatusCode, TestableCollection, TestableType,
     };
+    use skrifa::raw::TableProvider;
     use std::collections::HashMap;
+    use write_fonts::from_obj::ToOwnedTable;
 
     #[test]
     fn test_equal_font_versions_pass() {
@@ -85,9 +86,9 @@ mod tests {
         // Modify the second font's version
         let new_bytes = {
             let f = TTF.from_testable(&testables[1]).unwrap();
-            let mut head: fontations::write::tables::head::Head =
+            let mut head: write_fonts::tables::head::Head =
                 f.font().head().unwrap().to_owned_table();
-            head.font_revision = fontations::skrifa::raw::types::Fixed::from_f64(99.0);
+            head.font_revision = skrifa::raw::types::Fixed::from_f64(99.0);
             f.rebuild_with_new_table(&head).unwrap()
         };
         testables[1].set(new_bytes);

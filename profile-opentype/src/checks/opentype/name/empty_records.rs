@@ -1,5 +1,5 @@
-use fontations::skrifa::raw::TableProvider;
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use skrifa::raw::TableProvider;
 
 #[check(
     id = "opentype/name/empty_records",
@@ -36,11 +36,11 @@ fn empty_records(t: &Testable, _context: &Context) -> CheckFnResult {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use fontations::skrifa::raw::types::NameId;
     use fontspector_checkapi::{
         codetesting::{assert_pass, assert_results_contain, run_check, set_name_entry, test_able},
         StatusCode,
     };
+    use skrifa::raw::types::NameId;
 
     #[test]
     fn test_empty_records_pass() {

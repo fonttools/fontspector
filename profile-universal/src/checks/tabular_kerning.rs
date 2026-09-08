@@ -1,14 +1,14 @@
 use hashbrown::{HashMap, HashSet};
 
-use fontations::skrifa::{
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, GetSubstitutionMap};
+use itertools::Itertools;
+use skrifa::{
     raw::{
         tables::gpos::{PairPosFormat1, PairPosFormat2},
         ReadError, TableProvider,
     },
     GlyphId, MetadataProvider,
 };
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, GetSubstitutionMap};
-use itertools::Itertools;
 use unicode_properties::{GeneralCategory, UnicodeGeneralCategory};
 
 const _EXCLUDED: [u32; 12] = [

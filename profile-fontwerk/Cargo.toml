@@ -15,7 +15,8 @@ crate-type = ["cdylib", "rlib"]
 fontspector-checkapi = { path = "../fontspector-checkapi", features = [
     "kurbo",
 ], version = "1.0.0" }
-fontations = { workspace = true }
+skrifa = { workspace = true }
+write-fonts = { workspace = true }
 itertools = { workspace = true }
 serde_json = { workspace = true }
 regex = { workspace = true }

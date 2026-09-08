@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-use fontations::skrifa::{raw::types::NameId, MetadataProvider};
 use fontspector_checkapi::{prelude::*, FileTypeConvert};
+use skrifa::{raw::types::NameId, MetadataProvider};
 
 #[check(
     id = "opentype/family/consistent_family_name",

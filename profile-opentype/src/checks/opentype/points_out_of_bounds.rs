@@ -1,4 +1,6 @@
-use fontations::skrifa::{
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
+use skrifa::{
     raw::{
         tables::glyf::{Glyph, PointFlags},
         types::Point,
@@ -6,8 +8,6 @@ use fontations::skrifa::{
     },
     GlyphId,
 };
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
-use serde_json::json;
 
 #[check(
     id = "opentype/points_out_of_bounds",

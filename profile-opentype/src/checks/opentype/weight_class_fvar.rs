@@ -1,6 +1,7 @@
-use fontations::{skrifa::raw::TableProvider, write::from_obj::ToOwnedTable};
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
+use skrifa::raw::TableProvider;
+use write_fonts::from_obj::ToOwnedTable;
 
 #[check(
     id = "opentype/weight_class_fvar",
@@ -53,7 +54,7 @@ fn fix_weight_class_fvar(
     else {
         return Ok(FixResult::Unfixable);
     };
-    let mut os2: fontations::write::tables::os2::Os2 = f.font().os2()?.to_owned_table();
+    let mut os2: write_fonts::tables::os2::Os2 = f.font().os2()?.to_owned_table();
     os2.us_weight_class = fvar_value as u16;
     t.set(f.rebuild_with_new_table(&os2)?);
     Ok(FixResult::Fixed)
@@ -62,12 +63,13 @@ fn fix_weight_class_fvar(
 #[allow(clippy::unwrap_used, clippy::expect_used)]
 #[cfg(test)]
 mod tests {
-    use fontations::{skrifa::raw::TableProvider, write::from_obj::ToOwnedTable};
     use fontspector_checkapi::{
         codetesting::{assert_pass, assert_results_contain, assert_skip, run_check, test_able},
         prelude::*,
         FileTypeConvert, StatusCode,
     };
+    use skrifa::raw::TableProvider;
+    use write_fonts::from_obj::ToOwnedTable;
 
     #[test]
     fn test_weight_class_fvar_pass() {
@@ -80,7 +82,7 @@ mod tests {
     fn test_weight_class_fvar_mismatch() {
         let mut testable = test_able("varfont/OpenSans[wdth,wght].ttf");
         let f = TTF.from_testable(&testable).unwrap();
-        let mut os2: fontations::write::tables::os2::Os2 = f.font().os2().unwrap().to_owned_table();
+        let mut os2: write_fonts::tables::os2::Os2 = f.font().os2().unwrap().to_owned_table();
         os2.us_weight_class = 333;
         testable.set(f.rebuild_with_new_table(&os2).unwrap());
         let result = run_check(super::weight_class_fvar, testable);

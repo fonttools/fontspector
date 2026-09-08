@@ -1,5 +1,5 @@
-use fontations::skrifa::raw::{types::NameId, TableProvider};
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
+use skrifa::raw::{types::NameId, TableProvider};
 
 #[check(
     id = "opentype/name/postscript_vs_cff",
@@ -52,11 +52,11 @@ fn postscript_vs_cff(t: &Testable, _context: &Context) -> CheckFnResult {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use fontations::skrifa::raw::types::NameId;
     use fontspector_checkapi::{
         codetesting::{assert_pass, assert_results_contain, run_check, set_name_entry, test_able},
         StatusCode,
     };
+    use skrifa::raw::types::NameId;
 
     #[test]
     fn test_postscript_vs_cff_pass() {

@@ -1,6 +1,6 @@
-use fontations::skrifa::raw::TableProvider;
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
+use skrifa::raw::TableProvider;
 
 #[check(
     id = "name/trailing_spaces",
@@ -113,21 +113,19 @@ fn fix_trailing_spaces(
 mod tests {
     #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-    use fontations::{
-        skrifa::raw::types::NameId,
-        write::{
-            tables::{
-                maxp::Maxp,
-                name::{Name, NameRecord},
-            },
-            FontBuilder,
-        },
-    };
     use fontspector_checkapi::{
         codetesting::{assert_messages_contain, assert_results_contain, run_check_with_config},
         StatusCode, Testable, TestableType,
     };
+    use skrifa::raw::types::NameId;
     use std::collections::HashMap;
+    use write_fonts::{
+        tables::{
+            maxp::Maxp,
+            name::{Name, NameRecord},
+        },
+        FontBuilder,
+    };
 
     #[test]
     fn test_leading_spaces() {

@@ -1,4 +1,4 @@
-use fontations::skrifa::outline::OutlinePen;
+use skrifa::outline::OutlinePen;
 
 #[derive(Debug, Default)]
 /// A pen for determining the delta between the highest and lowest points in an outline

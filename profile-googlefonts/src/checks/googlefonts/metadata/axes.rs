@@ -1,7 +1,7 @@
-use fontations::skrifa::MetadataProvider;
 use fontspector_checkapi::{prelude::*, skip, FileTypeConvert};
 use google_fonts_axisregistry::AxisRegistry;
 use hashbrown::HashSet;
+use skrifa::MetadataProvider;
 
 use crate::checks::googlefonts::metadata::family_proto;
 

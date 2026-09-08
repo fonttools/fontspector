@@ -1,11 +1,9 @@
-use fontations::{
-    skrifa::raw::{tables::gasp::GaspRangeBehavior, TableProvider},
-    types::Tag,
-    write::FontBuilder,
-};
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
+use skrifa::raw::{tables::gasp::GaspRangeBehavior, TableProvider};
 use tabled::builder::Builder;
+use write_fonts::types::Tag;
+use write_fonts::FontBuilder;
 
 const NON_HINTING_MESSAGE: &str =  "If you are dealing with an unhinted font, it can be fixed by running the fonts through the command 'gftools fix-nonhinting'\nGFTools is available at https://pypi.org/project/gftools/";
 
@@ -165,9 +163,9 @@ fn fix_unhinted_font(
     if f.has_table(b"fpgm") || (f.has_table(b"prep") && f.has_table(b"gasp")) {
         return Ok(FixResult::Unfixable);
     }
-    let new_gasp = fontations::write::tables::gasp::Gasp {
+    let new_gasp = write_fonts::tables::gasp::Gasp {
         version: 0,
-        gasp_ranges: vec![fontations::write::tables::gasp::GaspRange {
+        gasp_ranges: vec![write_fonts::tables::gasp::GaspRange {
             range_max_ppem: 0xFFFF,
             range_gasp_behavior: GaspRangeBehavior::GASP_GRIDFIT
                 | GaspRangeBehavior::GASP_DOGRAY

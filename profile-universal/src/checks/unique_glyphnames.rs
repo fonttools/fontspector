@@ -1,10 +1,10 @@
 use std::collections::HashSet;
 
-use fontations::skrifa::raw::{
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
+use skrifa::raw::{
     types::{Version16Dot16, CFF_SFNT_VERSION, TT_SFNT_VERSION},
     TableProvider,
 };
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
 
 #[check(
     id = "unique_glyphnames",

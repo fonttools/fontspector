@@ -12,7 +12,8 @@ license = "Apache-2.0"
 fontspector-checkapi = { path = "../fontspector-checkapi", features = [
     "kurbo",
 ], version = "1.0.0" }
-fontations = { workspace = true }
+skrifa = { workspace = true }
+write-fonts = { workspace = true }
 kurbo = { workspace = true }
 itertools = { workspace = true }
 harfrust = { workspace = true }

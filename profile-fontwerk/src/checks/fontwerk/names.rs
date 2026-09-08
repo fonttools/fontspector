@@ -1,8 +1,8 @@
-use fontations::skrifa::string::StringId;
 use fontspector_checkapi::{
     get_name_entry_string, get_name_platform_tuples, prelude::*, skip, testfont, FileTypeConvert,
     PlatformSelector,
 };
+use skrifa::string::StringId;
 use std::{collections::HashMap, vec};
 
 #[check(
@@ -227,18 +227,16 @@ mod tests {
     #![allow(clippy::unwrap_used, clippy::expect_used)]
 
     use super::*;
-    use fontations::{
-        skrifa::raw::types::NameId,
-        write::{
-            tables::{
-                maxp::Maxp,
-                name::{Name, NameRecord},
-            },
-            FontBuilder,
-        },
-    };
     use fontspector_checkapi::{Context, StatusCode, Testable};
     use serde_json::json;
+    use skrifa::raw::types::NameId;
+    use write_fonts::{
+        tables::{
+            maxp::Maxp,
+            name::{Name, NameRecord},
+        },
+        FontBuilder,
+    };
 
     #[test]
     fn test_get_name_ids_from_string() {

@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
-use fontations::skrifa::{outline::OutlinePen, raw::TableProvider, GlyphId, MetadataProvider};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata, DEFAULT_LOCATION};
 use serde::Serialize;
 use serde_json::json;
+use skrifa::{outline::OutlinePen, raw::TableProvider, GlyphId, MetadataProvider};
 
 use super::close_but_not_on;
 const ALIGNMENT_MISS_EPSILON: i16 = 2; // Four point lee-way on alignment misses
@@ -198,15 +198,13 @@ mod tests {
 
     #[test]
     fn test_outline_alignment_miss_os2_low_version() {
-        use fontations::{
-            skrifa::raw::TableProvider,
-            write::{from_obj::ToOwnedTable, FontBuilder},
-        };
         use fontspector_checkapi::FileTypeConvert;
+        use skrifa::raw::TableProvider;
+        use write_fonts::{from_obj::ToOwnedTable, FontBuilder};
 
         let mut testable = test_able("merriweather/Merriweather-Regular.ttf");
         let f = fontspector_checkapi::TTF.from_testable(&testable).unwrap();
-        let mut os2: fontations::write::tables::os2::Os2 = f.font().os2().unwrap().to_owned_table();
+        let mut os2: write_fonts::tables::os2::Os2 = f.font().os2().unwrap().to_owned_table();
         // Set fields to None so version computes to < 2
         os2.sx_height = None;
         os2.s_cap_height = None;

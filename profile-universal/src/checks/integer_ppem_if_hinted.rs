@@ -1,8 +1,6 @@
-use fontations::{
-    skrifa::raw::TableProvider,
-    write::{from_obj::ToOwnedTable, tables::head::Flags},
-};
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
+use skrifa::raw::TableProvider;
+use write_fonts::{from_obj::ToOwnedTable, tables::head::Flags};
 
 #[check(
     id = "integer_ppem_if_hinted",
@@ -49,7 +47,7 @@ fn fix_integer_ppem_if_hinted(
     _replies: Option<MoreInfoReplies>,
 ) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
-    let mut head: fontations::write::tables::head::Head = f.font().head()?.to_owned_table();
+    let mut head: write_fonts::tables::head::Head = f.font().head()?.to_owned_table();
     head.flags |= Flags::FORCE_INTEGER_PPEM;
     t.set(f.rebuild_with_new_table(&head)?);
     Ok(FixResult::Fixed)

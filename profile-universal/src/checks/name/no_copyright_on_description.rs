@@ -1,5 +1,5 @@
-use fontations::skrifa::raw::types::NameId;
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use skrifa::raw::types::NameId;
 
 #[check(
     id = "name/no_copyright_on_description",
@@ -36,11 +36,11 @@ mod tests {
     #![allow(clippy::unwrap_used)]
 
     use super::no_copyright_on_description;
-    use fontations::skrifa::raw::types::NameId;
     use fontspector_checkapi::{
         codetesting::{assert_pass, assert_results_contain, run_check, set_name_entry, test_able},
         StatusCode,
     };
+    use skrifa::raw::types::NameId;
 
     #[test]
     fn test_no_copyright_pass() {

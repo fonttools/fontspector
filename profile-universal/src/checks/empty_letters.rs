@@ -1,6 +1,5 @@
 use std::collections::HashSet;
 
-use fontations::skrifa::{GlyphId, MetadataProvider};
 use fontspector_checkapi::{
     constants::{ALL_HANGUL_SYLLABLES_CODEPOINTS, MODERN_HANGUL_SYLLABLES_CODEPOINTS},
     pens::HasInkPen,
@@ -8,6 +7,7 @@ use fontspector_checkapi::{
     testfont, FileTypeConvert, Metadata, TestFont, DEFAULT_LOCATION,
 };
 use serde_json::json;
+use skrifa::{GlyphId, MetadataProvider};
 use unicode_properties::{GeneralCategory, UnicodeGeneralCategory};
 
 const INVISIBLE_LETTERS: [u32; 4] = [0x115F, 0x1160, 0x3164, 0xFFA0];

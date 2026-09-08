@@ -1,6 +1,7 @@
-use fontations::{skrifa::raw::types::Tag, write::FontBuilder};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
+use skrifa::raw::types::Tag;
+use write_fonts::FontBuilder;
 
 #[check(
     id = "dsig",
@@ -63,11 +64,11 @@ fn delete_dsig(
 mod tests {
     #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-    use fontations::write::{tables::maxp::Maxp, FontBuilder};
     use fontspector_checkapi::{
         codetesting::{assert_pass, assert_results_contain, run_check},
         StatusCode, Testable,
     };
+    use write_fonts::{tables::maxp::Maxp, FontBuilder};
 
     use super::dsig;
 
@@ -92,10 +93,7 @@ mod tests {
             0x00, 0x00, // numSignatures
             0x00, 0x00, // flags
         ];
-        builder.add_raw(
-            fontations::skrifa::raw::types::Tag::new(b"DSIG"),
-            &dsig_data,
-        );
+        builder.add_raw(skrifa::raw::types::Tag::new(b"DSIG"), &dsig_data);
         let testable = Testable::new_with_contents("demo.ttf", builder.build().clone());
         let results = run_check(dsig, testable);
         assert_results_contain(&results, StatusCode::Warn, Some("found-DSIG".to_string()));

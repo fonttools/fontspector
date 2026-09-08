@@ -1,29 +1,28 @@
-use fontations::{
-    read::{
-        tables::base::{Base, BaseScriptList, BaseScriptRecord},
-        ReadError,
-    },
-    skrifa::{
-        metrics::BoundingBox,
-        prelude::{LocationRef, Size},
-        raw::{tables::os2::SelectionFlags, TableProvider},
-        MetadataProvider,
-    },
-    types::{BigEndian, GlyphId, Tag},
-    write::{
-        from_obj::ToOwnedTable,
-        tables::{
-            base::{self as write_base, BaseScript},
-            hhea as write_hhea, os2 as write_os2,
-        },
-        FontBuilder,
-    },
+use skrifa::raw::{
+    tables::base::{Base, BaseScriptList, BaseScriptRecord},
+    ReadError,
 };
+
 use fontspector_checkapi::{
     prelude::*, skip, testfont, FileTypeConvert, GetSubstitutionMap, TestFont,
 };
 use hashbrown::{HashMap, HashSet};
+use skrifa::{
+    metrics::BoundingBox,
+    prelude::{LocationRef, Size},
+    raw::{tables::os2::SelectionFlags, TableProvider},
+    MetadataProvider,
+};
 use tabled::builder::Builder;
+use write_fonts::types::{BigEndian, GlyphId, Tag};
+use write_fonts::{
+    from_obj::ToOwnedTable,
+    tables::{
+        base::{self as write_base, BaseScript},
+        hhea as write_hhea, os2 as write_os2,
+    },
+    FontBuilder,
+};
 
 use crate::network_conditions::is_listed_on_google_fonts;
 
@@ -1083,7 +1082,7 @@ fn fix_vertical_metrics(
     hhea.line_gap = 0.into();
     hhea.ascender = os2.s_typo_ascender.into();
     hhea.descender = os2.s_typo_descender.abs().into();
-    let mut new_font = fontations::write::FontBuilder::new();
+    let mut new_font = write_fonts::FontBuilder::new();
     new_font.add_table(&hhea)?;
     new_font.add_table(&os2)?;
     new_font.copy_missing_tables(f.font());

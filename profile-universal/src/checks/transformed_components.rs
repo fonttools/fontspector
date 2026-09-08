@@ -1,24 +1,22 @@
-use fontations::{
-    skrifa::{
-        raw::{
-            tables::glyf::{Anchor, CurvePoint, Glyph, Transform},
-            types::F2Dot14,
-            FontData, TableProvider,
-        },
-        GlyphId,
-    },
-    write::{
-        from_obj::ToOwnedObj,
-        tables::glyf::{
-            Component, CompositeGlyph, Contour, GlyfLocaBuilder, Glyph as WriteGlyph, SimpleGlyph,
-        },
-        FontBuilder,
-    },
-};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
 use hashbrown::HashMap;
 use itertools::Itertools;
 use kurbo::Affine;
+use skrifa::{
+    raw::{
+        tables::glyf::{Anchor, CurvePoint, Glyph, Transform},
+        types::F2Dot14,
+        FontData, TableProvider,
+    },
+    GlyphId,
+};
+use write_fonts::{
+    from_obj::ToOwnedObj,
+    tables::glyf::{
+        Component, CompositeGlyph, Contour, GlyfLocaBuilder, Glyph as WriteGlyph, SimpleGlyph,
+    },
+    FontBuilder,
+};
 
 fn transform_is_linear(t: Transform) -> bool {
     t.xx == F2Dot14::from_f32(1.0)

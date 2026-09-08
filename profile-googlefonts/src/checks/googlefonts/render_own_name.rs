@@ -1,6 +1,6 @@
-use fontations::skrifa::{raw::tables::name::NameId, MetadataProvider};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
+use skrifa::{raw::tables::name::NameId, MetadataProvider};
 
 #[check(
     id = "googlefonts/render_own_name",

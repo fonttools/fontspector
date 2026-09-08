@@ -1,6 +1,6 @@
-use fontations::skrifa::MetadataProvider;
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
+use skrifa::MetadataProvider;
 
 #[check(
     id = "fvar_instance_ps_names",
@@ -55,14 +55,12 @@ fn fvar_instance_ps_names(t: &Testable, _context: &Context) -> CheckFnResult {
 mod tests {
     #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-    use fontations::{
-        skrifa::raw::TableProvider,
-        write::{from_obj::ToOwnedTable, tables::fvar::Fvar, FontBuilder},
-    };
     use fontspector_checkapi::{
         codetesting::{assert_pass, assert_results_contain, assert_skip, run_check, test_able},
         FileTypeConvert, StatusCode, TTF,
     };
+    use skrifa::raw::TableProvider;
+    use write_fonts::{from_obj::ToOwnedTable, tables::fvar::Fvar, FontBuilder};
 
     use super::fvar_instance_ps_names;
 

@@ -1,5 +1,5 @@
 // Code to make GSUB tables easier to work with
-use fontations::skrifa::{
+use skrifa::{
     raw::{
         tables::{
             gsub::{

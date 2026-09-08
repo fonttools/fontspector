@@ -1,8 +1,8 @@
 use std::sync::LazyLock;
 
-use fontations::skrifa::raw::TableProvider;
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
 use hashbrown::HashSet;
+use skrifa::raw::TableProvider;
 
 const VENDOR_IDS_FILE: &str = include_str!("../../../resources/vendor_ids.txt");
 static VENDOR_IDS: LazyLock<HashSet<&str>> = LazyLock::new(|| {
@@ -81,14 +81,15 @@ mod tests {
     use super::vendor_id;
 
     fn set_vendor_id(testable: &mut fontspector_checkapi::Testable, vid: &str) {
-        use fontations::{skrifa::raw::TableProvider, write::from_obj::ToOwnedTable};
+        use skrifa::raw::TableProvider;
+        use write_fonts::from_obj::ToOwnedTable;
 
         let f = fontspector_checkapi::prelude::TTF
             .from_testable(testable)
             .unwrap();
-        let mut os2: fontations::write::tables::os2::Os2 = f.font().os2().unwrap().to_owned_table();
+        let mut os2: write_fonts::tables::os2::Os2 = f.font().os2().unwrap().to_owned_table();
         let vid_bytes: [u8; 4] = vid.as_bytes().try_into().unwrap();
-        os2.ach_vend_id = fontations::types::Tag::new(&vid_bytes);
+        os2.ach_vend_id = write_fonts::types::Tag::new(&vid_bytes);
         testable.set(f.rebuild_with_new_table(&os2).unwrap());
     }
 

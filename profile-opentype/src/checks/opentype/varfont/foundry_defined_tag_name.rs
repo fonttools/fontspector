@@ -1,5 +1,5 @@
-use fontations::skrifa::MetadataProvider;
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
+use skrifa::MetadataProvider;
 
 const REGISTERED_AXIS_TAGS: [&str; 5] = ["ital", "opsz", "slnt", "wdth", "wght"];
 
