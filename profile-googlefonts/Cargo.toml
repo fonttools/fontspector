@@ -9,25 +9,27 @@ homepage = "https://fonttools.github.io/fontspector/"
 license = "Apache-2.0"
 
 [target.'cfg(not(target_family = "wasm"))'.dependencies]
+# Needed unconditionally: network_conditions.rs (used by the cjk_vertical_metrics
+# fix, among others) depends on reqwest.
 reqwest = { version = "0.12", features = ["blocking"] }
-glob = "0.3.2"
+glob = { version = "0.3.2", optional = true }
 serde = { workspace = true }                            # For reading shaping check JSON files
 
 [dependencies]
-chrono = "0.4.38" # For metadata date checks
+chrono = { version = "0.4.38", optional = true } # For metadata date checks
 fontspector-checkapi = { path = "../fontspector-checkapi", features = [
     "kurbo",
 ], version = "1.0.0" }
-gf-metadata = "0.2.0"
+gf-metadata = { version = "0.2.0", optional = true }
 google-fonts-axisregistry = { version = "0.5", git = "https://github.com/googlefonts/axisregistry" }
-google-fonts-languages = "0"
-google-fonts-subsets = { version = "0.202602" }
-google-fonts-glyphsets = { version = "1.1.0", git = "https://github.com/googlefonts/glyphsets" }
-shaperglot = { version = "1", git = "https://github.com/googlefonts/shaperglot" }
+google-fonts-languages = { version = "0", optional = true }
+google-fonts-subsets = { version = "0.202602", optional = true }
+google-fonts-glyphsets = { version = "1.1.0", git = "https://github.com/googlefonts/glyphsets", optional = true }
+shaperglot = { version = "1", git = "https://github.com/googlefonts/shaperglot", optional = true }
 indexmap = { workspace = true }
 itertools = { workspace = true }
 tabled = { workspace = true }
-protobuf = "3.7.1"
+protobuf = { version = "3.7.1", optional = true }
 regex = { workspace = true }
 serde_json = { workspace = true }
 serde = { workspace = true }
@@ -35,28 +37,53 @@ skrifa = { workspace = true }
 write-fonts = { workspace = true }
 kurbo = { workspace = true }
 log = { workspace = true }
-num-traits = "0.2.19"
-similar = "3.0.0" # For shaping check reports, OFL body diff
+num-traits = { version = "0.2.19", optional = true }
+similar = { version = "3.0.0", optional = true } # For shaping check reports, OFL body diff
 
-unicode-normalization = "0"
+unicode-normalization = { version = "0", optional = true }
 unicode-properties = { workspace = true }
-unicode-canonical-combining-class = "1.0.0"
-unicode-script = "0.5.7"
-yeslogic-unicode-blocks = "0.2.0"
+unicode-canonical-combining-class = { version = "1.0.0", optional = true }
+unicode-script = { version = "0.5.7", optional = true }
+yeslogic-unicode-blocks = { version = "0.2.0", optional = true }
 unicode_names2 = { workspace = true }
 hashbrown = { workspace = true }
 
 scraper = { version = "0.27.0", default-features = false, features = [
     "errors",
-] }
-semver = "1.0.25"
+], optional = true }
+semver = { version = "1.0.25", optional = true }
 image = { version = "0.25.5", default-features = false, features = [
     "png",
     "jpeg",
     "gif",
-] }
-harfrust = { workspace = true }
+], optional = true }
+harfrust = { workspace = true, optional = true }
 edit-distance = "2.2.2"
+
+[features]
+# The "check" feature enables dependencies only needed for checks, not fixes
+# (e.g. metadata/glyphset/shaping/description/article/license/outline checks).
+default = ["check"]
+check = [
+    "dep:glob",
+    "dep:chrono",
+    "dep:gf-metadata",
+    "dep:google-fonts-languages",
+    "dep:google-fonts-subsets",
+    "dep:google-fonts-glyphsets",
+    "dep:shaperglot",
+    "dep:protobuf",
+    "dep:num-traits",
+    "dep:similar",
+    "dep:unicode-normalization",
+    "dep:unicode-canonical-combining-class",
+    "dep:unicode-script",
+    "dep:yeslogic-unicode-blocks",
+    "dep:scraper",
+    "dep:semver",
+    "dep:image",
+    "dep:harfrust",
+]
 
 [lints]
 workspace = true

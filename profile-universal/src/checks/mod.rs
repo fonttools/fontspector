@@ -35,6 +35,7 @@ mod has_glyphs;
 mod has_unicodes;
 mod hinting_impact;
 mod integer_ppem_if_hinted;
+#[cfg(feature = "check")]
 mod interpolation_issues;
 mod legacy_accents;
 mod ligature_carets;
@@ -110,6 +111,7 @@ pub use has_glyphs::has_glyphs;
 pub use has_unicodes::has_unicodes;
 pub use hinting_impact::hinting_impact;
 pub use integer_ppem_if_hinted::integer_ppem_if_hinted;
+#[cfg(feature = "check")]
 pub use interpolation_issues::interpolation_issues;
 pub use legacy_accents::legacy_accents;
 pub use ligature_carets::ligature_carets;
