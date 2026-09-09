@@ -124,7 +124,7 @@ mod tests {
             (3, "Cond Italic", None),
             (3, "Cond Regular Italic", None),
             (4, "Cond Regular Italic", Some("For OS/2 usWidthClass 4 we expect [\"SemiCond\", \"Semi-Cond\", \"Semi-Condensed\"], but got 'Cond Regular Italic'. Either usWidthClass is wrong or style name. Please investigate.".to_string())),
-            (10, "XXWide", None),
+            (10, "XXWide", Some("OS/2 usWidthClass 10 does not match specifications. We expect: XXCond 1, XCond 2, Cond 3, SemiCond 4, (Normal) 5, SemiWide 6, Wide 7, XWide 8, XXWide 9.".to_string())),
             ];
         for (width_class_value, style_name, expected_result) in width_tests {
             let mut font_builder = FontBuilder::new();
