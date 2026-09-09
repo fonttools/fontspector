@@ -72,8 +72,8 @@ fn is_normal_width(style_name: &str) -> bool {
 
     // if any width is in the style name, it's not regular
     let non_regular_indicators = [
-        "cond", // includes XXCond, XCond, Cond, SemiCond
-        "wide", // includes xwide, xxwide, extra-wide, ultra-wide
+        "cond",   // includes XXCond, XCond, Cond, SemiCond
+        "wide",   // includes xwide, xxwide, extra-wide, ultra-wide
         "expand", // includes extra-expanded, ultra-expanded
     ];
 
