@@ -243,4 +243,27 @@ mod tests {
         let result = run_check(fsselection, new_testable);
         assert_pass(&result);
     }
+
+    #[test]
+    fn test_fsselection_macstyle_italic_mismatch__file_name_Ita_fail() {
+        // filename with Ita (Italic) (Legacy fonts may use it)
+        // Set ITALIC in fsSelection but not in macStyle
+        let mut testable = test_able("cabin/Cabin-Regular.ttf");
+        let new_bytes = {
+            let f = TTF.from_testable(&testable).unwrap();
+            let mut os2: write_fonts::tables::os2::Os2 = f.font().os2().unwrap().to_owned_table();
+            os2.fs_selection |= SelectionFlags::ITALIC;
+            os2.fs_selection.remove(SelectionFlags::REGULAR);
+            f.rebuild_with_new_table(&os2).unwrap()
+        };
+        testable.set(new_bytes);
+        let new_testable =
+            Testable::new_with_contents("Test-Ita.ttf".to_string(), testable.contents);
+        let result = run_check(fsselection, new_testable);
+        assert_results_contain(
+            &result,
+            StatusCode::Fail,
+            Some("fsselection-macstyle-italic".to_string()),
+        );
+    }
 }
