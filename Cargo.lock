@@ -1833,6 +1833,7 @@ dependencies = [
  "regex",
  "serde_json",
  "skrifa 0.46.2",
+ "write-fonts 0.52.0",
 ]
 
 [[package]]

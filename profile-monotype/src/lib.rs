@@ -40,6 +40,7 @@ impl fontspector_checkapi::ProfileProvider for Monotype {
                 ]),
             )
             // TODO: implement more Monotype-specific checks
+            .add_and_register_check(checks::monotype::widthclass)
             .include_profile("universal")
             .with_configuration_defaults(
                 "universal/required_name_ids",
