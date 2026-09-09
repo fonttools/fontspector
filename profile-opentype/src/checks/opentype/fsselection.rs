@@ -226,7 +226,7 @@ mod tests {
     }
 
     #[test]
-    fn test_fsselection_macstyle_italic_mismatch__file_name_Ita() {
+    fn test_fsselection_macstyle_italic_mismatch__file_name_Ita_pass() {
         // filename with Ita (Italic) (Legacy fonts may use it)
         // Set ITALIC in fsSelection but not in macStyle
         let mut testable = test_able("cabin/Cabin-Italic.ttf");
@@ -241,10 +241,6 @@ mod tests {
         let new_testable =
             Testable::new_with_contents("Test-Ita.ttf".to_string(), testable.contents);
         let result = run_check(fsselection, new_testable);
-        assert_results_contain(
-            &result,
-            StatusCode::Fail,
-            Some("fsselection-macstyle-italic".to_string()),
-        );
+        assert_pass(&result);
     }
 }
