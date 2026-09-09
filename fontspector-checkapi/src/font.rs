@@ -121,7 +121,18 @@ impl TestFont<'_> {
                 }
             }
         }
-        None
+        if self.is_bold().ok()? {
+            if self.is_italic().ok()? {
+                return Some("BoldItalic");
+            } else {
+                return Some("Bold");
+            }
+        } else {
+            if self.is_italic().ok()? {
+                return Some("Italic");
+            }
+            return Some("Regular");
+        }
     }
 
     /// Is this a RIBBI font?
@@ -152,6 +163,29 @@ impl TestFont<'_> {
         }
         let post = font.post()?;
         if post.italic_angle().to_f32() != 0.0 {
+            return Ok(true);
+        }
+        Ok(false)
+    }
+
+    /// Is this font bold?
+    pub fn is_bold(&self) -> Result<bool, ReadError> {
+        let font = self.font();
+        let os2 = font.os2()?;
+        if os2.fs_selection().contains(SelectionFlags::BOLD) {
+            return Ok(true);
+        }
+        if os2.us_weight_class() == 700 {
+            return Ok(true);
+        }
+        let head = font.head()?;
+        if head.mac_style().contains(MacStyle::BOLD) {
+            return Ok(true);
+        }
+        if self
+            .get_name_entry_strings(StringId::FULL_NAME)
+            .any(|x| x.to_lowercase().contains("bold"))
+        {
             return Ok(true);
         }
         Ok(false)
