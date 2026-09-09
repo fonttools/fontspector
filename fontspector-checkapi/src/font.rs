@@ -123,15 +123,16 @@ impl TestFont<'_> {
         }
         if self.is_bold().ok()? {
             if self.is_italic().ok()? {
-                return Some("BoldItalic");
+                Some("BoldItalic")
             } else {
-                return Some("Bold");
+                Some("Bold")
             }
         } else {
             if self.is_italic().ok()? {
-                return Some("Italic");
+                Some("Italic")
+            } else {
+                Some("Regular")
             }
-            return Some("Regular");
         }
     }
 
