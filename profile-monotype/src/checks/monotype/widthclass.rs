@@ -151,6 +151,28 @@ mod tests {
             (7, "A Family Name", "Extended Bold", None),
             (8, "A Family Name", "Wide Bold", None),
             (9, "A Family Name", "ExtraWide Bold", None),
+            // add edge cases for width classes 1
+            (1, "A Family Name", "XCm Bold", None),
+            (1, "A Family Name", "XComp Bold", None),
+            (1, "A Family Name", "ExtraComp Bold", None),
+            // add edge cases for width classes 2
+            (2, "A Family Name", "Comp Bold", None),
+            (2, "A Family Name", "Cm Bold", None),
+            // add edge cases for width classes 3
+            (3, "A Family Name", "Cn Bold", None),
+            // add edge cases for width classes 4
+            (4, "A Family Name", "SmCond Bold", None),
+            (4, "A Family Name", "SmCn Bold", None),
+            // add edge cases for width classes 6
+            (6, "A Family Name", "SemiExt Bold", None),
+            (6, "A Family Name", "SmExt Bold", None),
+            // add edge cases for width classes 7
+            (7, "A Family Name", "Ext Bold", None),
+            // add edge cases for width classes 8
+            (8, "A Family Name", "Wd Bold", None),
+            // add edge cases for width classes 9
+            (9, "A Family Name", "XtraWd Bold", None),
+            (9, "A Family Name", "XWd Bold", None),
             ];
         for (width_class_value, family_name, style_name, expected_result) in width_tests {
             let mut font_builder = FontBuilder::new();
