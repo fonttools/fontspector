@@ -37,11 +37,27 @@ fn get_expected_width_name(width_class: u16) -> Option<&'static [&'static str]> 
 fn widthclass(t: &Testable, _context: &Context) -> CheckFnResult {
     let f = testfont!(t);
     let value = f.font().os2()?.us_width_class();
-    let style_name = f.best_subfamilyname().unwrap_or("Regular".to_string());
-    let style_name_parts = style_name.split(' ').collect::<Vec<_>>();
+    let best_family_name = if let Some(fam_name) = f.best_familyname() {
+        fam_name
+    } else {
+        return Ok(Status::just_one_fail(
+            "missing-family-name",
+            "The font is missing a best family name.",
+        ));
+    };
+    let best_subfamily_name = if let Some(sub_name) = f.best_subfamilyname() {
+        sub_name
+    } else {
+        return Ok(Status::just_one_fail(
+            "missing-subfamily-name",
+            "The font is missing a best subfamily name.",
+        ));
+    };
+    let best_full_name = format!("{} {}", best_family_name, best_subfamily_name);
+    let style_name_parts = best_full_name.split(' ').collect::<Vec<_>>();
     let expected_width_names = get_expected_width_name(value);
 
-    if value == 5 && is_normal_width(&style_name) {
+    if value == 5 && is_normal_width(&best_full_name) {
         return Ok(Status::just_one_pass());
     }
 
@@ -54,15 +70,13 @@ fn widthclass(t: &Testable, _context: &Context) -> CheckFnResult {
         Ok(Status::just_one_fail(
             "width-class-name-value-mismatch", 
             &format!(
-                "For OS/2 usWidthClass {value} we expect {expected_names:?}, but got '{style_name}'. Either usWidthClass is wrong or style name. Please investigate."
+                "For OS/2 usWidthClass {value} we expect {expected_names:?}, but got '{best_full_name}'. Either usWidthClass is wrong or style name. Please investigate."
             )
         ))
     } else {
         Ok(Status::just_one_fail(
             "bad-width-class-value",
-            &format!(
-                "OS/2 usWidthClass {value} does not match specifications. We expect: XXCond 1, XCond 2, Cond 3, SemiCond 4, (Normal) 5, SemiWide 6, Wide 7, XWide 8, XXWide 9."
-            )
+            &format!("OS/2 usWidthClass {value} does not match specifications (1-9)."),
         ))
     }
 }
@@ -105,12 +119,12 @@ mod tests {
     fn test_widthclass() {
         let width_tests = [
             (5, "A Family Name", "Hairline", None),
-            (5, "A Family Name", "Cond Regular", Some("For OS/2 usWidthClass 5 we expect [\"Normal\"], but got 'Cond Regular'. Either usWidthClass is wrong or style name. Please investigate.".to_string())),
+            (5, "A Family Name", "Cond Regular", Some("For OS/2 usWidthClass 5 we expect [\"Normal\"], but got 'A Family Name Cond Regular'. Either usWidthClass is wrong or style name. Please investigate.".to_string())),
             (3, "A Family Name", "Condensed Black", None),
             (2, "A Family Name", "XCond SemiBold Italic", None),
-            (5, "A Family Name", "XCond SemiBold Italic", Some("For OS/2 usWidthClass 5 we expect [\"Normal\"], but got 'XCond SemiBold Italic'. Either usWidthClass is wrong or style name. Please investigate.".to_string())),
+            (5, "A Family Name", "XCond SemiBold Italic", Some("For OS/2 usWidthClass 5 we expect [\"Normal\"], but got 'A Family Name XCond SemiBold Italic'. Either usWidthClass is wrong or style name. Please investigate.".to_string())),
             (6, "A Family Name", "Semi-Wide SemiBold Italic", None),
-            (7, "A Family Name", "Semi-Wide SemiBold Italic", Some("For OS/2 usWidthClass 7 we expect [\"Wide\", \"Expanded\"], but got 'Semi-Wide SemiBold Italic'. Either usWidthClass is wrong or style name. Please investigate.".to_string())),
+            (7, "A Family Name", "Semi-Wide SemiBold Italic", Some("For OS/2 usWidthClass 7 we expect [\"Wide\", \"Expanded\"], but got 'A Family Name Semi-Wide SemiBold Italic'. Either usWidthClass is wrong or style name. Please investigate.".to_string())),
             (9, "A Family Name", "XXWide Hair Italic", None),
             (5, "A Family Name", "Whatever Thin", None),
             (5, "A Family Name", "ExtraLight", None),
@@ -122,8 +136,8 @@ mod tests {
             (5, "A Family Name", "SemiLight Italic", None),
             (3, "A Family Name", "Cond Italic", None),
             (3, "A Family Name", "Cond Regular Italic", None),
-            (4, "A Family Name", "Cond Regular Italic", Some("For OS/2 usWidthClass 4 we expect [\"SemiCond\", \"Semi-Cond\", \"Semi-Condensed\"], but got 'Cond Regular Italic'. Either usWidthClass is wrong or style name. Please investigate.".to_string())),
-            (10, "A Family Name", "XXWide", Some("OS/2 usWidthClass 10 does not match specifications. We expect: XXCond 1, XCond 2, Cond 3, SemiCond 4, (Normal) 5, SemiWide 6, Wide 7, XWide 8, XXWide 9.".to_string())),
+            (4, "A Family Name", "Cond Regular Italic", Some("For OS/2 usWidthClass 4 we expect [\"SemiCond\", \"Semi-Cond\", \"Semi-Condensed\"], but got 'A Family Name Cond Regular Italic'. Either usWidthClass is wrong or style name. Please investigate.".to_string())),
+            (10, "A Family Name", "XXWide", Some("OS/2 usWidthClass 10 does not match specifications (1-9).".to_string())),
             (3, "A Family Name Cond", "Bold", None),
             (7, "A Family Name Wide", "Bold", None),
             ];
