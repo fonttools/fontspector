@@ -1670,7 +1670,7 @@ dependencies = [
  "google-fonts-glyphsets",
  "google-fonts-languages",
  "google-fonts-subsets",
- "harfrust 0.11.0",
+ "harfrust",
  "hashbrown 0.17.1",
  "image",
  "indexmap",
@@ -1703,7 +1703,7 @@ name = "fontspector-profile-iso15008"
 version = "1.0.7"
 dependencies = [
  "fontspector-checkapi",
- "harfrust 0.11.0",
+ "harfrust",
  "itertools 0.15.0",
  "kurbo 0.13.1",
  "skrifa",
@@ -1715,7 +1715,7 @@ name = "fontspector-profile-microsoft"
 version = "0.1.0"
 dependencies = [
  "fontspector-checkapi",
- "harfrust 0.11.0",
+ "harfrust",
  "pluginator",
  "regex",
  "skrifa",
@@ -2185,18 +2185,6 @@ dependencies = [
 
 [[package]]
 name = "harfrust"
-version = "0.11.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ba3ba1ee6b7b39a19f97aff9425483783340c646f579bd7abedf0036e776654a"
-dependencies = [
- "bitflags 2.13.1",
- "bytemuck",
- "read-fonts 0.40.2",
- "smallvec",
-]
-
-[[package]]
-name = "harfrust"
 version = "0.13.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "948d0741125ba89cd3e1c23e5642415b6ade7e1d29d67ba25fb925b533e989d6"
@@ -2204,7 +2192,7 @@ dependencies = [
  "bitflags 2.13.1",
  "bytemuck",
  "once_cell",
- "read-fonts 0.43.3",
+ "read-fonts",
  "smallvec",
 ]
 
@@ -4042,17 +4030,6 @@ dependencies = [
 
 [[package]]
 name = "read-fonts"
-version = "0.40.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "487889119a5f19ff7c0a20637196bdc76b9f54ebec17e3588b5d75e4999f8773"
-dependencies = [
- "bytemuck",
- "font-types",
- "once_cell",
-]
-
-[[package]]
-name = "read-fonts"
 version = "0.43.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "005c8acf251756c478b0bf402885bfd88a1476020c4c7e6060edc1aa68da38ea"
@@ -4588,7 +4565,7 @@ source = "git+https://github.com/googlefonts/shaperglot#357b5d978d9b112d6c460b51
 dependencies = [
  "ambassador",
  "google-fonts-languages",
- "harfrust 0.13.3",
+ "harfrust",
  "indexmap",
  "itertools 0.15.0",
  "log",
@@ -4687,7 +4664,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d4febebda507fb889c545a37a135517769d1391941013561292897961d1887d6"
 dependencies = [
  "bytemuck",
- "read-fonts 0.43.3",
+ "read-fonts",
 ]
 
 [[package]]
@@ -6035,7 +6012,7 @@ dependencies = [
  "indexmap",
  "kurbo 0.13.1",
  "log",
- "read-fonts 0.43.3",
+ "read-fonts",
  "serde",
 ]
 
