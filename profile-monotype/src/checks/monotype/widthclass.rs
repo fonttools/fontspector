@@ -104,28 +104,28 @@ mod tests {
     #[test]
     fn test_widthclass() {
         let width_tests = [
-            (5, "Hairline", None),
-            (5, "Cond Regular", Some("For OS/2 usWidthClass 5 we expect [\"Normal\"], but got 'Cond Regular'. Either usWidthClass is wrong or style name. Please investigate.".to_string())),
-            (3, "Condensed Black", None),
-            (2, "XCond SemiBold Italic", None),
-            (5, "XCond SemiBold Italic", Some("For OS/2 usWidthClass 5 we expect [\"Normal\"], but got 'XCond SemiBold Italic'. Either usWidthClass is wrong or style name. Please investigate.".to_string())),
-            (6, "Semi-Wide SemiBold Italic", None),
-            (7, "Semi-Wide SemiBold Italic", Some("For OS/2 usWidthClass 7 we expect [\"Wide\", \"Expanded\"], but got 'Semi-Wide SemiBold Italic'. Either usWidthClass is wrong or style name. Please investigate.".to_string())),
-            (9, "XXWide Hair Italic", None),
-            (5, "Whatever Thin", None),
-            (5, "ExtraLight", None),
-            (5, "XLight", None),
-            (5, "Light", None),
-            (5, "XBlack", None),
-            (5, "Italic", None),
-            (5, "SemiLight", None),
-            (5, "SemiLight Italic", None),
-            (3, "Cond Italic", None),
-            (3, "Cond Regular Italic", None),
-            (4, "Cond Regular Italic", Some("For OS/2 usWidthClass 4 we expect [\"SemiCond\", \"Semi-Cond\", \"Semi-Condensed\"], but got 'Cond Regular Italic'. Either usWidthClass is wrong or style name. Please investigate.".to_string())),
-            (10, "XXWide", Some("OS/2 usWidthClass 10 does not match specifications. We expect: XXCond 1, XCond 2, Cond 3, SemiCond 4, (Normal) 5, SemiWide 6, Wide 7, XWide 8, XXWide 9.".to_string())),
+            (5, "A Family Name", "Hairline", None),
+            (5, "A Family Name", "Cond Regular", Some("For OS/2 usWidthClass 5 we expect [\"Normal\"], but got 'Cond Regular'. Either usWidthClass is wrong or style name. Please investigate.".to_string())),
+            (3, "A Family Name", "Condensed Black", None),
+            (2, "A Family Name", "XCond SemiBold Italic", None),
+            (5, "A Family Name", "XCond SemiBold Italic", Some("For OS/2 usWidthClass 5 we expect [\"Normal\"], but got 'XCond SemiBold Italic'. Either usWidthClass is wrong or style name. Please investigate.".to_string())),
+            (6, "A Family Name", "Semi-Wide SemiBold Italic", None),
+            (7, "A Family Name", "Semi-Wide SemiBold Italic", Some("For OS/2 usWidthClass 7 we expect [\"Wide\", \"Expanded\"], but got 'Semi-Wide SemiBold Italic'. Either usWidthClass is wrong or style name. Please investigate.".to_string())),
+            (9, "A Family Name", "XXWide Hair Italic", None),
+            (5, "A Family Name", "Whatever Thin", None),
+            (5, "A Family Name", "ExtraLight", None),
+            (5, "A Family Name", "XLight", None),
+            (5, "A Family Name", "Light", None),
+            (5, "A Family Name", "XBlack", None),
+            (5, "A Family Name", "Italic", None),
+            (5, "A Family Name", "SemiLight", None),
+            (5, "A Family Name", "SemiLight Italic", None),
+            (3, "A Family Name", "Cond Italic", None),
+            (3, "A Family Name", "Cond Regular Italic", None),
+            (4, "A Family Name", "Cond Regular Italic", Some("For OS/2 usWidthClass 4 we expect [\"SemiCond\", \"Semi-Cond\", \"Semi-Condensed\"], but got 'Cond Regular Italic'. Either usWidthClass is wrong or style name. Please investigate.".to_string())),
+            (10, "A Family Name", "XXWide", Some("OS/2 usWidthClass 10 does not match specifications. We expect: XXCond 1, XCond 2, Cond 3, SemiCond 4, (Normal) 5, SemiWide 6, Wide 7, XWide 8, XXWide 9.".to_string())),
             ];
-        for (width_class_value, style_name, expected_result) in width_tests {
+        for (width_class_value, family_name, style_name, expected_result) in width_tests {
             let mut font_builder = FontBuilder::new();
             let maxp = Maxp::default();
             font_builder.add_table(&maxp).unwrap();
@@ -139,13 +139,8 @@ mod tests {
             let mut name: Name = Name::default();
             let mut new_records = Vec::new();
             // english default 3/1/1033
-            let name_rec_fam = NameRecord::new(
-                3,
-                1,
-                1033,
-                NameId::new(16),
-                "A Family Name".to_string().into(),
-            );
+            let name_rec_fam =
+                NameRecord::new(3, 1, 1033, NameId::new(16), family_name.to_string().into());
             new_records.push(name_rec_fam);
             let name_rec_sub =
                 NameRecord::new(3, 1, 1033, NameId::new(17), style_name.to_string().into());
