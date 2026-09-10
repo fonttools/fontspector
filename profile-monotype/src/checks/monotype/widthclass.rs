@@ -117,7 +117,6 @@ mod tests {
             (5, "XLight", None),
             (5, "Light", None),
             (5, "XBlack", None),
-            (5, "XBlack", None),
             (5, "Italic", None),
             (5, "SemiLight", None),
             (5, "SemiLight Italic", None),
