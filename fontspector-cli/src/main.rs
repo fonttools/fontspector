@@ -326,7 +326,6 @@ fn group_inputs(args: &mut Args) -> Vec<TestableCollection> {
             use fontc::Input;
 
             log::info!("Compiling {}", path.display());
-            let flags = fontc::Flags::default();
             #[allow(clippy::expect_used)] // You are on your own
             let source = match input {
                 // Input::DesignSpacePath(path) => Ok(Box::new(DesignSpaceIrSource::new(path)?)),
@@ -345,13 +344,8 @@ fn group_inputs(args: &mut Args) -> Vec<TestableCollection> {
                 )),
             }
             .expect("Could not create fontir source from input file");
-            match fontc::generate_font(
-                source,
-                &PathBuf::from("build/"),
-                Some(&PathBuf::from("font.ttf")),
-                flags,
-                false,
-            ) {
+            let options = fontc::Options::default();
+            match fontc::generate_font(source, options) {
                 Err(e) => {
                     log::error!("Could not compile font: {e}");
                     std::process::exit(1);

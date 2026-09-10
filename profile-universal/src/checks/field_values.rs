@@ -75,7 +75,7 @@ fn field_values(t: &Testable, context: &Context) -> CheckFnResult {
                     ));
                 }
             } else {
-                skip!("unconfigured", "No entry for this file")
+                skip!("unconfigured", "No entry for this file");
             }
         } else {
             config

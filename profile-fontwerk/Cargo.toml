@@ -24,3 +24,8 @@ regex = { workspace = true }
 [target.'cfg(not(target_family = "wasm"))'.dependencies]
 # Plugin architecture
 pluginator = { workspace = true }
+
+[features]
+# The "check" feature enables dependencies only needed for checks, not fixes.
+default = ["check"]
+check = []

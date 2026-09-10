@@ -18,6 +18,10 @@ kurbo = { workspace = true }
 itertools = { workspace = true }
 harfrust = { workspace = true }
 
+[features]
+# The "check" feature enables dependencies only needed for checks, not fixes.
+default = ["check"]
+check = []
 
 [lints]
 workspace = true

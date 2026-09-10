@@ -20,3 +20,8 @@ write-fonts = { workspace = true }
 itertools = { workspace = true }
 serde_json = { workspace = true }
 regex = { workspace = true }
+
+[features]
+# The "check" feature enables dependencies only needed for checks, not fixes.
+default = ["check"]
+check = []

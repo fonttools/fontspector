@@ -66,14 +66,17 @@ fn pair_kerning(contents: &[u8], left: char, right: char) -> Option<i32> {
     let mut buffer = UnicodeBuffer::new();
     buffer.push_str(&format!("{left}{right}"));
     buffer.guess_segment_properties();
-    #[allow(clippy::unwrap_used)] // Static
-    let buffer_with = shaper.shape(buffer, &[harfrust::Feature::from_str("+kern").unwrap()]);
+    let with_kern = vec![harfrust::Feature::from_str("+kern").ok()?];
+    let options = harfrust::ShapeOptions::new().features(&with_kern);
+    let buffer_with = shaper.shape(buffer, options);
 
     let mut buffer = UnicodeBuffer::new();
     buffer.push_str(&format!("{left}{right}"));
     buffer.guess_segment_properties();
-    #[allow(clippy::unwrap_used)] // Static
-    let buffer_without = shaper.shape(buffer, &[harfrust::Feature::from_str("-kern").unwrap()]);
+    let without_kern = vec![harfrust::Feature::from_str("-kern").ok()?];
+    let options = harfrust::ShapeOptions::new().features(&without_kern);
+    let buffer_without = shaper.shape(buffer, options);
+
     let advance_with = buffer_with.glyph_positions().first()?.x_advance;
     let advance_without = buffer_without.glyph_positions().first()?.x_advance;
     Some(advance_with - advance_without)

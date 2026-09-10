@@ -17,5 +17,10 @@ toml = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 
+[features]
+# The "check" feature enables dependencies only needed for checks, not fixes.
+default = ["check"]
+check = []
+
 [lints]
 workspace = true

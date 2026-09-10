@@ -165,7 +165,8 @@ fn soft_dotted(t: &Testable, context: &Context) -> CheckFnResult {
                 buffer.push_str(&text);
                 buffer.set_direction(harfrust::Direction::LeftToRight);
                 buffer.set_script(harfrust::script::LATIN);
-                let buffer = shaper.shape_with_plan(&plan, buffer, &[]);
+                let options = harfrust::ShapeOptions::new().plan(Some(&plan));
+                let buffer = shaper.shape(buffer, options);
                 let flags = harfrust::SerializeFlags::NO_POSITIONS
                     | harfrust::SerializeFlags::NO_ADVANCES
                     | harfrust::SerializeFlags::NO_CLUSTERS

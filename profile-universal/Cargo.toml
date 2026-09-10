@@ -21,7 +21,7 @@ reqwest = { version = "0.12", features = ["blocking"] } # For fontdata namecheck
 [dependencies]
 interpolatable = { version = "1.2", features = [
     "fontations",
-], git = "https://github.com/simoncozens/interpolatable" } # For interpolation_issues
+], git = "https://github.com/simoncozens/interpolatable", optional = true } # For interpolation_issues
 fontspector-checkapi = { path = "../fontspector-checkapi", version = "1.0.0", features = [
     "kurbo",
 ] }
@@ -40,6 +40,12 @@ kurbo = { workspace = true }
 stringcase = "0.4.0"
 fontdrasil = { workspace = true }
 ordered-float = "5.1.0"
+
+[features]
+# The "check" feature enables checks with dependencies that are not required
+# for hotfixing (e.g. fontspector-hotfix, which only needs fix functions).
+default = ["check"]
+check = ["dep:interpolatable"]
 
 [lints]
 workspace = true

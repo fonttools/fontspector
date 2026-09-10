@@ -26,23 +26,28 @@ termimad = "0"
 clap = { version = "4", features = ["derive"], optional = true }
 env_logger = { version = "0.11", optional = true }
 
-# Profiles (optional - for the binary)
-profile-universal = { path = "../profile-universal", version = "1.0.0", package = "fontspector-profile-universal", optional = true }
-profile-opentype = { path = "../profile-opentype", version = "1.0.0", package = "fontspector-profile-opentype", optional = true }
-profile-googlefonts = { path = "../profile-googlefonts", version = "1.0.0", package = "fontspector-profile-googlefonts", optional = true }
-profile-fontwerk = { path = "../profile-fontwerk", version = "1.0.0", package = "fontspector-profile-fontwerk", optional = true }
-profile-iso15008 = { path = "../profile-iso15008", version = "1.0.0", package = "fontspector-profile-iso15008", optional = true }
-profile-monotype = { path = "../profile-monotype", version = "1.0.0", package = "fontspector-profile-monotype", optional = true }
+# Profiles
+# Default features (including "check") are disabled since fontspector-hotfix
+# only needs fix functions, not the full check implementations and their
+# check-only dependencies.
+profile-universal = { path = "../profile-universal", version = "1.0.0", package = "fontspector-profile-universal", optional = true, default-features = false }
+profile-opentype = { path = "../profile-opentype", version = "1.0.0", package = "fontspector-profile-opentype", optional = true, default-features = false }
+profile-googlefonts = { path = "../profile-googlefonts", version = "1.0.0", package = "fontspector-profile-googlefonts", optional = true, default-features = false }
+
+# These currently have no fixes; enable them if they do in the future
+
+# profile-fontwerk = { path = "../profile-fontwerk", version = "1.0.0", package = "fontspector-profile-fontwerk", optional = true, default-features = false }
+# profile-iso15008 = { path = "../profile-iso15008", version = "1.0.0", package = "fontspector-profile-iso15008", optional = true, default-features = false }
+# profile-monotype = { path = "../profile-monotype", version = "1.0.0", package = "fontspector-profile-monotype", optional = true, default-features = false }
 
 [features]
-default = ["cli"]
-cli = [
-    "clap",
-    "env_logger",
+cli = ["clap", "env_logger"]
+default = ["cli", "profiles"]
+profiles = [
     "profile-universal",
     "profile-opentype",
     "profile-googlefonts",
-    "profile-fontwerk",
-    "profile-iso15008",
-    "profile-monotype",
+    # "profile-fontwerk",
+    # "profile-iso15008",
+    # "profile-monotype",
 ]

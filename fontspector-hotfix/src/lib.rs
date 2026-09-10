@@ -24,10 +24,10 @@ use fontspector_checkapi::{
     CheckId, DialogFieldType, FixResult, FontspectorError, MoreInfoReplies, MoreInfoRequest,
     ProfileProvider, Registry,
 };
-use profile_fontwerk::Fontwerk;
+//use profile_fontwerk::Fontwerk;
 use profile_googlefonts::GoogleFonts;
-use profile_iso15008::Iso15008;
-use profile_monotype::Monotype;
+//use profile_iso15008::Iso15008;
+//use profile_monotype::Monotype;
 use profile_opentype::OpenType;
 use profile_universal::Universal;
 use serde_json::Value;
@@ -46,15 +46,15 @@ pub fn get_registry() -> Registry<'static> {
     GoogleFonts
         .register(&mut registry)
         .expect("Couldn't register googlefonts profile");
-    Iso15008
-        .register(&mut registry)
-        .expect("Couldn't register iso15008 profile");
-    Fontwerk
-        .register(&mut registry)
-        .expect("Couldn't register fontwerk profile");
-    Monotype
-        .register(&mut registry)
-        .expect("Couldn't register monotype profile");
+    //Iso15008
+    //    .register(&mut registry)
+    //    .expect("Couldn't register iso15008 profile");
+    //Fontwerk
+    //    .register(&mut registry)
+    //    .expect("Couldn't register fontwerk profile");
+    //Monotype
+    //    .register(&mut registry)
+    //    .expect("Couldn't register monotype profile");
     registry
 }
 

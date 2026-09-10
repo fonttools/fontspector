@@ -45,14 +45,18 @@ impl fontspector_checkapi::ProfileProvider for Universal {
             .add_and_register_check(checks::fontdata_namecheck)
             .add_and_register_check(checks::freetype_rasterizer);
 
-        builder
+        let builder = builder
             .add_and_register_check(checks::fvar_instance_ps_names)
             .add_and_register_check(checks::fvar_name_entries)
             .add_and_register_check(checks::gpos7)
             .add_and_register_check(checks::gpos_kerning_info)
             .add_and_register_check(checks::hinting_impact)
-            .add_and_register_check(checks::integer_ppem_if_hinted)
-            .add_and_register_check(checks::interpolation_issues)
+            .add_and_register_check(checks::integer_ppem_if_hinted);
+
+        #[cfg(feature = "check")]
+        let builder = builder.add_and_register_check(checks::interpolation_issues);
+
+        builder
             .add_and_register_check(checks::legacy_accents)
             .add_and_register_check(checks::ligature_carets)
             .add_and_register_check(checks::linegaps)
