@@ -3,15 +3,15 @@ use skrifa::raw::TableProvider;
 
 fn get_expected_width_name(width_class: u16) -> Option<&'static [&'static str]> {
     match width_class {
-        1 => Some(&["ExtraCompressed", "XXCond", "Ultra-Condensed", "Ultra-Cond"]),
-        2 => Some(&["Compressed", "XCond", "Extra-Condensed", "Extra-Cond"]),
-        3 => Some(&["Condensed", "Cond"]),
-        4 => Some(&["SemiCondensed", "SemiCond", "Semi-Cond", "Semi-Condensed"]),
+        1 => Some(&["ExtraCompressed", "XXCond", "Ultra-Condensed", "Ultra-Cond", "XCm", "XComp", "ExtraComp"]),
+        2 => Some(&["Compressed", "XCond", "Extra-Condensed", "Extra-Cond", "Cm", "Comp"]),
+        3 => Some(&["Condensed", "Cond", "Cn"]),
+        4 => Some(&["SemiCondensed", "SemiCond", "Semi-Cond", "Semi-Condensed", "SmCond", "SmCn"]),
         5 => Some(&["Normal"]),
-        6 => Some(&["SemiExtended", "SemiWide", "Semi-Wide", "Semi-Expanded"]),
-        7 => Some(&["Extended", "Wide", "Expanded"]),
-        8 => Some(&["Wide", "XWide", "Extra-Wide", "Extra-Expanded"]),
-        9 => Some(&["ExtraWide", "XXWide", "Ultra-Wide", "Ultra-Expanded"]),
+        6 => Some(&["SemiExtended", "SemiWide", "Semi-Wide", "Semi-Expanded", "SemiExt", "SmExt"]),
+        7 => Some(&["Extended", "Wide", "Expanded", "Ext"]),
+        8 => Some(&["Wide", "XWide", "Extra-Wide", "Extra-Expanded", "Wd"]),
+        9 => Some(&["ExtraWide", "XXWide", "Ultra-Wide", "Ultra-Expanded", "XtraWd", "XWd"]),
         _ => None,
     }
 }
@@ -81,8 +81,8 @@ fn widthclass(t: &Testable, _context: &Context) -> CheckFnResult {
     }
 }
 
-fn is_normal_width(style_name: &str) -> bool {
-    let style_name_lower = style_name.to_lowercase();
+fn is_normal_width(full_name: &str) -> bool {
+    let full_name_lower = full_name.to_lowercase();
 
     // if any width is in the style name, it's not regular
     let non_regular_indicators = [
@@ -90,10 +90,12 @@ fn is_normal_width(style_name: &str) -> bool {
         "wide",   // includes xwide, xxwide, extra-wide, ultra-wide
         "expand", // includes extra-expanded, ultra-expanded
         "extend", // includes extra-extended, ultra-extended
+        "comp",   // includes Compressed, UltraCompressed, ExtraCompressed, XComp, SemiComp, ...
+        "cm",     // includes XCm, Cm
     ];
 
     for indicator in non_regular_indicators.iter() {
-        if style_name_lower.contains(indicator) {
+        if full_name_lower.contains(indicator) {
             return false;
         }
     }
@@ -125,7 +127,7 @@ mod tests {
             (2, "A Family Name", "XCond SemiBold Italic", None),
             (5, "A Family Name", "XCond SemiBold Italic", Some("For OS/2 usWidthClass 5 we expect [\"Normal\"], but got 'A Family Name XCond SemiBold Italic'. Either usWidthClass is wrong or style name. Please investigate.".to_string())),
             (6, "A Family Name", "Semi-Wide SemiBold Italic", None),
-            (7, "A Family Name", "Semi-Wide SemiBold Italic", Some("For OS/2 usWidthClass 7 we expect [\"Extended\", \"Wide\", \"Expanded\"], but got 'A Family Name Semi-Wide SemiBold Italic'. Either usWidthClass is wrong or style name. Please investigate.".to_string())),
+            (7, "A Family Name", "Semi-Wide SemiBold Italic", Some("For OS/2 usWidthClass 7 we expect [\"Extended\", \"Wide\", \"Expanded\", \"Ext\"], but got 'A Family Name Semi-Wide SemiBold Italic'. Either usWidthClass is wrong or style name. Please investigate.".to_string())),
             (9, "A Family Name", "XXWide Hair Italic", None),
             (5, "A Family Name", "Whatever Thin", None),
             (5, "A Family Name", "ExtraLight", None),
@@ -137,7 +139,7 @@ mod tests {
             (5, "A Family Name", "SemiLight Italic", None),
             (3, "A Family Name", "Cond Italic", None),
             (3, "A Family Name", "Cond Regular Italic", None),
-            (4, "A Family Name", "Cond Regular Italic", Some("For OS/2 usWidthClass 4 we expect [\"SemiCondensed\", \"SemiCond\", \"Semi-Cond\", \"Semi-Condensed\"], but got 'A Family Name Cond Regular Italic'. Either usWidthClass is wrong or style name. Please investigate.".to_string())),
+            (4, "A Family Name", "Cond Regular Italic", Some("For OS/2 usWidthClass 4 we expect [\"SemiCondensed\", \"SemiCond\", \"Semi-Cond\", \"Semi-Condensed\", \"SmCond\", \"SmCn\"], but got 'A Family Name Cond Regular Italic'. Either usWidthClass is wrong or style name. Please investigate.".to_string())),
             (10, "A Family Name", "XXWide", Some("OS/2 usWidthClass 10 does not match specifications (1-9).".to_string())),
             (3, "A Family Name Cond", "Bold", None),
             (7, "A Family Name Wide", "Bold", None),
@@ -163,6 +165,7 @@ mod tests {
             // add edge cases for width classes 4
             (4, "A Family Name", "SmCond Bold", None),
             (4, "A Family Name", "SmCn Bold", None),
+            (5, "A Family Name", "SmCn Bold", Some("For OS/2 usWidthClass 5 we expect [\"Normal\"], but got 'A Family Name SmCn Bold'. Either usWidthClass is wrong or style name. Please investigate.".to_string())),
             // add edge cases for width classes 6
             (6, "A Family Name", "SemiExt Bold", None),
             (6, "A Family Name", "SmExt Bold", None),
