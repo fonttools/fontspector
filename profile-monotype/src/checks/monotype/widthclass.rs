@@ -52,7 +52,7 @@ fn widthclass(t: &Testable, _context: &Context) -> CheckFnResult {
             }
         }
         Ok(Status::just_one_fail(
-            "bad-width-class-value", 
+            "width-class-name-value-mismatch", 
             &format!(
                 "For OS/2 usWidthClass {value} we expect {expected_names:?}, but got '{style_name}'. Either usWidthClass is wrong or style name. Please investigate."
             )
