@@ -1731,6 +1731,7 @@ dependencies = [
  "regex",
  "serde_json",
  "skrifa",
+ "write-fonts",
 ]
 
 [[package]]
