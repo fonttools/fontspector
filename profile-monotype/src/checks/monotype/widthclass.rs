@@ -140,6 +140,16 @@ mod tests {
             (10, "A Family Name", "XXWide", Some("OS/2 usWidthClass 10 does not match specifications (1-9).".to_string())),
             (3, "A Family Name Cond", "Bold", None),
             (7, "A Family Name Wide", "Bold", None),
+            // Monotype specific width names
+            (1, "A Family Name", "ExtraCompressed Bold", None),
+            (2, "A Family Name", "Compressed Bold", None),
+            (3, "A Family Name", "Condensed Bold", None),
+            (4, "A Family Name", "SemiCondensed Bold", None),
+            (5, "A Family Name", "Bold", None),
+            (6, "A Family Name", "SemiExtended Bold", None),
+            (7, "A Family Name", "Extended Bold", None),
+            (8, "A Family Name", "Wide Bold", None),
+            (9, "A Family Name", "ExtraWide Bold", None),
             ];
         for (width_class_value, family_name, style_name, expected_result) in width_tests {
             let mut font_builder = FontBuilder::new();
