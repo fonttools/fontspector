@@ -3,15 +3,15 @@ use skrifa::raw::TableProvider;
 
 fn get_expected_width_name(width_class: u16) -> Option<&'static [&'static str]> {
     match width_class {
-        1 => Some(&["XXCond", "Ultra-Condensed", "Ultra-Cond"]),
-        2 => Some(&["XCond", "Extra-Condensed", "Extra-Cond"]),
-        3 => Some(&["Cond", "Condensed"]),
-        4 => Some(&["SemiCond", "Semi-Cond", "Semi-Condensed"]),
+        1 => Some(&["ExtraCompressed", "XXCond", "Ultra-Condensed", "Ultra-Cond"]),
+        2 => Some(&["Compressed", "XCond", "Extra-Condensed", "Extra-Cond"]),
+        3 => Some(&["Condensed", "Cond"]),
+        4 => Some(&["SemiCondensed", "SemiCond", "Semi-Cond", "Semi-Condensed"]),
         5 => Some(&["Normal"]),
-        6 => Some(&["SemiWide", "Semi-Wide", "Semi-Expanded"]),
-        7 => Some(&["Wide", "Expanded"]),
-        8 => Some(&["XWide", "Extra-Wide", "Extra-Expanded"]),
-        9 => Some(&["XXWide", "Ultra-Wide", "Ultra-Expanded"]),
+        6 => Some(&["SemiExtended", "SemiWide", "Semi-Wide", "Semi-Expanded"]),
+        7 => Some(&["Extended", "Wide", "Expanded"]),
+        8 => Some(&["Wide", "XWide", "Extra-Wide", "Extra-Expanded"]),
+        9 => Some(&["ExtraWide", "XXWide", "Ultra-Wide", "Ultra-Expanded"]),
         _ => None,
     }
 }
@@ -21,15 +21,15 @@ fn get_expected_width_name(width_class: u16) -> Option<&'static [&'static str]> 
     rationale = "
         We expect the following OS/2 usWidthClass values:
 
-        XXCond 1
-        XCond 2
-        Cond 3
-        SemiCond 4
-        Normal 5
-        SemiWide 6
-        Wide 7
-        XWide 8
-        XXWide 9
+        ExtraCompressed 1
+        Compressed 2
+        Condensed 3
+        SemiCondensed 4
+        (Normal) 5
+        SemiExtended 6
+        Extended 7
+        Wide 8
+        ExtraWide 9
     ",
     proposal = "https://github.com/Monotype/fontspector/issues/1",
     title = "Check the OS/2 usWidthClass is appropriate for the font's best SubFamily name."
@@ -89,6 +89,7 @@ fn is_normal_width(style_name: &str) -> bool {
         "cond",   // includes XXCond, XCond, Cond, SemiCond
         "wide",   // includes xwide, xxwide, extra-wide, ultra-wide
         "expand", // includes extra-expanded, ultra-expanded
+        "extend", // includes extra-extended, ultra-extended
     ];
 
     for indicator in non_regular_indicators.iter() {
@@ -124,7 +125,7 @@ mod tests {
             (2, "A Family Name", "XCond SemiBold Italic", None),
             (5, "A Family Name", "XCond SemiBold Italic", Some("For OS/2 usWidthClass 5 we expect [\"Normal\"], but got 'A Family Name XCond SemiBold Italic'. Either usWidthClass is wrong or style name. Please investigate.".to_string())),
             (6, "A Family Name", "Semi-Wide SemiBold Italic", None),
-            (7, "A Family Name", "Semi-Wide SemiBold Italic", Some("For OS/2 usWidthClass 7 we expect [\"Wide\", \"Expanded\"], but got 'A Family Name Semi-Wide SemiBold Italic'. Either usWidthClass is wrong or style name. Please investigate.".to_string())),
+            (7, "A Family Name", "Semi-Wide SemiBold Italic", Some("For OS/2 usWidthClass 7 we expect [\"Extended\", \"Wide\", \"Expanded\"], but got 'A Family Name Semi-Wide SemiBold Italic'. Either usWidthClass is wrong or style name. Please investigate.".to_string())),
             (9, "A Family Name", "XXWide Hair Italic", None),
             (5, "A Family Name", "Whatever Thin", None),
             (5, "A Family Name", "ExtraLight", None),
@@ -136,7 +137,7 @@ mod tests {
             (5, "A Family Name", "SemiLight Italic", None),
             (3, "A Family Name", "Cond Italic", None),
             (3, "A Family Name", "Cond Regular Italic", None),
-            (4, "A Family Name", "Cond Regular Italic", Some("For OS/2 usWidthClass 4 we expect [\"SemiCond\", \"Semi-Cond\", \"Semi-Condensed\"], but got 'A Family Name Cond Regular Italic'. Either usWidthClass is wrong or style name. Please investigate.".to_string())),
+            (4, "A Family Name", "Cond Regular Italic", Some("For OS/2 usWidthClass 4 we expect [\"SemiCondensed\", \"SemiCond\", \"Semi-Cond\", \"Semi-Condensed\"], but got 'A Family Name Cond Regular Italic'. Either usWidthClass is wrong or style name. Please investigate.".to_string())),
             (10, "A Family Name", "XXWide", Some("OS/2 usWidthClass 10 does not match specifications (1-9).".to_string())),
             (3, "A Family Name Cond", "Bold", None),
             (7, "A Family Name Wide", "Bold", None),
