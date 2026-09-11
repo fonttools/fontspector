@@ -10,3 +10,9 @@ pub mod shaping;
 mod soft_dotted;
 #[cfg(feature = "check")]
 pub use soft_dotted::soft_dotted;
+
+#[allow(non_snake_case)]
+#[cfg(feature = "check")]
+mod STAT_strings;
+#[cfg(feature = "check")]
+pub use STAT_strings::STAT_strings;
