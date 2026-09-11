@@ -195,7 +195,6 @@ impl fontspector_checkapi::ProfileProvider for GoogleFonts {
             .add_and_register_check(checks::googlefonts::STAT::axisregistry)
             .add_and_register_check(checks::googlefonts::STAT::compulsory_axis_values)
             .add_and_register_check(checks::googlefonts::STAT::opsz_not_elided)
-            .add_and_register_check(checks::STAT_strings)
             .add_and_register_check(checks::googlefonts::unitsperem)
             .add_and_register_check(checks::googlefonts::use_typo_metrics)
             .add_and_register_check(checks::googlefonts::varfont::has_HVAR)
@@ -206,6 +205,7 @@ impl fontspector_checkapi::ProfileProvider for GoogleFonts {
 
         #[cfg(feature = "check")]
         let builder = builder
+            .add_and_register_check(checks::STAT_strings)
             .add_and_register_check(checks::googlefonts::vertical_metrics_regressions)
             .add_and_register_check(checks::googlefonts::cjk_vertical_metrics_regressions);
 
