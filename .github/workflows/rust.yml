@@ -25,7 +25,7 @@ jobs:
         with:
           cache-workspace-crates: true
       - name: Build
-        run: cargo build
+        run: cargo build --all
       - name: Install uv
         uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
       - name: Run tests
