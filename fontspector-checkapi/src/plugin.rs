@@ -143,25 +143,25 @@ fn run_single_check(
         .get(check_id)
         .ok_or_else(|| format!("Unknown check id: {check_id}"))?;
 
-    if check.runs_on_collection() {
-        let filenames: Vec<PathBuf> = files.iter().map(PathBuf::from).collect();
-        let collection = TestableCollection::from_filenames(&filenames, None)
-            .map_err(|e| format!("Could not build testable collection: {e}"))?;
-        let testable = TestableType::Collection(&collection);
-        check
-            .run(&testable, &default_context(check), Some("test"))
-            .ok_or_else(|| "Check did not run for this collection".to_string())
-    } else {
-        if files.len() != 1 {
-            return Err("Single-file checks expect exactly one file argument".to_string());
+    match (check.runs_on_collection(), files) {
+        (true, files) => {
+            let filenames: Vec<PathBuf> = files.iter().map(PathBuf::from).collect();
+            let collection = TestableCollection::from_filenames(&filenames, None)
+                .map_err(|e| format!("Could not build testable collection: {e}"))?;
+            let testable = TestableType::Collection(&collection);
+            check
+                .run(&testable, &default_context(check), Some("test"))
+                .ok_or_else(|| "Check did not run for this collection".to_string())
         }
-        #[allow(clippy::indexing_slicing)] // We just checked that files has exactly one element
-        let testable =
-            Testable::new(&files[0]).map_err(|e| format!("Could not open testable file: {e}"))?;
-        let testable = TestableType::Single(&testable);
-        check
-            .run(&testable, &default_context(check), Some("test"))
-            .ok_or_else(|| "Check did not run for this file".to_string())
+        (false, [file]) => {
+            let testable =
+                Testable::new(file).map_err(|e| format!("Could not open testable file: {e}"))?;
+            let testable = TestableType::Single(&testable);
+            check
+                .run(&testable, &default_context(check), Some("test"))
+                .ok_or_else(|| "Check did not run for this file".to_string())
+        }
+        (false, _) => Err("Single-file checks expect exactly one file argument".to_string()),
     }
 }
 
