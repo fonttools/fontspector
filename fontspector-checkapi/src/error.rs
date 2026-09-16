@@ -1,4 +1,4 @@
-use std::sync::PoisonError;
+use std::{path::PathBuf, sync::PoisonError};
 
 use thiserror::Error;
 
@@ -47,6 +47,9 @@ pub enum FontspectorError {
     /// Invalid JSON was found
     #[error("Invalid JSON: {0}")]
     InvalidJson(#[from] std::sync::Arc<serde_json::Error>),
+    /// Invalid JSON was found in file
+    #[error("Invalid JSON in file {0}: {1}")]
+    InvalidJsonFromFile(PathBuf, std::sync::Arc<serde_json::Error>),
     /// An error occurred while reading a file
     #[error("Error reading file: {0}")]
     FileRead(#[from] std::sync::Arc<std::io::Error>),
