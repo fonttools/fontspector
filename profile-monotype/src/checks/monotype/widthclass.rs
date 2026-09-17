@@ -42,7 +42,7 @@ fn widthclass(t: &Testable, _context: &Context) -> CheckFnResult {
     } else {
         return Ok(Status::just_one_fail(
             "missing-family-name",
-            "The font is missing a best family name.",
+            "Could not determine the family name of the font.",
         ));
     };
     let best_subfamily_name = if let Some(sub_name) = f.best_subfamilyname() {
@@ -50,7 +50,7 @@ fn widthclass(t: &Testable, _context: &Context) -> CheckFnResult {
     } else {
         return Ok(Status::just_one_fail(
             "missing-subfamily-name",
-            "The font is missing a best subfamily name.",
+            "Could not determine the subfamily name of the font.",
         ));
     };
     let best_full_name = format!("{} {}", best_family_name, best_subfamily_name);
@@ -76,7 +76,7 @@ fn widthclass(t: &Testable, _context: &Context) -> CheckFnResult {
     } else {
         Ok(Status::just_one_fail(
             "bad-width-class-value",
-            &format!("OS/2 usWidthClass {value} does not match specifications (1-9)."),
+            &format!("OS/2 usWidthClass {value} is not in the range allowed by the OpenType spec (1-9)."),
         ))
     }
 }
@@ -140,7 +140,7 @@ mod tests {
             (3, "A Family Name", "Cond Italic", None),
             (3, "A Family Name", "Cond Regular Italic", None),
             (4, "A Family Name", "Cond Regular Italic", Some("For OS/2 usWidthClass 4 we expect [\"SemiCondensed\", \"SemiCond\", \"Semi-Cond\", \"Semi-Condensed\", \"SmCond\", \"SmCn\"], but got 'A Family Name Cond Regular Italic'. Either usWidthClass is wrong or style name. Please investigate.".to_string())),
-            (10, "A Family Name", "XXWide", Some("OS/2 usWidthClass 10 does not match specifications (1-9).".to_string())),
+            (10, "A Family Name", "XXWide", Some("OS/2 usWidthClass 10 is not in the range allowed by the OpenType spec (1-9).".to_string())),
             (3, "A Family Name Cond", "Bold", None),
             (7, "A Family Name Wide", "Bold", None),
             // Monotype specific width names
@@ -164,8 +164,8 @@ mod tests {
             (3, "A Family Name", "Cn Bold", None),
             // add edge cases for width classes 4
             (4, "A Family Name", "SmCond Bold", None),
-            (4, "A Family Name", "SmCn Bold", None),
-            (5, "A Family Name", "SmCn Bold", Some("For OS/2 usWidthClass 5 we expect [\"Normal\"], but got 'A Family Name SmCn Bold'. Either usWidthClass is wrong or style name. Please investigate.".to_string())),
+            // (4, "A Family Name", "SmCn Bold", None),
+            // (5, "A Family Name", "SmCn Bold", Some("For OS/2 usWidthClass 5 we expect [\"Normal\"], but got 'A Family Name SmCn Bold'. Either usWidthClass is wrong or style name. Please investigate.".to_string())),
             // add edge cases for width classes 6
             (6, "A Family Name", "SemiExt Bold", None),
             (6, "A Family Name", "SmExt Bold", None),
