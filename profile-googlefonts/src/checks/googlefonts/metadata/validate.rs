@@ -1,10 +1,36 @@
 use std::path::Path;
 
-use crate::checks::googlefonts::metadata::family_proto;
 use chrono::prelude::*;
 use fontspector_checkapi::prelude::*;
 use hashbrown::HashSet;
+use protobuf::reflect::{ReflectFieldRef, ReflectValueRef};
+use protobuf::{Message, MessageDyn};
 
+/// Mirrors `is_initialized()`, but tells you *which* fields are unset.
+fn missing_required(msg: &dyn MessageDyn, prefix: &str, out: &mut Vec<String>) {
+    for f in msg.descriptor_dyn().fields() {
+        let path = format!("{prefix}{}", f.name());
+        if f.is_required() && !f.has_field(msg) {
+            out.push(path);
+            continue;
+        }
+        match f.get_reflect(msg) {
+            ReflectFieldRef::Optional(o) => {
+                if let Some(ReflectValueRef::Message(m)) = o.value() {
+                    missing_required(&*m, &format!("{path}."), out);
+                }
+            }
+            ReflectFieldRef::Repeated(r) => {
+                for (i, v) in r.into_iter().enumerate() {
+                    if let ReflectValueRef::Message(m) = v {
+                        missing_required(&*m, &format!("{path}[{i}]."), out);
+                    }
+                }
+            }
+            ReflectFieldRef::Map(_) => {} // map values are never "required"
+        }
+    }
+}
 fn weight_acceptable_suffixes(w: i32) -> Vec<&'static str> {
     match w {
         100 => vec!["Thin", "ThinItalic"],
@@ -70,15 +96,35 @@ fn clean_url(url: &str) -> String {
     applies_to = "MDPB"
 )]
 fn validate(c: &Testable, _context: &Context) -> CheckFnResult {
-    let msg = match family_proto(c) {
-        Ok(msg) => msg,
+    // We will parse it "by hand", to check for errors
+    let mut msg = gf_metadata::FamilyProto::new();
+    let string_contents = match std::str::from_utf8(&c.contents) {
         Err(e) => {
             return Ok(Status::just_one_fatal(
                 "parse-error",
-                &format!("Failed to parse METADATA.pb: {e}"),
-            ));
+                &format!("METADATA.pb file was not valid utf-8: {e}"),
+            ))
         }
+        Ok(c) => c,
     };
+    if let Err(e) = protobuf::text_format::merge_from_str(&mut msg, string_contents) {
+        return Ok(Status::just_one_fatal(
+            "parse-error",
+            &format!("Failed to parse METADATA.pb: {e}"),
+        ));
+    }
+    // Now check we have all required fields.
+    if !msg.is_initialized() {
+        let mut missing = vec![];
+        missing_required(&msg, "", &mut missing);
+        return Ok(Status::just_one_fatal(
+            "missing-required-field",
+            &format!(
+                "METADATA.pb is missing required field(s): {}",
+                missing.join(", ")
+            ),
+        ));
+    }
     let mut problems = vec![];
     if let Some(designer) = msg.designer.as_ref() {
         if designer.is_empty() {
