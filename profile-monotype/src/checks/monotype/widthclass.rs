@@ -3,15 +3,51 @@ use skrifa::raw::TableProvider;
 
 fn get_expected_width_name(width_class: u16) -> Option<&'static [&'static str]> {
     match width_class {
-        1 => Some(&["ExtraCompressed", "XXCond", "Ultra-Condensed", "Ultra-Cond", "XCm", "XComp", "ExtraComp"]),
-        2 => Some(&["Compressed", "XCond", "Extra-Condensed", "Extra-Cond", "Cm", "Comp"]),
+        1 => Some(&[
+            "ExtraCompressed",
+            "XXCond",
+            "Ultra-Condensed",
+            "Ultra-Cond",
+            "XCm",
+            "XComp",
+            "ExtraComp",
+        ]),
+        2 => Some(&[
+            "Compressed",
+            "XCond",
+            "Extra-Condensed",
+            "Extra-Cond",
+            "Cm",
+            "Comp",
+        ]),
         3 => Some(&["Condensed", "Cond", "Cn"]),
-        4 => Some(&["SemiCondensed", "SemiCond", "Semi-Cond", "Semi-Condensed", "SmCond", "SmCn"]),
+        4 => Some(&[
+            "SemiCondensed",
+            "SemiCond",
+            "Semi-Cond",
+            "Semi-Condensed",
+            "SmCond",
+            "SmCn",
+        ]),
         5 => Some(&["Normal"]),
-        6 => Some(&["SemiExtended", "SemiWide", "Semi-Wide", "Semi-Expanded", "SemiExt", "SmExt"]),
+        6 => Some(&[
+            "SemiExtended",
+            "SemiWide",
+            "Semi-Wide",
+            "Semi-Expanded",
+            "SemiExt",
+            "SmExt",
+        ]),
         7 => Some(&["Extended", "Wide", "Expanded", "Ext"]),
         8 => Some(&["Wide", "XWide", "Extra-Wide", "Extra-Expanded", "Wd"]),
-        9 => Some(&["ExtraWide", "XXWide", "Ultra-Wide", "Ultra-Expanded", "XtraWd", "XWd"]),
+        9 => Some(&[
+            "ExtraWide",
+            "XXWide",
+            "Ultra-Wide",
+            "Ultra-Expanded",
+            "XtraWd",
+            "XWd",
+        ]),
         _ => None,
     }
 }
@@ -76,7 +112,9 @@ fn widthclass(t: &Testable, _context: &Context) -> CheckFnResult {
     } else {
         Ok(Status::just_one_fail(
             "bad-width-class-value",
-            &format!("OS/2 usWidthClass {value} is not in the range allowed by the OpenType spec (1-9)."),
+            &format!(
+                "OS/2 usWidthClass {value} is not in the range allowed by the OpenType spec (1-9)."
+            ),
         ))
     }
 }
@@ -92,6 +130,9 @@ fn is_normal_width(full_name: &str) -> bool {
         "extend", // includes extra-extended, ultra-extended
         "comp",   // includes Compressed, UltraCompressed, ExtraCompressed, XComp, SemiComp, ...
         "cm",     // includes XCm, Cm
+        "cn",     // includes XCn, Cn
+        "ex",     // includes Expanded, Extended
+        "wd",     // includes Wide, XWide, XXWide, ExtraWide, UltraWide
     ];
 
     for indicator in non_normal_indicators.iter() {
