@@ -79,7 +79,7 @@ fn fix_mac_style(
 mod tests {
     use super::*;
     use fontspector_checkapi::{
-        codetesting::{assert_pass, assert_results_contain, assert_skip, run_check, test_able},
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
         StatusCode, Testable,
     };
 
@@ -148,7 +148,7 @@ mod tests {
     }
 
     #[test]
-    fn test_mac_style_no_style_skip() {
+    fn test_mac_style_no_style_in_filename_pass() {
         let mut testable = test_able("cabin/Cabin-Regular.ttf");
         let f = TTF.from_testable(&testable).unwrap();
         let mut head: write_fonts::tables::head::Head = f.font().head().unwrap().to_owned_table();
@@ -158,6 +158,6 @@ mod tests {
         let new_testable =
             Testable::new_with_contents("Test-0-None.ttf".to_string(), testable.contents);
         let result = run_check(mac_style, new_testable);
-        assert_skip(&result);
+        assert_pass(&result);
     }
 }
