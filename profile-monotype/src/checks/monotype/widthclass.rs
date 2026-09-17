@@ -85,7 +85,7 @@ fn is_normal_width(full_name: &str) -> bool {
     let full_name_lower = full_name.to_lowercase();
 
     // if any width is in the style name, it's not regular
-    let non_regular_indicators = [
+    let non_normal_indicators = [
         "cond",   // includes XXCond, XCond, Cond, SemiCond
         "wide",   // includes xwide, xxwide, extra-wide, ultra-wide
         "expand", // includes extra-expanded, ultra-expanded
@@ -94,7 +94,7 @@ fn is_normal_width(full_name: &str) -> bool {
         "cm",     // includes XCm, Cm
     ];
 
-    for indicator in non_regular_indicators.iter() {
+    for indicator in non_normal_indicators.iter() {
         if full_name_lower.contains(indicator) {
             return false;
         }
