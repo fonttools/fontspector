@@ -188,6 +188,7 @@ mod tests {
             (900, "Blk Italic", None),
             (900, "Heavy",  Some("For OS/2 usWeightClass 900 we expect Black, but got 'Heavy'.".to_string())),
             (400, "Blk Italic", Some("For OS/2 usWeightClass 400 we expect 'Regular', but got 'Blk Italic'. Either usWeightClass is wrong or style name. Please investigate.".to_string())),
+            (800, "UltraBold", Some("For OS/2 usWeightClass 800 we expect 'ExtraBold', but got 'UltraBold'. Either usWeightClass is wrong or style name. Please investigate.".to_string()))
             ];
         for (weight_class_value, style_name, expected_result) in weight_tests {
             let mut font_builder = FontBuilder::new();
