@@ -6,3 +6,6 @@ mod names;
 pub use names::style_in_family_name;
 mod widthclass;
 pub use widthclass::widthclass;
+mod weightclass;
+pub use weightclass::weightclass;
+
