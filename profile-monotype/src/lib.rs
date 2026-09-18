@@ -4,36 +4,24 @@ use serde_json::json;
 use std::collections::HashMap;
 
 use fontspector_checkapi::{FontspectorError, Override, ProfileBuilder, Registry, StatusCode};
+use profile_fontwerk::checks as fw_checks;
+use profile_googlefonts::checks as gf_checks;
 
 pub struct Monotype;
 impl fontspector_checkapi::ProfileProvider for Monotype {
     fn register(&self, cr: &mut Registry) -> Result<(), FontspectorError> {
         let builder = ProfileBuilder::new()
-            .include_profile("googlefonts")
-            .with_overrides("valid_glyphnames", vec![
-                Override::new("found-invalid-names", StatusCode::Warn, "")
-            ])
-            // exclude googlefonts checks
-            .exclude_check("googlefonts/canonical_filename")
-            // .exclude_check("googlefonts/family/italics_have_roman_counterparts")
-            .exclude_check("googlefonts/font_copyright")
-            .exclude_check("googlefonts/fstype")
-            .exclude_check("googlefonts/metadata/includes_production_subsets")
-            .exclude_check("googlefonts/meta/script_lang_tags")
-            .exclude_check("googlefonts/name/description_max_length")
-            .exclude_check("googlefonts/name/line_breaks")
-            .exclude_check("googlefonts/production_glyphs_similarity")
-            .exclude_check("googlefonts/vendor_id") // Custom monotype test below
-            .exclude_check("googlefonts/version_bump")
-            .exclude_check("googlefonts/font_names")
-            .exclude_check("googlefonts/varfont/has_HVAR")
-            .exclude_check("googlefonts/weightclass")
-            .exclude_check("control_chars")
-            .exclude_check("fontdata_namecheck")
-            .exclude_check("googlefonts/article/images")
-            .exclude_check("googlefonts/metadata/copyright")
-            .exclude_check("googlefonts/metadata/license")
-            .exclude_check("googlefonts/metadata/reserved_font_name")
+            .add_section("Selected Outline Checks")
+            .add_and_register_check(gf_checks::outline::direction)
+            .add_and_register_check(gf_checks::outline::jaggy_segments)
+            .add_and_register_check(gf_checks::outline::colinear_vectors)
+            .add_and_register_check(gf_checks::outline::short_segments)
+            .add_and_register_check(gf_checks::outline::semi_vertical)
+            .add_and_register_check(gf_checks::outline::alignment_miss)
+            .add_and_register_check(gf_checks::outline::overlapping_path_segments)
+            .add_section("Selected Family Checks")
+            .add_and_register_check(gf_checks::googlefonts::family::tnum_horizontal_metrics)
+            .add_and_register_check(gf_checks::googlefonts::family::equal_codepoint_coverage)
             .include_profile("opentype")
             .add_section("Monotype Checks")
             .add_and_register_check(checks::monotype::fstype)
@@ -57,8 +45,12 @@ impl fontspector_checkapi::ProfileProvider for Monotype {
                     ("vendor_id".to_string(), json!("MONO"))
                 ]),
             )
-            .include_profile("fontwerk")
-            .exclude_check("fontwerk/glyph_coverage")
+            .with_overrides("valid_glyphnames", vec![
+                Override::new("found-invalid-names", StatusCode::Warn, "")
+            ])
+            .add_section("Selected Name Table Checks") 
+            .add_and_register_check(fw_checks::fontwerk::name_entries)
+            .add_and_register_check(fw_checks::fontwerk::name_consistency)
             .with_configuration_defaults(
                 "fontwerk/name_entries",
                 HashMap::from([
