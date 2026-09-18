@@ -18,6 +18,7 @@ impl fontspector_checkapi::ProfileProvider for OpenType {
             .add_and_register_check(checks::opentype::code_pages)
             .add_and_register_check(checks::opentype::family::bold_italic_unique_for_nameid1)
             .add_and_register_check(checks::opentype::family::consistent_family_name)
+            .add_and_register_check(checks::opentype::family::unique_names)
             .add_and_register_check(checks::opentype::family::equal_font_versions)
             .add_and_register_check(checks::opentype::family::max_4_fonts_per_family_name)
             .add_and_register_check(checks::opentype::family_naming_recommendations)
