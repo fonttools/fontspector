@@ -1727,6 +1727,8 @@ name = "fontspector-profile-monotype"
 version = "1.0.0"
 dependencies = [
  "fontspector-checkapi",
+ "fontspector-profile-fontwerk",
+ "fontspector-profile-googlefonts",
  "itertools 0.15.0",
  "regex",
  "serde_json",
