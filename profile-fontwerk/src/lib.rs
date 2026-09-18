@@ -1,5 +1,5 @@
 #![deny(clippy::unwrap_used, clippy::expect_used)]
-mod checks;
+pub mod checks;
 use serde_json::json;
 use std::collections::HashMap;
 
