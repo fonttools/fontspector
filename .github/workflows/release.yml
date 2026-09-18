@@ -30,7 +30,7 @@ jobs:
         run: |-
           echo "${{ secrets.CRATES_IO_API_TOKEN }}" | cargo login
       - name: Install smart release
-        run: cargo install cargo-smart-release
+        run: cargo install cargo-smart-release --version 0.21.12
       - name: Run smart release
         run: |-
           PUBLISHABLE_CRATES=$(python3 scripts/publishable.py)
