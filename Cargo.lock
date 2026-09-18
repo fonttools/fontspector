@@ -1646,7 +1646,7 @@ dependencies = [
 
 [[package]]
 name = "fontspector-profile-fontwerk"
-version = "1.3.2"
+version = "1.3.3"
 dependencies = [
  "fontspector-checkapi",
  "itertools 0.15.0",
