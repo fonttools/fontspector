@@ -1,9 +1,7 @@
-use fontations::{
-    read::{tables::os2::SelectionFlags, TableProvider},
-    write::from_obj::ToOwnedTable,
-};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
+use skrifa::raw::{tables::os2::SelectionFlags, TableProvider};
+use write_fonts::from_obj::ToOwnedTable;
 
 #[check(
     id = "googlefonts/no_oblique_bit",
@@ -41,17 +39,20 @@ fn no_oblique_bit(t: &Testable, _context: &Context) -> CheckFnResult {
     }
 }
 
-fn fix_no_oblique_bit(t: &mut Testable) -> FixFnResult {
+fn fix_no_oblique_bit(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
-    let mut os2: fontations::write::tables::os2::Os2 = f.font().os2()?.to_owned_table();
+    let mut os2: write_fonts::tables::os2::Os2 = f.font().os2()?.to_owned_table();
     os2.fs_selection.remove(SelectionFlags::OBLIQUE);
     t.set(f.rebuild_with_new_table(&os2)?);
-    Ok(true)
+    Ok(FixResult::Fixed)
 }
 
 #[cfg(test)]
 mod tests {
-    #![allow(clippy::unwrap_used, clippy::expect_used)]
+    #![allow(clippy::unwrap_used, clippy::expect_used, clippy::indexing_slicing)]
 
     use fontspector_checkapi::codetesting::{assert_pass, run_check, test_able};
 
@@ -68,11 +69,11 @@ mod tests {
     fn test_fail_oblique_bit_set() {
         // Load Mada-Regular then set the OBLIQUE bit (bit 9 = 0x0200)
         // in the OS/2 fsSelection field.
-        use fontations::skrifa::raw::types::Tag;
-        use fontations::skrifa::FontRef;
-        use fontations::write::FontBuilder;
         use fontspector_checkapi::codetesting::assert_results_contain;
         use fontspector_checkapi::StatusCode;
+        use skrifa::raw::types::Tag;
+        use skrifa::FontRef;
+        use write_fonts::FontBuilder;
 
         let mut testable = test_able("mada/Mada-Regular.ttf");
         let f = FontRef::new(&testable.contents).unwrap();
@@ -109,9 +110,9 @@ mod tests {
 
     #[test]
     fn test_hotfix_clears_oblique_bit() {
-        use fontations::skrifa::raw::types::Tag;
-        use fontations::skrifa::FontRef;
-        use fontations::write::FontBuilder;
+        use skrifa::raw::types::Tag;
+        use skrifa::FontRef;
+        use write_fonts::FontBuilder;
 
         // Create a font with the OBLIQUE bit set
         let mut testable = test_able("mada/Mada-Regular.ttf");
@@ -138,7 +139,7 @@ mod tests {
         testable.contents = builder.build();
 
         // Apply the hotfix
-        super::fix_no_oblique_bit(&mut testable).unwrap();
+        super::fix_no_oblique_bit(&mut testable, None).unwrap();
 
         // Verify the check now passes
         let results = run_check(no_oblique_bit, testable);
