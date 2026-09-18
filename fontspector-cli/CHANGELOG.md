@@ -5,6 +5,55 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.8.0 (2026-09-18)
+
+### Chore
+
+ - <csr-id-8126d235b3ef1c80cad561924972c0f07d1036ee/> All this for a stupid joke
+
+### New Features
+
+ - <csr-id-a1d6f34f36bfc98371c8c1b35a73f7f79ae55ccc/> new profile for 'Monotype'
+   * feat: new profile for 'Monotype'
+   
+   * chore: fontations->skrifa
+   
+   ---------
+
+### Bug Fixes
+
+ - <csr-id-49980ff08338f30b801a39483b148f942742c4e3/> bundle report templates when installed from crates.io
+   The build script zipped ../templates, which is outside the crate root
+   and therefore missing from the published package; cargo install builds
+   then embedded an empty zip, so ~/.fontspector was never populated and
+   --html/--ghmarkdown failed with TemplateNotFound. Move the templates
+   into the crate so they are packaged, write the zip to a growable
+   buffer instead of a fixed 64KB array (which also embedded trailing
+   zero padding), and fail the build if no templates are found.
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 3 commits contributed to the release over the course of 14 calendar days.
+ - 38 days passed between releases.
+ - 3 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 2 unique issues were worked on: [#877](https://github.com/fonttools/fontspector/issues/877), [#893](https://github.com/fonttools/fontspector/issues/893)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#877](https://github.com/fonttools/fontspector/issues/877)**
+    - Bundle report templates when installed from crates.io ([`49980ff`](https://github.com/fonttools/fontspector/commit/49980ff08338f30b801a39483b148f942742c4e3))
+ * **[#893](https://github.com/fonttools/fontspector/issues/893)**
+    - New profile for 'Monotype' ([`a1d6f34`](https://github.com/fonttools/fontspector/commit/a1d6f34f36bfc98371c8c1b35a73f7f79ae55ccc))
+ * **Uncategorized**
+    - All this for a stupid joke ([`8126d23`](https://github.com/fonttools/fontspector/commit/8126d235b3ef1c80cad561924972c0f07d1036ee))
+</details>
+
 ## v1.7.4 (2026-08-11)
 
 ### Chore
@@ -15,7 +64,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 1 commit contributed to the release over the course of 21 calendar days.
+ - 2 commits contributed to the release over the course of 21 calendar days.
  - 35 days passed between releases.
  - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
  - 1 unique issue was worked on: [#875](https://github.com/fonttools/fontspector/issues/875)
@@ -34,6 +83,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
  * **[#875](https://github.com/fonttools/fontspector/issues/875)**
     - Thanks clippy ([`ba4aa40`](https://github.com/fonttools/fontspector/commit/ba4aa4052252bc103ba0742bea043c75d3f25265))
+ * **Uncategorized**
+    - Release fontspector v1.7.4 ([`283f47f`](https://github.com/fonttools/fontspector/commit/283f47f955b64533a802b02e4e0885b587165971))
 </details>
 
 ## v1.7.3 (2026-07-07)
