@@ -185,4 +185,52 @@ mod tests {
             Some("duplicate-name-id-TYPOGRAPHIC_SUBFAMILY_NAME".to_string()),
         );
     }
+
+    #[test]
+    fn test_unique_names_variable_font_pass() {
+        // pass, because the fonts are variable fonts with upright and italic
+        let testables: Vec<_> = [
+            "ubuntusansmono/UbuntuMono[wght].ttf",
+            "ubuntusansmono/UbuntuMono-Italic[wght].ttf",
+        ]
+        .iter()
+        .map(test_able)
+        .collect();
+        let collection = TestableCollection {
+            testables,
+            directory: "".to_string(),
+        };
+        let result = run_check_with_config(
+            unique_names,
+            TestableType::Collection(&collection),
+            HashMap::new(),
+        );
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_unique_names_variable_font_fail() {
+        // fail, because the fonts are variable fonts have same name ID 25
+        let testables: Vec<_> = [
+            "ubuntusansmono/UbuntuMono[wght].ttf",
+            "ubuntusansmono/UbuntuMono[wght].ttf",
+        ]
+        .iter()
+        .map(test_able)
+        .collect();
+        let collection = TestableCollection {
+            testables,
+            directory: "".to_string(),
+        };
+        let result = run_check_with_config(
+            unique_names,
+            TestableType::Collection(&collection),
+            HashMap::new(),
+        );
+        assert_results_contain(
+            &result,
+            StatusCode::Fail,
+            Some("duplicate-name-id-VARIATIONS_POSTSCRIPT_NAME_PREFIX".to_string()),
+        );
+    }
 }
