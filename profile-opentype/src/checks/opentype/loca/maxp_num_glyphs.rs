@@ -1,5 +1,5 @@
-use fontations::skrifa::raw::TableProvider;
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use skrifa::raw::TableProvider;
 
 #[check(
     id = "opentype/loca/maxp_num_glyphs",
@@ -27,5 +27,17 @@ fn maxp_num_glyphs(t: &Testable, _context: &Context) -> CheckFnResult {
         ));
     } else {
         return Ok(Status::just_one_pass());
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use fontspector_checkapi::codetesting::{assert_pass, run_check, test_able};
+
+    #[test]
+    fn test_loca_maxp_num_glyphs_pass() {
+        let testable = test_able("nunito/Nunito-Regular.ttf");
+        let result = run_check(super::maxp_num_glyphs, testable);
+        assert_pass(&result);
     }
 }

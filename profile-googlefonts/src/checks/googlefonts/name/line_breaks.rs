@@ -1,5 +1,5 @@
-use fontations::skrifa::raw::TableProvider;
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use skrifa::raw::TableProvider;
 
 #[check(
     id = "googlefonts/name/line_breaks",
@@ -36,4 +36,39 @@ fn line_breaks(t: &Testable, _context: &Context) -> CheckFnResult {
         }
     }
     return_result(problems)
+}
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, set_name_entry, test_able},
+        StatusCode,
+    };
+    use skrifa::raw::types::NameId;
+
+    use super::line_breaks;
+
+    #[test]
+    fn test_pass_good_font() {
+        let testable = test_able("mada/Mada-Regular.ttf");
+        let results = run_check(line_breaks, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_fail_with_linebreak() {
+        let mut testable = test_able("mada/Mada-Regular.ttf");
+        set_name_entry(
+            &mut testable,
+            3,
+            1,
+            0x0409,
+            NameId::FAMILY_NAME,
+            "bad\nstring".to_string(),
+        );
+        let results = run_check(line_breaks, testable);
+        assert_results_contain(&results, StatusCode::Fail, Some("line-break".to_string()));
+    }
 }

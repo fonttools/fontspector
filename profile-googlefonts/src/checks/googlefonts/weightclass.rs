@@ -1,8 +1,9 @@
-use fontations::skrifa::{raw::TableProvider, FontRef};
 use fontspector_checkapi::{
     constants::OutlineType, prelude::*, testfont, FileTypeConvert, Metadata,
 };
 use serde_json::json;
+use skrifa::{raw::TableProvider, FontRef};
+use write_fonts::from_obj::ToOwnedTable;
 
 use crate::utils::build_expected_font;
 
@@ -27,7 +28,8 @@ use crate::utils::build_expected_font;
     
     ",
     proposal = "https://github.com/fonttools/fontbakery/issues/4829",
-    title = "Check the OS/2 usWeightClass is appropriate for the font's best SubFamily name."
+    title = "Check the OS/2 usWeightClass is appropriate for the font's best SubFamily name.",
+    hotfix = fix_weightclass,
 )]
 fn weightclass(t: &Testable, _context: &Context) -> CheckFnResult {
     let f = testfont!(t);
@@ -144,4 +146,54 @@ fn weightclass(t: &Testable, _context: &Context) -> CheckFnResult {
         problems.push(status);
     }
     return_result(problems)
+}
+
+fn fix_weightclass(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
+    let f = testfont!(t);
+    let expected_names = build_expected_font(&f, &[])?;
+    let expected_value = FontRef::new(&expected_names)?.os2()?.us_weight_class();
+    let mut os2: write_fonts::tables::os2::Os2 = f.font().os2()?.to_owned_table();
+    os2.us_weight_class = expected_value;
+    t.set(f.rebuild_with_new_table(&os2)?);
+    Ok(FixResult::Fixed)
+}
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        StatusCode,
+    };
+
+    use super::weightclass;
+
+    #[test]
+    fn test_fail_mada_regular() {
+        let testable = test_able("mada/Mada-Regular.ttf");
+        let results = run_check(weightclass, testable);
+        assert_results_contain(&results, StatusCode::Fail, Some("bad-value".to_string()));
+    }
+
+    #[test]
+    fn test_pass_cabin_fonts() {
+        for font in [
+            "cabin/Cabin-BoldItalic.ttf",
+            "cabin/Cabin-Bold.ttf",
+            "cabin/Cabin-Italic.ttf",
+            "cabin/Cabin-MediumItalic.ttf",
+            "cabin/Cabin-Medium.ttf",
+            "cabin/Cabin-Regular.ttf",
+            "cabin/Cabin-SemiBoldItalic.ttf",
+            "cabin/Cabin-SemiBold.ttf",
+        ] {
+            let testable = test_able(font);
+            let results = run_check(weightclass, testable);
+            assert_pass(&results);
+        }
+    }
 }

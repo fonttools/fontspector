@@ -1,8 +1,8 @@
 use std::collections::HashSet;
 
-use fontations::skrifa::Tag;
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
+use skrifa::Tag;
 
 #[check(
     id = "cjk_chws_feature",
@@ -59,4 +59,17 @@ fn cjk_chws_feature(f: &Testable, context: &Context) -> CheckFnResult {
         missing_features.push("vchw");
     }
     return_result(problems)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::cjk_chws_feature;
+    use fontspector_checkapi::codetesting::{assert_skip, run_check, test_able};
+
+    #[test]
+    fn test_cjk_chws_feature_skip_not_cjk() {
+        let testable = test_able("cabin/Cabin-Regular.ttf");
+        let results = run_check(cjk_chws_feature, testable);
+        assert_skip(&results);
+    }
 }

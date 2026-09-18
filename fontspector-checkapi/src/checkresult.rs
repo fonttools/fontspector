@@ -1,23 +1,10 @@
 use std::time::Duration;
 
-use serde::{ser::SerializeStruct, Serialize};
+use serde::{ser::SerializeStruct, Deserialize, Serialize};
 
-use crate::{Check, CheckId, Status, StatusCode};
+use crate::{Check, CheckId, FixResult, Status, StatusCode};
 
-#[derive(Debug, Clone, Serialize)]
-/// The result of a fix operation.
-pub enum FixResult {
-    /// A fix was available, but not requested
-    Available,
-    /// A fix was requested, but no fix was available
-    Unfixable,
-    /// A fix was applied
-    Fixed,
-    /// The fix failed, for some reason
-    FixError(String),
-}
-
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize)]
 /// The result of a check on one or more font files.
 ///
 /// This struct is used to store the results of a check on one or more font files.
@@ -35,6 +22,7 @@ pub struct CheckResult {
     /// The file which was checked; if None, the check was run on all files
     pub filename: Option<String>,
     /// The source where this file came from, if any
+    #[serde(default)]
     pub source_filename: Option<String>,
     /// The section of the profile this check belongs to
     pub section: Option<String>,
@@ -44,8 +32,13 @@ pub struct CheckResult {
     pub hotfix_result: Option<FixResult>,
     /// If source fixing was attempted, the result of the source fix
     pub sourcefix_result: Option<FixResult>,
-    /// Time taken
+    /// Time taken — not serialized over the wire, defaults to zero
+    #[serde(default)]
     pub time: Duration,
+    /// Whether or not a hotfix was available for this check
+    pub hotfix_available: bool,
+    /// Whether or not a source fix was available for this check
+    pub sourcefix_available: bool,
 }
 
 impl Serialize for CheckResult {
@@ -60,6 +53,9 @@ impl Serialize for CheckResult {
         s.serialize_field("section", &self.section)?;
         s.serialize_field("subresults", &self.subresults)?;
         s.serialize_field("worst_status", &self.worst_status())?;
+        // s.serialize_field("time", &self.time)?;
+        s.serialize_field("hotfix_available", &self.hotfix_available)?;
+        s.serialize_field("sourcefix_available", &self.sourcefix_available)?;
         if let Some(hotfix_result) = &self.hotfix_result {
             s.serialize_field("hotfix_result", hotfix_result)?;
         }
@@ -91,6 +87,8 @@ impl CheckResult {
             hotfix_result: None,
             sourcefix_result: None,
             time: duration,
+            hotfix_available: check.hotfix.is_some(),
+            sourcefix_available: check.fix_source.is_some(),
         }
     }
 

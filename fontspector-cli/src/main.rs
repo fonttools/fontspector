@@ -2,6 +2,7 @@
 
 mod args;
 mod configuration;
+mod hotfix;
 mod profiles;
 mod reporters;
 
@@ -16,8 +17,8 @@ use args::Args;
 use clap::{CommandFactory, FromArgMatches};
 
 use fontspector_checkapi::{
-    Check, CheckResult, Context, FixResult, HotfixFunction, Registry, StatusCode, Testable,
-    TestableCollection, TestableType,
+    plugin::load_external_plugin, Check, CheckResult, Context, HotfixFunction, Registry,
+    StatusCode, Testable, TestableCollection, TestableType,
 };
 
 #[cfg(not(debug_assertions))]
@@ -94,11 +95,22 @@ fn main() {
     let mut registry = Registry::new();
 
     register_core_profiles(&args, &mut registry);
+    log::debug!(
+        "Loaded core profiles, registry now has {} profiles and {} checks",
+        registry.profiles.len(),
+        registry.checks.len()
+    );
 
-    for plugin_path in args.plugins.iter() {
-        if let Err(err) = registry.load_plugin(plugin_path) {
+    for plugin_path in args.plugin.iter() {
+        if let Err(err) = load_external_plugin(plugin_path, &mut registry) {
             log::error!("Could not load plugin {plugin_path:}: {err:}");
         }
+        log::debug!(
+            "Loaded plugin {}, registry now has {} profiles and {} checks",
+            plugin_path,
+            registry.profiles.len(),
+            registry.checks.len()
+        );
     }
 
     // Load the relevant profile - maybe it's a file?
@@ -160,6 +172,7 @@ fn main() {
             full_lists: args.full_lists,
             cache: Default::default(),
             overrides,
+            check_id: None,
         },
         &configuration.per_check_config,
         &testables,
@@ -312,8 +325,7 @@ fn group_inputs(args: &mut Args) -> Vec<TestableCollection> {
         if let Ok(input) = fontc::Input::new(&path) {
             use fontc::Input;
 
-            log::info!("Compiling {}", &path.display());
-            let flags = fontc::Flags::default();
+            log::info!("Compiling {}", path.display());
             #[allow(clippy::expect_used)] // You are on your own
             let source = match input {
                 // Input::DesignSpacePath(path) => Ok(Box::new(DesignSpaceIrSource::new(path)?)),
@@ -332,13 +344,8 @@ fn group_inputs(args: &mut Args) -> Vec<TestableCollection> {
                 )),
             }
             .expect("Could not create fontir source from input file");
-            match fontc::generate_font(
-                source,
-                &PathBuf::from("build/"),
-                Some(&PathBuf::from("font.ttf")),
-                flags,
-                false,
-            ) {
+            let options = fontc::Options::default();
+            match fontc::generate_font(source, options) {
                 Err(e) => {
                     log::error!("Could not compile font: {e}");
                     std::process::exit(1);
@@ -356,7 +363,6 @@ fn group_inputs(args: &mut Args) -> Vec<TestableCollection> {
         .inputs
         .iter()
         .map(PathBuf::from)
-        .filter(|x| x.is_file())
         .filter(|x| x.parent().is_some());
     inputs
         .map(|file| {
@@ -398,7 +404,7 @@ fn try_fixing_stuff(results: &mut RunResults, args: &Args, registry: &Registry) 
         .collect::<Vec<_>>();
     // Group the fixes by filename because we want to provide testables
     // // let mut fix_sources = HashMap::new();
-    let mut fix_binaries: HashMap<String, Vec<(String, &HotfixFunction, &mut CheckResult)>> =
+    let mut fix_binaries: HashMap<String, Vec<(&HotfixFunction, &mut CheckResult)>> =
         HashMap::new();
     for result in failed_checks.into_iter() {
         let Some(check) = registry.checks.get(&result.check_id) else {
@@ -410,11 +416,10 @@ fn try_fixing_stuff(results: &mut RunResults, args: &Args, registry: &Registry) 
         };
         if let (Some(hotfix), Some(filename)) = (check.hotfix, result.filename.as_ref()) {
             if args.hotfix {
-                fix_binaries.entry(filename.clone()).or_default().push((
-                    check.id.to_string(),
-                    hotfix,
-                    result,
-                ));
+                fix_binaries
+                    .entry(filename.clone())
+                    .or_default()
+                    .push((hotfix, result));
             }
         }
     }
@@ -425,15 +430,8 @@ fn try_fixing_stuff(results: &mut RunResults, args: &Args, registry: &Registry) 
             std::process::exit(1)
         });
         let mut modified = false;
-        for (id, fix, result) in fixes.into_iter() {
-            log::info!("Trying to fix {file} with {id}");
-            result.hotfix_result = match fix(&mut testable) {
-                Ok(hotfix_behaviour) => {
-                    modified |= hotfix_behaviour;
-                    Some(FixResult::Fixed)
-                }
-                Err(e) => Some(FixResult::FixError(e.to_string())),
-            }
+        for (fix, result) in fixes.into_iter() {
+            hotfix::run_hotfix(&mut testable, &mut modified, result, fix);
         }
         if modified {
             // save it

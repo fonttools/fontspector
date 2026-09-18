@@ -1,6 +1,6 @@
-use fontations::skrifa::{raw::tables::name::NameId, MetadataProvider};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
+use skrifa::{raw::tables::name::NameId, MetadataProvider};
 
 #[check(
     id = "googlefonts/render_own_name",
@@ -43,4 +43,34 @@ fn render_own_name(t: &Testable, context: &Context) -> CheckFnResult {
         problems.push(status);
     }
     return_result(problems)
+}
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        StatusCode,
+    };
+
+    use super::render_own_name;
+
+    #[test]
+    fn test_pass_can_render() {
+        let testable = test_able("cabin/Cabin-Regular.ttf");
+        let results = run_check(render_own_name, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_fail_cannot_render() {
+        let testable = test_able("noto_sans_tamil_supplement/NotoSansTamilSupplement-Regular.ttf");
+        let results = run_check(render_own_name, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("render-own-name".to_string()),
+        );
+    }
 }

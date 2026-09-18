@@ -1,9 +1,9 @@
-use fontations::skrifa::{
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
+use skrifa::{
     raw::{tables::gdef::GlyphClassDef, TableProvider},
     MetadataProvider,
 };
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
-use serde_json::json;
 
 const LEGACY_ACCENTS: [u32; 13] = [
     0x00A8, // DIAERESIS

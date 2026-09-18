@@ -1,29 +1,33 @@
 [package]
 name = "fontspector-checkapi"
-version = "1.5.0"
+version = "1.7.1"
 edition = "2021"
 description = "Library for developing checks for the fontspector font QA tool"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/fonttools/fontspector"
 homepage = "https://fonttools.github.io/fontspector"
 
+[[bin]]
+name = "dump-json-schema"
+required-features = ["schemars"]
+
 [lib]
 crate-type = ["cdylib", "rlib"]
 
 [features]
+default = []
 python = []
+schemars = ["dep:schemars"]
+clap = []
 
 [build-dependencies]
 minreq = { version = "2.6.0", features = ["https"] }
-scraper = "0.25.0"
+scraper = "0.27.0"
 regex = { workspace = true }
 
-[target.'cfg(not(target_family = "wasm"))'.dependencies]
-# Plugin architecture
-pluginator = { workspace = true }
-
 [dependencies]
-fontations = { workspace = true }
+skrifa = { workspace = true }
+write-fonts = { workspace = true }
 fontdrasil = { workspace = true }
 
 fontspector-checkhelper = { workspace = true }
@@ -32,8 +36,8 @@ indexmap = { workspace = true }
 # Filetype
 glob-match = "0.2.1"
 
-# Needed so that we can refer to status codes on the command line
-clap = { version = "4", features = ["derive"], optional = true }
+# Argument parsing for plugin CLI
+clap = { version = "4", features = ["derive", "cargo"] }
 
 # Serializing and deserializing profiles
 toml = { workspace = true }
@@ -46,6 +50,8 @@ itertools = { workspace = true }
 
 kurbo = { workspace = true, optional = true }
 thiserror = "2.0.12"
+schemars = { version = "1.2.1", optional = true, features = ["indexmap2"] }
+
 
 [lints]
 workspace = true

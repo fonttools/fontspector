@@ -1,6 +1,6 @@
 [package]
 name = "fontspector-profile-iso15008"
-version = "1.0.5"
+version = "1.0.7"
 edition = "2021"
 authors = ["Simon Cozens <simon@simon-cozens.org>"]
 description = "Fontspector checks for OpenType font conformance to ISO 15008:2008"
@@ -12,11 +12,16 @@ license = "Apache-2.0"
 fontspector-checkapi = { path = "../fontspector-checkapi", features = [
     "kurbo",
 ], version = "1.0.0" }
-fontations = { workspace = true }
+skrifa = { workspace = true }
+write-fonts = { workspace = true }
 kurbo = { workspace = true }
 itertools = { workspace = true }
 harfrust = { workspace = true }
 
+[features]
+# The "check" feature enables dependencies only needed for checks, not fixes.
+default = ["check"]
+check = []
 
 [lints]
 workspace = true

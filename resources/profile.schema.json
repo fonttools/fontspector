@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Profile",
+  "description": "A check profile\n\nA check profile is a collection of checks that are run together. Vendors\ndefine the list of checks that they are interested in running when QA'ing\na font, and organise them into sections. They can also override the status\nof checks, and provide configuration values which are passed to checks to\ncustomise their behaviour.\n\nProfiles are written in the TOML markup language, and can either be baked\ninto fontbakery, provided through plugin modules (this is needed when\na vendor profile contains check implementations not contained in the fontbakery\ncore), or provided as a separate TOML file on the command line.",
+  "type": "object",
+  "properties": {
+    "configuration_defaults": {
+      "description": "Configuration defaults\n\nEach check is passed a [Context] object, which (among other things) contains\na configuration map. This configuration map is built up from the defaults\nprovided in the profile, and then overlaid with any user-provided configuration.\nFor example, the `file_size` check can be first configured by the vendor\nby providing `WARN_SIZE` and `FAIL_SIZE` values in the profile; the user\ncan then override these values on the command line.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": true
+      },
+      "default": {}
+    },
+    "exclude_checks": {
+      "description": "Checks to exclude from included profiles\n\nWhen including a profile, it is possible to exclude certain checks\nfrom that profile. This is useful when a vendor wants to use a profile\nin part, excluding certain checks.",
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "string"
+      }
+    },
+    "include_profiles": {
+      "description": "The list of profiles to include\n\nOther profiles can be included by name. For example, the `universal`\nprofile is a superset of the `opentype` provide and includes all its\nchecks. Vendors may use this functionality to automatically include\nall future checks that get added to a particular profile; alternatively,\nthey can list all the checks they want to run manually to avoid\nsurprises when new checks are implemented on profiles they intend to use.",
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "string"
+      }
+    },
+    "overrides": {
+      "description": "Overrides\n\nOverride the severity of included checks. See [Override] for more information.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/Override"
+        }
+      },
+      "default": {}
+    },
+    "sections": {
+      "description": "Checks to run\n\nThe list of checks to be run is organised into a number of named\nsections, with a list of check IDs in each section.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "required": [
+    "sections"
+  ],
+  "$defs": {
+    "Override": {
+      "description": "An override directive\n\nProfiles may choose to override the status of a check if the vendor\ndecides that they disagree about the severity of a particular problem.\nTo do this, they match against a result code, and provide a new status\nand a reason for the override.",
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "Result code to match against",
+          "type": "string"
+        },
+        "reason": {
+          "description": "Reason for the override",
+          "type": "string"
+        },
+        "status": {
+          "description": "Overridden status code",
+          "$ref": "#/$defs/StatusCode"
+        }
+      },
+      "required": [
+        "code",
+        "status",
+        "reason"
+      ]
+    },
+    "StatusCode": {
+      "description": "A severity level for a single check subresult",
+      "oneOf": [
+        {
+          "description": "Skip: the check didn't run because some condition was not met",
+          "type": "string",
+          "const": "SKIP"
+        },
+        {
+          "description": "Pass: there's no problem here",
+          "type": "string",
+          "const": "PASS"
+        },
+        {
+          "description": "Info: the check returned some useful information, but no problems",
+          "type": "string",
+          "const": "INFO"
+        },
+        {
+          "description": "Warn: a problem which should be manually reviewed",
+          "type": "string",
+          "const": "WARN"
+        },
+        {
+          "description": "Fail: a problem materially affects the correctness of the font",
+          "type": "string",
+          "const": "FAIL"
+        },
+        {
+          "description": "Fatal: a critical font defect that would break font-serving infrastructure",
+          "type": "string",
+          "const": "FATAL"
+        },
+        {
+          "description": "Error: something went wrong with the check itself\n\nAn Error is when something which returns a `Result<>` gave us\nan `Err` - for example a file couldn't be found or couldn't be\nparsed, even though we did our best to check for things. In\nother words, something went wrong with the check infrastructure,\nnot the font itself.",
+          "type": "string",
+          "const": "ERROR"
+        }
+      ]
+    }
+  }
+}

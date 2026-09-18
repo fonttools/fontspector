@@ -42,9 +42,6 @@ def test_check_shaping_regression(check):
         )
 
 
-@pytest.mark.skip(
-    reason="Our implementation is fine but we're getting wrong answers due to https://github.com/harfbuzz/rustybuzz/issues/156"
-)
 @check_id("shaping/regression")
 def test_check_shaping_regression_with_variations(check):
     """Check that we can test shaping with variation settings against expectations."""

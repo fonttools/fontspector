@@ -33,7 +33,7 @@ fn broken_links(c: &Testable, context: &Context) -> CheckFnResult {
             unique_links.push(copyright.to_string());
             problems.push(Status::fail(
                 "email",
-                &format!("Found an email address: {}", &copyright),
+                &format!("Found an email address: {}", copyright),
             ));
             continue;
         }
@@ -41,7 +41,7 @@ fn broken_links(c: &Testable, context: &Context) -> CheckFnResult {
             continue;
         }
         #[allow(clippy::unwrap_used)] // we just verified it's there
-        let mut link = format!("http{}", &copyright.split("http").nth(1).unwrap());
+        let mut link = format!("http{}", copyright.split("http").nth(1).unwrap());
         for endchar in [" ", ")"] {
             if let Some(split) = link.split(endchar).next() {
                 link = split.to_string();

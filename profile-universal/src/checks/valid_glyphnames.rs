@@ -1,10 +1,12 @@
 use std::collections::HashSet;
 
-use fontations::skrifa::raw::{types::Version16Dot16, TableProvider};
-use fontations::skrifa::{GlyphId as SkrifaGlyphId, MetadataProvider};
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
 use itertools::Itertools;
 use serde_json::json;
+use skrifa::{
+    raw::{types::Version16Dot16, TableProvider},
+    GlyphId as SkrifaGlyphId, MetadataProvider,
+};
 
 enum NameValidity {
     OK,
@@ -208,4 +210,32 @@ fn valid_glyphnames(f: &Testable, _context: &Context) -> CheckFnResult {
     }
 
     return_result(problems)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::valid_glyphnames;
+    use fontspector_checkapi::codetesting::{assert_pass, assert_skip, run_check, test_able};
+
+    #[test]
+    fn test_valid_glyphnames_pass() {
+        let testable = test_able("nunito/Nunito-Regular.ttf");
+        let results = run_check(valid_glyphnames, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_valid_glyphnames_cff_skip() {
+        // CFF fonts typically have post table version 3.0 which has no glyph names
+        let testable = test_able("source-sans-pro/OTF/SourceSansPro-Regular.otf");
+        let results = run_check(valid_glyphnames, testable);
+        assert_skip(&results);
+    }
+
+    #[test]
+    fn test_valid_glyphnames_cff2_skip() {
+        let testable = test_able("source-sans-pro/VAR/SourceSansVariable-Roman.otf");
+        let results = run_check(valid_glyphnames, testable);
+        assert_skip(&results);
+    }
 }

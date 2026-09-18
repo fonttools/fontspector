@@ -1,5 +1,5 @@
-use fontations::skrifa::MetadataProvider;
 use fontspector_checkapi::{pens::XDeltaPen, prelude::*, skip, testfont, FileTypeConvert};
+use skrifa::MetadataProvider;
 
 #[check(
     id = "opentype/slant_direction",
@@ -40,5 +40,33 @@ fn slant_direction(t: &Testable, _context: &Context) -> CheckFnResult {
             "positive-value-for-clockwise-lean",
             "The right-leaning glyphs have a positive 'slnt' axis value, which is likely a mistake. It needs to be negative to lean rightwards.",
         ))
+    }
+}
+
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        StatusCode,
+    };
+
+    #[test]
+    fn test_slant_direction_pass() {
+        let testable = test_able("slant_direction/Cairo_correct_slnt_axis.ttf");
+        let result = run_check(slant_direction, testable);
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_slant_direction_fail() {
+        let testable = test_able("slant_direction/Cairo_wrong_slnt_axis.ttf");
+        let result = run_check(slant_direction, testable);
+        assert_results_contain(
+            &result,
+            StatusCode::Fail,
+            Some("positive-value-for-clockwise-lean".to_string()),
+        );
     }
 }

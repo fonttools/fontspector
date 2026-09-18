@@ -1,9 +1,8 @@
-use fontations::{skrifa::raw::types::Tag, write::FontBuilder};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use skrifa::raw::types::Tag;
+use write_fonts::FontBuilder;
 
-const UNWANTED_TABLES: [(Tag, &str); 17] = [
-    (Tag::new(b"DSIG"), "This font has a digital signature (DSIG table) which is only required - even if only a placeholder - on old programs like MS Office 2013 in order to work properly.\n
-The current recommendation is to completely remove the DSIG table."),
+const UNWANTED_TABLES: [(Tag, &str); 16] = [
     (Tag::new(b"FFTM"), "Table contains redundant FontForge timestamp info"),
     (Tag::new(b"TTFA"), "Redundant TTFAutohint table"),
     (Tag::new(b"TSI0"), "Table contains data only used in VTT"),
@@ -48,7 +47,45 @@ fn unwanted_tables(t: &Testable, _context: &Context) -> CheckFnResult {
     })
 }
 
-fn delete_unwanted_tables(t: &mut Testable) -> FixFnResult {
+#[cfg(test)]
+mod tests {
+    use fontspector_checkapi::{
+        codetesting::{add_table, assert_pass, assert_results_contain, run_check, test_able},
+        StatusCode,
+    };
+
+    #[test]
+    fn test_unwanted_tables_pass() {
+        // Mada Regular has no unwanted tables, should PASS
+        let testable = test_able("mada/Mada-Regular.ttf");
+        let results = run_check(super::unwanted_tables, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_unwanted_tables_fail_each() {
+        // Adding each unwanted table one-by-one should trigger FAIL
+        let unwanted_tables: Vec<&[u8; 4]> = vec![
+            b"FFTM", b"TTFA", b"TSI0", b"TSI1", b"TSI2", b"TSI3", b"TSI5", b"TSIC", b"TSIV",
+            b"TSIP", b"TSIS", b"TSID", b"TSIJ", b"TSIB", b"prop", b"Debg",
+        ];
+        for unwanted in unwanted_tables {
+            let mut testable = test_able("mada/Mada-Regular.ttf");
+            add_table(&mut testable, unwanted);
+            let results = run_check(super::unwanted_tables, testable);
+            assert_results_contain(
+                &results,
+                StatusCode::Fail,
+                Some("unwanted-tables".to_string()),
+            );
+        }
+    }
+}
+
+fn delete_unwanted_tables(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
     let unwanted_tags = UNWANTED_TABLES
         .iter()
@@ -65,5 +102,5 @@ fn delete_unwanted_tables(t: &mut Testable) -> FixFnResult {
     }
     let new_bytes = new_font.build();
     t.set(new_bytes);
-    Ok(true)
+    Ok(FixResult::Fixed)
 }

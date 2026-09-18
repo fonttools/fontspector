@@ -83,8 +83,8 @@ fn path_direction(t: &Testable, _context: &Context) -> CheckFnResult {
     )
 }
 
-impl fontspector_checkapi::Plugin for Designspace {
-    fn register(&self, cr: &mut Registry) -> Result<(), String> {
+impl fontspector_checkapi::ProfileProvider for Designspace {
+    fn register(&self, cr: &mut Registry) -> Result<(), FontspectorError> {
         let designspace = FileType::new("*.designspace");
         let ufo = FileType::new("*.ufo");
         cr.register_filetype("DESIGNSPACE", designspace);
@@ -93,6 +93,3 @@ impl fontspector_checkapi::Plugin for Designspace {
         cr.register_simple_profile("designspace", vec![path_direction])
     }
 }
-
-#[cfg(not(target_family = "wasm"))]
-pluginator::plugin_implementation!(fontspector_checkapi::Plugin, Designspace);

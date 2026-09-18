@@ -6,6 +6,7 @@ on:
       - main
   pull_request:
   merge_group:
+  workflow_dispatch:
 
 env:
   CARGO_TERM_COLOR: always
@@ -15,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
       - run: rustup toolchain install stable --profile minimal
@@ -24,21 +25,25 @@ jobs:
         with:
           cache-workspace-crates: true
       - name: Build
-        run: cargo build
+        run: cargo build --all
+      - name: Install uv
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
       - name: Run tests
         run: |
           cargo test --verbose --workspace --exclude fontspector-web
-          pip install maturin pytest
+          uv venv .venv
+          . .venv/bin/activate
+          uv pip install maturin pytest
           cd fontspector-py
           maturin build
-          pip install ../target/wheels/fontspector*.whl
-          pytest tests --verbose
+          uv pip install ../target/wheels/fontspector*.whl
+          uv run pytest tests --verbose
 
   formatting:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
       - run: rustup toolchain install stable --profile default
@@ -51,7 +56,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
       - run: rustup toolchain install stable --profile default
@@ -61,88 +66,49 @@ jobs:
       - name: Lint for warnings
         run: cargo clippy --all-targets --all-features -- -D warnings
 
-  deploy-binaries:
-    name: Build and upload binaries
-    permissions:
-      contents: write
-      id-token: write
-    runs-on: ${{ matrix.os.os }}
-    # Only build on main or tag
-    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-          - build: linux
-            os: ubuntu-22.04
-            target: x86_64-unknown-linux-gnu
-
-          - build: macos
-            os: macos-latest
-            target: x86_64-apple-darwin
-
-          - build: macos-m1
-            os: macos-latest
-            target: aarch64-apple-darwin
-
-          - build: windows-gnu
-            os: windows-latest
-            target: x86_64-pc-windows-gnu
-        # python: ["3.9", "3.10", "3.11", "3.12", "3.13"]
-
+  wasm-still-builds:
+    name: Check that the web site still builds
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-        with:
-          submodules: recursive
-      - run: rustup toolchain install stable --profile minimal
-      - if: matrix.os.target == 'x86_64-apple-darwin'
-        run: rustup target add x86_64-apple-darwin
-      - uses: Swatinem/rust-cache@v2
-        with:
-          cache-workspace-crates: true
-          add-job-id-key: false
-
-      # - name: Set up python
-      #   uses: actions/setup-python@v5
-      #   with:
-      #     python-version: ${{ matrix.python }}
+      - uses: actions/checkout@v7
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - name: Install protoc
+        run: sudo apt-get update && sudo apt-get install protobuf-compiler
+      - name: Install wasm-pack
+        run: cargo install wasm-pack
       - name: Build
-        run: cargo build --verbose --release --target ${{ matrix.os.target }}
+        run: cd fontspector-web; RUSTFLAGS='-C target-feature=+bulk-memory' wasm-pack build
+      - name: Build web site
+        run: |
+          cd fontspector-web/www
+          npm install
+          npm run build
+
+  compute-version:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
+    outputs:
+      version: ${{ steps.version.outputs.VERSION }}
+    steps:
+      - uses: actions/checkout@v7
       - name: Decide on our version name (tag or "dev")
         id: version
         shell: bash
         run: |
-          if [ -n "$GITHUB_REF" ]; then
-              if [[ "$GITHUB_REF" == refs/tags/fontspector-v* ]]; then
-                  echo "VERSION=${GITHUB_REF/refs\/tags\/fontspector-/}" >> $GITHUB_ENV
-              else
-                  echo "VERSION=dev" >> $GITHUB_ENV
-              fi
+          if [[ "$GITHUB_REF" == refs/tags/fontspector-v* ]]; then
+            VERSION="${GITHUB_REF#refs/tags/fontspector-v}"
           else
-              echo "VERSION=dev" >> $GITHUB_ENV
+            VERSION="dev"
           fi
-      - name: Build archive
-        shell: bash
-        run: |
-          # dirname="fontspector-${{ env.VERSION }}-${{ matrix.os.target }}-py${{ matrix.python }}"
-          dirname="fontspector-${{ env.VERSION }}-${{ matrix.os.target }}"
-          mkdir "$dirname"
-          if [ "${{ matrix.os.os }}" = "windows-latest" ]; then
-              mv "target/${{ matrix.os.target }}/release/"*.exe "$dirname"
-              7z a "$dirname.zip" "$dirname"
-              echo "ASSET=$dirname.zip" >> $GITHUB_ENV
-          else
-              mv "target/${{ matrix.os.target }}/release/fontspector" "$dirname"
-              tar -czf "$dirname.tar.gz" "$dirname"
-              echo "ASSET=$dirname.tar.gz" >> $GITHUB_ENV
-          fi
-      - uses: actions/upload-artifact@v6
-        with:
-          name: ${{ env.ASSET }}
-          path: ${{ env.ASSET }}
-      - if: contains(github.ref, 'refs/tags/fontspector-v')
-        name: Add artefact to release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload fontspector-${{ env.VERSION }} ${{ env.ASSET }}
+          echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
+
+  deploy-binaries:
+    name: Build and upload binaries
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
+    needs: compute-version
+    permissions:
+      contents: write
+      id-token: write
+    uses: ./.github/workflows/build-binary.yml
+    with:
+      version: ${{ needs.compute-version.outputs.version }}

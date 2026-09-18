@@ -2,11 +2,12 @@ use std::{collections::HashMap, env, path::Path, vec};
 // Provide an environment where we can run fontbakery tests
 // as-is, but have them call a Rust implementation underneath
 use fontspector_checkapi::{
-    CheckImplementation, Context, Plugin, Registry, StatusCode, Testable, TestableCollection,
-    TestableType,
+    CheckImplementation, Context, ProfileProvider, Registry, StatusCode, Testable,
+    TestableCollection, TestableType,
 };
 use profile_fontwerk::Fontwerk;
 use profile_googlefonts::GoogleFonts;
+use profile_monotype::Monotype;
 use profile_opentype::OpenType;
 use profile_universal::Universal;
 use pyo3::{
@@ -80,6 +81,9 @@ impl CheckTester {
         Fontwerk.register(&mut registry).map_err(|_| {
             PyValueError::new_err("Couldn't register Fontwerk profile, fontspector bug")
         })?;
+        Monotype.register(&mut registry).map_err(|_| {
+            PyValueError::new_err("Couldn't register Monotype profile, fontspector bug")
+        })?;
 
         let check = registry
             .checks
@@ -91,7 +95,7 @@ impl CheckTester {
             .get_item(0)
             .map_err(|_| PyValueError::new_err("No args found"))?;
         let testables = if first_arg.is_instance_of::<PyList>() {
-            let first_arg: &Bound<PyList> = first_arg.downcast()?;
+            let first_arg: &Bound<PyList> = first_arg.cast()?;
             first_arg
                 .iter()
                 .map(|a| obj_to_testable(py, &a))
@@ -185,6 +189,9 @@ fn registered_checks() -> PyResult<Vec<String>> {
     })?;
     Fontwerk.register(&mut registry).map_err(|_| {
         PyValueError::new_err("Couldn't register Fontwerk profile, fontspector bug")
+    })?;
+    Monotype.register(&mut registry).map_err(|_| {
+        PyValueError::new_err("Couldn't register Monotype profile, fontspector bug")
     })?;
     Ok(registry.checks.keys().cloned().collect())
 }

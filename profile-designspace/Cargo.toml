@@ -11,11 +11,16 @@ crate-type = ["cdylib"]
 fontspector-checkapi = { path = "../fontspector-checkapi" }
 norad = "0.18.0"
 serde_json = { workspace = true }
-quick-xml = { version = "0.39.0", features = ["serialize"] }
+quick-xml = { version = "0.41.0", features = ["serialize"] }
 
 [target.'cfg(not(target_family = "wasm"))'.dependencies]
 # Plugin architecture
 pluginator = { workspace = true }
+
+[features]
+# The "check" feature enables dependencies only needed for checks, not fixes.
+default = ["check"]
+check = []
 
 [lints]
 workspace = true

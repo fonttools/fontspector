@@ -1,24 +1,22 @@
-use fontations::{
-    skrifa::{
-        raw::{
-            tables::glyf::{Anchor, CurvePoint, Glyph, Transform},
-            types::F2Dot14,
-            FontData, TableProvider,
-        },
-        GlyphId,
-    },
-    write::{
-        from_obj::ToOwnedObj,
-        tables::glyf::{
-            Component, CompositeGlyph, Contour, GlyfLocaBuilder, Glyph as WriteGlyph, SimpleGlyph,
-        },
-        FontBuilder,
-    },
-};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
 use hashbrown::HashMap;
 use itertools::Itertools;
 use kurbo::Affine;
+use skrifa::{
+    raw::{
+        tables::glyf::{Anchor, CurvePoint, Glyph, Transform},
+        types::F2Dot14,
+        FontData, TableProvider,
+    },
+    GlyphId,
+};
+use write_fonts::{
+    from_obj::ToOwnedObj,
+    tables::glyf::{
+        Component, CompositeGlyph, Contour, GlyfLocaBuilder, Glyph as WriteGlyph, SimpleGlyph,
+    },
+    FontBuilder,
+};
 
 fn transform_is_linear(t: Transform) -> bool {
     t.xx == F2Dot14::from_f32(1.0)
@@ -104,7 +102,10 @@ fn transformed_components(f: &Testable, context: &Context) -> CheckFnResult {
     }
 }
 
-fn decompose_transformed_components(t: &mut Testable) -> FixFnResult {
+fn decompose_transformed_components(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
     let loca = f.font().loca(None)?;
     let glyf = f.font().glyf()?;
@@ -134,7 +135,7 @@ fn decompose_transformed_components(t: &mut Testable) -> FixFnResult {
 pub(crate) fn decompose_components_impl(
     t: &mut Testable,
     decompose_order: &[GlyphId],
-) -> FixFnResult {
+) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
     if f.has_table(b"gvar") {
         return Err(FontspectorError::Fix(
@@ -184,7 +185,7 @@ pub(crate) fn decompose_components_impl(
     new_font.copy_missing_tables(f.font());
     let new_bytes = new_font.build();
     t.set(new_bytes);
-    Ok(true)
+    Ok(FixResult::Fixed)
 }
 
 fn decompose_glyph(

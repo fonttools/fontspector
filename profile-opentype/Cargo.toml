@@ -1,6 +1,6 @@
 [package]
 name = "fontspector-profile-opentype"
-version = "1.4.0"
+version = "1.6.0"
 edition = "2021"
 authors = [
     "Simon Cozens <simon@simon-cozens.org>",
@@ -16,11 +16,17 @@ fontspector-checkapi = { path = "../fontspector-checkapi", features = [
     "kurbo",
 ], version = "1.0.0" }
 fontspector-checkhelper = { workspace = true }
-fontations = { workspace = true }
+skrifa = { workspace = true }
+write-fonts = { workspace = true }
 itertools = { workspace = true }
 unicode-properties = { workspace = true }
 kurbo = { workspace = true } # For italic angle check
 serde_json = { workspace = true }
+
+[features]
+# The "check" feature enables dependencies only needed for checks, not fixes.
+default = ["check"]
+check = []
 
 [lints]
 workspace = true

@@ -1,6 +1,6 @@
 [package]
 name = "fontspector-checkhelper"
-version = "1.0.1"
+version = "1.0.2"
 edition = "2021"
 description = "Macros for generating check functions for fontspector"
 license = "MIT OR Apache-2.0"

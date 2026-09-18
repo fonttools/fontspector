@@ -95,3 +95,34 @@ fn shape_languages(t: &Testable, context: &Context) -> CheckFnResult {
 
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used)]
+
+    use super::shape_languages;
+    use fontspector_checkapi::{
+        codetesting::{assert_results_contain, run_check, test_able},
+        StatusCode,
+    };
+
+    #[test]
+    fn test_check_shape_languages() {
+        // BadGrades has no GF glyphset supported at >80% coverage
+        assert_results_contain(
+            &run_check(shape_languages, test_able("BadGrades/BadGrades-VF.ttf")),
+            StatusCode::Fail,
+            Some("no-glyphset-supported".to_string()),
+        );
+
+        // Annie Use Your Telescope supports a glyphset but fails language shaping
+        assert_results_contain(
+            &run_check(
+                shape_languages,
+                test_able("annie/AnnieUseYourTelescope-Regular.ttf"),
+            ),
+            StatusCode::Fail,
+            Some("failed-language-shaping".to_string()),
+        );
+    }
+}

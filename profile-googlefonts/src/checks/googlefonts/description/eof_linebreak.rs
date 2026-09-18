@@ -26,3 +26,44 @@ fn eof_linebreak(desc: &Testable, _context: &Context) -> CheckFnResult {
         Status::just_one_pass()
     })
 }
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check},
+        StatusCode, Testable,
+    };
+    use std::path::PathBuf;
+
+    use super::eof_linebreak;
+
+    fn make_desc(content: &str) -> Testable {
+        Testable {
+            filename: PathBuf::from("DESCRIPTION.en_us.html"),
+            source: None,
+            contents: content.as_bytes().to_vec(),
+        }
+    }
+
+    #[test]
+    fn test_warn_missing_eof_linebreak() {
+        let desc = make_desc(
+            "We want to avoid description files\nwithout an end-of-file linebreak\nlike this one.",
+        );
+        let results = run_check(eof_linebreak, desc);
+        assert_results_contain(
+            &results,
+            StatusCode::Warn,
+            Some("missing-eof-linebreak".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_pass_with_eof_linebreak() {
+        let desc = make_desc("On the other hand, this one\nis good enough.\n");
+        let results = run_check(eof_linebreak, desc);
+        assert_pass(&results);
+    }
+}

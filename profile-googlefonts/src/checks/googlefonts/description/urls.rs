@@ -44,3 +44,49 @@ fn urls(desc: &Testable, _context: &Context) -> CheckFnResult {
     }
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check},
+        StatusCode, Testable,
+    };
+    use std::path::PathBuf;
+
+    use super::urls;
+
+    fn make_desc(content: &str) -> Testable {
+        Testable {
+            filename: PathBuf::from("DESCRIPTION.en_us.html"),
+            source: None,
+            contents: content.as_bytes().to_vec(),
+        }
+    }
+
+    #[test]
+    fn test_pass_good_link_text() {
+        let desc = make_desc("<p><a href='https://example.com'>example.com</a></p>\n");
+        let results = run_check(urls, desc);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_fail_prefix_found() {
+        let desc = make_desc("<p><a href='https://example.com'>https://example.com</a></p>\n");
+        let results = run_check(urls, desc);
+        assert_results_contain(&results, StatusCode::Fail, Some("prefix-found".to_string()));
+    }
+
+    #[test]
+    fn test_fail_empty_link_text() {
+        let desc = make_desc("<p><a href='https://example.com'></a></p>\n");
+        let results = run_check(urls, desc);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("empty-link-text".to_string()),
+        );
+    }
+}

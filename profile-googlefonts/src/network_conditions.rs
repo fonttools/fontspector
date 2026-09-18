@@ -224,6 +224,7 @@ fn remote_styles_impl(family: &str, context: &Context) -> Result<Vec<Testable>, 
 }
 
 #[cfg(not(target_family = "wasm"))]
+#[cfg_attr(not(feature = "check"), allow(dead_code))]
 pub(crate) fn get_url(
     context: &Context,
     url: &str,
@@ -241,6 +242,7 @@ pub const DESIGNER_INFO_RAW_URL: &str =
     "https://raw.githubusercontent.com/google/fonts/master/catalog/designers/";
 
 #[cfg(not(target_family = "wasm"))]
+#[cfg_attr(not(feature = "check"), allow(dead_code))]
 pub(crate) fn is_designer_listed(
     context: &Context,
     designer: &str,

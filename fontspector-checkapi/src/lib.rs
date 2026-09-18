@@ -27,12 +27,16 @@ mod error;
 
 /// Managing a registry of file types
 mod filetype;
+/// Data types for applying fixes to fonts
+mod fix;
 /// Represents a TrueType font, together with useful routines for dealing with them
 mod font;
 /// Routines to make dealing with GSUB tables more tractable
 mod gsub;
 /// [OutlinePen](https://docs.rs/skrifa/latest/skrifa/outline/trait.OutlinePen.html) implementations useful for check implementors
 pub mod pens;
+/// Utilities for building fontspector plugins
+pub mod plugin;
 /// Sets of checks that declare a particular "standard" of QA testing
 mod profile;
 /// The registry of checks and profiles
@@ -43,11 +47,15 @@ mod status;
 mod testable;
 /// Common utility functions for check implementors
 mod utils;
-pub use check::{return_result, Check, CheckFlags, CheckId, CheckImplementation, HotfixFunction};
-pub use checkresult::{CheckResult, FixResult};
+pub use check::{return_result, Check, CheckFlags, CheckId, CheckImplementation};
+pub use checkresult::CheckResult;
 pub use context::Context;
 pub use error::FontspectorError;
 pub use filetype::{FileType, FileTypeConvert};
+pub use fix::{
+    Choice, DialogField, DialogFieldType, FixResult, HotfixFunction, MoreInfoReplies,
+    MoreInfoRequest,
+};
 pub use font::{
     get_name_entry_string, get_name_platform_tuples, PlatformSelector, TestFont, DEFAULT_LOCATION,
     TTF,
@@ -91,41 +99,20 @@ pub mod prelude {
         };
     }
     /// The expected return type of a hotfix function
-    pub type FixFnResult = Result<bool, FontspectorError>;
     pub use crate::{
         return_result, utils::*, Check, CheckFlags, CheckFnResult, CheckImplementation, Context,
-        FileType, FontspectorError, Profile, ProfileBuilder, Registry, Status, StatusList,
-        Testable, TestableCollection, TestableType, TTF,
+        FileType, FixResult, FontspectorError, MoreInfoReplies, MoreInfoRequest, Profile,
+        ProfileBuilder, Registry, Status, StatusList, Testable, TestableCollection, TestableType,
+        TTF,
     };
 }
 
-/// A plugin is a dynamic library that can be loaded by fontspector
+/// Something - a plugin or a crate - which provides profiles and checks to be registered with the fontspector registry.
 ///
 /// Plugins contain checks and profiles that can be registered with the fontspector
 /// registry. The plugin must implement this trait and provide a function that
-/// returns an instance of the plugin. See [pluginator](https://docs.rs/pluginator/0.1.0/pluginator/)
-pub trait Plugin {
+/// returns an instance of the plugin.
+pub trait ProfileProvider {
     /// Register the checks and profiles in the plugin with the registry
-    fn register(&self, cr: &mut Registry) -> Result<(), String>;
-}
-
-/// Load a plugin from a file
-///
-/// Loads a static library and returns a handle to the loaded plugin
-///
-/// # Safety
-///
-/// This function is unsafe because it loads a dynamic library from the filesystem.
-/// You're running arbitrary code at this point. Don't use `--plugin` if that
-/// bothers you.
-//
-// Sigh, this is a manual implementation of `pluginator::plugin_trait!` because
-// since that crate was written, macros are now normal items and get tested for
-// missing docs, but the pluginator macro doesn't produce any docs, and we can't
-// document macro-produced code ourselves, and argh.
-#[cfg(not(target_family = "wasm"))]
-pub unsafe fn load_plugin<Path: AsRef<std::path::Path>>(
-    path: Path,
-) -> Result<pluginator::LoadedPlugin<dyn Plugin>, pluginator::plugin::LoadingError> {
-    unsafe { pluginator::plugin::load(path) }
+    fn register(&self, cr: &mut Registry) -> Result<(), FontspectorError>;
 }

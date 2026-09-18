@@ -1,5 +1,5 @@
-use fontations::skrifa::{GlyphId, MetadataProvider};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, TestFont, Testable};
+use skrifa::{GlyphId, MetadataProvider};
 use std::{collections::HashSet, vec};
 
 const FW_LAT_STD_ENCODED_GLYPHS: [u32; 414] = [

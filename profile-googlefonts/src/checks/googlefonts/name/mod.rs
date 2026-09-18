@@ -16,4 +16,6 @@ pub use mandatory_entries::mandatory_entries;
 pub use rfn::rfn;
 pub use version_format::version_format;
 mod license_url;
+mod no_vf_in_name;
 pub use license_url::license_url;
+pub use no_vf_in_name::illegal_particles;

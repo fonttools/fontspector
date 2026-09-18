@@ -1,6 +1,8 @@
-use fontations::{skrifa::raw::TableProvider, types::Fixed, write::from_obj::ToOwnedTable};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
+use skrifa::raw::TableProvider;
+use write_fonts::from_obj::ToOwnedTable;
+use write_fonts::types::Fixed;
 
 #[check(
     id = "opentype/caret_slope",
@@ -72,12 +74,12 @@ fn caret_slope(t: &Testable, _context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
-// fn fix_post_italic_angle(t: &mut Testable) -> FixFnResult {
+// fn fix_post_italic_angle(t: &mut Testable, _replies: Option<MoreInfoReplies>) -> Result<FixResult, FontspectorError> {
 //     let f = fixfont!(t);
 //     let Some(style) = f.style() else {
 //         return Ok(false);
 //     };
-//     let mut post: fontations::write::tables::post::Post = f
+//     let mut post: write_fonts::tables::post::Post = f
 //         .font()
 //         .post()
 //         .map_err(|e| format!("Couldn't get post table: {}", e))?
@@ -98,18 +100,62 @@ fn caret_slope(t: &Testable, _context: &Context) -> CheckFnResult {
 //     Ok(true)
 // }
 
-fn fix_caret_slope(t: &mut Testable) -> FixFnResult {
+fn fix_caret_slope(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
     let f = testfont!(t);
-    let mut hhea: fontations::write::tables::hhea::Hhea = f.font().hhea()?.to_owned_table();
+    let mut hhea: write_fonts::tables::hhea::Hhea = f.font().hhea()?.to_owned_table();
     let post = f.font().post()?;
     if post.italic_angle() == Fixed::ZERO {
-        println!("Skipping fix_caret_slope for non-italic font");
-        return Ok(false);
+        return Ok(FixResult::NotBroken);
     }
     let upem = f.font().head()?.units_per_em();
     hhea.caret_slope_rise = upem as i16;
     hhea.caret_slope_run =
         (-post.italic_angle().to_f32().to_radians().tan() * upem as f32).round() as i16;
     t.set(f.rebuild_with_new_table(&hhea)?);
-    Ok(true)
+    Ok(FixResult::Fixed)
+}
+
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+#[cfg(test)]
+mod tests {
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        prelude::*,
+        FileTypeConvert, StatusCode,
+    };
+    use skrifa::raw::TableProvider;
+    use write_fonts::from_obj::ToOwnedTable;
+
+    #[test]
+    fn test_caret_slope_upright_pass() {
+        let testable = test_able("shantell/ShantellSans[BNCE,INFM,SPAC,wght].ttf");
+        let result = run_check(super::caret_slope, testable);
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_caret_slope_zero_rise() {
+        let mut testable = test_able("shantell/ShantellSans[BNCE,INFM,SPAC,wght].ttf");
+        let f = TTF.from_testable(&testable).unwrap();
+        let mut hhea: write_fonts::tables::hhea::Hhea = f.font().hhea().unwrap().to_owned_table();
+        hhea.caret_slope_rise = 0;
+        testable.set(f.rebuild_with_new_table(&hhea).unwrap());
+        let result = run_check(super::caret_slope, testable);
+        assert_results_contain(&result, StatusCode::Fail, Some("zero-rise".to_string()));
+    }
+
+    #[test]
+    fn test_caret_slope_mismatch() {
+        let mut testable = test_able("shantell/ShantellSans[BNCE,INFM,SPAC,wght].ttf");
+        let f = TTF.from_testable(&testable).unwrap();
+        let mut hhea: write_fonts::tables::hhea::Hhea = f.font().hhea().unwrap().to_owned_table();
+        hhea.caret_slope_rise = 1000;
+        hhea.caret_slope_run = 194;
+        testable.set(f.rebuild_with_new_table(&hhea).unwrap());
+        let result = run_check(super::caret_slope, testable);
+        assert_results_contain(&result, StatusCode::Warn, Some("mismatch".to_string()));
+    }
 }

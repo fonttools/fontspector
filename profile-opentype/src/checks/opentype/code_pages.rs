@@ -1,6 +1,6 @@
-use fontations::skrifa::raw::TableProvider;
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
+use skrifa::raw::TableProvider;
 
 #[check(
     id = "opentype/code_pages",
@@ -48,4 +48,35 @@ fn code_pages(t: &Testable, _context: &Context) -> CheckFnResult {
         problems.push(status);
     }
     return_result(problems)
+}
+
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        StatusCode,
+    };
+    use skrifa::raw::TableProvider;
+    use write_fonts::from_obj::ToOwnedTable;
+
+    #[test]
+    fn test_code_pages_pass() {
+        let testable = test_able("merriweather/Merriweather-Regular.ttf");
+        let result = run_check(code_pages, testable);
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_code_pages_fail_no_code_pages() {
+        let mut testable = test_able("merriweather/Merriweather-Regular.ttf");
+        let f = TTF.from_testable(&testable).unwrap();
+        let mut os2: write_fonts::tables::os2::Os2 = f.font().os2().unwrap().to_owned_table();
+        os2.ul_code_page_range_1 = Some(0);
+        os2.ul_code_page_range_2 = Some(0);
+        testable.set(f.rebuild_with_new_table(&os2).unwrap());
+        let result = run_check(code_pages, testable);
+        assert_results_contain(&result, StatusCode::Fail, Some("no-code-pages".to_string()));
+    }
 }

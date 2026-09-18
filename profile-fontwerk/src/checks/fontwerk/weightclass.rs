@@ -1,5 +1,5 @@
-use fontations::skrifa::raw::TableProvider;
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use skrifa::raw::TableProvider;
 
 fn get_expected_weight_name(weight_class: u16) -> Option<&'static [&'static str]> {
     match weight_class {
@@ -98,7 +98,8 @@ mod tests {
     #![allow(clippy::unwrap_used)]
 
     use super::*;
-    use fontations::write::{
+    use fontspector_checkapi::{Context, Testable};
+    use write_fonts::{
         tables::{
             maxp::Maxp,
             name::{Name, NameRecord},
@@ -107,7 +108,6 @@ mod tests {
         types::NameId,
         FontBuilder,
     };
-    use fontspector_checkapi::{Context, Testable};
 
     #[test]
     fn test_weightclass() {

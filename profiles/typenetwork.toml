@@ -1,0 +1,82 @@
+# Ported from FontBakery profile fontbakery.profiles.typenetwork
+
+# Included profiles
+include_profiles = ["universal"]
+
+# Excluded checks
+exclude_checks = ["opentype/family/panose_familytype", "opentype/vendor_id", "alt_caron", "caps_vertically_centered", "cmap/format_12", "cjk_chws_feature", "cjk_not_enough_glyphs", "color_cpal_brightness", "designspace_has_consistent_codepoints", "designspace_has_consistent_glyphset", "designspace_has_consistent_groups", "designspace_has_default_master", "designspace_has_sources", "empty_glyph_on_gid1_for_colrv0", "family/single_directory", "file_size", "fontval", "fontbakery_version", "hinting_impact", "math_signs_width", "name/no_copyright_on_description", "os2_metrics_match_hhea", "STAT_strings", "superfamily/list", "ufolint", "ufo_features_default_languagesystem", "ufo_recommended_fields", "ufo_required_fields", "ufo_unnecessary_fields", "vtt_volt_data", "varfont/unsupported_axes"]
+
+[sections]
+"Type Network" = ["typenetwork/composite_glyphs", "typenetwork/family/duplicated_names", "typenetwork/family/equal_numbers_of_glyphs", "typenetwork/family/tnum_horizontal_metrics", "typenetwork/family/valid_strikeout", "typenetwork/family/valid_underline", "typenetwork/font_is_centered_vertically", "typenetwork/glyph_coverage", "typenetwork/marks_width", "typenetwork/name/mandatory_entries", "typenetwork/PUA_encoded_glyphs", "typenetwork/varfont/axes_have_variation", "typenetwork/varfont/fvar_axes_order", "typenetwork/vertical_metrics", "typenetwork/weightclass"]
+"Adobe Fonts" = ["adobefonts/family/consistent_upm", "adobefonts/nameid_1_win_english", "adobefonts/STAT_strings", "adobefonts/unsupported_tables"]
+Fontwerk = ["fontwerk/style_linking"]
+"Google Fonts" = ["googlefonts/family/equal_codepoint_coverage", "googlefonts/STAT/axis_order"]
+"Outline Checks" = ["outline_alignment_miss", "outline_colinear_vectors", "outline_jaggy_segments", "outline_semi_vertical", "outline_short_segments"]
+"Shaping Checks" = ["dotted_circle", "soft_dotted"]
+
+# Overrides
+
+[[overrides.no_mac_entries]]
+code = "mac-names"
+status = "WARN"
+reason = "For TN, this is desired but not mandatory."
+
+[[overrides.nested_components]]
+code = "found-nested-components"
+status = "WARN"
+reason = "This is allowed by the spec is not a error in the font but on the systems."
+
+[[overrides.ligature_carets]]
+code = "lacks-caret-pos"
+status = "INFO"
+reason = "This is a feature, not really needed to the font perform well."
+
+[[overrides."varfont/bold_wght_coord"]]
+code = "no-bold-instance"
+status = "WARN"
+reason = "Adobe and Type Network recommend, but do not require having a Bold instance."
+
+[[overrides."varfont/bold_wght_coord"]]
+code = "wght-not-700"
+status = "WARN"
+reason = "Adobe and Type Network recommend (but do not require) that instance should have coordinate 700 on the 'wght' axis."
+
+[[overrides."opentype/fvar/regular_coords_correct"]]
+code = "no-regular-instance"
+status = "WARN"
+reason = "Adobe and Type Network recommend, but do not require having a Regular instance."
+
+[[overrides."opentype/gdef_non_mark_chars"]]
+code = "non-mark-chars"
+status = "FAIL"
+reason = "When non mark characters are on the GDEF Mark class, will produce an overlap."
+
+[[overrides.dotted_circle]]
+code = "missing-dotted-circle"
+status = "INFO"
+reason = "This is desirable but 'simple script' fonts can work without it."
+
+[[overrides.soft_dotted]]
+code = "soft-dotted"
+status = "WARN"
+reason = "This is something rather new and really unknown for many partners. It will fail on a lot of fonts and in many cases it will cause much more headaches than benefits."
+
+[[overrides.smart_dropout]]
+code = "lacks-smart-dropout"
+status = "WARN"
+reason = "It’s up to foundries to decide."
+
+[[overrides."opentype/name/match_familyname_fullfont"]]
+code = "mismatch-font-names"
+status = "WARN"
+reason = "It’s Microsoft Office specific and not possible to achieve on some families with abbreviated names."
+
+[[overrides.transformed_components]]
+code = "transformed-components"
+status = "WARN"
+reason = "Since it can have a big impact on font production, it’s a foundry decision what to do regarding this situation."
+
+[[overrides.ots]]
+code = "ots-sanitize-warn"
+status = "FAIL"
+reason = "These issues can be a major fail, for instance a bad avar on VFs will make the font to not interpolate."

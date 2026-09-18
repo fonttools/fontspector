@@ -1,6 +1,7 @@
-use fontations::skrifa::{raw::TableProvider, MetadataProvider};
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
+use skrifa::{raw::TableProvider, MetadataProvider};
+use write_fonts::{from_obj::ToOwnedTable, tables::hmtx::Hmtx};
 
 #[check(
     id = "whitespace_widths",
@@ -19,7 +20,8 @@ use serde_json::json;
     ",
     proposal = "https://github.com/fonttools/fontbakery/issues/3843",
     proposal = "https://github.com/fonttools/fontbakery/issues/4829",
-    title = "Space and non-breaking space have the same width?"
+    title = "Space and non-breaking space have the same width?",
+    hotfix = fix_whitespace_widths,
 )]
 fn whitespace_widths(t: &Testable, _context: &Context) -> CheckFnResult {
     let f = testfont!(t);
@@ -51,4 +53,64 @@ fn whitespace_widths(t: &Testable, _context: &Context) -> CheckFnResult {
     } else {
         skip!("missing-glyphs", "Space and nbspace not found in font");
     }
+}
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used)]
+
+    use super::whitespace_widths;
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        FileTypeConvert, StatusCode,
+    };
+    use skrifa::{raw::TableProvider, MetadataProvider};
+    use write_fonts::{from_obj::ToOwnedTable, tables::hmtx::Hmtx};
+
+    #[test]
+    fn test_whitespace_widths_pass() {
+        let testable = test_able("nunito/Nunito-Regular.ttf");
+        let results = run_check(whitespace_widths, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_whitespace_widths_fail() {
+        let mut testable = test_able("nunito/Nunito-Regular.ttf");
+        let f = fontspector_checkapi::TTF.from_testable(&testable).unwrap();
+        let mut hmtx: Hmtx = f.font().hmtx().unwrap().to_owned_table();
+        let space_gid = f.font().charmap().map(0x0020u32).unwrap();
+        if let Some(metric) = hmtx.h_metrics.get_mut(space_gid.to_u32() as usize) {
+            metric.advance = 0;
+        }
+        testable.set(f.rebuild_with_new_table(&hmtx).unwrap());
+        let results = run_check(whitespace_widths, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("different-widths".to_string()),
+        );
+    }
+}
+
+fn fix_whitespace_widths(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
+    let f = testfont!(t);
+    let mut hmtx: Hmtx = f.font().hmtx()?.to_owned_table();
+    let charmap = f.font().charmap();
+    if let (Some(space), Some(nbspace)) = (charmap.map(0x0020u32), charmap.map(0x00A0u32)) {
+        let space_width = hmtx
+            .h_metrics
+            .get(space.to_u32() as usize)
+            .map(|m| m.advance)
+            .unwrap_or(0);
+        if let Some(nbspace_metric) = hmtx.h_metrics.get_mut(nbspace.to_u32() as usize) {
+            nbspace_metric.advance = space_width;
+        }
+        t.set(f.rebuild_with_new_table(&hmtx)?);
+        return Ok(FixResult::Fixed);
+    }
+    Ok(FixResult::Unfixable)
 }

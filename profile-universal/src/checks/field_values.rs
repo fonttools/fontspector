@@ -1,11 +1,10 @@
-use fontations::{
-    read::FontRef,
-    skrifa::{instance::Location, raw::TableProvider, MetadataProvider},
-    types::NameId,
-};
-use fontdrasil::coords::{CoordConverter, DesignCoord, NormalizedCoord, UserCoord};
+use fontdrasil::coords::{NormalizedCoord, NormalizedLocation, UserSpace};
+use fontdrasil::types::Axes;
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
+use skrifa::raw::FontRef;
+use skrifa::{raw::TableProvider, MetadataProvider};
 use tabled::{Table, Tabled};
+use write_fonts::types::NameId;
 
 #[derive(Tabled)]
 struct TableEntry {
@@ -23,7 +22,7 @@ struct TableEntry {
 
     ```
     [field_values]
-    hhea.ascent = 927
+    hhea.ascender = 927
     \"OS/2.sxHeight\" = 518 # Key needs to be escaped because of / in OS/2
     name.versionString = { \"en-us\" = \"Version 1.008\" } # Languages must be present
     fvar.axes = {
@@ -40,9 +39,12 @@ struct TableEntry {
 
     ```
     [field_values.\"Foo-Regular.ttf\"]
-    hhea.ascent = 990
+    hhea.ascender = 990
     [field_values.\"Foo-Bold.ttf\"]
-    hhea.ascent = 1020
+    hhea.ascender = 1020
+    ```
+
+    Field names should be `camelcase` forms of the names given in the OpenType specification.
     ",
     proposal = "https://github.com/fonttools/fontspector/issues/404",
     title = "Ensure field data is as expected."
@@ -57,7 +59,11 @@ fn field_values(t: &Testable, context: &Context) -> CheckFnResult {
     );
     if let Some(config) = config.as_object() {
         // If the config is a table of tables, specialize it by font filename
-        let config_for_this_font = if config.values().all(|v| v.is_object()) {
+        let config_for_this_font = if config.values().all(|v| v.is_object())
+            && config
+                .keys()
+                .all(|k| k.ends_with(".ttf") || k.ends_with(".otf"))
+        {
             if let Some(specific) =
                 config.get(&t.basename().unwrap_or("<Unnamed Font>".to_string()))
             {
@@ -69,25 +75,55 @@ fn field_values(t: &Testable, context: &Context) -> CheckFnResult {
                     ));
                 }
             } else {
-                skip!("unconfigured", "No entry for this file")
+                skip!("unconfigured", "No entry for this file");
             }
         } else {
             config
         };
 
-        let serialized = font_to_json(&font.font());
-        println!("Serialized: {:#?}", serialized);
+        let serialized = font_to_json(&font.font(), font.fontdrasil_axes()?.as_ref());
         let mut incorrect = vec![];
         for (key, value) in config_for_this_font.iter() {
             let found = serialized.get(key);
-            if found != Some(value) {
-                incorrect.push(TableEntry {
-                    field: key.clone(),
-                    expected: value.clone().to_string(),
-                    found: found
-                        .cloned()
-                        .map_or("<Not present>".to_string(), |f| f.to_string()),
-                });
+            match found {
+                Some(found) if equal_enough(found, value) => continue,
+                Some(found) => {
+                    incorrect.push(TableEntry {
+                        field: key.clone(),
+                        expected: value.clone().to_string(),
+                        found: found.to_string(),
+                    });
+                }
+                None => {
+                    // No field for this key? Maybe the key was spelt wrong
+                    #[expect(
+                        clippy::unwrap_used,
+                        reason = "Since the config is validated to be an object, we can be sure that this unwrap won't panic"
+                    )]
+                    let suggestion = did_you_mean(
+                        key,
+                        serialized.as_object().unwrap().keys().cloned().collect(),
+                    );
+                    if let Some(suggestion) = suggestion {
+                        incorrect.push(TableEntry {
+                            field: key.clone(),
+                            expected: value.clone().to_string(),
+                            found: format!(
+                                "<Not present> (Did you mean {}?
+                            )",
+                                suggestion
+                            ),
+                        });
+                        continue;
+                    } else {
+                        incorrect.push(TableEntry {
+                            field: key.clone(),
+                            expected: value.clone().to_string(),
+                            found: "<Not present>".to_string(),
+                        });
+                        continue;
+                    }
+                }
             }
         }
         if incorrect.is_empty() {
@@ -105,6 +141,72 @@ fn field_values(t: &Testable, context: &Context) -> CheckFnResult {
             "Configuration for field_values is not an object".to_string(),
         ));
     }
+}
+
+fn did_you_mean(key: &str, options: Vec<String>) -> Option<String> {
+    let mut best_distance = usize::MAX;
+    let mut best_option = None;
+    for option in options {
+        let distance = edit_distance(key, &option);
+        if distance < best_distance {
+            best_distance = distance;
+            best_option = Some(option);
+        }
+    }
+    // Only suggest if the distance is reasonably small; otherwise we might be suggesting something completely different
+    if best_distance <= 3 {
+        best_option
+    } else {
+        None
+    }
+}
+
+#[allow(clippy::indexing_slicing, clippy::needless_range_loop)] // It's not my code; taken from edit_distance crate
+pub fn edit_distance(a: impl AsRef<str>, b: impl AsRef<str>) -> usize {
+    let len_a = a.as_ref().chars().count();
+    let len_b = b.as_ref().chars().count();
+    if len_a < len_b {
+        return edit_distance(b, a);
+    }
+    // handle special case of 0 length
+    if len_a == 0 {
+        return len_b;
+    } else if len_b == 0 {
+        return len_a;
+    }
+
+    let len_b = len_b + 1;
+
+    let mut pre;
+    let mut tmp;
+    let mut cur = vec![0; len_b];
+
+    // initialize string b
+    for i in 1..len_b {
+        cur[i] = i;
+    }
+
+    // calculate edit distance
+    for (i, ca) in a.as_ref().chars().enumerate() {
+        // get first column for this row
+        pre = cur[0];
+        cur[0] = i + 1;
+        for (j, cb) in b.as_ref().chars().enumerate() {
+            tmp = cur[j + 1];
+            cur[j + 1] = std::cmp::min(
+                // deletion
+                tmp + 1,
+                std::cmp::min(
+                    // insertion
+                    cur[j] + 1,
+                    // match or substitution
+                    pre + if ca == cb { 0 } else { 1 },
+                ),
+            );
+            pre = tmp;
+        }
+    }
+    cur[len_b - 1]
 }
 
 // Flatten the map: `{ table: { field: value} }` -> ` { table.field: value }`
@@ -126,7 +228,7 @@ fn flatten_map(
 
 // This code taken from diffenator3's ttj crate
 
-pub fn font_to_json(font: &FontRef) -> Value {
+pub fn font_to_json(font: &FontRef, axes: Option<&Axes>) -> Value {
     let mut map = Map::new();
 
     // Some tables are serialized by using read_font's traversal feature; typically those which
@@ -153,12 +255,12 @@ pub fn font_to_json(font: &FontRef) -> Value {
 
     // Other tables require a bit of massaging to produce information which makes sense to test.
     map.insert("name".to_string(), serialize_name_table(font));
-    map.insert("fvar".to_string(), serialize_fvar_table(font));
+    map.insert("fvar".to_string(), serialize_fvar_table(font, axes));
     Value::Object(flatten_map(&map))
 }
 
-use fontations::read::traversal::{FieldType, SomeArray, SomeTable};
 use serde_json::{json, Map, Number, Value};
+use skrifa::raw::traversal::{FieldType, SomeArray, SomeTable};
 
 fn serialize_name_table<'a>(font: &(impl MetadataProvider<'a> + TableProvider<'a>)) -> Value {
     let mut map = Map::new();
@@ -185,7 +287,7 @@ fn serialize_name_table<'a>(font: &(impl MetadataProvider<'a> + TableProvider<'a
     Value::Object(map)
 }
 
-fn serialize_fvar_table(font: &FontRef) -> Value {
+fn serialize_fvar_table(font: &FontRef, axes: Option<&Axes>) -> Value {
     let mut map = Map::new();
     if !font.axes().is_empty() {
         let mut axes_map = Map::new();
@@ -211,8 +313,27 @@ fn serialize_fvar_table(font: &FontRef) -> Value {
                 .localized_strings(instance.subfamily_name_id())
                 .english_or_first()
                 .map_or("Unknown instance".to_string(), |f| f.to_string());
-            if let Ok(location) = font.denormalize_location(instance.location()) {
-                instances_map.insert(name, location.into());
+            if let Some(axes) = axes {
+                let location_normalized = instance.location();
+                let mut location_normalized_fontdrasil: NormalizedLocation =
+                    NormalizedLocation::new();
+                for (tag_ix, coord) in location_normalized.coords().iter().enumerate() {
+                    if let Some(tag) = axes.axis_order().get(tag_ix) {
+                        location_normalized_fontdrasil
+                            .insert(*tag, NormalizedCoord::new(coord.to_f64()));
+                    }
+                }
+                if let Ok(location_user_fontdrasil) =
+                    location_normalized_fontdrasil.convert::<UserSpace>(axes)
+                {
+                    instances_map.insert(
+                        name,
+                        location_user_fontdrasil
+                            .iter()
+                            .map(|(tag, coord)| (tag.to_string(), json!(&coord.to_f64())))
+                            .collect(),
+                    );
+                }
             }
         }
         map.insert("namedInstances".to_string(), Value::Object(instances_map));
@@ -220,6 +341,28 @@ fn serialize_fvar_table(font: &FontRef) -> Value {
     Value::Object(map)
 }
 
+fn equal_enough(v1: &Value, v2: &Value) -> bool {
+    match (v1, v2) {
+        (Value::Number(n1), Value::Number(n2)) => {
+            // Allow numbers to be equal if they are close enough, to account for floating point imprecision
+            let f1 = n1.as_f64().unwrap_or(0.0);
+            let f2 = n2.as_f64().unwrap_or(0.0);
+            (f1 - f2).abs() < 0.01
+        }
+        (Value::String(s1), Value::String(s2)) => s1 == s2,
+        (Value::Object(o1), Value::Object(o2)) => {
+            // For objects, we require all keys in the config to be present and correct in the found value, but the found value can have extra keys
+            o1.iter().all(|(k, v)| {
+                if let Some(found_value) = o2.get(k) {
+                    equal_enough(v, found_value)
+                } else {
+                    false
+                }
+            })
+        }
+        _ => v1 == v2,
+    }
+}
 pub(crate) trait ToValue {
     fn serialize(&self) -> Value;
 }
@@ -249,6 +392,7 @@ impl<'a> ToValue for FieldType<'a> {
             Self::Fixed(arg0) => Value::Number(Number::from(arg0.to_i32())),
             Self::LongDateTime(arg0) => Value::Number(arg0.as_secs().into()),
             Self::GlyphId16(arg0) => Value::String(format!("g{}", arg0.to_u16())),
+            Self::GlyphId24(arg0) => Value::String(format!("g{}", arg0.to_u32())),
             Self::NameId(arg0) => Value::String(arg0.to_string()),
             Self::StringOffset(string) => match &string.target {
                 Ok(arg0) => Value::String(arg0.as_ref().iter_chars().collect()),
@@ -294,91 +438,80 @@ impl<'a> ToValue for dyn SomeTable<'a> + 'a {
     }
 }
 
-fn lerp(a: f32, b: f32, t: f32) -> f32 {
-    a + (b - a) * t
-}
-fn poor_mans_denormalize(
-    peak: f32,
-    axis: &fontations::read::tables::fvar::VariationAxisRecord,
-) -> f32 {
-    if peak > 0.0 {
-        lerp(
-            axis.default_value().to_f32(),
-            axis.max_value().to_f32(),
-            peak,
-        )
-    } else {
-        lerp(
-            axis.default_value().to_f32(),
-            axis.min_value().to_f32(),
-            -peak,
-        )
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+
+    use super::*;
+    use fontspector_checkapi::codetesting::{assert_pass, run_check_with_config, test_able};
+
+    #[test]
+    fn test_field_values_simple() {
+        let t1 = test_able("mada/Mada-Regular.ttf");
+
+        let config = json!({
+                "hhea.ascender": 900,
+                "hhea.descender": -300,
+                "OS/2.sxHeight": 486,
+        });
+        let results = run_check_with_config(
+            field_values,
+            TestableType::Single(&t1),
+            HashMap::from_iter([("field_values".to_string(), config)]),
+        );
+        assert_pass(&results);
     }
-}
 
-pub trait DenormalizeLocation {
-    /// Given a normalized location tuple, turn it back into a friendly representation in userspace
-    fn denormalize_location(
-        &self,
-        location: Location,
-    ) -> Result<Map<String, Value>, FontspectorError>;
-}
+    #[test]
+    fn test_field_values_per_font() {
+        let t1 = test_able("mada/Mada-Regular.ttf");
 
-impl DenormalizeLocation for FontRef<'_> {
-    fn denormalize_location(
-        &self,
-        location: Location,
-    ) -> Result<Map<String, Value>, FontspectorError> {
-        let all_axes = self.fvar()?.axes()?;
-        let mut map = Map::new();
-        for (axis_index, axis) in all_axes.iter().enumerate() {
-            // Start with a default convertor, may edit later
-            let mut converter = CoordConverter::unmapped(
-                UserCoord::new(axis.min_value().to_f64()),
-                UserCoord::new(axis.max_value().to_f64()),
-                UserCoord::new(axis.min_value().to_f64()),
-            );
-            // If there is an avar table, we denormalize its mappings and use it
-            if let Ok(avar) = self.avar() {
-                if let Some(Ok(segment_map)) = avar.axis_segment_maps().get(axis_index) {
-                    let default_idx = segment_map
-                        .axis_value_maps
-                        .iter()
-                        .position(|avm| avm.from_coordinate().to_f32() == 0.0)
-                        .unwrap_or(0);
-                    let normalized_map = segment_map
-                        .axis_value_maps
-                        .iter()
-                        .map(|axis_value_map| {
-                            (
-                                UserCoord::new(poor_mans_denormalize(
-                                    axis_value_map.from_coordinate().to_f32(),
-                                    axis,
-                                ) as f64),
-                                DesignCoord::new(poor_mans_denormalize(
-                                    axis_value_map.to_coordinate().to_f32(),
-                                    axis,
-                                ) as f64),
-                            )
-                        })
-                        .collect::<Vec<_>>();
-                    converter = CoordConverter::new(normalized_map, default_idx);
-                }
-            }
-            let coord = location
-                .coords()
-                .get(axis_index)
-                .ok_or(FontspectorError::General(
-                    "Not enough axes in fvar table".to_string(),
-                ))?
-                .to_f32() as f64;
-            let normalized_value = NormalizedCoord::new(coord);
-            // Denormalize to userspace!
-            map.insert(
-                axis.axis_tag().to_string(),
-                json!(normalized_value.to_user(&converter).to_f64()),
-            );
-        }
-        Ok(map)
+        let config = json!({
+                "hhea.ascender": 900,
+                "hhea.descender": -300,
+                "OS/2.sxHeight": 486,
+        });
+        let not_my_config = json!({
+                "hhea.ascender": 901,
+                "hhea.descender": -301,
+                "OS/2.sxHeight": 485,
+        });
+        let results = run_check_with_config(
+            field_values,
+            TestableType::Single(&t1),
+            HashMap::from_iter([(
+                "field_values".to_string(),
+                json!({
+                   "Mada-Regular.ttf": config,
+                   "Mada-Nonsuch.ttf": not_my_config
+                }),
+            )]),
+        );
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_field_values_variable() {
+        let t1 = test_able("cabinvf/Cabin[wdth,wght].ttf");
+
+        let config: Value = json!({
+                "fvar.axes": {
+                    "wdth": { "name": "Width", "min": 75, "max": 100, "default": 100 },
+                    "wght": { "name": "Weight", "min": 400, "max": 700, "default": 400 },
+                },
+                "fvar.namedInstances": {
+                    "Regular": { "wdth": 100, "wght": 400 },
+                    "Medium": { "wdth": 100, "wght": 500 },
+                    "SemiBold": { "wdth": 100, "wght": 600 },
+                    "Bold": { "wdth": 100, "wght": 700 },
+                },
+        });
+        let results = run_check_with_config(
+            field_values,
+            TestableType::Single(&t1),
+            HashMap::from_iter([("field_values".to_string(), config)]),
+        );
+        println!("Results: {:#?}", results);
+        assert_pass(&results);
     }
 }

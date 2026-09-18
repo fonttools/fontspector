@@ -1,8 +1,8 @@
-use fontations::skrifa::{
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
+use skrifa::{
     raw::types::{F2Dot14, NameId},
     MetadataProvider,
 };
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
 
 #[check(
     id = "opentype/varfont/valid_default_instance_nameids",
@@ -81,4 +81,25 @@ fn valid_default_instance_nameids(t: &Testable, _context: &Context) -> CheckFnRe
         }
     }
     return_result(problems)
+}
+
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use fontspector_checkapi::codetesting::{assert_pass, run_check, test_able};
+
+    #[test]
+    fn test_valid_default_instance_nameids_pass_cabin() {
+        let testable = test_able("cabinvf/Cabin[wdth,wght].ttf");
+        let result = run_check(valid_default_instance_nameids, testable);
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_valid_default_instance_nameids_pass_mutatorsans() {
+        let testable = test_able("mutatorsans-vf/MutatorSans-VF.ttf");
+        let result = run_check(valid_default_instance_nameids, testable);
+        assert_pass(&result);
+    }
 }

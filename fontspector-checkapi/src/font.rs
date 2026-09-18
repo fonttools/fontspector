@@ -4,37 +4,35 @@ use crate::{
     filetype::FileTypeConvert,
     Context, FileType, Testable,
 };
-use fontations::{
-    read::{tables::name::NameString, TopLevelTable},
-    skrifa::{
-        font::FontRef,
-        outline::{DrawSettings, OutlinePen},
-        prelude::Size,
-        raw::{
-            tables::{
-                gdef::GlyphClassDef,
-                glyf::Glyph,
-                gpos::{PairPos, PairPosFormat1, PairPosFormat2, PositionSubtables},
-                head::MacStyle,
-                layout::{Feature, FeatureRecord},
-                os2::SelectionFlags,
-            },
-            ReadError, TableProvider,
-        },
-        setting::VariationSetting,
-        string::StringId,
-        GlyphId, GlyphId16, GlyphNames, MetadataProvider, Tag,
-    },
-    write::{validate::Validate, FontWrite},
-};
 use fontdrasil::coords::{CoordConverter, DesignCoord, NormalizedCoord, UserCoord};
 use itertools::Either;
+use skrifa::{
+    font::FontRef,
+    outline::{DrawSettings, OutlinePen},
+    prelude::Size,
+    raw::{tables::name::NameString, TopLevelTable},
+    raw::{
+        tables::{
+            gdef::GlyphClassDef,
+            glyf::Glyph,
+            gpos::{PairPos, PairPosFormat1, PairPosFormat2, PositionSubtables},
+            head::MacStyle,
+            layout::{Feature, FeatureRecord},
+            os2::SelectionFlags,
+        },
+        ReadError, TableProvider,
+    },
+    setting::VariationSetting,
+    string::StringId,
+    GlyphId, GlyphId16, GlyphNames, MetadataProvider, Tag,
+};
 use std::{
     collections::{BTreeMap, HashMap, HashSet},
     error::Error,
     fmt::{Debug, Formatter},
     path::{Path, PathBuf},
 };
+use write_fonts::{validate::Validate, FontWrite};
 
 /// A Font to be tested
 pub struct TestFont<'a> {
@@ -83,6 +81,11 @@ impl TestFont<'_> {
         })
     }
 
+    /// The underlying font data for this TestFont
+    pub fn font_data(&self) -> &[u8] {
+        self.font_data
+    }
+
     /// A [read-fonts](https://docs.rs/read-fonts/) font object
     pub fn font(&self) -> FontRef<'_> {
         #[allow(clippy::expect_used)] // We just tested for it in the initializer
@@ -118,7 +121,19 @@ impl TestFont<'_> {
                 }
             }
         }
-        None
+        if self.is_bold().ok()? {
+            if self.is_italic().ok()? {
+                Some("BoldItalic")
+            } else {
+                Some("Bold")
+            }
+        } else {
+            if self.is_italic().ok()? {
+                Some("Italic")
+            } else {
+                Some("Regular")
+            }
+        }
     }
 
     /// Is this a RIBBI font?
@@ -149,6 +164,29 @@ impl TestFont<'_> {
         }
         let post = font.post()?;
         if post.italic_angle().to_f32() != 0.0 {
+            return Ok(true);
+        }
+        Ok(false)
+    }
+
+    /// Is this font bold?
+    pub fn is_bold(&self) -> Result<bool, ReadError> {
+        let font = self.font();
+        let os2 = font.os2()?;
+        if os2.fs_selection().contains(SelectionFlags::BOLD) {
+            return Ok(true);
+        }
+        if os2.us_weight_class() == 700 {
+            return Ok(true);
+        }
+        let head = font.head()?;
+        if head.mac_style().contains(MacStyle::BOLD) {
+            return Ok(true);
+        }
+        if self
+            .get_name_entry_strings(StringId::FULL_NAME)
+            .any(|x| x.to_lowercase().contains("bold"))
+        {
             return Ok(true);
         }
         Ok(false)
@@ -515,7 +553,7 @@ impl TestFont<'_> {
         &self,
         table: &T,
     ) -> Result<Vec<u8>, FontspectorError> {
-        let mut new_font = fontations::write::FontBuilder::new();
+        let mut new_font = write_fonts::FontBuilder::new();
         new_font.add_table(table)?;
         new_font.copy_missing_tables(self.font());
         Ok(new_font.build())
@@ -549,8 +587,7 @@ impl TestFont<'_> {
                         converter: CoordConverter::default_normalization(min, default, max),
                         hidden: axis.is_hidden(),
                         // Argh version incompatibilities
-                        tag: fontdrasil::types::Tag::new_checked(axis.tag().to_string().as_bytes())
-                            .unwrap(),
+                        tag: Tag::new_checked(axis.tag().to_string().as_bytes()).unwrap(),
                         name: self.get_best_name(&[axis.name_id()]).unwrap_or_default(),
                         min,
                         default,
@@ -581,6 +618,9 @@ impl TestFont<'_> {
                             .position(|(_, to)| to.to_f64() == 0.0)
                             .unwrap_or(0);
                         fd_axis.converter = CoordConverter::new(desired_mapping, default_idx)
+                            .unwrap_or_else(|_| {
+                                CoordConverter::default_normalization(min, default, max)
+                            })
                     }
                     fd_axis
                 })

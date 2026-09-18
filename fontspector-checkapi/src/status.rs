@@ -2,7 +2,9 @@ use std::{collections::HashMap, str::FromStr};
 
 use serde::{Deserialize, Serialize};
 
-use crate::{error::FontspectorError, Override};
+use crate::{error::FontspectorError, MoreInfoRequest, Override};
+
+#[cfg_attr(feature = "schemars", derive(schemars::JsonSchema))]
 #[derive(Debug, PartialEq, PartialOrd, Ord, Eq, Copy, Clone, Serialize, Deserialize, Hash)]
 #[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
 #[serde(rename_all = "UPPERCASE")]
@@ -87,7 +89,7 @@ impl std::fmt::Display for StatusCode {
     }
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 /// Metadata about a check result, which can be used by the reporter to provide
 /// additional information about the check result. This is intended to make the
 /// results of checks machine readable, for display in font editors or other tools.
@@ -137,10 +139,12 @@ pub enum Metadata {
         #[serde(skip_serializing_if = "Option::is_none")]
         context: Option<serde_json::Value>,
     },
+    /// A message to the user that, to fix this problem, more information will need to be provided
+    FixNeedsMoreInformation(MoreInfoRequest),
     /// A catch-all for other kinds of structured data.
     Other(serde_json::Value),
 }
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 /// A status message from a check
 ///
 /// This is a subresult, in the sense that a check may return multiple failures
@@ -156,7 +160,7 @@ pub struct Status {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub code: Option<String>,
     /// Additional metadata provided to the reporter
-    #[serde(skip_serializing_if = "Vec::is_empty")]
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub metadata: Vec<Metadata>,
 }
 

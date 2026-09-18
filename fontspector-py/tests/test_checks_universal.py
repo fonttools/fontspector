@@ -1,22 +1,21 @@
-import os
 import io
-from unittest.mock import patch, MagicMock
+import os
+from unittest.mock import MagicMock, patch
 
-from fontTools.ttLib import TTFont
 import pytest
 import requests
-
-from fontbakery.status import INFO, WARN, FAIL, SKIP, ERROR
+from conftest import check_id
 from fontbakery.codetesting import (
-    assert_PASS,
-    assert_SKIP,
-    assert_results_contain,
     TEST_FILE,
     MockFont,
+    assert_PASS,
+    assert_results_contain,
+    assert_SKIP,
 )
+from fontbakery.status import ERROR, FAIL, INFO, SKIP, WARN
 from fontbakery.testable import Font
 from fontbakery.utils import glyph_has_ink
-from conftest import check_id
+from fontTools.ttLib import TTFont
 
 
 @pytest.fixture
@@ -71,116 +70,6 @@ def cabin_ttFonts():
 @pytest.fixture
 def cabin_condensed_ttFonts():
     return [TTFont(path) for path in cabin_condensed_fonts]
-
-
-@pytest.mark.xfail(reason="That's not how you set a glyph name")
-@check_id("valid_glyphnames")
-def test_check_valid_glyphnames(check):
-    """Glyph names are all valid?"""
-    # We start with a good font file:
-    ttFont = TTFont(TEST_FILE("nunito/Nunito-Regular.ttf"))
-    assert_PASS(check(ttFont))
-
-    # There used to be a 31 char max-length limit.
-    # This was considered good:
-    ttFont.glyphOrder[2] = "a" * 31
-    assert_PASS(check(ttFont))
-
-    # And this was considered bad:
-    legacy_too_long = "a" * 32
-    ttFont.glyphOrder[2] = legacy_too_long
-    message = assert_results_contain(check(ttFont), WARN, "legacy-long-names")
-    assert legacy_too_long in message
-
-    # Nowadays, it seems most implementations can deal with
-    # up to 63 char glyph names:
-    good_name1 = "b" * 63
-    # colr font may have a color layer in .notdef so allow these layers
-    good_name2 = ".notdef.color0"
-    bad_name1 = "a" * 64
-    bad_name2 = "3cents"
-    bad_name3 = ".threecents"
-    ttFont.glyphOrder[2] = bad_name1
-    ttFont.glyphOrder[3] = bad_name2
-    ttFont.glyphOrder[4] = bad_name3
-    ttFont.glyphOrder[5] = good_name1
-    ttFont.glyphOrder[6] = good_name2
-    message = assert_results_contain(check(ttFont), FAIL, "found-invalid-names")
-    assert good_name1 not in message
-    assert good_name2 not in message
-    assert bad_name1 in message
-    assert bad_name2 in message
-    assert bad_name3 in message
-
-    # TrueType fonts with a format 3 post table contain
-    # no glyph names, so the check must be SKIP'd in that case.
-    #
-    # Upgrade to post format 3 and roundtrip data to update TTF object.
-    ttf_skip_msg = "TrueType fonts with a format 3 post table"
-    ttFont = TTFont(TEST_FILE("nunito/Nunito-Regular.ttf"))
-    ttFont["post"].formatType = 3
-    _file = io.BytesIO()
-    _file.name = ttFont.reader.file.name
-    ttFont.save(_file)
-    ttFont = TTFont(_file)
-    message = assert_SKIP(check(ttFont))
-    assert ttf_skip_msg in message
-
-    # Also test with CFF...
-    ttFont = TTFont(TEST_FILE("source-sans-pro/OTF/SourceSansPro-Regular.otf"))
-    assert_PASS(check(ttFont))
-
-    # ... and CFF2 fonts
-    cff2_skip_msg = "OpenType-CFF2 fonts with a format 3 post table"
-    ttFont = TTFont(TEST_FILE("source-sans-pro/VAR/SourceSansVariable-Roman.otf"))
-    message = assert_SKIP(check(ttFont))
-    assert cff2_skip_msg in message
-
-
-@check_id("unique_glyphnames")
-def test_check_unique_glyphnames(check):
-    """Font contains unique glyph names?"""
-    ttFont = TTFont(TEST_FILE("nunito/Nunito-Regular.ttf"))
-    assert_PASS(check(ttFont))
-
-    # Fonttools renames duplicate glyphs with #1, #2, ... on load.
-    # Code snippet from https://github.com/fonttools/fonttools/issues/149
-    glyph_names = ttFont.getGlyphOrder()
-    glyph_names[2] = glyph_names[3]
-
-    # Load again, we changed the font directly.
-    ttFont = TTFont(TEST_FILE("nunito/Nunito-Regular.ttf"))
-    ttFont.setGlyphOrder(glyph_names)
-    # Just access the data to make fonttools generate it.
-    ttFont["post"]  # pylint:disable=pointless-statement
-    _file = io.BytesIO()
-    _file.name = ttFont.reader.file.name
-    ttFont.save(_file)
-    ttFont = TTFont(_file)
-    message = assert_results_contain(check(ttFont), FAIL, "duplicated-glyph-names")
-    assert "space" in message
-
-    # Upgrade to post format 3 and roundtrip data to update TTF object.
-    ttf_skip_msg = "TrueType fonts with a format 3 post table"
-    ttFont = TTFont(TEST_FILE("nunito/Nunito-Regular.ttf"))
-    ttFont.setGlyphOrder(glyph_names)
-    ttFont["post"].formatType = 3
-    _file = io.BytesIO()
-    _file.name = ttFont.reader.file.name
-    ttFont.save(_file)
-    ttFont = TTFont(_file)
-    message = assert_SKIP(check(ttFont))
-    assert ttf_skip_msg in message
-
-    # Also test with CFF...
-    ttFont = TTFont(TEST_FILE("source-sans-pro/OTF/SourceSansPro-Regular.otf"))
-    assert_PASS(check(ttFont))
-
-    # ... and CFF2 fonts
-    cff2_skip_msg = "OpenType-CFF2 fonts with a format 3 post table"
-    ttFont = TTFont(TEST_FILE("source-sans-pro/VAR/SourceSansVariable-Roman.otf"))
-    message = assert_SKIP(check(ttFont))
-    assert cff2_skip_msg in message
 
 
 @check_id("name/trailing_spaces")
@@ -256,37 +145,6 @@ def _remove_cmap_entry(font, cp):
     """Helper method that removes a codepoint entry from all the tables in cmap."""
     for subtable in font["cmap"].tables:
         subtable.cmap.pop(cp, None)
-
-
-@check_id("whitespace_glyphs")
-def test_check_whitespace_glyphs(check):
-    """Font contains glyphs for whitespace characters?"""
-    # Our reference Mada Regular font is good here:
-    ttFont = TTFont(TEST_FILE("mada/Mada-Regular.ttf"))
-    assert_PASS(check(ttFont), "with a good font...")
-
-    # We remove the nbsp char (0x00A0)
-    _remove_cmap_entry(ttFont, 0x00A0)
-
-    # And make sure the problem is detected:
-    assert_results_contain(
-        check(ttFont),
-        FAIL,
-        "missing-whitespace-glyph-0x00A0",
-        "with a font lacking a nbsp (0x00A0)...",
-    )
-
-    # restore original Mada Regular font:
-    ttFont = TTFont(TEST_FILE("mada/Mada-Regular.ttf"))
-
-    # And finally do the same with the space character (0x0020):
-    _remove_cmap_entry(ttFont, 0x0020)
-    assert_results_contain(
-        check(ttFont),
-        FAIL,
-        "missing-whitespace-glyph-0x0020",
-        "with a font lacking a space (0x0020)...",
-    )
 
 
 @check_id("whitespace_ink")
@@ -483,55 +341,6 @@ def test_check_superfamily_vertical_metrics(
     )
 
 
-@check_id("soft_hyphen")
-def test_check_soft_hyphen(montserrat_ttFonts, check):
-    """Check glyphs contain the recommended contour count"""
-    for ttFont in montserrat_ttFonts:
-        # Montserrat has a softhyphen...
-        assert_results_contain(check(ttFont), WARN, "softhyphen")
-
-        _remove_cmap_entry(ttFont, 0x00AD)
-        assert_PASS(check(ttFont))
-
-
-@pytest.mark.skip(reason="Check not yet implemented")
-@check_id("contour_count")
-def test_check_contour_count(montserrat_ttFonts, check):
-    """Check glyphs contain the recommended contour count"""
-    from fontTools import subset
-
-    ttFont = TTFont(TEST_FILE("rokkitt/Rokkitt-Regular.otf"))
-    msg = assert_results_contain(check(ttFont), SKIP, "unfulfilled-conditions")
-    assert "Unfulfilled Conditions: is_ttf" in msg
-
-    ttFont = TTFont(TEST_FILE("mutatorsans-vf/MutatorSans-VF.ttf"))
-    msg = assert_results_contain(check(ttFont), SKIP, "unfulfilled-conditions")
-    assert "Unfulfilled Conditions: not is_variable_font" in msg
-
-    ttFont = montserrat_ttFonts[0]
-
-    # Lets swap the glyf 'a' (2 contours) with glyf 'c' (1 contour)
-    ttFont["glyf"]["a"] = ttFont["glyf"]["c"]
-    msg = assert_results_contain(check(ttFont), WARN, "contour-count")
-    assert "Glyph name: a\tContours detected: 1\tExpected: 2" in msg
-
-    # Lets swap the glyf 'a' (2 contours) with space (0 contour) to get a FAIL
-    ttFont["glyf"]["a"] = ttFont["glyf"]["space"]
-    msg = assert_results_contain(check(ttFont), FAIL, "no-contour")
-    assert "Glyph name: a\tExpected: 2" in msg
-
-    # Subset the font to just the 'c' glyph to get a PASS
-    subsetter = subset.Subsetter()
-    subsetter.populate(text="c")
-    subsetter.subset(ttFont)
-    assert_PASS(check(ttFont))
-
-    # Now delete the 'cmap' table to trigger a FAIL
-    del ttFont["cmap"]
-    msg = assert_results_contain(check(ttFont), FAIL, "lacks-cmap")
-    assert msg == "This font lacks cmap data."
-
-
 @check_id("cjk_chws_feature")
 def test_check_cjk_chws_feature(check):
     """Does the font contain chws and vchw features?"""
@@ -552,26 +361,6 @@ def test_check_cjk_chws_feature(check):
     ttFont["GSUB"].table.FeatureList.FeatureRecord.extend([chws, vchw])
 
     assert_PASS(check(ttFont))
-
-
-@pytest.mark.skip(reason="Check not yet implemented")
-@check_id("freetype_rasterizer")
-def test_check_freetype_rasterizer(check):
-    """Ensure that the font can be rasterized by FreeType."""
-    font = TEST_FILE("cabin/Cabin-Regular.ttf")
-    assert_PASS(check(font), "with a good font...")
-
-    font = TEST_FILE("ancho/AnchoGX.ttf")
-    msg = assert_results_contain(check(font), FAIL, "freetype-crash")
-    assert "FT_Exception:  (too many function definitions)" in msg
-
-    font = TEST_FILE("rubik/Rubik-Italic.ttf")
-    msg = assert_results_contain(check(font), FAIL, "freetype-crash")
-    assert "FT_Exception:  (stack overflow)" in msg
-
-    # Example that segfaults with 'freetype-py' version 2.4.0
-    font = TEST_FILE("source-sans-pro/VAR/SourceSansVariable-Italic.ttf")
-    assert_PASS(check(font), "with a good font...")
 
 
 @check_id("sfnt_version")
@@ -618,28 +407,6 @@ def test_check_whitespace_widths(check):
 
     ttFont["hmtx"].metrics["space"] = (0, 1)
     assert_results_contain(check(ttFont), FAIL, "different-widths")
-
-
-@pytest.mark.skip(reason="Check not yet implemented")
-@check_id("interpolation_issues")
-def test_check_interpolation_issues(check):
-    """Detect any interpolation issues in the font."""
-    # With a good font
-    ttFont = TTFont(TEST_FILE("cabinvf/Cabin[wdth,wght].ttf"))
-    assert_PASS(check(ttFont))
-
-    ttFont = TTFont(TEST_FILE("notosansbamum/NotoSansBamum[wght].ttf"))
-    msg = assert_results_contain(check(ttFont), WARN, "interpolation-issues")
-    assert "becomes underweight" in msg
-    assert "has a kink" in msg
-
-    ttFont = TTFont(TEST_FILE("mada/Mada-Regular.ttf"))
-    msg = assert_results_contain(check(ttFont), SKIP, "unfulfilled-conditions")
-    assert "Unfulfilled Conditions: is_variable_font" in msg
-
-    ttFont = TTFont(TEST_FILE("source-sans-pro/VAR/SourceSansVariable-Italic.otf"))
-    msg = assert_results_contain(check(ttFont), SKIP, "unfulfilled-conditions")
-    assert "Unfulfilled Conditions: is_ttf" in msg
 
 
 @check_id("linegaps")
@@ -716,33 +483,6 @@ def test_check_caps_vertically_centered(check):
     # FIXME: review this test-case
     # ttFont = TTFont(TEST_FILE("cairo/CairoPlay-Italic.leftslanted.ttf"))
     # assert_results_contain(check(ttFont), WARN, "vertical-metrics-not-centered")
-
-
-@check_id("case_mapping")
-def test_check_case_mapping(check):
-    """Ensure the font supports case swapping for all its glyphs."""
-    ttFont = TTFont(TEST_FILE("merriweather/Merriweather-Regular.ttf"))
-    # Glyph present in the font                  Missing case-swapping counterpart
-    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    # U+01D3: LATIN CAPITAL LETTER U WITH CARON  U+01D4: LATIN SMALL LETTER U WITH CARON
-    # U+01E6: LATIN CAPITAL LETTER G WITH CARON  U+01E7: LATIN SMALL LETTER G WITH CARON
-    # U+01F4: LATIN CAPITAL LETTER G WITH ACUTE  U+01F5: LATIN SMALL LETTER G WITH ACUTE
-    assert_results_contain(check(ttFont), FAIL, "missing-case-counterparts")
-
-    # While we'd expect designers to draw the missing counterparts,
-    # for testing purposes we can simply delete the glyphs that lack a counterpart
-    # to make the check PASS:
-    _remove_cmap_entry(ttFont, 0x01D3)
-    _remove_cmap_entry(ttFont, 0x01E6)
-    _remove_cmap_entry(ttFont, 0x01F4)
-    assert_PASS(check(ttFont))
-
-    # Let's add something which *does* have case swapping but which isn't a letter
-    # to ensure the check doesn't fail for such glyphs.
-    # for table in ttFont["cmap"].tables:
-    #     table.cmap[0x2160] = "uni2160"  # ROMAN NUMERAL ONE, which downcases to 0x2170
-    # assert 0x2170 not in ttFont.getBestCmap()
-    # assert_PASS(check(ttFont))
 
 
 @pytest.mark.skip(reason="Check not yet implemented")

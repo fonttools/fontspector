@@ -5,6 +5,299 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.8.4 (2026-08-11)
+
+### Chore
+
+ - <csr-id-ba4aa4052252bc103ba0742bea043c75d3f25265/> Thanks clippy
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 1 commit contributed to the release over the course of 14 calendar days.
+ - 29 days passed between releases.
+ - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
+ - 1 unique issue was worked on: [#875](https://github.com/fonttools/fontspector/issues/875)
+
+### Thanks Clippy
+
+<csr-read-only-do-not-edit/>
+
+[Clippy](https://github.com/rust-lang/rust-clippy) helped 1 time to make code idiomatic. 
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#875](https://github.com/fonttools/fontspector/issues/875)**
+    - Thanks clippy ([`ba4aa40`](https://github.com/fonttools/fontspector/commit/ba4aa4052252bc103ba0742bea043c75d3f25265))
+</details>
+
+## v1.8.3 (2026-07-07)
+
+### Bug Fixes
+
+ - <csr-id-7385e1c694ed99a2df0b367845f844f108e846b1/> Also support CFF fonts, fixes #863
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 2 commits contributed to the release over the course of 1 calendar day.
+ - 11 days passed between releases.
+ - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
+ - 1 unique issue was worked on: [#864](https://github.com/fonttools/fontspector/issues/864)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#864](https://github.com/fonttools/fontspector/issues/864)**
+    - Also support CFF fonts, fixes #863 ([`7385e1c`](https://github.com/fonttools/fontspector/commit/7385e1c694ed99a2df0b367845f844f108e846b1))
+ * **Uncategorized**
+    - Release fontspector-profile-googlefonts v1.8.3 ([`e442396`](https://github.com/fonttools/fontspector/commit/e442396135e313f258bae3f9ed9e5a6b0ac04b2f))
+</details>
+
+## v1.8.2 (2026-06-26)
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 1 commit contributed to the release.
+ - 30 days passed between releases.
+ - 0 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 0 issues like '(#ID)' were seen in commit messages
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.7.1, fontspector-profile-fontwerk v1.3.2, fontspector-profile-googlefonts v1.8.2, fontspector-profile-iso15008 v1.0.7, fontspector-profile-opentype v1.5.1, fontspector-profile-universal v1.8.2, fontspector-hotfix v0.3.1, fontspector v1.7.2 ([`accdd2a`](https://github.com/fonttools/fontspector/commit/accdd2a9c3ab285e71e5a047120cbe366cd80a84))
+</details>
+
+## v1.8.1 (2026-05-27)
+
+### Bug Fixes
+
+ - <csr-id-ae0a71feb2175d183f54bfc0c19e38bad0eae8bb/> update rust crate scraper to 0.27.0
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 2 commits contributed to the release.
+ - 9 days passed between releases.
+ - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
+ - 1 unique issue was worked on: [#799](https://github.com/fonttools/fontspector/issues/799)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#799](https://github.com/fonttools/fontspector/issues/799)**
+    - Update rust crate scraper to 0.27.0 ([`ae0a71f`](https://github.com/fonttools/fontspector/commit/ae0a71feb2175d183f54bfc0c19e38bad0eae8bb))
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.7.0, fontspector-profile-googlefonts v1.8.1, fontspector-profile-universal v1.8.1, fontspector-hotfix v0.3.0, safety bump fontspector-hotfix v0.3.0 ([`4d8f418`](https://github.com/fonttools/fontspector/commit/4d8f41871df584797c2a918d2614a84b583b689d))
+</details>
+
+## v1.8.0 (2026-05-18)
+
+<csr-id-7b32eca0846e594655f304250928295ffbf6496a/>
+<csr-id-4e74f48adb3b84553b338ef4c3c25ab52f2db960/>
+<csr-id-ae1f30c4751e7f76ee903ab072761af580ece7ca/>
+
+### New Features
+
+ - <csr-id-6bf4ec9902139b558e6c4390ac0df3dfb0cc6b44/> metadata/license also checks license matches license file
+   Extend googlefonts/metadata/license to verify the METADATA.pb license
+   field agrees with the license file shipped with the family
+   (OFL.txt -> OFL, UFL.txt -> UFL, LICENSE.txt -> APACHE2). Motivated by
+   google/fonts#10195, where Roboto Mono shipped as Apache2 in METADATA.pb
+   while actually being OFL.
+   
+   The check now operates on a TestableCollection so it can see sibling
+   files; the existing bad-license validation is preserved and a new
+   mismatch failure id is added.
+   
+   Assisted by Claude Opus 4.7 (1M context)
+ - <csr-id-d7a8e964d234b7bf1693e85a7610d9a1f78c572f/> Interactive fixing
+   * feat(googlefonts/canonical_filename): Add hotfix
+   
+   * chore(web): Hotfix testables all at once
+   
+   * chore(web): Improve display of fixables
+   
+   * chore(opentype/GDEF_non_mark_chars): Add metadata, sort output
+   
+   * chore: Thanks clippy
+   
+   * chore(googlefonts): Move style map into constants
+   
+   * feat(googlefonts/font_names): Detect bad styles based on typos and weightclass settings
+   
+   * chore(web): Improve message grouping (again)
+   
+   * chore: Adapt fix API to request and receive structured data
+   
+   * feat: WIP dialogues in hotfixes
+   
+   * feat(web): Fix but don't download
+   
+   * chore: Slightly better dialogue Ux
+   
+   * chore: Update web to new fix API
+   
+   * feat(googlefonts/font_names): Add interactive fix function for statics
+   
+   * chore: Update hotfix lib to new fix API
+   
+   * chore: Update web to new fix API
+   
+   * fix(googlefonts/font_names): Better problem reporting
+   
+   * fix(web): Loading spinner
+   
+   * chore: Thanks clippy
+   
+   * chore(web): Drop the log file properly
+   
+   * chore: Small web fixes
+   
+   * test: Fix up Python test
+ - <csr-id-789a88367760412d78e73c26b0054296ddd46a9f/> add description/no_free_word check
+   * feat(googlefonts): add description/no_free_word check
+   
+   Warns when a font's DESCRIPTION.en_us.html contains the word "free".
+   All Google Fonts are libre/free, so this is redundant information.
+   Strips HTML tags before checking to avoid false positives from
+   attributes. Matches "free" as a standalone word only, ignoring
+   "freedom", "freestyle", etc.
+ - <csr-id-ec5d86f8e6b48051be61b822c5608fdc1fc3c071/> Various more hotfixes
+ - <csr-id-e967ecb888ed8d98e9552b901f38380f68cdc65d/> add STAT/opsz_not_elided check
+   * feat(googlefonts): add STAT/opsz_not_elided check
+   
+   Warns when 'opsz' (Optical Size) axis values in the STAT table
+   are marked as elidable. Optical size is an important characteristic
+   that should always be visible to users.
+ - <csr-id-980eae603594938dada7b2cc049dff6cca41ce82/> add parametric_axes_hidden check
+   * feat(googlefonts): add parametric_axes_hidden check
+   
+   Fails when parametric axes (XOPQ, YOPQ, XTRA, YTAS, YTDE, YTFI,
+   YTLC, YTUC, XTFI) don't have the HIDDEN_AXIS flag set in fvar.
+   These axes control fine-grained typographic parameters and should
+   not be visible to end users in font selection UIs.
+ - <csr-id-46949fd881b343218ca6ff32f0228f3ad244c568/> add repo/ascii_filenames check
+   * feat(googlefonts): add repo/ascii_filenames check
+   
+   Fail when files in the google/fonts repository have non-ASCII
+   filenames. Non-ASCII characters in filenames can cause issues
+   across different operating systems and tools.
+ - <csr-id-705321161bdbe62836fbc155cc769a589ecb7dd1/> Develop Workspace profile
+   * feat(workspace): Add illegal_particles check to workspace
+   
+   * chore(googlefonts/font_names): Add metadata to checkk
+   
+   * feat(whitespace_glyphs): Add autofix
+   
+   * feat(whitespace_widths): Add autofix
+ - <csr-id-c8cee5d0f71db89d3ee5b4bbc367a3f124d2ba05/> add no_vf_in_name check
+   * feat(googlefonts): add no_vf_in_name check
+   
+   Adds a check that FAILs when the family name contains "VF" as a
+   standalone word. Google Fonts does not want "VF" in family names since
+   many environments don't support variable fonts.
+ - <csr-id-e7450ad33548bf42ef6532066c023a4c943e096b/> add slnt_needs_italic check for Workspace compatibility
+   * feat(googlefonts): add slnt_needs_italic check for Workspace compatibility
+   
+   Adds a new check that warns when a variable font has a 'slnt' (Slant)
+   axis but no 'ital' axis. Google Workspace apps don't support the Slant
+   axis for italic style selection, so a separate Italic file is needed.
+
+### Bug Fixes
+
+ - <csr-id-51f11da8ef49038ff43cab6e0244c0885d33127e/> Check full names match against METADATA for varfonts
+   * fix(googlefonts): Check full names match against METADATA for varfonts
+   
+   * chore: cargo fmt
+ - <csr-id-a7b985027d94e248bcf9c70ffae3831392c5e060/> Do not error if new font includes new styles
+ - <csr-id-949383df24fe5492adf5c425ce5e64202972b515/> update rust crate similar to v3
+ - <csr-id-c50585dec0eb8bbca6f22b7f3fcb1d23180aa8e6/> update rust crate scraper to 0.26.0
+ - <csr-id-94a012d5f3c511f10e96db626013b53c234aaad3/> Fix Regular Italic case
+ - <csr-id-ab7ef0b62981afce8c753f74e60ec41e40bf5f42/> rename family_name_compliance check ID for fontbakery parity
+   Renames the check ID from "googlefonts/name/family_name_compliance" to
+   "googlefonts/family_name_compliance" to match fontbakery's naming, making
+   migration of configs and overrides smoother.
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 20 commits contributed to the release over the course of 72 calendar days.
+ - 84 days passed between releases.
+ - 19 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 20 unique issues were worked on: [#657](https://github.com/fonttools/fontspector/issues/657), [#658](https://github.com/fonttools/fontspector/issues/658), [#668](https://github.com/fonttools/fontspector/issues/668), [#675](https://github.com/fonttools/fontspector/issues/675), [#676](https://github.com/fonttools/fontspector/issues/676), [#677](https://github.com/fonttools/fontspector/issues/677), [#682](https://github.com/fonttools/fontspector/issues/682), [#693](https://github.com/fonttools/fontspector/issues/693), [#696](https://github.com/fonttools/fontspector/issues/696), [#702](https://github.com/fonttools/fontspector/issues/702), [#710](https://github.com/fonttools/fontspector/issues/710), [#711](https://github.com/fonttools/fontspector/issues/711), [#717](https://github.com/fonttools/fontspector/issues/717), [#742](https://github.com/fonttools/fontspector/issues/742), [#747](https://github.com/fonttools/fontspector/issues/747), [#763](https://github.com/fonttools/fontspector/issues/763), [#775](https://github.com/fonttools/fontspector/issues/775), [#778](https://github.com/fonttools/fontspector/issues/778), [#779](https://github.com/fonttools/fontspector/issues/779), [#782](https://github.com/fonttools/fontspector/issues/782)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#657](https://github.com/fonttools/fontspector/issues/657)**
+    - Add slnt_needs_italic check for Workspace compatibility ([`e7450ad`](https://github.com/fonttools/fontspector/commit/e7450ad33548bf42ef6532066c023a4c943e096b))
+ * **[#658](https://github.com/fonttools/fontspector/issues/658)**
+    - Rename family_name_compliance check ID for fontbakery parity ([`ab7ef0b`](https://github.com/fonttools/fontspector/commit/ab7ef0b62981afce8c753f74e60ec41e40bf5f42))
+ * **[#668](https://github.com/fonttools/fontspector/issues/668)**
+    - Add no_vf_in_name check ([`c8cee5d`](https://github.com/fonttools/fontspector/commit/c8cee5d0f71db89d3ee5b4bbc367a3f124d2ba05))
+ * **[#675](https://github.com/fonttools/fontspector/issues/675)**
+    - Add STAT/opsz_not_elided check ([`e967ecb`](https://github.com/fonttools/fontspector/commit/e967ecb888ed8d98e9552b901f38380f68cdc65d))
+ * **[#676](https://github.com/fonttools/fontspector/issues/676)**
+    - Add parametric_axes_hidden check ([`980eae6`](https://github.com/fonttools/fontspector/commit/980eae603594938dada7b2cc049dff6cca41ce82))
+ * **[#677](https://github.com/fonttools/fontspector/issues/677)**
+    - Add description/no_free_word check ([`789a883`](https://github.com/fonttools/fontspector/commit/789a88367760412d78e73c26b0054296ddd46a9f))
+ * **[#682](https://github.com/fonttools/fontspector/issues/682)**
+    - Add repo/ascii_filenames check ([`46949fd`](https://github.com/fonttools/fontspector/commit/46949fd881b343218ca6ff32f0228f3ad244c568))
+ * **[#693](https://github.com/fonttools/fontspector/issues/693)**
+    - Develop Workspace profile ([`7053211`](https://github.com/fonttools/fontspector/commit/705321161bdbe62836fbc155cc769a589ecb7dd1))
+ * **[#696](https://github.com/fonttools/fontspector/issues/696)**
+    - Various more hotfixes ([`ec5d86f`](https://github.com/fonttools/fontspector/commit/ec5d86f8e6b48051be61b822c5608fdc1fc3c071))
+ * **[#702](https://github.com/fonttools/fontspector/issues/702)**
+    - Port Python tests to Rust (batch 3+4: universal, varfont, googlefonts) ([`ae1f30c`](https://github.com/fonttools/fontspector/commit/ae1f30c4751e7f76ee903ab072761af580ece7ca))
+ * **[#710](https://github.com/fonttools/fontspector/issues/710)**
+    - Interactive fixing ([`d7a8e96`](https://github.com/fonttools/fontspector/commit/d7a8e964d234b7bf1693e85a7610d9a1f78c572f))
+ * **[#711](https://github.com/fonttools/fontspector/issues/711)**
+    - Port more tests from Python to Rust ([`4e74f48`](https://github.com/fonttools/fontspector/commit/4e74f48adb3b84553b338ef4c3c25ab52f2db960))
+ * **[#717](https://github.com/fonttools/fontspector/issues/717)**
+    - Fix Regular Italic case ([`94a012d`](https://github.com/fonttools/fontspector/commit/94a012d5f3c511f10e96db626013b53c234aaad3))
+ * **[#742](https://github.com/fonttools/fontspector/issues/742)**
+    - Update rust crate scraper to 0.26.0 ([`c50585d`](https://github.com/fonttools/fontspector/commit/c50585dec0eb8bbca6f22b7f3fcb1d23180aa8e6))
+ * **[#747](https://github.com/fonttools/fontspector/issues/747)**
+    - Update rust crate similar to v3 ([`949383d`](https://github.com/fonttools/fontspector/commit/949383df24fe5492adf5c425ce5e64202972b515))
+ * **[#763](https://github.com/fonttools/fontspector/issues/763)**
+    - Do not error if new font includes new styles ([`a7b9850`](https://github.com/fonttools/fontspector/commit/a7b985027d94e248bcf9c70ffae3831392c5e060))
+ * **[#775](https://github.com/fonttools/fontspector/issues/775)**
+    - Check full names match against METADATA for varfonts ([`51f11da`](https://github.com/fonttools/fontspector/commit/51f11da8ef49038ff43cab6e0244c0885d33127e))
+ * **[#778](https://github.com/fonttools/fontspector/issues/778)**
+    - Metadata/license also checks license matches license file ([`6bf4ec9`](https://github.com/fonttools/fontspector/commit/6bf4ec9902139b558e6c4390ac0df3dfb0cc6b44))
+ * **[#779](https://github.com/fonttools/fontspector/issues/779)**
+    - Metadata/license also checks license matches license file ([`6bf4ec9`](https://github.com/fonttools/fontspector/commit/6bf4ec9902139b558e6c4390ac0df3dfb0cc6b44))
+ * **[#782](https://github.com/fonttools/fontspector/issues/782)**
+    - New plugin architecture ([`7b32eca`](https://github.com/fonttools/fontspector/commit/7b32eca0846e594655f304250928295ffbf6496a))
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.6.0, fontspector-profile-fontwerk v1.3.1, fontspector-profile-googlefonts v1.8.0, fontspector-profile-iso15008 v1.0.6, fontspector-profile-opentype v1.5.0, fontspector-profile-universal v1.8.0, fontspector-hotfix v0.2.0, fontspector v1.7.0, safety bump fontspector-hotfix v0.2.0 ([`b319e16`](https://github.com/fonttools/fontspector/commit/b319e16d70daabfed30fcb18d66b8400c00fd32f))
+</details>
+
 ## v1.7.0 (2026-02-23)
 
 ### New Features
@@ -42,8 +335,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 4 commits contributed to the release over the course of 5 calendar days.
- - 16 days passed between releases.
+ - 5 commits contributed to the release over the course of 5 calendar days.
+ - 17 days passed between releases.
  - 4 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 4 unique issues were worked on: [#623](https://github.com/fonttools/fontspector/issues/623), [#627](https://github.com/fonttools/fontspector/issues/627), [#628](https://github.com/fonttools/fontspector/issues/628), [#629](https://github.com/fonttools/fontspector/issues/629)
 
@@ -61,17 +354,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Update file size checks ([`eb14259`](https://github.com/fonttools/fontspector/commit/eb142594b74d95a8deda5bdd16faf71dbdf34d0a))
  * **[#629](https://github.com/fonttools/fontspector/issues/629)**
     - Add machine-readable metadata to (almost) all checks ([`568958e`](https://github.com/fonttools/fontspector/commit/568958e9b33f5c11076dde02e89ce0a73bc6a07e))
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.5.0, fontspector-fontbakery-bridge v1.3.0, fontspector-profile-fontwerk v1.3.0, fontspector-profile-googlefonts v1.7.0, fontspector-profile-opentype v1.4.0, fontspector-profile-universal v1.7.0, fontspector-hotfix v0.1.0, fontspector v1.6.0, safety bump fontspector-hotfix v0.1.0 ([`cb2a669`](https://github.com/fonttools/fontspector/commit/cb2a669f1f0963a68ba22bdc1e0cd56e602219ca))
 </details>
 
 ## v1.6.1 (2026-02-06)
 
 <csr-id-3438162c5cfdb317cef761c251bb64fbe805985a/>
 <csr-id-19b91cdf15a6d8ea7e60b616199d28e03c76ba4d/>
-
-### Chore
-
- - <csr-id-3438162c5cfdb317cef761c251bb64fbe805985a/> publicize checks module
- - <csr-id-19b91cdf15a6d8ea7e60b616199d28e03c76ba4d/> Reformat
 
 ### Bug Fixes
 
@@ -109,11 +399,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <csr-id-67faec64118db1aa7f5ef5399ea543a89494a872/>
 <csr-id-3ec28c2864447022ed246cb04cfeb514889dc72d/>
 
-### Chore
-
- - <csr-id-67faec64118db1aa7f5ef5399ea543a89494a872/> Move from rustybuzz to harfrust
- - <csr-id-3ec28c2864447022ed246cb04cfeb514889dc72d/> Add 'Allkin' to reserved font name exceptions
-
 ### New Features
 
  - <csr-id-09d3d5fe9eaa141aaf938cbc256fe6afc8ede513/> add check to validate fvar axis ranges against GF Axis Registry
@@ -130,7 +415,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <csr-read-only-do-not-edit/>
 
  - 6 commits contributed to the release over the course of 25 calendar days.
- - 48 days passed between releases.
+ - 49 days passed between releases.
  - 5 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 5 unique issues were worked on: [#567](https://github.com/fonttools/fontspector/issues/567), [#570](https://github.com/fonttools/fontspector/issues/570), [#576](https://github.com/fonttools/fontspector/issues/576), [#581](https://github.com/fonttools/fontspector/issues/581), [#589](https://github.com/fonttools/fontspector/issues/589)
 
@@ -154,32 +439,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Release fontspector-checkapi v1.3.2, fontspector-profile-fontwerk v1.2.2, fontspector-profile-googlefonts v1.6.0, fontspector-profile-universal v1.5.0, fontspector-profile-iso15008 v1.0.5, fontspector v1.5.3 ([`43eb125`](https://github.com/fonttools/fontspector/commit/43eb125ce74b3424af90f5f9aa8082fdb4e2e742))
 </details>
 
-<csr-unknown>
-primary_script must be a valid ISO 15924 script codeprimary_language must be a valid language ID in format ‘lang_Script’<csr-unknown/>
-
 ## v1.5.0 (2025-12-17)
 
 <csr-id-3aff895fb75d510fa826e19339424347b5d3ff61/>
 <csr-id-4befd6c88900e2e06c363a8a6b1cdfc9518e9c91/>
 <csr-id-36df1dbeb9feddc6cfde00db0ef69ad69f30da1b/>
-
-### Chore
-
- - <csr-id-3aff895fb75d510fa826e19339424347b5d3ff61/> Refresh dependencies
-   * chore: Refresh dependencies
-   
-   * chore: Fixup fontc API
- - <csr-id-4befd6c88900e2e06c363a8a6b1cdfc9518e9c91/> More from rustybuzz to harfrust
-   * chore: Move from rustybuzz to harfrust
-   
-   * test(googlefonts/shaping/forbidden): Move tests to Rust
-   
-   * test: Pass full config to tests
-   
-   * chore: Missing docstrings
-   
-   * chore: not my fail
- - <csr-id-36df1dbeb9feddc6cfde00db0ef69ad69f30da1b/> thanks clippy
 
 ### New Features
 
@@ -240,15 +504,6 @@ primary_script must be a valid ISO 15924 script codeprimary_language must be a v
 <csr-id-244233ddd1a33b6279eec07324a77d3c4d14af6c/>
 <csr-id-53fa4d31e4ac2c24d7f0a06ad18d2b8750776240/>
 
-### Chore
-
- - <csr-id-244233ddd1a33b6279eec07324a77d3c4d14af6c/> Use gf-metadata crate for protobuf access
-   * chore: Use gf-metadata crate instead of compiling our own protos
-   
-   * chore(ci): By rights we no longer need protoc, let's see if that's true
- - <csr-id-53fa4d31e4ac2c24d7f0a06ad18d2b8750776240/> Update reserved_font_name_exceptions.txt
-   Added Zalando Sans
-
 ### Commit Statistics
 
 <csr-read-only-do-not-edit/>
@@ -292,40 +547,12 @@ primary_script must be a valid ISO 15924 script codeprimary_language must be a v
    * fix(googlefonts/cjk_vertical_metrics_regressions): Only check for regressions if we have the font already
 * chore(ci): apt-get update before installing
 
-### Other
-
- - <csr-id-90205a8089d1394f957cdf13cdcc461b73824425/> fontspector-checkapi v1.1.2, fontspector-fontbakery-bridge v1.2.0, fontspector-profile-fontwerk v1.1.0, fontspector-profile-googlefonts v1.3.0, fontspector-profile-opentype v1.2.1, fontspector-profile-universal v1.1.2, fontspector v1.4.0
-
-### Test
-
- - <csr-id-abd4d4cf426666d0dac52706a763fb01d0e85d2c/> Move the tests from Python to Rust
-   * chore(codetesting): Improve codetesting story slightly
-   
-   * test(contour_count): WIP move test to Rust
-   
-   * chore: Helper function for check testing
-   
-   * test: Move many tests to Rust, by some strange magic
-   
-   * test: add test files
-   
-   * chore: Helper function for check testing with parameters
-   
-   * test: Move many more tests to Rust, thanks to my little electronic friend
-   
-   * chore: Change test helper functions to take references
-   
-   * test: Two more tests to Rust
-   
-   * chore: Fix up warnings
-   
-   * test: Four more tests to Rust
-
 ### Commit Statistics
 
 <csr-read-only-do-not-edit/>
 
  - 11 commits contributed to the release over the course of 68 calendar days.
+ - 75 days passed between releases.
  - 9 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 8 unique issues were worked on: [#313](https://github.com/fonttools/fontspector/issues/313), [#325](https://github.com/fonttools/fontspector/issues/325), [#327](https://github.com/fonttools/fontspector/issues/327), [#339](https://github.com/fonttools/fontspector/issues/339), [#357](https://github.com/fonttools/fontspector/issues/357), [#394](https://github.com/fonttools/fontspector/issues/394), [#399](https://github.com/fonttools/fontspector/issues/399), [#418](https://github.com/fonttools/fontspector/issues/418)
 
@@ -391,19 +618,6 @@ primary_script must be a valid ISO 15924 script codeprimary_language must be a v
 <csr-id-138edbbfba88008d71d9247eccbdfc017fef8b81/>
 <csr-id-a6b7ffc4f39c6b1c1bd92cd9b07f4ba22d54ef2e/>
 
-### Chore
-
- - <csr-id-ffc7318ba547efe312e4d28508696b85f408d6a2/> check version string name presence in mandatory_entries
-   * chore: Remove unwanted package-lock
-   
-   * chore(googlefonts): Check version string presence in mandatory_entries, not version_format
-   
-   * test(googlefonts): Update test expectations for #44
- - <csr-id-138edbbfba88008d71d9247eccbdfc017fef8b81/> Update fontations dependencies
-   * chore: Update fontations dependencies
-   
-   * test(italic_angle): Update bounds check
-
 ### Bug Fixes
 
 <csr-id-7c02a3ba9acd19b519aa5e5a65bb8fc68bd7fe9f/>
@@ -424,19 +638,12 @@ primary_script must be a valid ISO 15924 script codeprimary_language must be a v
 * Add skip to googlefonts/gasp
 * Fix(Lint)
 
-### Style
-
- - <csr-id-a6b7ffc4f39c6b1c1bd92cd9b07f4ba22d54ef2e/> deny indexing slicing
-   * chore: More lints into Cargo.toml
-   
-   * style: Deny indexing slicing
-
 ### Commit Statistics
 
 <csr-read-only-do-not-edit/>
 
  - 9 commits contributed to the release over the course of 11 calendar days.
- - 12 days passed between releases.
+ - 13 days passed between releases.
  - 8 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 9 unique issues were worked on: [#286](https://github.com/fonttools/fontspector/issues/286), [#287](https://github.com/fonttools/fontspector/issues/287), [#291](https://github.com/fonttools/fontspector/issues/291), [#293](https://github.com/fonttools/fontspector/issues/293), [#296](https://github.com/fonttools/fontspector/issues/296), [#299](https://github.com/fonttools/fontspector/issues/299), [#302](https://github.com/fonttools/fontspector/issues/302), [#304](https://github.com/fonttools/fontspector/issues/304), [#306](https://github.com/fonttools/fontspector/issues/306)
 
@@ -476,14 +683,6 @@ primary_script must be a valid ISO 15924 script codeprimary_language must be a v
 <csr-id-f44be5515dcaea17b96b1df7a4b11407561d0c17/>
 <csr-id-8b28d1aa1c7af4dacdbcfbd83af69dbf401ecf46/>
 
-### Chore
-
- - <csr-id-65132c0dd6dfae2e1ef30c994dee9135fe7dbf33/> Update font protos
- - <csr-id-f44be5515dcaea17b96b1df7a4b11407561d0c17/> Improve error handling
-   * chore: Better error handling
-   
-   * chore: Better error handling for fix functions too
-
 ### New Features
 
 <csr-id-5f06e2526b40e8a6852e5e1aad70fbfbba6753a1/>
@@ -514,16 +713,12 @@ primary_script must be a valid ISO 15924 script codeprimary_language must be a v
 * test: Fixup tests
 * test: Add missing file
 
-### Refactor
-
- - <csr-id-8b28d1aa1c7af4dacdbcfbd83af69dbf401ecf46/> Dynamically update script and language tags from MS website
-
 ### Commit Statistics
 
 <csr-read-only-do-not-edit/>
 
  - 15 commits contributed to the release over the course of 28 calendar days.
- - 30 days passed between releases.
+ - 31 days passed between releases.
  - 13 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 16 unique issues were worked on: [#120](https://github.com/fonttools/fontspector/issues/120), [#127](https://github.com/fonttools/fontspector/issues/127), [#137](https://github.com/fonttools/fontspector/issues/137), [#142](https://github.com/fonttools/fontspector/issues/142), [#144](https://github.com/fonttools/fontspector/issues/144), [#145](https://github.com/fonttools/fontspector/issues/145), [#150](https://github.com/fonttools/fontspector/issues/150), [#152](https://github.com/fonttools/fontspector/issues/152), [#162](https://github.com/fonttools/fontspector/issues/162), [#180](https://github.com/fonttools/fontspector/issues/180), [#200](https://github.com/fonttools/fontspector/issues/200), [#227](https://github.com/fonttools/fontspector/issues/227), [#230](https://github.com/fonttools/fontspector/issues/230), [#275](https://github.com/fonttools/fontspector/issues/275), [#280](https://github.com/fonttools/fontspector/issues/280), [#281](https://github.com/fonttools/fontspector/issues/281)
 
@@ -627,17 +822,6 @@ primary_script must be a valid ISO 15924 script codeprimary_language must be a v
 <csr-id-d7968d62b6271d79869a3ebf34c1d20365482c6c/>
 <csr-id-7fabefe24db197e83ac3eea33288c70664bb1679/>
 <csr-id-73eab4b7168d41ea8b8d911a57d790de2d5fcf3d/>
-
-### Other
-
- - <csr-id-5a95113ebe74c423d0ee31802f5a5cbb40621f87/> :axis_order
- - <csr-id-7cc0e15f42ffbf1d512f2fa50d42fe12ba3aca44/> move to Universal profile
-   Still needs to be ported, though.
-   
-   (https://github.com/fonttools/fontbakery/pull/4937)
- - <csr-id-d7968d62b6271d79869a3ebf34c1d20365482c6c/> sync with latest fontbakery
- - <csr-id-7fabefe24db197e83ac3eea33288c70664bb1679/> further refactoring the code-testing helper functions
- - <csr-id-73eab4b7168d41ea8b8d911a57d790de2d5fcf3d/> refactoring codetesting functions
 
 ### Commit Statistics
 

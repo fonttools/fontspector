@@ -1,5 +1,5 @@
-use fontations::skrifa::{raw::types::NameId, MetadataProvider};
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
+use skrifa::{raw::types::NameId, MetadataProvider};
 
 #[check(
     id = "opentype/varfont/valid_nameids",
@@ -71,4 +71,18 @@ fn valid_nameids(t: &Testable, _context: &Context) -> CheckFnResult {
         }
     }
     return_result(problems)
+}
+
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use fontspector_checkapi::codetesting::{assert_pass, run_check, test_able};
+
+    #[test]
+    fn test_valid_nameids_pass() {
+        let testable = test_able("cabinvf/Cabin[wdth,wght].ttf");
+        let result = run_check(valid_nameids, testable);
+        assert_pass(&result);
+    }
 }

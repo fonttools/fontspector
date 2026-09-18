@@ -3,11 +3,11 @@ use std::{
     sync::LazyLock,
 };
 
-use fontations::skrifa::{GlyphId, MetadataProvider};
 use fontspector_checkapi::{
     pens::ContourCountPen, prelude::*, testfont, FileTypeConvert, Metadata, DEFAULT_LOCATION,
 };
 use serde_json::json;
+use skrifa::{GlyphId, MetadataProvider};
 
 const DATA_JSON: &str = include_str!("../../data/desired_glyph_data.json");
 

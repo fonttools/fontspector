@@ -49,3 +49,53 @@ fn has_unsupported_elements(desc: &Testable, _context: &Context) -> CheckFnResul
     }
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check},
+        StatusCode, Testable,
+    };
+    use std::path::PathBuf;
+
+    use super::has_unsupported_elements;
+
+    fn make_desc(content: &str) -> Testable {
+        Testable {
+            filename: PathBuf::from("DESCRIPTION.en_us.html"),
+            source: None,
+            contents: content.as_bytes().to_vec(),
+        }
+    }
+
+    #[test]
+    fn test_pass_good_html() {
+        let desc = make_desc("<p>A simple clean description.</p>\n");
+        let results = run_check(has_unsupported_elements, desc);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_error_unsupported_elements() {
+        let desc = make_desc("<p>Description</p><script>alert('bad')</script>\n");
+        let results = run_check(has_unsupported_elements, desc);
+        assert_results_contain(
+            &results,
+            StatusCode::Error,
+            Some("unsupported-elements".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_error_video_without_src() {
+        let desc = make_desc("<p>Description</p><video></video>\n");
+        let results = run_check(has_unsupported_elements, desc);
+        assert_results_contain(
+            &results,
+            StatusCode::Error,
+            Some("video-tag-needs-src".to_string()),
+        );
+    }
+}

@@ -49,3 +49,44 @@ fn escaped_strings(c: &TestableCollection, _context: &Context) -> CheckFnResult 
     }
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used)]
+
+    use std::collections::HashMap;
+
+    use super::escaped_strings;
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, test_able},
+        StatusCode, Testable, TestableCollection, TestableType,
+    };
+
+    fn run(files: Vec<Testable>) -> Option<fontspector_checkapi::CheckResult> {
+        let collection = TestableCollection::from_testables(files, None);
+        fontspector_checkapi::codetesting::run_check_with_config(
+            escaped_strings,
+            TestableType::Collection(&collection),
+            HashMap::new(),
+        )
+    }
+
+    #[test]
+    fn test_check_metadata_escaped_strings() {
+        // Good: no escaped strings in METADATA.pb
+        assert_pass(&run(vec![
+            test_able("issue_2932/good/SomeFont-Regular.ttf"),
+            test_able("issue_2932/good/METADATA.pb"),
+        ]));
+
+        // Bad: METADATA.pb contains escaped octal strings
+        assert_results_contain(
+            &run(vec![
+                test_able("issue_2932/bad/SomeFont-Regular.ttf"),
+                test_able("issue_2932/bad/METADATA.pb"),
+            ]),
+            StatusCode::Fail,
+            Some("escaped-strings".to_string()),
+        );
+    }
+}

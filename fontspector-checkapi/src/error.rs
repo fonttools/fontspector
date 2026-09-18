@@ -1,4 +1,4 @@
-use std::sync::PoisonError;
+use std::{path::PathBuf, sync::PoisonError};
 
 use thiserror::Error;
 
@@ -8,16 +8,16 @@ use thiserror::Error;
 pub enum FontspectorError {
     /// A problem with skrifa reading the font binary
     #[error("Error reading font file: {0}")]
-    FontRead(#[from] fontations::read::ReadError),
+    FontRead(#[from] skrifa::raw::ReadError),
     /// A problem with skrifa writing the font binary
     #[error("Error writing font file: {0}")]
-    FontWrite(#[from] fontations::write::error::Error),
+    FontWrite(#[from] write_fonts::error::Error),
     /// A problem with skrifa producing a the font binary
     #[error("Error building font file: {0}")]
-    FontBuild(#[from] fontations::write::BuilderError),
+    FontBuild(#[from] write_fonts::BuilderError),
     /// A problem with skrifa outline code
     #[error("Error drawing glyph: {0}")]
-    Draw(#[from] fontations::skrifa::outline::DrawError),
+    Draw(#[from] skrifa::outline::DrawError),
     /// Just a skip
     #[error("Skipping check: {message} [{code}]")]
     Skip {
@@ -47,6 +47,9 @@ pub enum FontspectorError {
     /// Invalid JSON was found
     #[error("Invalid JSON: {0}")]
     InvalidJson(#[from] std::sync::Arc<serde_json::Error>),
+    /// Invalid JSON was found in file
+    #[error("Invalid JSON in file {0}: {1}")]
+    InvalidJsonFromFile(PathBuf, std::sync::Arc<serde_json::Error>),
     /// An error occurred while reading a file
     #[error("Error reading file: {0}")]
     FileRead(#[from] std::sync::Arc<std::io::Error>),
@@ -71,6 +74,17 @@ pub enum FontspectorError {
     /// Something else happened when fixing the font
     #[error("Something went wrong while fixing: {0}")]
     Fix(String),
+    /// Check applies to a filetype that isn't registered in the registry
+    #[error("Check {check_id} applies to unknown filetype {filetype}")]
+    UnknownFileType {
+        /// The id of the check that applies to the unknown filetype
+        check_id: String,
+        /// The unknown filetype
+        filetype: String,
+    },
+    /// A profile includes another profile that isn't registered in the registry
+    #[error("Profile includes unknown profile: {0}")]
+    UnknownProfile(String),
 }
 
 impl From<std::string::FromUtf8Error> for FontspectorError {

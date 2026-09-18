@@ -1,6 +1,9 @@
-use fontations::{skrifa::MetadataProvider, types::GlyphId};
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata, MoreInfoReplies};
 use serde_json::json;
+use skrifa::raw::{tables::cmap::CmapSubtable, TableProvider};
+use skrifa::MetadataProvider;
+use write_fonts::tables::cmap::Cmap;
+use write_fonts::types::GlyphId;
 
 #[check(
     id = "soft_hyphen",
@@ -23,7 +26,8 @@ use serde_json::json;
     ",
     proposal = "https://github.com/fonttools/fontbakery/issues/4046",
     proposal = "https://github.com/fonttools/fontbakery/issues/3486",
-    title = "Does the font contain a soft hyphen?"
+    title = "Does the font contain a soft hyphen?",
+    hotfix = fix_soft_hyphen,
 )]
 fn soft_hyphen(t: &Testable, context: &Context) -> CheckFnResult {
     let f = testfont!(t);
@@ -48,9 +52,67 @@ fn soft_hyphen(t: &Testable, context: &Context) -> CheckFnResult {
     }
     return_result(problems)
 }
-// def check_soft_hyphen(ttFont):
-//     """Does the font contain a soft hyphen?"""
-//     if 0x00AD in ttFont["cmap"].getBestCmap().keys():
-//         yield WARN, Message("softhyphen", "This font has a 'Soft Hyphen' character.")
-//     else:
-//         yield PASS, "Looks good!"
+
+fn fix_soft_hyphen(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
+    let f = testfont!(t);
+    let charmap = f.font().charmap();
+    let cmap = f.font().cmap()?;
+    let data = cmap.offset_data();
+    // Only fix if all subtables are format 4 or 12
+    if cmap.encoding_records().iter().any(|r| {
+        r.subtable(data)
+            .is_ok_and(|s| !matches!(s, CmapSubtable::Format4(_) | CmapSubtable::Format12(_)))
+    }) {
+        return Ok(FixResult::FixFailed("Cannot fix soft hyphen because the font contains a cmap subtable that is not format 4 or 12.".to_string()));
+    }
+    let mappings: Vec<_> = charmap.mappings().filter(|(cp, _)| *cp != 0x00AD).collect();
+    let new_cmap = Cmap::from_mappings(
+        mappings
+            .into_iter()
+            .map(|(c, gid)| (char::from_u32(c).unwrap_or('\0'), gid)),
+    )
+    .map_err(|e| FontspectorError::General(format!("Failed to create new cmap: {e}")))?;
+    t.set(f.rebuild_with_new_table(&new_cmap)?);
+    Ok(FixResult::Fixed)
+}
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used)]
+
+    use super::soft_hyphen;
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        FileTypeConvert, StatusCode,
+    };
+    use skrifa::MetadataProvider;
+    use write_fonts::tables::cmap::Cmap;
+
+    #[test]
+    fn test_soft_hyphen_warn() {
+        let testable = test_able("montserrat/Montserrat-Black.ttf");
+        let results = run_check(soft_hyphen, testable);
+        assert_results_contain(&results, StatusCode::Warn, Some("softhyphen".to_string()));
+    }
+
+    #[test]
+    fn test_soft_hyphen_pass() {
+        // Remove soft hyphen from a font that has it
+        let mut testable = test_able("montserrat/Montserrat-Black.ttf");
+        let f = fontspector_checkapi::TTF.from_testable(&testable).unwrap();
+        let charmap = f.font().charmap();
+        let mappings: Vec<_> = charmap.mappings().filter(|(cp, _)| *cp != 0x00AD).collect();
+        let new_cmap = Cmap::from_mappings(
+            mappings
+                .into_iter()
+                .map(|(c, gid)| (char::from_u32(c).unwrap_or('\0'), gid)),
+        )
+        .unwrap();
+        testable.set(f.rebuild_with_new_table(&new_cmap).unwrap());
+        let results = run_check(soft_hyphen, testable);
+        assert_pass(&results);
+    }
+}

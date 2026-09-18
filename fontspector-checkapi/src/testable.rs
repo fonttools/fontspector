@@ -26,6 +26,14 @@ impl Testable {
     ///
     /// The contents are resolved from the filesystem.
     pub fn new<P: Into<PathBuf> + AsRef<Path>>(filename: P) -> Result<Self, std::io::Error> {
+        if filename.as_ref().is_dir() {
+            // treat directories as files with empty contents
+            return Ok(Self {
+                filename: filename.into(),
+                source: None,
+                contents: Vec::new(),
+            });
+        }
         let contents = std::fs::read(&filename)?;
         Ok(Self {
             filename: filename.into(),
@@ -80,6 +88,11 @@ impl Testable {
     /// Set the new contents of a file
     pub fn set(&mut self, new_bytes: Vec<u8>) {
         self.contents = new_bytes;
+    }
+
+    /// Set the new filename of a file
+    pub fn set_filename<P: Into<PathBuf> + AsRef<Path>>(&mut self, new_filename: P) {
+        self.filename = new_filename.into();
     }
 
     /// Save the contents of a file to disk

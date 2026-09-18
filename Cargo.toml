@@ -16,7 +16,6 @@ members = [
     "profile-testplugin",
     "profile-googlefonts",
     "fontspector-web",
-    "fontbakery-bridge",
     "fontspector-py",
 ]
 
@@ -26,35 +25,40 @@ default-members = ["fontspector-cli"]
 pluginator = "1.0.1"
 
 # Font-related deps
-fontations = "0.3.0"
-fontdrasil = "0.4.0"
+skrifa = "0.46.2"
+write-fonts = "0.52.0"
+fontdrasil = "1.0.0"
 unicode-properties = "0.1.3"
-unicode_names2 = "2.0.0"
-harfrust = "0.5.0"
+unicode_names2 = "3.0.0"
+harfrust = "0.13.0"
 
 
 # Serialization
 serde = { version = "1.0.130", features = ["derive"] }
 serde_json = "1.0"
 fontspector-checkhelper = { path = "./fontspector-checkhelper", version = "1.0.0" }
-toml = { version = "0.9.0", default-features = false, features = [
+toml = { version = "1.0.0", default-features = false, features = [
     "parse",
     "serde",
 ] }
 
-hashbrown = "0.16.0"
+hashbrown = "0.17.0"
 log = "0.4.14"
-itertools = "0.14.0"
+itertools = "0.15.0"
 
 # Fontbakery bridge / Python module. Keep these two together
-pyo3 = "0.25"
-pythonize = "0.25"
+pyo3 = "0.29"
+pythonize = "0.29"
 
 indexmap = { version = "2", features = ["serde"] }
-tabled = "0.20.0"
-kurbo = "0.11"                                     # For italic angle check
+tabled = "0.22.0"
+kurbo = "0.13"                                     # For italic angle check
 
 regex = "1.10.6"
+
+zip = { version = "8", features = [
+    "deflate",
+], default-features = false } # CLI and web
 
 [workspace.lints.clippy]
 unwrap_used = "deny"

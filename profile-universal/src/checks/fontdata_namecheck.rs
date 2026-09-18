@@ -1,6 +1,6 @@
-use fontations::skrifa::{raw::tables::name::NameId, MetadataProvider};
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
 use reqwest::blocking::Client;
+use skrifa::{raw::tables::name::NameId, MetadataProvider};
 
 const NAMECHECK_URL: &str = "http://namecheck.fontdata.com/";
 const NAMECHECK_API_URL: &str = "http://namecheck.fontdata.com/api/";

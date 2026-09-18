@@ -1,6 +1,6 @@
-use fontations::skrifa::string::StringId;
 use fontspector_checkapi::{prelude::*, FileTypeConvert};
 use hashbrown::HashMap;
+use skrifa::string::StringId;
 
 use crate::{checks::googlefonts::metadata::family_proto, constants::EXPECTED_COPYRIGHT_PATTERN};
 

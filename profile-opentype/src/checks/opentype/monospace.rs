@@ -1,11 +1,12 @@
 use std::collections::{HashMap, HashSet};
 
-use fontations::skrifa::{
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, TestFont};
+use skrifa::{
     raw::{tables::gdef::GlyphClassDef, ReadError, TableProvider},
     GlyphId, MetadataProvider,
 };
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, TestFont};
 use unicode_properties::{GeneralCategory, UnicodeGeneralCategory};
+use write_fonts::from_obj::ToOwnedTable;
 
 #[check(
     id = "opentype/monospace",
@@ -52,7 +53,8 @@ use unicode_properties::{GeneralCategory, UnicodeGeneralCategory};
         Source: https://typedrawers.com/discussion/comment/45140/#Comment_45140
     ",
     proposal = "https://github.com/fonttools/fontbakery/issues/4829",
-    title = "Checking correctness of monospaced metadata."
+    title = "Checking correctness of monospaced metadata.",
+    hotfix = fix_monospace,
 )]
 fn monospace(t: &Testable, context: &Context) -> CheckFnResult {
     let font = testfont!(t);
@@ -159,6 +161,83 @@ fn monospace(t: &Testable, context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
+fn fix_monospace(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
+    let context = Context::default();
+    let mut changed = false;
+
+    // Phase 1: Fix hhea.advanceWidthMax
+    {
+        let f = testfont!(t);
+        let statistics = glyph_metrics_stats(&f, &context)?;
+        let advance_width_max = f.font().hhea()?.advance_width_max().to_u16();
+        if advance_width_max != statistics.width_max {
+            let mut hhea: write_fonts::tables::hhea::Hhea = f.font().hhea()?.to_owned_table();
+            hhea.advance_width_max = statistics.width_max.into();
+            t.set(f.rebuild_with_new_table(&hhea)?);
+            changed = true;
+        }
+    }
+
+    // Phase 2: Fix post.isFixedPitch
+    let seems_monospaced = {
+        let f = testfont!(t);
+        let statistics = glyph_metrics_stats(&f, &context)?;
+        let post_isfixedpitch = f.font().post()?.is_fixed_pitch();
+        if statistics.seems_monospaced && post_isfixedpitch == 0 {
+            let mut post: write_fonts::tables::post::Post = f.font().post()?.to_owned_table();
+            post.is_fixed_pitch = 1;
+            t.set(f.rebuild_with_new_table(&post)?);
+            changed = true;
+        } else if !statistics.seems_monospaced && post_isfixedpitch != 0 {
+            let mut post: write_fonts::tables::post::Post = f.font().post()?.to_owned_table();
+            post.is_fixed_pitch = 0;
+            t.set(f.rebuild_with_new_table(&post)?);
+            changed = true;
+        }
+        statistics.seems_monospaced
+    };
+
+    // Phase 3: Fix OS/2 PANOSE
+    {
+        let f = testfont!(t);
+        let panose = f.font().os2()?.panose_10();
+        let mut os2: write_fonts::tables::os2::Os2 = f.font().os2()?.to_owned_table();
+        let mut os2_changed = false;
+
+        if seems_monospaced && !panose_is_monospaced(panose) {
+            #[allow(clippy::indexing_slicing)]
+            let family_type = panose[0];
+            if family_type == 2 {
+                os2.panose_10[3] = 9;
+                os2_changed = true;
+            } else if family_type == 3 || family_type == 5 {
+                os2.panose_10[3] = 3;
+                os2_changed = true;
+            }
+        } else if !seems_monospaced {
+            #[allow(clippy::indexing_slicing)]
+            if panose[3] == 9 {
+                os2.panose_10[3] = 0;
+                os2_changed = true;
+            }
+        }
+
+        if os2_changed {
+            t.set(f.rebuild_with_new_table(&os2)?);
+            changed = true;
+        }
+    }
+
+    Ok(if changed {
+        FixResult::Fixed
+    } else {
+        FixResult::Unfixable
+    })
+}
+
 #[allow(clippy::indexing_slicing)] // Crossing my fingers here.
 fn panose_is_monospaced(panose: &[u8]) -> bool {
     (panose[0] == 2 && panose[3] == 9)
@@ -260,4 +339,57 @@ fn glyph_metrics_stats(f: &TestFont, context: &Context) -> Result<GlyphMetricsSt
         width_max,
         most_common_width,
     })
+}
+
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, remove_table, run_check, test_able},
+        StatusCode,
+    };
+    use skrifa::raw::TableProvider;
+    use write_fonts::from_obj::ToOwnedTable;
+
+    #[test]
+    fn test_monospace_pass_non_mono() {
+        let testable = test_able("mada/Mada-Regular.ttf");
+        let result = run_check(monospace, testable);
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_monospace_fail_bad_post_isfixedpitch() {
+        let mut testable = test_able("mada/Mada-Regular.ttf");
+        let f = TTF.from_testable(&testable).unwrap();
+        let mut post: write_fonts::tables::post::Post = f.font().post().unwrap().to_owned_table();
+        post.is_fixed_pitch = 42;
+        testable.set(f.rebuild_with_new_table(&post).unwrap());
+        let result = run_check(monospace, testable);
+        assert_results_contain(
+            &result,
+            StatusCode::Fail,
+            Some("bad-post-isFixedPitch".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_monospace_fail_bad_panose() {
+        let mut testable = test_able("mada/Mada-Regular.ttf");
+        let f = TTF.from_testable(&testable).unwrap();
+        let mut os2: write_fonts::tables::os2::Os2 = f.font().os2().unwrap().to_owned_table();
+        os2.panose_10[3] = 9; // Proportion = Monospaced
+        testable.set(f.rebuild_with_new_table(&os2).unwrap());
+        let result = run_check(monospace, testable);
+        assert_results_contain(&result, StatusCode::Fail, Some("bad-panose".to_string()));
+    }
+
+    #[test]
+    fn test_monospace_fail_lacks_table() {
+        let mut testable = test_able("mada/Mada-Regular.ttf");
+        remove_table(&mut testable, b"OS/2");
+        let result = run_check(monospace, testable);
+        assert_results_contain(&result, StatusCode::Fail, Some("lacks-table".to_string()));
+    }
 }

@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
-use fontations::skrifa::{raw::tables::os2::SelectionFlags, string::StringId};
 use fontspector_checkapi::{prelude::*, FileTypeConvert};
+use skrifa::{raw::tables::os2::SelectionFlags, string::StringId};
 
 #[check(
     id = "opentype/family/bold_italic_unique_for_nameid1",
@@ -46,4 +46,100 @@ fn bold_italic_unique_for_nameid1(c: &TestableCollection, _context: &Context) ->
         }
     }
     return_result(problems)
+}
+
+#[allow(clippy::unwrap_used, clippy::expect_used, clippy::indexing_slicing)]
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check_with_config, test_able},
+        StatusCode, TestableCollection, TestableType,
+    };
+    use skrifa::raw::{tables::os2::SelectionFlags, TableProvider};
+    use std::collections::HashMap;
+    use write_fonts::from_obj::ToOwnedTable;
+
+    #[test]
+    fn test_bold_italic_unique_pass() {
+        let testables: Vec<_> = [
+            "source-sans-pro/OTF/SourceSansPro-Regular.otf",
+            "source-sans-pro/OTF/SourceSansPro-Bold.otf",
+            "source-sans-pro/OTF/SourceSansPro-Italic.otf",
+            "source-sans-pro/OTF/SourceSansPro-BoldItalic.otf",
+        ]
+        .iter()
+        .map(test_able)
+        .collect();
+        let collection = TestableCollection {
+            testables,
+            directory: "".to_string(),
+        };
+        let result = run_check_with_config(
+            bold_italic_unique_for_nameid1,
+            TestableType::Collection(&collection),
+            HashMap::new(),
+        );
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_bold_italic_unique_fail_duplicate() {
+        let mut testables: Vec<_> = [
+            "source-sans-pro/OTF/SourceSansPro-Regular.otf",
+            "source-sans-pro/OTF/SourceSansPro-Bold.otf",
+            "source-sans-pro/OTF/SourceSansPro-Italic.otf",
+            "source-sans-pro/OTF/SourceSansPro-BoldItalic.otf",
+        ]
+        .iter()
+        .map(test_able)
+        .collect();
+        // Make the italic font also have the bold bit set, duplicating BoldItalic
+        let new_bytes = {
+            let f = TTF.from_testable(&testables[2]).unwrap();
+            let mut os2: write_fonts::tables::os2::Os2 = f.font().os2().unwrap().to_owned_table();
+            os2.fs_selection |= SelectionFlags::BOLD;
+            f.rebuild_with_new_table(&os2).unwrap()
+        };
+        testables[2].set(new_bytes);
+        let collection = TestableCollection {
+            testables,
+            directory: "".to_string(),
+        };
+        let result = run_check_with_config(
+            bold_italic_unique_for_nameid1,
+            TestableType::Collection(&collection),
+            HashMap::new(),
+        );
+        assert_results_contain(
+            &result,
+            StatusCode::Fail,
+            Some("unique-fsselection".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_bold_italic_unique_pass_cabin() {
+        let testables: Vec<_> = [
+            "cabin/Cabin-Regular.ttf",
+            "cabin/Cabin-Bold.ttf",
+            "cabin/Cabin-Italic.ttf",
+            "cabin/Cabin-BoldItalic.ttf",
+            "cabin/CabinCondensed-Regular.ttf",
+            "cabin/CabinCondensed-Bold.ttf",
+        ]
+        .iter()
+        .map(test_able)
+        .collect();
+        let collection = TestableCollection {
+            testables,
+            directory: "".to_string(),
+        };
+        let result = run_check_with_config(
+            bold_italic_unique_for_nameid1,
+            TestableType::Collection(&collection),
+            HashMap::new(),
+        );
+        assert_pass(&result);
+    }
 }

@@ -1,6 +1,6 @@
-use fontations::skrifa::raw::TableProvider;
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
+use skrifa::raw::TableProvider;
 
 use crate::network_conditions::{is_listed_on_google_fonts, remote_styles};
 

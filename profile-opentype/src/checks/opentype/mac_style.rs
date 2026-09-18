@@ -1,8 +1,6 @@
-use fontations::{
-    skrifa::raw::{tables::head::MacStyle, TableProvider},
-    write::from_obj::ToOwnedTable,
-};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use skrifa::raw::{tables::head::MacStyle, TableProvider};
+use write_fonts::from_obj::ToOwnedTable;
 
 #[check(
     id = "opentype/mac_style",
@@ -50,12 +48,15 @@ fn mac_style(f: &Testable, _context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
-fn fix_mac_style(f: &mut Testable) -> FixFnResult {
+fn fix_mac_style(
+    f: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
     let font = testfont!(f);
-    let mut head: fontations::write::tables::head::Head = font.font().head()?.to_owned_table();
+    let mut head: write_fonts::tables::head::Head = font.font().head()?.to_owned_table();
 
     let Some(style) = font.style() else {
-        return Ok(false);
+        return Ok(FixResult::Unfixable);
     };
     let mut bits = head.mac_style;
     if style == "Bold" || style == "BoldItalic" {
@@ -70,5 +71,93 @@ fn fix_mac_style(f: &mut Testable) -> FixFnResult {
     }
     head.mac_style = bits;
     f.set(font.rebuild_with_new_table(&head)?);
-    Ok(true)
+    Ok(FixResult::Fixed)
+}
+
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        StatusCode, Testable,
+    };
+
+    fn test_mac_style_with(
+        mac_style_value: MacStyle,
+        style: &str,
+    ) -> Option<fontspector_checkapi::CheckResult> {
+        let mut testable = test_able("cabin/Cabin-Regular.ttf");
+        let f = TTF.from_testable(&testable).unwrap();
+        let mut head: write_fonts::tables::head::Head = f.font().head().unwrap().to_owned_table();
+        head.mac_style = mac_style_value;
+        testable.set(f.rebuild_with_new_table(&head).unwrap());
+        let new_testable = Testable::new_with_contents(
+            format!("Test-{mac_style_value:?}-{style}.ttf"),
+            testable.contents,
+        );
+        run_check(mac_style, new_testable)
+    }
+
+    #[test]
+    fn test_mac_style_thin_pass() {
+        let result = test_mac_style_with(MacStyle::empty(), "Thin");
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_mac_style_italic_pass() {
+        let result = test_mac_style_with(MacStyle::ITALIC, "Italic");
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_mac_style_bold_pass() {
+        let result = test_mac_style_with(MacStyle::BOLD, "Bold");
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_mac_style_bold_italic_pass() {
+        let result = test_mac_style_with(MacStyle::BOLD | MacStyle::ITALIC, "BoldItalic");
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_mac_style_bad_bold() {
+        let result = test_mac_style_with(MacStyle::empty(), "Bold");
+        assert_results_contain(&result, StatusCode::Fail, Some("bad-BOLD".to_string()));
+    }
+
+    #[test]
+    fn test_mac_style_bad_italic() {
+        let result = test_mac_style_with(MacStyle::empty(), "Italic");
+        assert_results_contain(&result, StatusCode::Fail, Some("bad-ITALIC".to_string()));
+    }
+
+    #[test]
+    fn test_mac_style_italic_for_thin() {
+        let result = test_mac_style_with(MacStyle::ITALIC, "Thin");
+        assert_results_contain(&result, StatusCode::Fail, Some("bad-ITALIC".to_string()));
+    }
+
+    #[test]
+    fn test_mac_style_bold_for_thin() {
+        let result = test_mac_style_with(MacStyle::BOLD, "Thin");
+        assert_results_contain(&result, StatusCode::Fail, Some("bad-BOLD".to_string()));
+    }
+
+    #[test]
+    fn test_mac_style_no_style_in_filename_pass() {
+        let mut testable = test_able("cabin/Cabin-Regular.ttf");
+        let f = TTF.from_testable(&testable).unwrap();
+        let mut head: write_fonts::tables::head::Head = f.font().head().unwrap().to_owned_table();
+        head.mac_style = MacStyle::empty();
+        testable.set(f.rebuild_with_new_table(&head).unwrap());
+        // Use a filename that doesn't encode a recognizable style
+        let new_testable =
+            Testable::new_with_contents("Test-0-None.ttf".to_string(), testable.contents);
+        let result = run_check(mac_style, new_testable);
+        assert_pass(&result);
+    }
 }

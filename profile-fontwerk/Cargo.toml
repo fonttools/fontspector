@@ -1,6 +1,6 @@
 [package]
 name = "fontspector-profile-fontwerk"
-version = "1.3.0"
+version = "1.3.2"
 edition = "2021"
 authors = ["Olli Meier <hallo@olli-meier.de>"]
 description = "Fontspector checks for Fontwerk font specification compliance"
@@ -15,7 +15,8 @@ crate-type = ["cdylib", "rlib"]
 fontspector-checkapi = { path = "../fontspector-checkapi", features = [
     "kurbo",
 ], version = "1.0.0" }
-fontations = { workspace = true }
+skrifa = { workspace = true }
+write-fonts = { workspace = true }
 itertools = { workspace = true }
 serde_json = { workspace = true }
 regex = { workspace = true }
@@ -23,3 +24,8 @@ regex = { workspace = true }
 [target.'cfg(not(target_family = "wasm"))'.dependencies]
 # Plugin architecture
 pluginator = { workspace = true }
+
+[features]
+# The "check" feature enables dependencies only needed for checks, not fixes.
+default = ["check"]
+check = []

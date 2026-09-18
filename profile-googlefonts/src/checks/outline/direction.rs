@@ -21,6 +21,21 @@ use kurbo::{Rect, Shape};
 )]
 fn direction(t: &Testable, context: &Context) -> CheckFnResult {
     let f = testfont!(t);
+
+    let is_ttf = f.has_table(b"glyf");
+
+    let direction_is_wrong = |path: &kurbo::BezPath| {
+        if is_ttf {
+            path.area() > 0.0
+        } else {
+            path.area() < 0.0
+        }
+    };
+    let wrong_direction = if is_ttf {
+        "counter-clockwise"
+    } else {
+        "clockwise"
+    };
     let mut problems = vec![];
     let mut all_warnings = vec![];
     for (name, result) in name_and_bezglyph(&f) {
@@ -51,16 +66,16 @@ fn direction(t: &Testable, context: &Context) -> CheckFnResult {
         for (i, path) in pen.iter().enumerate() {
             #[allow(clippy::indexing_slicing)]
             // is_within is initialized with the same length as bounds
-            if is_within[i].is_empty() && path.area() > 0.0 {
-                all_warnings.push(format!("{name} has a counter-clockwise outer contour"));
+            if is_within[i].is_empty() && direction_is_wrong(path) {
+                all_warnings.push(format!("{name} has a {wrong_direction} outer contour"));
             }
         }
     }
     if !all_warnings.is_empty() {
         problems.push(Status::warn(
-            "ccw-outer-contour",
+            "ccw-outer-contour", // Keep status code for compat, even though we detect cw outer contours in CFF fonts
             &format!(
-                "The following glyphs have a counter-clockwise outer contour:\n\n{}",
+                "The following glyphs have a {wrong_direction} outer contour:\n\n{}",
                 bullet_list(context, all_warnings)
             ),
         ));

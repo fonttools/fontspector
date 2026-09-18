@@ -1,11 +1,11 @@
-use fontations::skrifa::{
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, TestFont};
+use google_fonts_axisregistry::AxisRegistry;
+use hashbrown::HashMap;
+use skrifa::{
     raw::{tables::stat::AxisValue, TableProvider},
     string::StringId,
     Tag,
 };
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, TestFont};
-use google_fonts_axisregistry::AxisRegistry;
-use hashbrown::HashMap;
 
 fn normalize_name(name: &str) -> String {
     name.split_whitespace().collect()

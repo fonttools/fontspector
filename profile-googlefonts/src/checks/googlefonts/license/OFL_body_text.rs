@@ -44,3 +44,41 @@ fn OFL_body_text(t: &Testable, _context: &Context) -> CheckFnResult {
     }
     return Ok(Status::just_one_pass());
 }
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used)]
+
+    use super::OFL_body_text;
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        StatusCode, Testable,
+    };
+
+    #[test]
+    fn test_check_license_ofl_body_text() {
+        let license = test_able("montserrat/OFL.txt");
+        assert_pass(&run_check(OFL_body_text, license.clone()));
+
+        let https = String::from_utf8(license.contents.clone())
+            .unwrap()
+            .replace("http://", "https://");
+        assert_pass(&run_check(
+            OFL_body_text,
+            Testable::new_with_contents("OFL.txt", https.clone().into_bytes()),
+        ));
+
+        let broken = https.replace(
+            "SIL OPEN FONT LICENSE Version 1.1",
+            "SOMETHING ELSE :-P Version Foo",
+        );
+        assert_results_contain(
+            &run_check(
+                OFL_body_text,
+                Testable::new_with_contents("OFL.txt", broken.into_bytes()),
+            ),
+            StatusCode::Warn,
+            Some("incorrect-ofl-body-text".to_string()),
+        );
+    }
+}

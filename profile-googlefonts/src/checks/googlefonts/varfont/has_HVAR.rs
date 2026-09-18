@@ -44,3 +44,30 @@ fn has_HVAR(t: &Testable, _context: &Context) -> CheckFnResult {
     }
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
+    use fontspector_checkapi::{
+        codetesting::{assert_results_contain, assert_skip, remove_table, run_check, test_able},
+        StatusCode,
+    };
+
+    use super::has_HVAR;
+
+    #[test]
+    fn test_skip_static_font() {
+        let testable = test_able("mada/Mada-Regular.ttf");
+        let results = run_check(has_HVAR, testable);
+        assert_skip(&results);
+    }
+
+    #[test]
+    fn test_fail_vf_without_hvar() {
+        let mut testable = test_able("varfont/inter/Inter[slnt,wght].ttf");
+        remove_table(&mut testable, b"HVAR");
+        let results = run_check(has_HVAR, testable);
+        assert_results_contain(&results, StatusCode::Fail, Some("lacks-HVAR".to_string()));
+    }
+}

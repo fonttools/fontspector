@@ -1,5 +1,5 @@
-use fontations::skrifa::raw::types::NameId;
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use skrifa::raw::types::NameId;
 
 #[check(
     id = "opentype/name/match_familyname_fullfont",
@@ -60,4 +60,60 @@ fn match_familyname_fullfont(t: &Testable, _context: &Context) -> CheckFnResult 
         }
     }
     return_result(vec![])
+}
+
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, set_name_entry, test_able},
+        StatusCode,
+    };
+    use skrifa::raw::types::NameId;
+
+    #[test]
+    fn test_match_familyname_fullfont_pass() {
+        let testable = test_able("mada/Mada-Regular.ttf");
+        let result = run_check(match_familyname_fullfont, testable);
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_match_familyname_fullfont_fail_mismatch() {
+        let mut testable = test_able("mada/Mada-Regular.ttf");
+        set_name_entry(
+            &mut testable,
+            3,
+            1,
+            0x0409,
+            NameId::FULL_NAME,
+            "bad-prefixMada".to_string(),
+        );
+        let result = run_check(match_familyname_fullfont, testable);
+        assert_results_contain(
+            &result,
+            StatusCode::Fail,
+            Some("mismatch-font-names".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_match_familyname_fullfont_pass_cjk() {
+        let testable = test_able("cjk/Iansui-Regular.ttf");
+        let result = run_check(match_familyname_fullfont, testable);
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_match_familyname_fullfont_fail_missing_full_name() {
+        let mut testable = test_able("mada/Mada-Regular.ttf");
+        fontspector_checkapi::codetesting::remove_name_entry(&mut testable, NameId::FULL_NAME);
+        let result = run_check(match_familyname_fullfont, testable);
+        assert_results_contain(
+            &result,
+            StatusCode::Fail,
+            Some("missing-full-name".to_string()),
+        );
+    }
 }

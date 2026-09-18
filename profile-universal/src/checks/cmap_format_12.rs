@@ -1,8 +1,8 @@
 use std::collections::HashSet;
 
-use fontations::skrifa::raw::{tables::cmap::CmapSubtable, TableProvider};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
+use skrifa::raw::{tables::cmap::CmapSubtable, TableProvider};
 
 #[check(
     id = "cmap/format_12",

@@ -5,6 +5,241 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.6.0 (2026-07-07)
+
+### New Features
+
+ - <csr-id-d787043511a3ce9b7a98a49aa6cbc0ee60ceb026/> add fsselection_wws check
+   * feat(opentype): add fsselection_wws check
+   
+   Warn when OS/2 fsSelection bit 8 (WWS) is inconsistent with name
+   table entries. If name IDs 21/22 are absent (font naming is already
+   WWS-conformant), the WWS bit should be set. If name IDs 21/22 are
+   present, the WWS bit should not be set.
+
+### Refactor
+
+ - <csr-id-7f61c7af0c64770e5b5c53f3aa757492c80d4e29/> make it more general (except other file name + except static fonts)
+   * refactor(segment_vf_collection): more general (don't look for file name)
+   
+   * test: add Noto Sans resources for unittests
+   
+   * fix(ital_axis): don't skip static fonts (they can have STAT tables as well)
+   
+   * test(test_ital_axis_skip_static_fonts): better name
+   
+   * test(test_ital_axis_static_fonts_missing_stat): use static fonts without STAT table from 'main'
+   
+   * refactor(ital_axis): remove obsolete imports and fix formatting
+   
+   * fix: don't use !format!() if it's a string without variables.
+   
+   * fix(ital_axis): issue with panic
+   
+   ---------
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 2 commits contributed to the release.
+ - 11 days passed between releases.
+ - 2 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 2 unique issues were worked on: [#684](https://github.com/fonttools/fontspector/issues/684), [#847](https://github.com/fonttools/fontspector/issues/847)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#684](https://github.com/fonttools/fontspector/issues/684)**
+    - Add fsselection_wws check ([`d787043`](https://github.com/fonttools/fontspector/commit/d787043511a3ce9b7a98a49aa6cbc0ee60ceb026))
+ * **[#847](https://github.com/fonttools/fontspector/issues/847)**
+    - Make it more general (except other file name + except static fonts) ([`7f61c7a`](https://github.com/fonttools/fontspector/commit/7f61c7af0c64770e5b5c53f3aa757492c80d4e29))
+</details>
+
+## v1.5.1 (2026-06-26)
+
+### Test
+
+ - <csr-id-35b60e025c28d65cb2c858691bf11d001da34802/> Move more tests from Python to Rust
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 2 commits contributed to the release.
+ - 39 days passed between releases.
+ - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
+ - 1 unique issue was worked on: [#825](https://github.com/fonttools/fontspector/issues/825)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#825](https://github.com/fonttools/fontspector/issues/825)**
+    - Move more tests from Python to Rust ([`35b60e0`](https://github.com/fonttools/fontspector/commit/35b60e025c28d65cb2c858691bf11d001da34802))
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.7.1, fontspector-profile-fontwerk v1.3.2, fontspector-profile-googlefonts v1.8.2, fontspector-profile-iso15008 v1.0.7, fontspector-profile-opentype v1.5.1, fontspector-profile-universal v1.8.2, fontspector-hotfix v0.3.1, fontspector v1.7.2 ([`accdd2a`](https://github.com/fonttools/fontspector/commit/accdd2a9c3ab285e71e5a047120cbe366cd80a84))
+</details>
+
+## v1.5.0 (2026-05-18)
+
+<csr-id-0d19fe268f4ca901c88f68cef20b7426b981029a/>
+<csr-id-7b32eca0846e594655f304250928295ffbf6496a/>
+<csr-id-21088abcfe9357b6c28be5ce87557d306e8b93e2/>
+
+### Chore
+
+ - <csr-id-0d19fe268f4ca901c88f68cef20b7426b981029a/> Silence printlns
+
+### New Features
+
+ - <csr-id-d7a8e964d234b7bf1693e85a7610d9a1f78c572f/> Interactive fixing
+   * feat(googlefonts/canonical_filename): Add hotfix
+   
+   * chore(web): Hotfix testables all at once
+   
+   * chore(web): Improve display of fixables
+   
+   * chore(opentype/GDEF_non_mark_chars): Add metadata, sort output
+   
+   * chore: Thanks clippy
+   
+   * chore(googlefonts): Move style map into constants
+   
+   * feat(googlefonts/font_names): Detect bad styles based on typos and weightclass settings
+   
+   * chore(web): Improve message grouping (again)
+   
+   * chore: Adapt fix API to request and receive structured data
+   
+   * feat: WIP dialogues in hotfixes
+   
+   * feat(web): Fix but don't download
+   
+   * chore: Slightly better dialogue Ux
+   
+   * chore: Update web to new fix API
+   
+   * feat(googlefonts/font_names): Add interactive fix function for statics
+   
+   * chore: Update hotfix lib to new fix API
+   
+   * chore: Update web to new fix API
+   
+   * fix(googlefonts/font_names): Better problem reporting
+   
+   * fix(web): Loading spinner
+   
+   * chore: Thanks clippy
+   
+   * chore(web): Drop the log file properly
+   
+   * chore: Small web fixes
+   
+   * test: Fix up Python test
+ - <csr-id-74bc84280b54782a68489b065764dee8335352a9/> More autofixes
+   * chore(web): Don't offer to fix INFOs
+   
+   * feat: Various hotfixes
+   
+   * chore: Unused crate
+ - <csr-id-73ef497a79337af8d6b69dccf5ae1aae5e068b2a/> add fvar/valid_range check
+   * feat(opentype): add fvar/valid_range check
+   
+   Validates that each fvar axis maxValue is strictly greater than minValue.
+   A degenerate axis where max <= min defines no usable variation range and
+   indicates a build error (e.g. single-master designspace compiled as VF).
+
+### Bug Fixes
+
+ - <csr-id-2542d5654c3407a82f737861dfcd3dc5639c8571/> ital_axis check should skip on statics
+   * fix(opentype/STAT/ital_axis): ital_axis check should skip on statics
+   
+   * chore: Thanks clippy
+ - <csr-id-bc9fbfc8e568707ff450d3fc20ba28a722828646/> improve ital_axis italic detection and standalone italic handling
+   * fix(opentype): improve ital_axis check italic detection and standalone italic handling
+   
+   Use TestFont::is_italic() (OS/2 fsSelection, head macStyle, name table,
+   post italic angle) instead of filename pattern matching to detect italic
+   fonts. Also handle standalone italic fonts correctly by validating their
+   STAT ital axis values (ital=1, non-elidable) instead of failing with
+   "missing-roman".
+
+### Refactor
+
+ - <csr-id-7b32eca0846e594655f304250928295ffbf6496a/> New plugin architecture
+   * refactor: Remove fontbakery-bridge
+   
+   * refactor: New plugin architecture
+   
+   * feat: Demonstrate Python-based plugins
+   
+   * docs: New plugin architecture
+
+### Test
+
+ - <csr-id-21088abcfe9357b6c28be5ce87557d306e8b93e2/> port Python tests to Rust (batch 2)
+   * test: port Python tests to Rust (batch 1+2: opentype checks)
+   
+   Port Python fontbakery tests to Rust for opentype profile checks including:
+   - GDEF (mark_chars, non_mark_chars, spacing_marks)
+   - glyf (unused_data, non_transformed_duplicate_components)
+   - hhea (caret_slope, maxadvancewidth)
+   - loca (maxp_num_glyphs)
+   - post (post_table_version, italic_angle)
+   - STAT (ital_axis, axis_record_for_each_axis)
+   - weight_class_fvar
+   - points_out_of_bounds
+   - underline_thickness
+   - fsselection, mac_style, monospace, font_version
+   - name (empty_records, match_familyname_fullfont, postscript_name_consistency, postscript_vs_cff, postscript_name)
+   - family (bold_italic_unique_for_nameid1, equal_font_versions, panose_familytype)
+   - fvar (axis_ranges_correct, regular_coords_correct)
+   - varfont (distinct_instance_records, foundry_defined_tag_name, valid_default_instance_nameids, valid_nameids)
+   - vendor_id, unitsperem, xavgcharwidth, code_pages, slant_direction, family_naming_recommendations
+   
+   Also fixes set_name_entry() to sort name records (required by write-fonts validation).
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 9 commits contributed to the release over the course of 72 calendar days.
+ - 84 days passed between releases.
+ - 8 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 8 unique issues were worked on: [#665](https://github.com/fonttools/fontspector/issues/665), [#679](https://github.com/fonttools/fontspector/issues/679), [#694](https://github.com/fonttools/fontspector/issues/694), [#700](https://github.com/fonttools/fontspector/issues/700), [#710](https://github.com/fonttools/fontspector/issues/710), [#712](https://github.com/fonttools/fontspector/issues/712), [#716](https://github.com/fonttools/fontspector/issues/716), [#782](https://github.com/fonttools/fontspector/issues/782)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#665](https://github.com/fonttools/fontspector/issues/665)**
+    - Add fvar/valid_range check ([`73ef497`](https://github.com/fonttools/fontspector/commit/73ef497a79337af8d6b69dccf5ae1aae5e068b2a))
+ * **[#679](https://github.com/fonttools/fontspector/issues/679)**
+    - Improve ital_axis italic detection and standalone italic handling ([`bc9fbfc`](https://github.com/fonttools/fontspector/commit/bc9fbfc8e568707ff450d3fc20ba28a722828646))
+ * **[#694](https://github.com/fonttools/fontspector/issues/694)**
+    - More autofixes ([`74bc842`](https://github.com/fonttools/fontspector/commit/74bc84280b54782a68489b065764dee8335352a9))
+ * **[#700](https://github.com/fonttools/fontspector/issues/700)**
+    - Port Python tests to Rust (batch 2) ([`21088ab`](https://github.com/fonttools/fontspector/commit/21088abcfe9357b6c28be5ce87557d306e8b93e2))
+ * **[#710](https://github.com/fonttools/fontspector/issues/710)**
+    - Interactive fixing ([`d7a8e96`](https://github.com/fonttools/fontspector/commit/d7a8e964d234b7bf1693e85a7610d9a1f78c572f))
+ * **[#712](https://github.com/fonttools/fontspector/issues/712)**
+    - Ital_axis check should skip on statics ([`2542d56`](https://github.com/fonttools/fontspector/commit/2542d5654c3407a82f737861dfcd3dc5639c8571))
+ * **[#716](https://github.com/fonttools/fontspector/issues/716)**
+    - Silence printlns ([`0d19fe2`](https://github.com/fonttools/fontspector/commit/0d19fe268f4ca901c88f68cef20b7426b981029a))
+ * **[#782](https://github.com/fonttools/fontspector/issues/782)**
+    - New plugin architecture ([`7b32eca`](https://github.com/fonttools/fontspector/commit/7b32eca0846e594655f304250928295ffbf6496a))
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.6.0, fontspector-profile-fontwerk v1.3.1, fontspector-profile-googlefonts v1.8.0, fontspector-profile-iso15008 v1.0.6, fontspector-profile-opentype v1.5.0, fontspector-profile-universal v1.8.0, fontspector-hotfix v0.2.0, fontspector v1.7.0, safety bump fontspector-hotfix v0.2.0 ([`b319e16`](https://github.com/fonttools/fontspector/commit/b319e16d70daabfed30fcb18d66b8400c00fd32f))
+</details>
+
 ## v1.4.0 (2026-02-23)
 
 ### New Features
@@ -28,7 +263,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 1 commit contributed to the release over the course of 2 calendar days.
+ - 2 commits contributed to the release over the course of 2 calendar days.
  - 16 days passed between releases.
  - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
  - 1 unique issue was worked on: [#629](https://github.com/fonttools/fontspector/issues/629)
@@ -41,6 +276,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
  * **[#629](https://github.com/fonttools/fontspector/issues/629)**
     - Add machine-readable metadata to (almost) all checks ([`568958e`](https://github.com/fonttools/fontspector/commit/568958e9b33f5c11076dde02e89ce0a73bc6a07e))
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.5.0, fontspector-fontbakery-bridge v1.3.0, fontspector-profile-fontwerk v1.3.0, fontspector-profile-googlefonts v1.7.0, fontspector-profile-opentype v1.4.0, fontspector-profile-universal v1.7.0, fontspector-hotfix v0.1.0, fontspector v1.6.0, safety bump fontspector-hotfix v0.1.0 ([`cb2a669`](https://github.com/fonttools/fontspector/commit/cb2a669f1f0963a68ba22bdc1e0cd56e602219ca))
 </details>
 
 ## v1.3.1 (2026-02-06)

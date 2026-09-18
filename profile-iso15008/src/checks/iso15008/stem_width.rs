@@ -1,6 +1,6 @@
 use super::find_stem_width;
-use fontations::skrifa::raw::TableProvider;
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use skrifa::raw::TableProvider;
 
 #[check(
     id = "iso15008/stem_width",

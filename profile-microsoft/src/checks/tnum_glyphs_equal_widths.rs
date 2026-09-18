@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
-use fontations::skrifa::GlyphId;
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
 use harfrust::{Shaper, ShaperData, UnicodeBuffer};
+use skrifa::GlyphId;
 
 fn verify_widths(shaper: &Shaper, text: &str) -> HashMap<i32, Vec<GlyphId>> {
     let mut buffer = UnicodeBuffer::new();
@@ -13,7 +13,8 @@ fn verify_widths(shaper: &Shaper, text: &str) -> HashMap<i32, Vec<GlyphId>> {
         ..,
     )];
     buffer.guess_segment_properties();
-    let glyph_buffer = shaper.shape(buffer, &features);
+    let shaper_options = harfrust::ShapeOptions::new().features(&features);
+    let glyph_buffer = shaper.shape(buffer, shaper_options);
     glyph_buffer
         .glyph_infos()
         .iter()
@@ -74,6 +75,7 @@ fn tnum_glyphs_equal_widths(t: &Testable, context: &Context) -> CheckFnResult {
     };
 
     let variations_to_test: Vec<Vec<harfrust::Variation>> = if f.is_variable_font() {
+        #[allow(clippy::unwrap_used)] // if it was a Tag before it can be one again
         f.named_instances()
             .map(|(_name, coordinates)| {
                 coordinates
