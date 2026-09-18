@@ -5,6 +5,71 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.9.0 (2026-09-18)
+
+### Chore
+
+ - <csr-id-cff578b07e45be364b13d3e23b1337938f8fcd6f/> Update harfrust to new API
+ - <csr-id-178f989dea5ccb0a2853fe9e32f7f6b270196b67/> Minimize the crates required by the hotfix crate
+   * chore: Minimize the crates required by the hotfix crate
+   
+   * chore: Update fontc deps
+ - <csr-id-a193d56a4e4051b2f464bc59b9351a4439c023ce/> Move from dead fontations to skrifa/write_fonts
+   * chore: Drop fontations dep, use skrifa/write_fonts
+   
+   * chore: Thanks clippy
+
+### New Features
+
+ - <csr-id-6a4bd801925d2c106a0474e0f8437197bbdbea33/> add no_oblique_bit check
+   * feat(googlefonts): add no_oblique_bit check
+   
+   Adds a check that FAILs when the OS/2 fsSelection OBLIQUE bit (bit 9)
+   is set. Google Fonts does not want this bit enabled.
+ - <csr-id-55b6dcaa7926716ec64c4d558828eba0a294defc/> Improve metadata parsing errors
+
+### Bug Fixes
+
+ - <csr-id-534888709c1608715bdce9771953c8a626436a3d/> Indicate which shaping JSON file is invalid
+ - <csr-id-6a3797cb2c1c7e640b4033fee0c9414260227e42/> Ensure hotfix binary builds with minimal features
+   * ci: Ensure all packages (including hotfix) can build
+   
+   * fix: Gate STAT_strings under check-only
+ - <csr-id-1b971869f0af5e628ed5733837e588e18a7d23ba/> Promote Adobe's STAT_strings to universal, move current to GF
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 8 commits contributed to the release over the course of 9 calendar days.
+ - 38 days passed between releases.
+ - 8 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 8 unique issues were worked on: [#667](https://github.com/fonttools/fontspector/issues/667), [#851](https://github.com/fonttools/fontspector/issues/851), [#898](https://github.com/fonttools/fontspector/issues/898), [#905](https://github.com/fonttools/fontspector/issues/905), [#917](https://github.com/fonttools/fontspector/issues/917), [#918](https://github.com/fonttools/fontspector/issues/918), [#920](https://github.com/fonttools/fontspector/issues/920), [#922](https://github.com/fonttools/fontspector/issues/922)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#667](https://github.com/fonttools/fontspector/issues/667)**
+    - Add no_oblique_bit check ([`6a4bd80`](https://github.com/fonttools/fontspector/commit/6a4bd801925d2c106a0474e0f8437197bbdbea33))
+ * **[#851](https://github.com/fonttools/fontspector/issues/851)**
+    - Update harfrust to new API ([`cff578b`](https://github.com/fonttools/fontspector/commit/cff578b07e45be364b13d3e23b1337938f8fcd6f))
+ * **[#898](https://github.com/fonttools/fontspector/issues/898)**
+    - Move from dead fontations to skrifa/write_fonts ([`a193d56`](https://github.com/fonttools/fontspector/commit/a193d56a4e4051b2f464bc59b9351a4439c023ce))
+ * **[#905](https://github.com/fonttools/fontspector/issues/905)**
+    - Minimize the crates required by the hotfix crate ([`178f989`](https://github.com/fonttools/fontspector/commit/178f989dea5ccb0a2853fe9e32f7f6b270196b67))
+ * **[#917](https://github.com/fonttools/fontspector/issues/917)**
+    - Promote Adobe's STAT_strings to universal, move current to GF ([`1b97186`](https://github.com/fonttools/fontspector/commit/1b971869f0af5e628ed5733837e588e18a7d23ba))
+ * **[#918](https://github.com/fonttools/fontspector/issues/918)**
+    - Ensure hotfix binary builds with minimal features ([`6a3797c`](https://github.com/fonttools/fontspector/commit/6a3797cb2c1c7e640b4033fee0c9414260227e42))
+ * **[#920](https://github.com/fonttools/fontspector/issues/920)**
+    - Indicate which shaping JSON file is invalid ([`5348887`](https://github.com/fonttools/fontspector/commit/534888709c1608715bdce9771953c8a626436a3d))
+ * **[#922](https://github.com/fonttools/fontspector/issues/922)**
+    - Improve metadata parsing errors ([`55b6dca`](https://github.com/fonttools/fontspector/commit/55b6dcaa7926716ec64c4d558828eba0a294defc))
+</details>
+
 ## v1.8.4 (2026-08-11)
 
 ### Chore
@@ -15,8 +80,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 1 commit contributed to the release over the course of 14 calendar days.
- - 29 days passed between releases.
+ - 2 commits contributed to the release over the course of 21 calendar days.
+ - 35 days passed between releases.
  - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
  - 1 unique issue was worked on: [#875](https://github.com/fonttools/fontspector/issues/875)
 
@@ -34,6 +99,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
  * **[#875](https://github.com/fonttools/fontspector/issues/875)**
     - Thanks clippy ([`ba4aa40`](https://github.com/fonttools/fontspector/commit/ba4aa4052252bc103ba0742bea043c75d3f25265))
+ * **Uncategorized**
+    - Release fontspector-profile-googlefonts v1.8.4 ([`6235273`](https://github.com/fonttools/fontspector/commit/6235273db57e885b41f466aa4348bb9665ef3d67))
 </details>
 
 ## v1.8.3 (2026-07-07)
