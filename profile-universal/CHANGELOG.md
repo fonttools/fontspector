@@ -5,6 +5,49 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.8.5 (2026-09-18)
+
+### Chore
+
+ - <csr-id-f3deb23c9db46e05f55d7249d79c4a473f1eab07/> Macros apparently need semicolons
+ - <csr-id-178f989dea5ccb0a2853fe9e32f7f6b270196b67/> Minimize the crates required by the hotfix crate
+   * chore: Minimize the crates required by the hotfix crate
+   
+   * chore: Update fontc deps
+ - <csr-id-a193d56a4e4051b2f464bc59b9351a4439c023ce/> Move from dead fontations to skrifa/write_fonts
+   * chore: Drop fontations dep, use skrifa/write_fonts
+   
+   * chore: Thanks clippy
+
+### Bug Fixes
+
+ - <csr-id-1b971869f0af5e628ed5733837e588e18a7d23ba/> Promote Adobe's STAT_strings to universal, move current to GF
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 4 commits contributed to the release over the course of 9 calendar days.
+ - 38 days passed between releases.
+ - 4 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 4 unique issues were worked on: [#898](https://github.com/fonttools/fontspector/issues/898), [#905](https://github.com/fonttools/fontspector/issues/905), [#915](https://github.com/fonttools/fontspector/issues/915), [#917](https://github.com/fonttools/fontspector/issues/917)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#898](https://github.com/fonttools/fontspector/issues/898)**
+    - Move from dead fontations to skrifa/write_fonts ([`a193d56`](https://github.com/fonttools/fontspector/commit/a193d56a4e4051b2f464bc59b9351a4439c023ce))
+ * **[#905](https://github.com/fonttools/fontspector/issues/905)**
+    - Minimize the crates required by the hotfix crate ([`178f989`](https://github.com/fonttools/fontspector/commit/178f989dea5ccb0a2853fe9e32f7f6b270196b67))
+ * **[#915](https://github.com/fonttools/fontspector/issues/915)**
+    - Macros apparently need semicolons ([`f3deb23`](https://github.com/fonttools/fontspector/commit/f3deb23c9db46e05f55d7249d79c4a473f1eab07))
+ * **[#917](https://github.com/fonttools/fontspector/issues/917)**
+    - Promote Adobe's STAT_strings to universal, move current to GF ([`1b97186`](https://github.com/fonttools/fontspector/commit/1b971869f0af5e628ed5733837e588e18a7d23ba))
+</details>
+
 ## v1.8.4 (2026-08-11)
 
 ### Chore
@@ -19,7 +62,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 2 commits contributed to the release over the course of 21 calendar days.
+ - 3 commits contributed to the release over the course of 21 calendar days.
  - 35 days passed between releases.
  - 2 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 2 unique issues were worked on: [#875](https://github.com/fonttools/fontspector/issues/875), [#880](https://github.com/fonttools/fontspector/issues/880)
@@ -40,6 +83,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Thanks clippy ([`ba4aa40`](https://github.com/fonttools/fontspector/commit/ba4aa4052252bc103ba0742bea043c75d3f25265))
  * **[#880](https://github.com/fonttools/fontspector/issues/880)**
     - Use gvar/HVAR peaks in suspicious_sidebearings ([`ce4d7b6`](https://github.com/fonttools/fontspector/commit/ce4d7b63623f4ccd076dcea4888fefda55971793))
+ * **Uncategorized**
+    - Release fontspector-profile-universal v1.8.4 ([`00e9457`](https://github.com/fonttools/fontspector/commit/00e94573b949adf7641f86b4411684235ad41bdd))
 </details>
 
 ## v1.8.3 (2026-07-07)
