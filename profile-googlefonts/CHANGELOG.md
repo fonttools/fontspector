@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.9.1 (2026-09-29)
+
+### Chore
+
+ - <csr-id-51855914932e7f781cc2955170cc210fdf2ac36f/> Check was added twice
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 1 commit contributed to the release.
+ - 4 days passed between releases.
+ - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
+ - 1 unique issue was worked on: [#937](https://github.com/fonttools/fontspector/issues/937)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#937](https://github.com/fonttools/fontspector/issues/937)**
+    - Check was added twice ([`5185591`](https://github.com/fonttools/fontspector/commit/51855914932e7f781cc2955170cc210fdf2ac36f))
+</details>
+
 ## v1.9.0 (2026-09-18)
 
 ### Chore
@@ -41,7 +66,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 8 commits contributed to the release over the course of 9 calendar days.
+ - 9 commits contributed to the release over the course of 9 calendar days.
  - 38 days passed between releases.
  - 8 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 8 unique issues were worked on: [#667](https://github.com/fonttools/fontspector/issues/667), [#851](https://github.com/fonttools/fontspector/issues/851), [#898](https://github.com/fonttools/fontspector/issues/898), [#905](https://github.com/fonttools/fontspector/issues/905), [#917](https://github.com/fonttools/fontspector/issues/917), [#918](https://github.com/fonttools/fontspector/issues/918), [#920](https://github.com/fonttools/fontspector/issues/920), [#922](https://github.com/fonttools/fontspector/issues/922)
@@ -68,6 +93,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Indicate which shaping JSON file is invalid ([`5348887`](https://github.com/fonttools/fontspector/commit/534888709c1608715bdce9771953c8a626436a3d))
  * **[#922](https://github.com/fonttools/fontspector/issues/922)**
     - Improve metadata parsing errors ([`55b6dca`](https://github.com/fonttools/fontspector/commit/55b6dcaa7926716ec64c4d558828eba0a294defc))
+ * **Uncategorized**
+    - Release fontspector-profile-googlefonts v1.9.0 ([`06537fb`](https://github.com/fonttools/fontspector/commit/06537fb5b9a9d72b1ae4574a7e22104539ff61e3))
 </details>
 
 ## v1.8.4 (2026-08-11)
