@@ -100,7 +100,7 @@ pub use field_values::field_values;
 pub use file_size::file_size;
 #[cfg(not(target_family = "wasm"))]
 pub use fontdata_namecheck::fontdata_namecheck;
-#[cfg(not(target_family = "wasm"))]
+#[cfg(all(feature = "check", not(target_family = "wasm")))]
 pub use freetype_rasterizer::freetype_rasterizer;
 pub use fvar_instance_ps_names::fvar_instance_ps_names;
 pub use fvar_name_entries::fvar_name_entries;
