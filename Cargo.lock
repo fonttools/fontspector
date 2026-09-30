@@ -1761,7 +1761,7 @@ dependencies = [
 
 [[package]]
 name = "fontspector-profile-universal"
-version = "1.8.6"
+version = "1.8.7"
 dependencies = [
  "fontdrasil",
  "fontspector-checkapi",

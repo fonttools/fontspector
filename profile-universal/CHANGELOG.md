@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.8.7 (2026-09-30)
+
+### Chore
+
+ - <csr-id-aa18529b5dea6a8fd9ad161e44c075666aba8c8f/> Stronger gating on freetype check
+   * chore(universal): Stronger gating on freetype check
+   
+   * ci: Check hotfi builds
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 1 commit contributed to the release.
+ - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
+ - 1 unique issue was worked on: [#941](https://github.com/fonttools/fontspector/issues/941)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#941](https://github.com/fonttools/fontspector/issues/941)**
+    - Stronger gating on freetype check ([`aa18529`](https://github.com/fonttools/fontspector/commit/aa18529b5dea6a8fd9ad161e44c075666aba8c8f))
+</details>
+
 ## v1.8.6 (2026-09-30)
 
 ### Chore
@@ -15,7 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 1 commit contributed to the release.
+ - 2 commits contributed to the release.
  - 12 days passed between releases.
  - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
  - 1 unique issue was worked on: [#940](https://github.com/fonttools/fontspector/issues/940)
@@ -28,6 +55,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
  * **[#940](https://github.com/fonttools/fontspector/issues/940)**
     - Make freetype dependency optional ([`3bd4ae1`](https://github.com/fonttools/fontspector/commit/3bd4ae11df7b6550a9bab2213ffc8d10600d053b))
+ * **Uncategorized**
+    - Release fontspector-profile-universal v1.8.6 ([`7c85abf`](https://github.com/fonttools/fontspector/commit/7c85abfec9c031076510cbc2b78497835985e786))
 </details>
 
 ## v1.8.5 (2026-09-18)
