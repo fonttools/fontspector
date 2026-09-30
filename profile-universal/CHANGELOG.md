@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.8.6 (2026-09-30)
+
+### Chore
+
+ - <csr-id-3bd4ae11df7b6550a9bab2213ffc8d10600d053b/> Make freetype dependency optional
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 1 commit contributed to the release.
+ - 12 days passed between releases.
+ - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
+ - 1 unique issue was worked on: [#940](https://github.com/fonttools/fontspector/issues/940)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#940](https://github.com/fonttools/fontspector/issues/940)**
+    - Make freetype dependency optional ([`3bd4ae1`](https://github.com/fonttools/fontspector/commit/3bd4ae11df7b6550a9bab2213ffc8d10600d053b))
+</details>
+
 ## v1.8.5 (2026-09-18)
 
 ### Chore
@@ -27,7 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 4 commits contributed to the release over the course of 9 calendar days.
+ - 5 commits contributed to the release over the course of 9 calendar days.
  - 38 days passed between releases.
  - 4 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 4 unique issues were worked on: [#898](https://github.com/fonttools/fontspector/issues/898), [#905](https://github.com/fonttools/fontspector/issues/905), [#915](https://github.com/fonttools/fontspector/issues/915), [#917](https://github.com/fonttools/fontspector/issues/917)
@@ -46,6 +71,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Macros apparently need semicolons ([`f3deb23`](https://github.com/fonttools/fontspector/commit/f3deb23c9db46e05f55d7249d79c4a473f1eab07))
  * **[#917](https://github.com/fonttools/fontspector/issues/917)**
     - Promote Adobe's STAT_strings to universal, move current to GF ([`1b97186`](https://github.com/fonttools/fontspector/commit/1b971869f0af5e628ed5733837e588e18a7d23ba))
+ * **Uncategorized**
+    - Release fontspector-profile-universal v1.8.5 ([`d1fa740`](https://github.com/fonttools/fontspector/commit/d1fa740bb2f0425da1d894dafa379aef1ffef0b2))
 </details>
 
 ## v1.8.4 (2026-08-11)
