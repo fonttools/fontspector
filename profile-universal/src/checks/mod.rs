@@ -24,7 +24,7 @@ mod field_values;
 mod file_size;
 #[cfg(not(target_family = "wasm"))]
 mod fontdata_namecheck;
-#[cfg(not(target_family = "wasm"))]
+#[cfg(all(feature = "check", not(target_family = "wasm")))]
 mod freetype_rasterizer;
 mod fvar_instance_ps_names;
 mod fvar_name_entries;
