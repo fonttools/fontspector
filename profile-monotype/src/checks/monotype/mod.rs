@@ -2,3 +2,5 @@
 // TODO: add Monotype-specific checks
 mod fstype;
 pub use fstype::fstype;
+mod weightclass;
+pub use weightclass::weightclass;
