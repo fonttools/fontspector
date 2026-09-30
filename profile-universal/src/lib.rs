@@ -41,9 +41,9 @@ impl fontspector_checkapi::ProfileProvider for Universal {
             );
 
         #[cfg(not(target_family = "wasm"))]
-        let builder = builder
-            .add_and_register_check(checks::fontdata_namecheck)
-            .add_and_register_check(checks::freetype_rasterizer);
+        let builder = builder.add_and_register_check(checks::fontdata_namecheck);
+        #[cfg(all(feature = "check", not(target_family = "wasm")))]
+        let builder = builder.add_and_register_check(checks::freetype_rasterizer);
 
         let builder = builder
             .add_and_register_check(checks::fvar_instance_ps_names)
