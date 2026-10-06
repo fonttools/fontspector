@@ -55,6 +55,28 @@ fn whitespace_widths(t: &Testable, _context: &Context) -> CheckFnResult {
     }
 }
 
+fn fix_whitespace_widths(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
+    let f = testfont!(t);
+    let mut hmtx: Hmtx = f.font().hmtx()?.to_owned_table();
+    let charmap = f.font().charmap();
+    if let (Some(space), Some(nbspace)) = (charmap.map(0x0020u32), charmap.map(0x00A0u32)) {
+        let space_width = hmtx
+            .h_metrics
+            .get(space.to_u32() as usize)
+            .map(|m| m.advance)
+            .unwrap_or(0);
+        if let Some(nbspace_metric) = hmtx.h_metrics.get_mut(nbspace.to_u32() as usize) {
+            nbspace_metric.advance = space_width;
+        }
+        t.set(f.rebuild_with_new_table(&hmtx)?);
+        return Ok(FixResult::Fixed);
+    }
+    Ok(FixResult::Unfixable)
+}
+
 #[cfg(test)]
 mod tests {
     #![allow(clippy::unwrap_used)]
@@ -91,26 +113,4 @@ mod tests {
             Some("different-widths".to_string()),
         );
     }
-}
-
-fn fix_whitespace_widths(
-    t: &mut Testable,
-    _replies: Option<MoreInfoReplies>,
-) -> Result<FixResult, FontspectorError> {
-    let f = testfont!(t);
-    let mut hmtx: Hmtx = f.font().hmtx()?.to_owned_table();
-    let charmap = f.font().charmap();
-    if let (Some(space), Some(nbspace)) = (charmap.map(0x0020u32), charmap.map(0x00A0u32)) {
-        let space_width = hmtx
-            .h_metrics
-            .get(space.to_u32() as usize)
-            .map(|m| m.advance)
-            .unwrap_or(0);
-        if let Some(nbspace_metric) = hmtx.h_metrics.get_mut(nbspace.to_u32() as usize) {
-            nbspace_metric.advance = space_width;
-        }
-        t.set(f.rebuild_with_new_table(&hmtx)?);
-        return Ok(FixResult::Fixed);
-    }
-    Ok(FixResult::Unfixable)
 }
