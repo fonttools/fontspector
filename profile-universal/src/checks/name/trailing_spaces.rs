@@ -1,4 +1,4 @@
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata, SourceFile};
 use serde_json::json;
 use skrifa::raw::TableProvider;
 
@@ -11,7 +11,8 @@ use skrifa::raw::TableProvider;
                 to users. In most cases this can be fixed by removing extraneous
                 spaces from the metadata fields in the font editor.",
     proposal = "https://github.com/googlefonts/fontbakery/issues/2417",
-    hotfix = fix_trailing_spaces
+    hotfix = fix_trailing_spaces,
+    fix_source = sourcefix_trailing_spaces
 )]
 fn trailing_spaces(f: &Testable, _context: &Context) -> CheckFnResult {
     let mut problems: Vec<Status> = vec![];
@@ -107,6 +108,30 @@ fn fix_trailing_spaces(
     _replies: Option<MoreInfoReplies>,
 ) -> Result<FixResult, FontspectorError> {
     Ok(FixResult::Unfixable)
+}
+
+fn sourcefix_trailing_spaces(
+    source: &mut SourceFile,
+    _problems: &[Status],
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
+    for (name_id, name) in source.source.names.iter_mut() {
+        for (_lang_id, entry) in name.0.iter_mut() {
+            if entry.starts_with(' ') {
+                *entry = entry.trim_start().to_string();
+                log::info!("Removed leading spaces in name entry {}.", name_id);
+            }
+            if entry.ends_with(' ') {
+                *entry = entry.trim_end().to_string();
+                log::info!("Removed trailing spaces in name entry {}.", name_id);
+            }
+            if entry.contains("  ") {
+                *entry = entry.replace("  ", " ");
+                log::info!("Removed double spaces in name entry {}.", name_id);
+            }
+        }
+    }
+    Ok(FixResult::Fixed)
 }
 
 #[cfg(test)]

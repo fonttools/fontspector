@@ -47,6 +47,29 @@ fn unwanted_tables(t: &Testable, _context: &Context) -> CheckFnResult {
     })
 }
 
+fn delete_unwanted_tables(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
+    let f = testfont!(t);
+    let unwanted_tags = UNWANTED_TABLES
+        .iter()
+        .map(|(tag, _)| tag)
+        .collect::<Vec<_>>();
+    let mut new_font = FontBuilder::new();
+    for table in f.font().table_directory.table_records() {
+        let tag = table.tag.get();
+        if !unwanted_tags.contains(&&tag) {
+            if let Some(table) = f.font().table_data(tag) {
+                new_font.add_raw(tag, table);
+            }
+        }
+    }
+    let new_bytes = new_font.build();
+    t.set(new_bytes);
+    Ok(FixResult::Fixed)
+}
+
 #[cfg(test)]
 mod tests {
     use fontspector_checkapi::{
@@ -80,27 +103,4 @@ mod tests {
             );
         }
     }
-}
-
-fn delete_unwanted_tables(
-    t: &mut Testable,
-    _replies: Option<MoreInfoReplies>,
-) -> Result<FixResult, FontspectorError> {
-    let f = testfont!(t);
-    let unwanted_tags = UNWANTED_TABLES
-        .iter()
-        .map(|(tag, _)| tag)
-        .collect::<Vec<_>>();
-    let mut new_font = FontBuilder::new();
-    for table in f.font().table_directory.table_records() {
-        let tag = table.tag.get();
-        if !unwanted_tags.contains(&&tag) {
-            if let Some(table) = f.font().table_data(tag) {
-                new_font.add_raw(tag, table);
-            }
-        }
-    }
-    let new_bytes = new_font.build();
-    t.set(new_bytes);
-    Ok(FixResult::Fixed)
 }

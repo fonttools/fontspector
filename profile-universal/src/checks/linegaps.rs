@@ -1,4 +1,5 @@
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
+use babelfont::MetricType;
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata, SourceFile};
 use serde_json::json;
 use skrifa::raw::TableProvider;
 use write_fonts::from_obj::ToOwnedTable;
@@ -21,6 +22,7 @@ use write_fonts::from_obj::ToOwnedTable;
     proposal = "https://googlefonts.github.io/gf-guide/metrics.html",
     title = "Checking Vertical Metric linegaps.",
     hotfix = fix_linegaps,
+    fix_source = sourcefix_linegaps,
 )]
 fn linegaps(t: &Testable, _context: &Context) -> CheckFnResult {
     let f = testfont!(t);
@@ -77,6 +79,23 @@ fn fix_linegaps(
     t.set(font_bytes);
     let f = testfont!(t);
     t.set(f.rebuild_with_new_table(&hhea)?);
+    Ok(FixResult::Fixed)
+}
+
+fn sourcefix_linegaps(
+    s: &mut SourceFile,
+    _problems: &[Status],
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
+    let font = &mut s.source;
+    for master in font.masters.iter_mut() {
+        if let Some(linegap) = master.metrics.get_mut(&MetricType::HheaLineGap) {
+            *linegap = 0;
+        }
+        if let Some(os2_linegap) = master.metrics.get_mut(&MetricType::TypoLineGap) {
+            *os2_linegap = 0;
+        }
+    }
     Ok(FixResult::Fixed)
 }
 

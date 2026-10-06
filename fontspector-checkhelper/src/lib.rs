@@ -3,6 +3,8 @@
     rustdoc::missing_crate_level_docs,
     clippy::missing_docs_in_private_items
 )]
+#![expect(clippy::redundant_field_names)] // https://github.com/TedDriggs/darling/pull/441
+
 //! Checks in fontspector are made up of two parts: the implementation,
 //! which is a Rust function, and metadata: the check's ID, rationale,
 //! proposal URL(s) and so on. This crate provides a procedural macro to

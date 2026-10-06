@@ -38,6 +38,12 @@ pub enum FontspectorError {
         /// Additional details about the error
         more_details: String,
     },
+    /// A file was not found
+    #[error("File not found: {0}")]
+    FileNotFound(PathBuf),
+    /// A file was not recognized as a source
+    #[error("Unrecognized source file: {0}")]
+    UnrecognizedSource(PathBuf),
     /// Something went wrong doing Python things
     #[error("Python error: {0}")]
     Python(String),
@@ -85,6 +91,14 @@ pub enum FontspectorError {
     /// A profile includes another profile that isn't registered in the registry
     #[error("Profile includes unknown profile: {0}")]
     UnknownProfile(String),
+    /// Something else happened when saving the font
+    #[error("Something went wrong while saving {path}: {error}")]
+    SaveError {
+        /// The path to the file that could not be saved
+        path: PathBuf,
+        /// The error that occurred while saving
+        error: String,
+    },
 }
 
 impl From<std::string::FromUtf8Error> for FontspectorError {
@@ -108,6 +122,12 @@ impl From<std::io::Error> for FontspectorError {
 impl<T> From<PoisonError<T>> for FontspectorError {
     fn from(err: PoisonError<T>) -> Self {
         FontspectorError::CachePoison(err.to_string())
+    }
+}
+
+impl From<Box<dyn std::error::Error>> for FontspectorError {
+    fn from(err: Box<dyn std::error::Error>) -> Self {
+        FontspectorError::General(err.to_string())
     }
 }
 

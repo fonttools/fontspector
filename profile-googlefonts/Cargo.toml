@@ -59,6 +59,7 @@ image = { version = "0.25.5", default-features = false, features = [
 ], optional = true }
 harfrust = { workspace = true, optional = true }
 edit-distance = "2.2.2"
+babelfont.workspace = true
 
 [features]
 # The "check" feature enables dependencies only needed for checks, not fixes

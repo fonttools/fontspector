@@ -1,4 +1,4 @@
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata, SourceFile};
 use serde_json::json;
 use skrifa::{raw::TableProvider, MetadataProvider};
 use write_fonts::{from_obj::ToOwnedTable, tables::hmtx::Hmtx};
@@ -22,6 +22,7 @@ use write_fonts::{from_obj::ToOwnedTable, tables::hmtx::Hmtx};
     proposal = "https://github.com/fonttools/fontbakery/issues/4829",
     title = "Space and non-breaking space have the same width?",
     hotfix = fix_whitespace_widths,
+    fix_source = sourcefix_whitespace_widths
 )]
 fn whitespace_widths(t: &Testable, _context: &Context) -> CheckFnResult {
     let f = testfont!(t);
@@ -52,6 +53,67 @@ fn whitespace_widths(t: &Testable, _context: &Context) -> CheckFnResult {
         return_result(problems)
     } else {
         skip!("missing-glyphs", "Space and nbspace not found in font");
+    }
+}
+
+fn fix_whitespace_widths(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
+    let f = testfont!(t);
+    let mut hmtx: Hmtx = f.font().hmtx()?.to_owned_table();
+    let charmap = f.font().charmap();
+    if let (Some(space), Some(nbspace)) = (charmap.map(0x0020u32), charmap.map(0x00A0u32)) {
+        let space_width = hmtx
+            .h_metrics
+            .get(space.to_u32() as usize)
+            .map(|m| m.advance)
+            .unwrap_or(0);
+        if let Some(nbspace_metric) = hmtx.h_metrics.get_mut(nbspace.to_u32() as usize) {
+            nbspace_metric.advance = space_width;
+        }
+        t.set(f.rebuild_with_new_table(&hmtx)?);
+        return Ok(FixResult::Fixed);
+    }
+    Ok(FixResult::Unfixable)
+}
+
+fn sourcefix_whitespace_widths(
+    s: &mut SourceFile,
+    _problems: &[Status],
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
+    let mut changed = false;
+    let Some(space_glyph_widths) = s
+        .source
+        .glyphs
+        .iter_mut()
+        .find(|g| g.codepoints.contains(&0x20))
+        .map(|g| g.layers.iter().map(|l| l.width).collect::<Vec<_>>())
+    else {
+        return Ok(FixResult::Unfixable);
+    };
+    let Some(nbspace_glyph) = s
+        .source
+        .glyphs
+        .iter_mut()
+        .find(|g| g.codepoints.contains(&0xA0))
+    else {
+        return Ok(FixResult::Unfixable);
+    };
+    for (nb_layer, correct_width) in nbspace_glyph
+        .layers
+        .iter_mut()
+        .zip(space_glyph_widths.iter())
+    {
+        nb_layer.width = *correct_width;
+        changed = true;
+    }
+
+    if changed {
+        Ok(FixResult::Fixed)
+    } else {
+        Ok(FixResult::Unfixable)
     }
 }
 
@@ -91,26 +153,4 @@ mod tests {
             Some("different-widths".to_string()),
         );
     }
-}
-
-fn fix_whitespace_widths(
-    t: &mut Testable,
-    _replies: Option<MoreInfoReplies>,
-) -> Result<FixResult, FontspectorError> {
-    let f = testfont!(t);
-    let mut hmtx: Hmtx = f.font().hmtx()?.to_owned_table();
-    let charmap = f.font().charmap();
-    if let (Some(space), Some(nbspace)) = (charmap.map(0x0020u32), charmap.map(0x00A0u32)) {
-        let space_width = hmtx
-            .h_metrics
-            .get(space.to_u32() as usize)
-            .map(|m| m.advance)
-            .unwrap_or(0);
-        if let Some(nbspace_metric) = hmtx.h_metrics.get_mut(nbspace.to_u32() as usize) {
-            nbspace_metric.advance = space_width;
-        }
-        t.set(f.rebuild_with_new_table(&hmtx)?);
-        return Ok(FixResult::Fixed);
-    }
-    Ok(FixResult::Unfixable)
 }
