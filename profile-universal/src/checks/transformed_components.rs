@@ -54,7 +54,7 @@ fn transform_is_semi_flipped(t: Transform) -> bool {
     ",
     proposal = "https://github.com/fonttools/fontbakery/issues/2011",
     title = "Ensure component transforms do not perform scaling or rotation.",
-    hotfix = decompose_transformed_components
+    hotfix = decompose_transformed_components,
 )]
 fn transformed_components(f: &Testable, context: &Context) -> CheckFnResult {
     let font = testfont!(f);
@@ -267,6 +267,48 @@ fn to_kurbo_transform(transform: &Transform, anchor: &Anchor) -> kurbo::Affine {
         dy as f64,
     ])
 }
+
+// I mean this is cool, but it's not a thing we want to do. The fix is in the font compiler.
+
+// fn sourcefix_transformed_components(
+//     source: &mut SourceFile,
+//     _problems: &[Status],
+//     _replies: Option<MoreInfoReplies>,
+// ) -> Result<FixResult, FontspectorError> {
+//     let mut glyphs_to_decompose = vec![];
+//     for glyph in source.source.glyphs.iter() {
+//         let mut needs_decomposition = false;
+//         for layer in glyph.layers.iter() {
+//             if layer
+//                 .components()
+//                 .any(|component| component.transform.scale.0 != component.transform.scale.1)
+//             {
+//                 needs_decomposition = true;
+//                 // If one layer is bad we need to decompose the lot
+//                 break;
+//             }
+//         }
+//         if needs_decomposition {
+//             glyphs_to_decompose.push((
+//                 glyph.name.clone(),
+//                 glyph
+//                     .layers
+//                     .iter()
+//                     .map(|layer| layer.decomposed(&source.source))
+//                     .collect::<Vec<_>>(),
+//             ));
+//         }
+//     }
+//     let font = &mut source.source;
+//     for (glyphname, decomposed_layers) in glyphs_to_decompose.into_iter() {
+//         let Some(glyph) = font.glyphs.get_mut(&glyphname) else {
+//             continue;
+//         };
+//         glyph.layers = decomposed_layers;
+//     }
+//     // Implement the source fix logic for transformed components here.
+//     Ok(FixResult::Fixed)
+// }
 
 #[cfg(test)]
 mod tests {
