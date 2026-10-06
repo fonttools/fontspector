@@ -522,8 +522,8 @@ fn find_source(file: &str, source_map: &HashMap<String, String>) -> Option<Sourc
     let source_path_str = if let Some(source) = source_map.get(file) {
         source
     } else {
-        log::warn!("No source file found for {file:?} in source map; cannot fix sources");
-        log::warn!("Specify --source-map=binary_file.ttf:source.glyphs on command line or in configuration file to fix sources");
+        log::error!("No source file found for {file:?} in source map; cannot fix sources");
+        log::error!("Specify --source-map=binary_file.ttf:source.glyphs on command line or in configuration file to fix sources");
         return None;
     };
     let source_path = PathBuf::from(source_path_str);
