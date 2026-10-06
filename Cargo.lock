@@ -378,7 +378,7 @@ dependencies = [
  "unicode-normalization",
  "uuid",
  "vfbreader",
- "write-fonts",
+ "write-fonts 0.52.0",
 ]
 
 [[package]]
@@ -1414,7 +1414,7 @@ dependencies = [
  "smol_str",
  "thiserror 2.0.21",
  "tracing-subscriber",
- "write-fonts",
+ "write-fonts 0.52.0",
 ]
 
 [[package]]
@@ -1528,7 +1528,7 @@ dependencies = [
  "thiserror 2.0.21",
  "tinystr",
  "tracing",
- "write-fonts",
+ "write-fonts 0.52.0",
 ]
 
 [[package]]
@@ -1558,7 +1558,7 @@ dependencies = [
  "tracing-subscriber",
  "ufo2fontir",
  "vergen-gitcl",
- "write-fonts",
+ "write-fonts 0.52.0",
 ]
 
 [[package]]
@@ -1573,7 +1573,7 @@ dependencies = [
  "serde",
  "smol_str",
  "thiserror 2.0.21",
- "write-fonts",
+ "write-fonts 0.52.0",
 ]
 
 [[package]]
@@ -1595,7 +1595,7 @@ dependencies = [
  "smol_str",
  "thiserror 2.0.21",
  "tracing",
- "write-fonts",
+ "write-fonts 0.52.0",
 ]
 
 [[package]]
@@ -1615,7 +1615,7 @@ dependencies = [
  "smol_str",
  "thiserror 2.0.21",
  "tracing",
- "write-fonts",
+ "write-fonts 0.52.0",
 ]
 
 [[package]]
@@ -1679,7 +1679,7 @@ dependencies = [
  "skrifa",
  "thiserror 2.0.21",
  "toml",
- "write-fonts",
+ "write-fonts 0.54.0",
 ]
 
 [[package]]
@@ -1716,7 +1716,7 @@ dependencies = [
  "itertools 0.15.0",
  "pluginator",
  "skrifa",
- "write-fonts",
+ "write-fonts 0.54.0",
 ]
 
 [[package]]
@@ -1740,7 +1740,7 @@ dependencies = [
  "regex",
  "serde_json",
  "skrifa",
- "write-fonts",
+ "write-fonts 0.54.0",
 ]
 
 [[package]]
@@ -1781,7 +1781,7 @@ dependencies = [
  "unicode-properties",
  "unicode-script",
  "unicode_names2",
- "write-fonts",
+ "write-fonts 0.54.0",
  "yeslogic-unicode-blocks",
 ]
 
@@ -1794,7 +1794,7 @@ dependencies = [
  "itertools 0.15.0",
  "kurbo 0.13.1",
  "skrifa",
- "write-fonts",
+ "write-fonts 0.54.0",
 ]
 
 [[package]]
@@ -1806,7 +1806,7 @@ dependencies = [
  "pluginator",
  "regex",
  "skrifa",
- "write-fonts",
+ "write-fonts 0.54.0",
 ]
 
 [[package]]
@@ -1833,7 +1833,7 @@ dependencies = [
  "serde_json",
  "skrifa",
  "unicode-properties",
- "write-fonts",
+ "write-fonts 0.54.0",
 ]
 
 [[package]]
@@ -1869,7 +1869,7 @@ dependencies = [
  "tabled",
  "unicode-properties",
  "unicode_names2",
- "write-fonts",
+ "write-fonts 0.54.0",
 ]
 
 [[package]]
@@ -2140,7 +2140,7 @@ dependencies = [
  "serde",
  "smol_str",
  "thiserror 2.0.21",
- "write-fonts",
+ "write-fonts 0.52.0",
 ]
 
 [[package]]
@@ -2160,7 +2160,7 @@ dependencies = [
  "smol_str",
  "thiserror 2.0.21",
  "tracing",
- "write-fonts",
+ "write-fonts 0.52.0",
 ]
 
 [[package]]
@@ -2195,7 +2195,7 @@ dependencies = [
  "serde_json",
  "skrifa",
  "syn 2.0.119",
- "write-fonts",
+ "write-fonts 0.52.0",
 ]
 
 [[package]]
@@ -4243,6 +4243,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "read-fonts"
+version = "0.45.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8a5b7bed3d16ab428d8fa533640ab805ff50e7ad8a4d00649de1259e70023282"
+dependencies = [
+ "bytemuck",
+ "font-types 0.12.6",
+ "once_cell",
+ "yoke",
+]
+
+[[package]]
 name = "redox_syscall"
 version = "0.5.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5614,7 +5626,7 @@ dependencies = [
  "smol_str",
  "thiserror 2.0.21",
  "tracing",
- "write-fonts",
+ "write-fonts 0.52.0",
 ]
 
 [[package]]
@@ -6350,6 +6362,19 @@ dependencies = [
  "log",
  "read-fonts 0.43.3",
  "serde",
+]
+
+[[package]]
+name = "write-fonts"
+version = "0.54.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bdc27185603bab37df6a9aad9c59d728feb8d6acf72f9c94a2e25d7f8f3bdaea"
+dependencies = [
+ "font-types 0.12.6",
+ "indexmap 2.14.2",
+ "kurbo 0.13.1",
+ "log",
+ "read-fonts 0.45.0",
 ]
 
 [[package]]
