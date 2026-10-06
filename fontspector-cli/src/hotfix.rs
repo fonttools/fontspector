@@ -1,5 +1,8 @@
 use dialoguer::{theme::ColorfulTheme, Confirm, Input, Select};
-use fontspector_checkapi::{prelude::*, CheckResult, DialogFieldType, HotfixFunction, Metadata};
+use fontspector_checkapi::{
+    prelude::*, CheckResult, DialogFieldType, FixSourceFunction, HotfixFunction, Metadata,
+    SourceFile,
+};
 use serde_json::Value;
 use std::io::Write;
 use termimad::MadSkin;
@@ -12,6 +15,7 @@ pub(crate) fn run_hotfix(
     result: &mut CheckResult,
     fix: &HotfixFunction,
 ) {
+    let filename = testable.filename.to_string_lossy().to_string();
     let mut options = None;
     let mut header_shown = false;
 
@@ -23,7 +27,7 @@ pub(crate) fn run_hotfix(
         .find(|m| matches!(m, Metadata::FixNeedsMoreInformation(_)))
     {
         show_header(
-            testable,
+            &filename,
             &result.section,
             &result.check_id,
             &result.check_name,
@@ -37,7 +41,7 @@ pub(crate) fn run_hotfix(
             Ok(FixResult::MoreInfoNeeded(dialog)) => {
                 if !header_shown {
                     show_header(
-                        testable,
+                        &filename,
                         &result.section,
                         &result.check_id,
                         &result.check_name,
@@ -63,14 +67,70 @@ pub(crate) fn run_hotfix(
     }
 }
 
-fn show_header(
-    testable: &mut Testable,
-    section: &Option<String>,
-    check_id: &str,
-    check_name: &str,
+/// Run a source fix function, asking the user for more information if needed.
+///
+/// This mirrors [run_hotfix], but operates on a font source file rather than a
+/// binary, and records its outcome in the `sourcefix_result` field.
+pub(crate) fn run_sourcefix(
+    source: &mut SourceFile,
+    modified: &mut bool,
+    result: &mut CheckResult,
+    fix: &FixSourceFunction,
 ) {
+    let filename = source.filename();
+    let mut options = None;
+    let mut header_shown = false;
+
+    // If we have a metadata containing a FixNeedsMoreInformation, we can run the dialog first to get the options for the fix
+    if let Some(Metadata::FixNeedsMoreInformation(dialog)) = result
+        .subresults
+        .iter()
+        .flat_map(|s| &s.metadata)
+        .find(|m| matches!(m, Metadata::FixNeedsMoreInformation(_)))
+    {
+        show_header(
+            &filename,
+            &result.section,
+            &result.check_id,
+            &result.check_name,
+        );
+        options = run_dialog(dialog);
+        header_shown = true;
+    }
+
+    loop {
+        match fix(source, options) {
+            Ok(FixResult::MoreInfoNeeded(dialog)) => {
+                if !header_shown {
+                    show_header(
+                        &filename,
+                        &result.section,
+                        &result.check_id,
+                        &result.check_name,
+                    );
+                    header_shown = true;
+                }
+
+                options = run_dialog(&dialog);
+                continue;
+            }
+            Ok(sourcefix_result) => {
+                if matches!(sourcefix_result, FixResult::Fixed) {
+                    *modified = true;
+                }
+                result.sourcefix_result = Some(sourcefix_result);
+                return;
+            }
+            Err(e) => {
+                result.sourcefix_result = Some(FixResult::FixFailed(e.to_string()));
+                return;
+            }
+        }
+    }
+}
+
+fn show_header(filename: &str, section: &Option<String>, check_id: &str, check_name: &str) {
     let skin = MadSkin::default();
-    let filename = testable.filename.to_string_lossy();
     let _ = writeln!(std::io::stdout(), "Testing: {filename}");
     if let Some(sectionname) = section {
         let _ = writeln!(std::io::stdout(), "  Section: {sectionname}\n");

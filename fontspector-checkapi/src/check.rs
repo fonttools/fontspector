@@ -7,7 +7,7 @@ use crate::{
     source::SourceFile,
     status::CheckFnResult,
     testable::{TestableCollection, TestableType},
-    CheckResult, Registry, Status, Testable,
+    CheckResult, FixResult, Registry, Status, Testable,
 };
 
 /// A check ID is a unique identifier for a check
