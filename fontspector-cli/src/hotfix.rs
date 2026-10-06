@@ -1,7 +1,7 @@
 use dialoguer::{theme::ColorfulTheme, Confirm, Input, Select};
 use fontspector_checkapi::{
     prelude::*, CheckResult, DialogFieldType, FixSourceFunction, HotfixFunction, Metadata,
-    SourceFile,
+    SourceFile, StatusCode,
 };
 use serde_json::Value;
 use std::io::Write;
@@ -78,6 +78,13 @@ pub(crate) fn run_sourcefix(
     fix: &FixSourceFunction,
 ) {
     let filename = source.filename();
+    // Only the failing subresults are interesting to a fixer.
+    let problems: Vec<Status> = result
+        .subresults
+        .iter()
+        .filter(|s| s.severity >= StatusCode::Warn)
+        .cloned()
+        .collect();
     let mut options = None;
     let mut header_shown = false;
 
@@ -99,7 +106,7 @@ pub(crate) fn run_sourcefix(
     }
 
     loop {
-        match fix(source, options) {
+        match fix(source, &problems, options) {
             Ok(FixResult::MoreInfoNeeded(dialog)) => {
                 if !header_shown {
                     show_header(

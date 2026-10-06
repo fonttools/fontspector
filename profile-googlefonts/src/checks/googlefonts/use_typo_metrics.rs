@@ -68,6 +68,7 @@ fn fix_use_typo_metrics(
 
 fn sourcefix_use_typo_metrics(
     s: &mut SourceFile,
+    _problems: &[Status],
     _replies: Option<MoreInfoReplies>,
 ) -> Result<FixResult, FontspectorError> {
     if let Some(selection) = s.source.custom_ot_values.os2_fs_selection {

@@ -84,6 +84,7 @@ fn fix_linegaps(
 
 fn sourcefix_linegaps(
     s: &mut SourceFile,
+    _problems: &[Status],
     _replies: Option<MoreInfoReplies>,
 ) -> Result<FixResult, FontspectorError> {
     let font = &mut s.source;

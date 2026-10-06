@@ -49,8 +49,14 @@ pub enum CheckImplementation<'a> {
 }
 
 /// The function signature for a source fix function
-pub type FixSourceFunction =
-    dyn Fn(&mut SourceFile, Option<MoreInfoReplies>) -> Result<FixResult, FontspectorError>;
+///
+/// The `&[Status]` argument gives the fixer the failing subresults of the
+/// check, so that it can inspect their metadata to decide what to fix.
+pub type FixSourceFunction = dyn Fn(
+    &mut SourceFile,
+    &[Status],
+    Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError>;
 
 #[derive(Clone)]
 /// A check definition

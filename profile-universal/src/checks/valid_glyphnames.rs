@@ -243,6 +243,7 @@ mod tests {
 
 fn sourcefix_valid_glyphnames(
     s: &mut SourceFile,
+    _problems: &[Status],
     _replies: Option<MoreInfoReplies>,
 ) -> Result<FixResult, FontspectorError> {
     let font = &mut s.source;

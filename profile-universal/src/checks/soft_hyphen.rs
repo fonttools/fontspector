@@ -123,6 +123,7 @@ mod tests {
 
 fn sourcefix_softhyphen(
     s: &mut SourceFile,
+    _problems: &[Status],
     _replies: Option<MoreInfoReplies>,
 ) -> Result<FixResult, FontspectorError> {
     let font = &mut s.source;
