@@ -185,7 +185,7 @@ impl TestFont<'_> {
         }
         if self
             .get_name_entry_strings(StringId::FULL_NAME)
-            .any(|x| x.to_lowercase().contains("bold"))
+            .any(|x| x.to_lowercase() == "bold")
         {
             return Ok(true);
         }
