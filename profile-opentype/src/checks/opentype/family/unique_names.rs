@@ -105,6 +105,14 @@ mod tests {
         StatusCode, TestableCollection, TestableType,
     };
     use std::collections::HashMap;
+    use write_fonts::{
+        tables::{
+            maxp::Maxp,
+            name::{Name, NameRecord},
+        },
+        types::NameId,
+        FontBuilder,
+    };
 
     #[test]
     fn test_unique_names_fail() {
@@ -232,5 +240,76 @@ mod tests {
             StatusCode::Fail,
             Some("duplicate-name-id-VARIATIONS_POSTSCRIPT_NAME_PREFIX".to_string()),
         );
+    }
+
+    #[test]
+    fn test_unique_names_combo_ids() {
+        let combo_ids_tests = [
+            ([
+                HashMap::from([(NameId::UNIQUE_ID, "Unique-Font-ID-1"), (NameId::FAMILY_NAME, "Family"), (NameId::SUBFAMILY_NAME, "Regular")]), 
+                HashMap::from([(NameId::UNIQUE_ID, "Unique-Font-ID-2"), (NameId::FAMILY_NAME, "Family"), (NameId::SUBFAMILY_NAME, "Bold")]),
+            ].to_vec(), StatusCode::Pass, None),
+            ([
+                HashMap::from([(NameId::UNIQUE_ID, "Unique-Font-ID-1"), (NameId::FAMILY_NAME, "Family"), (NameId::SUBFAMILY_NAME, "Regular")]), 
+                HashMap::from([(NameId::UNIQUE_ID, "Unique-Font-ID-2"), (NameId::FAMILY_NAME, "Family"), (NameId::SUBFAMILY_NAME, "Regular")]),
+            ].to_vec(), StatusCode::Fail, Some("duplicate-name-id-FAMILY_NAME-SUBFAMILY_NAME".to_string())),
+        ];
+        for (combo_vec, expected_severity, expected_code) in combo_ids_tests {
+            let mut testables: Vec<Testable> = Vec::new();
+
+            for new_font_ids in &combo_vec {
+                let mut font_builder = FontBuilder::new();
+                let maxp = Maxp::default();
+                font_builder.add_table(&maxp).unwrap();
+
+                let mut name: Name = Name::default();
+                let mut new_records = Vec::new();
+
+                let mut family_name = "";
+                let mut subfamily_name = "";
+
+                for (name_id, value) in new_font_ids {
+                    let name_rec = NameRecord::new(3, 1, 1033, *name_id, value.to_string().into());
+                    new_records.push(name_rec);
+                    if name_id == &NameId::FAMILY_NAME || name_id == &NameId::TYPOGRAPHIC_FAMILY_NAME || name_id == &NameId::WWS_FAMILY_NAME {
+                        family_name = value;
+                    }
+                    if name_id == &NameId::SUBFAMILY_NAME || name_id == &NameId::TYPOGRAPHIC_SUBFAMILY_NAME || name_id == &NameId::WWS_SUBFAMILY_NAME {
+                        subfamily_name = value;
+                    }
+                }
+
+                //  create name ID 4 (FULL_NAME)
+                let full_name = format!("{family_name} {subfamily_name}");
+                let full_name_rec = NameRecord::new(3, 1, 1033, NameId::FULL_NAME, full_name.into());
+                new_records.push(full_name_rec);
+
+                // create name ID 6 (POSTSCRIPT_NAME)
+                let ps_name = format!("{family_name}-{subfamily_name}").replace(' ', "");
+                let ps_name_rec = NameRecord::new(3, 1, 1033, NameId::POSTSCRIPT_NAME,  ps_name.into());
+                new_records.push(ps_name_rec);
+                
+                new_records.sort();
+                name.name_record = new_records;
+                font_builder.add_table(&name).unwrap();
+
+                let font = font_builder.build();
+                let testable = Testable::new_with_contents("demo.otf", font);
+                testables.push(testable);
+            }
+
+            let collection = TestableCollection {
+                testables,
+                directory: "".to_string(),
+            };
+
+            let result = run_check_with_config(
+                unique_names,
+                TestableType::Collection(&collection),
+                HashMap::new(),
+            );
+
+            assert_results_contain(&result, expected_severity, expected_code);
+        }
     }
 }
