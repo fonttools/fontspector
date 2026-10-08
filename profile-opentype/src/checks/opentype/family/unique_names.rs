@@ -182,6 +182,7 @@ mod tests {
     use std::collections::HashMap;
     use write_fonts::{
         tables::{
+            fvar::Fvar,
             maxp::Maxp,
             name::{Name, NameRecord},
         },
@@ -293,11 +294,15 @@ mod tests {
                 [
                     HashMap::from([
                         (NameId::UNIQUE_ID, "Unique-Font-ID-1"),
+                        (NameId::FULL_NAME, "Family Regular"),
+                        (NameId::POSTSCRIPT_NAME, "Family-Regular"),
                         (NameId::FAMILY_NAME, "Family"),
                         (NameId::SUBFAMILY_NAME, "Regular"),
                     ]),
                     HashMap::from([
                         (NameId::UNIQUE_ID, "Unique-Font-ID-2"),
+                        (NameId::FULL_NAME, "Family Bold"),
+                        (NameId::POSTSCRIPT_NAME, "Family-Bold"),
                         (NameId::FAMILY_NAME, "Family"),
                         (NameId::SUBFAMILY_NAME, "Bold"),
                     ]),
@@ -310,18 +315,139 @@ mod tests {
                 [
                     HashMap::from([
                         (NameId::UNIQUE_ID, "Unique-Font-ID-1"),
+                        (NameId::FULL_NAME, "Family Regular"),
+                        (NameId::POSTSCRIPT_NAME, "Family-Regular"),
                         (NameId::FAMILY_NAME, "Family"),
                         (NameId::SUBFAMILY_NAME, "Regular"),
                     ]),
                     HashMap::from([
                         (NameId::UNIQUE_ID, "Unique-Font-ID-2"),
+                        (NameId::FULL_NAME, "Family Bold"),
+                        (NameId::POSTSCRIPT_NAME, "Family-Bold"),
                         (NameId::FAMILY_NAME, "Family"),
-                        (NameId::SUBFAMILY_NAME, "Regular"),
+                        (NameId::SUBFAMILY_NAME, "Regular"), // this is intentionally the same as the first font to trigger the duplicate check
                     ]),
                 ]
                 .to_vec(),
                 StatusCode::Fail,
                 Some("duplicate-name-id-FAMILY_NAME-SUBFAMILY_NAME".to_string()),
+            ),
+            (
+                [
+                    HashMap::from([
+                        (NameId::UNIQUE_ID, "Unique-Font-ID-1"),
+                        (NameId::FULL_NAME, "Family  Regular"),
+                        (NameId::POSTSCRIPT_NAME, "Family-Regular"),
+                        (NameId::SUBFAMILY_NAME, "Regular"),
+                    ]),
+                    HashMap::from([
+                        (NameId::UNIQUE_ID, "Unique-Font-ID-2"),
+                        (NameId::FULL_NAME, "Family Bold"),
+                        (NameId::POSTSCRIPT_NAME, "Family-Bold"),
+                        (NameId::FAMILY_NAME, "Family"),
+                    ]),
+                ]
+                .to_vec(),
+                StatusCode::Pass, // Skip if either FAMILY_NAME or SUBFAMILY_NAME is missing
+                None,
+            ),
+            (
+                [
+                    HashMap::from([
+                        (NameId::UNIQUE_ID, "Unique-Font-ID-1"),
+                        (NameId::FULL_NAME, "Family Micro Regular"),
+                        (NameId::POSTSCRIPT_NAME, "FamilyMicro-Regular"),
+                        (NameId::FAMILY_NAME, "Family Micro"),
+                        (NameId::SUBFAMILY_NAME, "Regular"),
+                        (NameId::TYPOGRAPHIC_FAMILY_NAME, "Family"),
+                        (NameId::TYPOGRAPHIC_SUBFAMILY_NAME, "Micro Regular"),
+                    ]),
+                    HashMap::from([
+                        (NameId::UNIQUE_ID, "Unique-Font-ID-2"),
+                        (NameId::FULL_NAME, "Family Text Regular"),
+                        (NameId::POSTSCRIPT_NAME, "FamilyText-Regular"),
+                        (NameId::FAMILY_NAME, "Family Text"),
+                        (NameId::SUBFAMILY_NAME, "Regular"),
+                        (NameId::TYPOGRAPHIC_FAMILY_NAME, "Family"),
+                        (NameId::TYPOGRAPHIC_SUBFAMILY_NAME, "Text Regular"),
+                    ]),
+                ]
+                .to_vec(),
+                StatusCode::Pass, // See: https://github.com/fonttools/fontspector/pull/934#issuecomment-6013624641
+                None,
+            ),
+            (
+                [
+                    HashMap::from([
+                        (NameId::UNIQUE_ID, "Unique-Font-ID-1"),
+                        (NameId::FULL_NAME, "Family Bold"),
+                        (NameId::POSTSCRIPT_NAME, "Family-Bold"),
+                        (NameId::TYPOGRAPHIC_FAMILY_NAME, "Family"),
+                        (NameId::TYPOGRAPHIC_SUBFAMILY_NAME, "Bold"),
+                    ]),
+                    HashMap::from([
+                        (NameId::UNIQUE_ID, "Unique-Font-ID-2"),
+                        (NameId::FULL_NAME, "Family Display Bold"),
+                        (NameId::POSTSCRIPT_NAME, "Family-Display-Bold"),
+                        (NameId::TYPOGRAPHIC_FAMILY_NAME, "Family"),
+                        (NameId::TYPOGRAPHIC_SUBFAMILY_NAME, "Display Bold"),
+                        (NameId::WWS_FAMILY_NAME, "Family Display"),
+                        (NameId::WWS_SUBFAMILY_NAME, "Bold"),
+                    ]),
+                ]
+                .to_vec(),
+                StatusCode::Pass, // See: https://github.com/fonttools/fontspector/pull/934#issuecomment-6013624641
+                None,
+            ),
+            (
+                [
+                    HashMap::from([
+                        (NameId::UNIQUE_ID, "Unique-Font-ID-1"),
+                        (NameId::FULL_NAME, "Variable Family Upright"),
+                        (NameId::POSTSCRIPT_NAME, "VariableFamily-Upright"),
+                        (
+                            NameId::VARIATIONS_POSTSCRIPT_NAME_PREFIX,
+                            "VariableFamily-Upright",
+                        ),
+                    ]),
+                    HashMap::from([
+                        (NameId::UNIQUE_ID, "Unique-Font-ID-2"),
+                        (NameId::FULL_NAME, "Variable Family Italic"),
+                        (NameId::POSTSCRIPT_NAME, "VariableFamily-Italic"),
+                        (
+                            NameId::VARIATIONS_POSTSCRIPT_NAME_PREFIX,
+                            "VariableFamily-Italic",
+                        ),
+                    ]),
+                ]
+                .to_vec(),
+                StatusCode::Pass,
+                None,
+            ),
+            (
+                [
+                    HashMap::from([
+                        (NameId::UNIQUE_ID, "Unique-Font-ID-1"),
+                        (NameId::FULL_NAME, "Variable Family Upright"),
+                        (NameId::POSTSCRIPT_NAME, "VariableFamily-Upright"),
+                        (
+                            NameId::VARIATIONS_POSTSCRIPT_NAME_PREFIX,
+                            "VariableFamily-Upright",
+                        ),
+                    ]),
+                    HashMap::from([
+                        (NameId::UNIQUE_ID, "Unique-Font-ID-2"),
+                        (NameId::FULL_NAME, "Variable Family Italic"),
+                        (NameId::POSTSCRIPT_NAME, "VariableFamily-Italic"),
+                        (
+                            NameId::VARIATIONS_POSTSCRIPT_NAME_PREFIX,
+                            "VariableFamily-Upright",
+                        ),
+                    ]),
+                ]
+                .to_vec(),
+                StatusCode::Fail,
+                Some("duplicate-name-id-VARIATIONS_POSTSCRIPT_NAME_PREFIX".to_string()),
             ),
         ];
         for (combo_vec, expected_severity, expected_code) in combo_ids_tests {
@@ -335,44 +461,28 @@ mod tests {
                 let mut name: Name = Name::default();
                 let mut new_records = Vec::new();
 
-                let mut family_name = "";
-                let mut subfamily_name = "";
+                let mut ps_name = "unknown";
 
                 for (name_id, value) in new_font_ids {
                     let name_rec = NameRecord::new(3, 1, 1033, *name_id, value.to_string().into());
                     new_records.push(name_rec);
-                    if name_id == &NameId::FAMILY_NAME
-                        || name_id == &NameId::TYPOGRAPHIC_FAMILY_NAME
-                        || name_id == &NameId::WWS_FAMILY_NAME
-                    {
-                        family_name = value;
+                    if name_id == &NameId::POSTSCRIPT_NAME {
+                        ps_name = value;
                     }
-                    if name_id == &NameId::SUBFAMILY_NAME
-                        || name_id == &NameId::TYPOGRAPHIC_SUBFAMILY_NAME
-                        || name_id == &NameId::WWS_SUBFAMILY_NAME
-                    {
-                        subfamily_name = value;
+                    if name_id == &NameId::VARIATIONS_POSTSCRIPT_NAME_PREFIX {
+                        // if the font has a VARIATIONS_POSTSCRIPT_NAME_PREFIX,
+                        // we need to add the Fvar table to force is_variable to be true
+                        let fvar = Fvar::default();
+                        font_builder.add_table(&fvar).unwrap();
                     }
                 }
-
-                //  create name ID 4 (FULL_NAME)
-                let full_name = format!("{family_name} {subfamily_name}");
-                let full_name_rec =
-                    NameRecord::new(3, 1, 1033, NameId::FULL_NAME, full_name.into());
-                new_records.push(full_name_rec);
-
-                // create name ID 6 (POSTSCRIPT_NAME)
-                let ps_name = format!("{family_name}-{subfamily_name}").replace(' ', "");
-                let ps_name_rec =
-                    NameRecord::new(3, 1, 1033, NameId::POSTSCRIPT_NAME, ps_name.into());
-                new_records.push(ps_name_rec);
 
                 new_records.sort();
                 name.name_record = new_records;
                 font_builder.add_table(&name).unwrap();
 
                 let font = font_builder.build();
-                let testable = Testable::new_with_contents("demo.otf", font);
+                let testable = Testable::new_with_contents(format!("{ps_name}.otf"), font);
                 testables.push(testable);
             }
 
