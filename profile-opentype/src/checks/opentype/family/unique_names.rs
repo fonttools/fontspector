@@ -16,21 +16,24 @@ use skrifa::{raw::types::NameId, MetadataProvider};
 
             * 6	PostScript name.
 
-            * 17 Typographic Family name.
-              This string must be unique within a particular typographic family.
-
-            * 22 WWS Subfamily Name.
+            [...]
 
             * 25 Variations PostScript Name Prefix.
-
-            (17 and 22 will be checked via font.best_subfamily_name())
-
+            
         https://learn.microsoft.com/en-us/typography/opentype/spec/name
 
-        These name table entries should be unique within a font family.
+        Not written in the OpenType Spec, but commonly expected to be unique within a font family:
+
+            * 1+2 Family name + Subfamily name.
+
+            * 16+17 Typographic Family name + Typographic Subfamily name.
+
+            * 21+22 WWS Family name + WWS Subfamily name.
+
+        These name table entries must be unique within a font family.
     "#,
     proposal = "https://github.com/Monotype/fontspector/issues/8",
-    title = "Verify that name id 3, 4, 6, 17, 22, 25 are unique within a font family.",
+    title = "Verify that name id (1+2), 3, 4, 6, (16+17), (22+22), 25 are unique within a font family.",
     implementation = "all"
 )]
 fn unique_names(c: &TestableCollection, _context: &Context) -> CheckFnResult {
