@@ -38,12 +38,10 @@ fn unique_names(c: &TestableCollection, _context: &Context) -> CheckFnResult {
     let mut problems = vec![];
 
     let name_ids_to_check = vec![
-        NameId::UNIQUE_ID,
-        NameId::FULL_NAME,
-        NameId::POSTSCRIPT_NAME,
-        NameId::TYPOGRAPHIC_SUBFAMILY_NAME,
-        NameId::WWS_SUBFAMILY_NAME,
-        NameId::VARIATIONS_POSTSCRIPT_NAME_PREFIX,
+        NameId::UNIQUE_ID,                         // Name ID 3
+        NameId::FULL_NAME,                         // Name ID 4
+        NameId::POSTSCRIPT_NAME,                   // Name ID 6
+        NameId::VARIATIONS_POSTSCRIPT_NAME_PREFIX, // Name ID 25
     ];
 
     for name_id in &name_ids_to_check {
@@ -80,10 +78,84 @@ fn unique_names(c: &TestableCollection, _context: &Context) -> CheckFnResult {
 
         for (name_entry_string, fonts) in &name_entries {
             if fonts.len() > 1 {
-                //println!("Checking name_id: {:?}", name_id);
-                //println!("Name entries: {:?}", name_entries);
                 problems.push(Status::fail(
                     &format!("duplicate-name-id-{}", name_id),
+                    &format!(
+                        "The name '{:?}' is not unique within the family. Found in fonts: {}",
+                        name_entry_string,
+                        fonts.join(", ")
+                    ),
+                ));
+            }
+        }
+    }
+
+    let name_ids_to_check_combo = vec![
+        (
+            // Name ID 1+2
+            NameId::FAMILY_NAME,
+            NameId::SUBFAMILY_NAME,
+        ),
+        (
+            // Name ID 16+17
+            NameId::TYPOGRAPHIC_FAMILY_NAME,
+            NameId::TYPOGRAPHIC_SUBFAMILY_NAME,
+        ),
+        (
+            // Name ID 21+22
+            NameId::WWS_FAMILY_NAME,
+            NameId::WWS_SUBFAMILY_NAME,
+        ),
+    ];
+
+    for (name_id_family, name_id_subfamily) in &name_ids_to_check_combo {
+        let mut name_entries_combo = HashMap::new();
+        for font in &fonts {
+            let family_name = font
+                .font()
+                .localized_strings(*name_id_family)
+                .english_or_first()
+                .map(|name| name.chars().collect::<String>());
+            let subfamily_name = font
+                .font()
+                .localized_strings(*name_id_subfamily)
+                .english_or_first()
+                .map(|name| name.chars().collect::<String>());
+
+            if let (Some(family_name), Some(subfamily_name)) = (&family_name, &subfamily_name) {
+                // if both family and subfamily names are present,
+                // combine them into a full name
+                let full_name = format!("{family_name} {subfamily_name}");
+                name_entries_combo
+                    .entry(full_name)
+                    .or_insert_with(Vec::new)
+                    .push(font.filename.to_string_lossy().to_string());
+            } else {
+                // one or both of the names are missing
+                if family_name.is_none() && subfamily_name.is_none() {
+                    // if both family and subfamily names are missing:
+                    // seems to be intended, therefore skip this font.
+                    continue;
+                }
+
+                // if only one of the names is missing, report an error
+                let (missing_name_id, existing_name_id) = if family_name.is_none() {
+                    (name_id_family, name_id_subfamily)
+                } else {
+                    (name_id_subfamily, name_id_family)
+                };
+                FontspectorError::General(format!(
+                    "Font {} is missing a {missing_name_id} entry, but has a {existing_name_id} entry",
+                    font.filename.to_string_lossy()
+                ));
+                continue;
+            }
+        }
+
+        for (name_entry_string, fonts) in &name_entries_combo {
+            if fonts.len() > 1 {
+                problems.push(Status::fail(
+                    &format!("duplicate-name-id-{name_id_family}-{name_id_subfamily}"),
                     &format!(
                         "The name '{:?}' is not unique within the family. Found in fonts: {}",
                         name_entry_string,
@@ -161,37 +233,6 @@ mod tests {
             HashMap::new(),
         );
         assert_pass(&result);
-    }
-
-    #[test]
-    fn test_unique_names_cabin_fail() {
-        // this test is expected to fail due to non-unique names
-        // in the Cabin family between normal and condensed width
-        let testables: Vec<_> = [
-            "cabin/Cabin-Regular.ttf",
-            "cabin/Cabin-Bold.ttf",
-            "cabin/Cabin-Italic.ttf",
-            "cabin/Cabin-BoldItalic.ttf",
-            "cabin/CabinCondensed-Regular.ttf",
-            "cabin/CabinCondensed-Bold.ttf",
-        ]
-        .iter()
-        .map(test_able)
-        .collect();
-        let collection = TestableCollection {
-            testables,
-            directory: "".to_string(),
-        };
-        let result = run_check_with_config(
-            unique_names,
-            TestableType::Collection(&collection),
-            HashMap::new(),
-        );
-        assert_results_contain(
-            &result,
-            StatusCode::Fail,
-            Some("duplicate-name-id-TYPOGRAPHIC_SUBFAMILY_NAME".to_string()),
-        );
     }
 
     #[test]
