@@ -226,6 +226,15 @@ mod tests {
                 StatusCode::Fail,
                 Some("bad-BOLD".to_string()), // Expected failure due to head table not indicating bold style
             ),
+            (
+                "Family-Bd.ttf".to_string(),
+                HashMap::from([
+                    (NameId::FAMILY_NAME, "Family"),
+                    (NameId::SUBFAMILY_NAME, "Bold"),
+                ]),
+                StatusCode::Fail,
+                Some("bad-BOLD".to_string()),
+            ),
         ];
         for (filename, name_ids, expected_severity, expected_code) in test_examples {
             let mut builder = FontBuilder::new();
