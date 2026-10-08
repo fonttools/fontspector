@@ -23,7 +23,7 @@ use skrifa::{raw::types::NameId, MetadataProvider};
 
             * 25 Variations PostScript Name Prefix.
 
-            (17 and 22 will be check via font.best_subfamily_name())
+            (17 and 22 will be checked via font.best_subfamily_name())
 
         https://learn.microsoft.com/en-us/typography/opentype/spec/name
 
@@ -188,7 +188,7 @@ mod tests {
 
     #[test]
     fn test_unique_names_variable_font_pass() {
-        // pass, because the fonts are variable fonts with upright and italic
+        // pass, because two separate variable fonts: one upright and one italic
         let testables: Vec<_> = [
             "ubuntusansmono/UbuntuMono[wght].ttf",
             "ubuntusansmono/UbuntuMono-Italic[wght].ttf",
@@ -210,7 +210,7 @@ mod tests {
 
     #[test]
     fn test_unique_names_variable_font_fail() {
-        // fail, because the fonts are variable fonts have same name ID 25
+        // fail, because the two variable fonts have same name ID 25
         let testables: Vec<_> = [
             "ubuntusansmono/UbuntuMono[wght].ttf",
             "ubuntusansmono/UbuntuMono[wght].ttf",
