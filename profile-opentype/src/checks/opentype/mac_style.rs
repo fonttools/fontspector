@@ -84,11 +84,11 @@ mod tests {
     };
     use write_fonts::{
         tables::{
-            post::Post,
             head::Head,
-            os2::Os2,
             maxp::Maxp,
             name::{Name, NameRecord},
+            os2::Os2,
+            post::Post,
         },
         types::NameId,
         FontBuilder,
@@ -177,7 +177,7 @@ mod tests {
         let mut builder = FontBuilder::new();
         builder.add_table(&Maxp::default()).unwrap();
 
-        // post table is needed for is_italic within style() 
+        // post table is needed for is_italic within style()
         // for checking the italic angle in the post table
         let post: Post = Post {
             ..Default::default()
@@ -197,39 +197,57 @@ mod tests {
         let mut name_table = Name::default();
         let mut new_records = Vec::new();
 
-        let name_id1 = NameRecord::new(3, 1, 1033, NameId::new(1), "Family Extrabold".to_string().into());
+        let name_id1 = NameRecord::new(
+            3,
+            1,
+            1033,
+            NameId::new(1),
+            "Family Extrabold".to_string().into(),
+        );
         new_records.push(name_id1);
 
         let name_id2 = NameRecord::new(3, 1, 1033, NameId::new(2), "Regular".to_string().into());
         new_records.push(name_id2);
 
-        let name_id4 = NameRecord::new(3, 1, 1033, NameId::new(4), "Family Extrabold".to_string().into());
+        let name_id4 = NameRecord::new(
+            3,
+            1,
+            1033,
+            NameId::new(4),
+            "Family Extrabold".to_string().into(),
+        );
         new_records.push(name_id4);
 
-        let name_id6 = NameRecord::new(3, 1, 1033, NameId::new(6), "Family-Extrabold".to_string().into());
+        let name_id6 = NameRecord::new(
+            3,
+            1,
+            1033,
+            NameId::new(6),
+            "Family-Extrabold".to_string().into(),
+        );
         new_records.push(name_id6);
 
         let name_id16 = NameRecord::new(3, 1, 1033, NameId::new(16), "Family".to_string().into());
         new_records.push(name_id16);
 
-        let name_id17 = NameRecord::new(3, 1, 1033, NameId::new(17), "Extrabold".to_string().into());
+        let name_id17 =
+            NameRecord::new(3, 1, 1033, NameId::new(17), "Extrabold".to_string().into());
         new_records.push(name_id17);
 
         new_records.sort();
         name_table.name_record = new_records;
         builder.add_table(&name_table).unwrap();
 
-        let testable = Testable::new_with_contents("Family-Extrabold.ttf".to_string(), builder.build().clone());
+        let testable = Testable::new_with_contents(
+            "Family-Extrabold.ttf".to_string(),
+            builder.build().clone(),
+        );
 
         let font = TTF.from_testable(&testable).unwrap();
         let is_bold = font.is_bold().unwrap();
         assert_eq!(is_bold, false);
 
         let result = run_check(mac_style, testable);
-        assert_results_contain(
-            &result,
-            StatusCode::Pass,
-            None,
-        );
+        assert_results_contain(&result, StatusCode::Pass, None);
     }
 }
