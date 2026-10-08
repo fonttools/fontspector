@@ -203,20 +203,20 @@ mod tests {
                 None,
             ),
             (
-                "Family-SemiBold.ttf".to_string(),
+                "Family-Semibold.ttf".to_string(),
                 HashMap::from([
-                    (NameId::FAMILY_NAME, "Family SemiBold"),
+                    (NameId::FAMILY_NAME, "Family Semibold"),
                     (NameId::SUBFAMILY_NAME, "Regular"),
-                    (NameId::FULL_NAME, "Family SemiBold"),
-                    (NameId::POSTSCRIPT_NAME, "Family-SemiBold"),
+                    (NameId::FULL_NAME, "Family Semibold"),
+                    (NameId::POSTSCRIPT_NAME, "Family-Semibold"),
                     (NameId::TYPOGRAPHIC_FAMILY_NAME, "Family"),
-                    (NameId::TYPOGRAPHIC_SUBFAMILY_NAME, "SemiBold"),
+                    (NameId::TYPOGRAPHIC_SUBFAMILY_NAME, "Semibold"),
                 ]),
                 StatusCode::Pass,
                 None,
             ),
             (
-                "Family-Bold.ttf".to_string(),
+                "Family-Bld.ttf".to_string(), // Intentional bad filename to be sure is_bold() is not based on the file name.
                 HashMap::from([
                     (NameId::FAMILY_NAME, "Family Bold"),
                     (NameId::SUBFAMILY_NAME, "Regular"),
