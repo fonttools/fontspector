@@ -96,6 +96,7 @@ mod tests {
     use std::collections::HashMap;
 
     use write_fonts::{
+        from_obj::ToOwnedTable,
         tables::{
             cmap::Cmap, cmap::CmapSubtable, cmap::EncodingRecord, cmap::PlatformId,
             cmap::SequentialMapGroup,
@@ -230,6 +231,65 @@ mod tests {
             &results,
             StatusCode::Fail,
             Some("pointless-format-12".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_cmap_format_12_warn() {
+        fn non_bmp_cmap_mappings() -> Vec<(char, GlyphId)> {
+            // contains four sequential map groups
+            vec![
+                // first group
+                ('\u{0041}', GlyphId::new(481)),
+                ('\u{0042}', GlyphId::new(482)),
+                // starts nexxt group. identical duplicate bindings are fine
+                ('\u{0044}', GlyphId::new(488)),
+                ('\u{0044}', GlyphId::new(488)),
+                // char 0x1f135 skipped, starts fourth group. identical duplicate bindings are fine
+                ('\u{1f136}', GlyphId::new(488)),
+                ('\u{1f136}', GlyphId::new(488)),
+            ]
+        }
+
+        let mut testable = test_able("montserrat/Montserrat-Regular.ttf");
+        let f = fontspector_checkapi::prelude::TTF
+            .from_testable(&testable)
+            .unwrap();
+
+        let mappings = non_bmp_cmap_mappings();
+
+        // let mut cmap = Cmap::from_mappings(mappings.clone()).unwrap();
+        let mut cmap: Cmap = f.font().cmap().unwrap().to_owned_table();
+
+        let mut uni_records = Vec::new(); // platform 0
+        let mut win_records = Vec::new(); // platform 3
+
+        // create format 12 subtable
+        let full_repertoire_subtable = create_format_12(&mappings);
+        // format 12 subtables are also going to be byte-shared, just like above
+        uni_records.push(EncodingRecord::new(
+            PlatformId::Unicode,
+            4,
+            full_repertoire_subtable.clone(),
+        ));
+        win_records.push(EncodingRecord::new(
+            PlatformId::Windows,
+            10,
+            full_repertoire_subtable,
+        ));
+
+        // let cmap = Cmap::new(uni_records.into_iter().chain(win_records).collect());
+        // add new encoding records to the cmap
+        cmap.encoding_records.extend(uni_records);
+        cmap.encoding_records.extend(win_records);
+
+        testable.set(f.rebuild_with_new_table(&cmap).unwrap());
+
+        let results = run_check(cmap_format_12, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Warn,
+            Some("missing-format-4".to_string()),
         );
     }
 }
