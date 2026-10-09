@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.6.0 (2026-10-09)
+
+### Other
+
+ - <csr-id-042342c79470d8859f6845c079e43cb23ba75aa5/> Release fontspector-checkapi v1.9.0, safety bump fontspector-hotfix v0.6.0
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 1 commit contributed to the release.
+ - 10 days passed between releases.
+ - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
+ - 0 issues like '(#ID)' were seen in commit messages
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.9.0, safety bump fontspector-hotfix v0.6.0 ([`042342c`](https://github.com/fonttools/fontspector/commit/042342c79470d8859f6845c079e43cb23ba75aa5))
+</details>
+
 ## v0.5.0 (2026-09-29)
 
 ### Chore
@@ -27,7 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 4 commits contributed to the release over the course of 20 calendar days.
+ - 5 commits contributed to the release over the course of 20 calendar days.
  - 84 days passed between releases.
  - 2 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 2 unique issues were worked on: [#893](https://github.com/fonttools/fontspector/issues/893), [#905](https://github.com/fonttools/fontspector/issues/905)
@@ -43,6 +68,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  * **[#905](https://github.com/fonttools/fontspector/issues/905)**
     - Minimize the crates required by the hotfix crate ([`178f989`](https://github.com/fonttools/fontspector/commit/178f989dea5ccb0a2853fe9e32f7f6b270196b67))
  * **Uncategorized**
+    - Release fontspector-hotfix v0.5.0 ([`b7f883d`](https://github.com/fonttools/fontspector/commit/b7f883d1fc690b64498a3eafa127871f090bfbab))
     - Release fontspector-hotfix v0.5.0 ([`b040807`](https://github.com/fonttools/fontspector/commit/b0408076af9554292d3924d20f479dc24b092eba))
     - Release fontspector-checkapi v1.8.0, safety bump fontspector-hotfix v0.5.0 ([`b3b2fb4`](https://github.com/fonttools/fontspector/commit/b3b2fb4f816f8136fdec0e8f3288416fde7e61ff))
 </details>
