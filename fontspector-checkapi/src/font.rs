@@ -686,6 +686,7 @@ impl VerticalMetrics {
 }
 
 /// A selector for a platform, encoding, and language in a font's name table.
+#[derive(Clone)]
 pub struct PlatformSelector {
     /// The platform ID eg. 3 = Windows
     pub platform_id: u16,
