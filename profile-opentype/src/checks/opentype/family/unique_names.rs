@@ -79,14 +79,15 @@ fn unique_names(c: &TestableCollection, _context: &Context) -> CheckFnResult {
                 .push(font.filename.to_string_lossy().to_string());
         }
 
-        for (name_entry_string, fonts) in &name_entries {
-            if fonts.len() > 1 {
+        for (name_entry_string, font_paths) in &name_entries {
+            if font_paths.len() > 1 {
+                let filenames = get_filenames_from_paths(font_paths);
                 problems.push(Status::fail(
                     &format!("duplicate-name-id-{}", name_id),
                     &format!(
                         "The name '{:?}' is not unique within the family. Found in fonts: {}",
                         name_entry_string,
-                        fonts.join(", ")
+                        filenames.join(", "),
                     ),
                 ));
             }
@@ -155,20 +156,34 @@ fn unique_names(c: &TestableCollection, _context: &Context) -> CheckFnResult {
             }
         }
 
-        for (name_entry_string, fonts) in &name_entries_combo {
-            if fonts.len() > 1 {
+        for (name_entry_string, font_paths) in &name_entries_combo {
+            if font_paths.len() > 1 {
+                let filenames = get_filenames_from_paths(font_paths);
                 problems.push(Status::fail(
                     &format!("duplicate-name-id-{name_id_family}-{name_id_subfamily}"),
                     &format!(
                         "The name '{:?}' is not unique within the family. Found in fonts: {}",
                         name_entry_string,
-                        fonts.join(", ")
+                        filenames.join(", ")
                     ),
                 ));
             }
         }
     }
     return_result(problems)
+}
+
+fn get_filenames_from_paths(font_paths: &[String]) -> Vec<String> {
+    font_paths
+        .iter()
+        .map(|font_path| {
+            std::path::Path::new(font_path)
+                .file_name()
+                .unwrap()
+                .to_string_lossy()
+                .to_string()
+        })
+        .collect()
 }
 
 #[allow(clippy::unwrap_used, clippy::expect_used, clippy::indexing_slicing)]
