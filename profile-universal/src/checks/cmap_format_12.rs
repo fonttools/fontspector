@@ -89,10 +89,11 @@ mod tests {
     use super::*;
 
     use fontspector_checkapi::{
-        codetesting::{assert_results_contain, run_check, test_able},
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
         StatusCode,
     };
 
+    use skrifa::GlyphId;
     use write_fonts::{from_obj::ToOwnedTable, tables::cmap::Cmap};
 
     #[test]
@@ -100,6 +101,39 @@ mod tests {
         let testable = test_able("montserrat/Montserrat-Regular.ttf");
         let results = run_check(cmap_format_12, testable);
         assert_results_contain(&results, StatusCode::Skip, Some("no-format-12".to_string()));
+    }
+
+    #[test]
+    fn test_cmap_format_12_pass() {
+        fn non_bmp_cmap_mappings() -> Vec<(char, GlyphId)> {
+            // contains four sequential map groups
+            vec![
+                // first group
+                ('\u{1f12f}', GlyphId::new(481)),
+                ('\u{1f130}', GlyphId::new(482)),
+                // char 0x1f131 skipped, starts second group
+                ('\u{1f132}', GlyphId::new(483)),
+                ('\u{1f133}', GlyphId::new(484)),
+                // gid 485 skipped, starts third group
+                ('\u{1f134}', GlyphId::new(486)),
+                // char 0x1f135 skipped, starts fourth group. identical duplicate bindings are fine
+                ('\u{1f136}', GlyphId::new(488)),
+                ('\u{1f136}', GlyphId::new(488)),
+            ]
+        }
+
+        let mut testable = test_able("montserrat/Montserrat-Regular.ttf");
+        let f = fontspector_checkapi::prelude::TTF
+            .from_testable(&testable)
+            .unwrap();
+
+        let mappings = non_bmp_cmap_mappings();
+        let cmap = Cmap::from_mappings(mappings).unwrap();
+
+        testable.set(f.rebuild_with_new_table(&cmap).unwrap());
+
+        let results = run_check(cmap_format_12, testable);
+        assert_pass(&results);
     }
 
     // TODO: add tests to trigger warn and fail
@@ -117,24 +151,6 @@ mod tests {
     //         &results,
     //         StatusCode::Warn,
     //         Some("missing-format-4".to_string()),
-    //     );
-    // }
-
-    // #[test]
-    // fn test_cmap_format_12_fail() {
-    //     let mut testable = test_able("montserrat/Montserrat-Regular.ttf");
-    //     let f = fontspector_checkapi::prelude::TTF
-    //         .from_testable(&testable)
-    //         .unwrap();
-    //     let cmap: Cmap = f.font().cmap().unwrap().to_owned_table();
-    //     // TODO: add a format 12 subtable with pointless mappings to the cmap table
-    //     testable.set(f.rebuild_with_new_table(&cmap).unwrap());
-
-    //     let results = run_check(cmap_format_12, testable);
-    //     assert_results_contain(
-    //         &results,
-    //         StatusCode::Fail,
-    //         Some("pointless-format-12".to_string()),
     //     );
     // }
 }
