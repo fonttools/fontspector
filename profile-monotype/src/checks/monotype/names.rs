@@ -17,7 +17,7 @@ use skrifa::raw::types::NameId;
             * If either keyword is in name ID 1, is it repeated in name ID 2 => FAIL
 
     ",
-    title = "Checking that name ID 1 does not contain 'Bold' or 'Italic'."
+    title = "Checking that name ID 1 does not contain reserved style names."
 )]
 fn style_in_family_name(t: &Testable, _context: &Context) -> CheckFnResult {
     let font = testfont!(t);
