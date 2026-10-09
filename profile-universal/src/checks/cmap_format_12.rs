@@ -83,3 +83,58 @@ fn cmap_format_12(t: &Testable, context: &Context) -> CheckFnResult {
         Ok(Status::just_one_pass())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use fontspector_checkapi::{
+        codetesting::{assert_results_contain, run_check, test_able},
+        StatusCode,
+    };
+
+    use write_fonts::{from_obj::ToOwnedTable, tables::cmap::Cmap};
+
+    #[test]
+    fn test_cmap_format_12_skip() {
+        let testable = test_able("montserrat/Montserrat-Regular.ttf");
+        let results = run_check(cmap_format_12, testable);
+        assert_results_contain(&results, StatusCode::Skip, Some("no-format-12".to_string()));
+    }
+
+    // TODO: add tests to trigger warn and fail
+    // #[test]
+    // fn test_cmap_format_12_warn() {
+    //     let mut testable = test_able("montserrat/Montserrat-Regular.ttf");
+    //     let f = fontspector_checkapi::prelude::TTF
+    //         .from_testable(&testable)
+    //         .unwrap();
+    //     let cmap: Cmap = f.font().cmap().unwrap().to_owned_table();
+    //     // TODO: modify the cmap table to trigger a missing format 4 warning
+    //     testable.set(f.rebuild_with_new_table(&cmap).unwrap());
+    //     let results = run_check(cmap_format_12, testable);
+    //     assert_results_contain(
+    //         &results,
+    //         StatusCode::Warn,
+    //         Some("missing-format-4".to_string()),
+    //     );
+    // }
+
+    // #[test]
+    // fn test_cmap_format_12_fail() {
+    //     let mut testable = test_able("montserrat/Montserrat-Regular.ttf");
+    //     let f = fontspector_checkapi::prelude::TTF
+    //         .from_testable(&testable)
+    //         .unwrap();
+    //     let cmap: Cmap = f.font().cmap().unwrap().to_owned_table();
+    //     // TODO: add a format 12 subtable with pointless mappings to the cmap table
+    //     testable.set(f.rebuild_with_new_table(&cmap).unwrap());
+
+    //     let results = run_check(cmap_format_12, testable);
+    //     assert_results_contain(
+    //         &results,
+    //         StatusCode::Fail,
+    //         Some("pointless-format-12".to_string()),
+    //     );
+    // }
+}
