@@ -5,6 +5,48 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.7.1 (2026-10-09)
+
+### Bug Fixes
+
+ - <csr-id-76b618a8fcfab7f87877fb1ab58da3d49ec36d3c/> 'Extrabold' was incorrectly recognized as 'Bold'
+   * test(opentype/mac_style): add failing unittest for 'Extrabold' font
+   
+   * test(opentype/mac_style): fix formatting
+   
+   * fix(is_bold): 'Extrabold' was incorrectly recognized as 'Bold'
+   
+   * refactor(opentype/mac_style): rework unittest + add more samples
+   
+   * test(opentype/mac_style): adjust unittest with uncommon names
+   
+   * fix(is_bold): improve the way it checks names
+   
+   * test(opentype/mac_style): add another example to unittest
+   
+   * refactor(is_bold): make Lint happy
+   
+   ---------
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 1 commit contributed to the release.
+ - 21 days passed between releases.
+ - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
+ - 1 unique issue was worked on: [#947](https://github.com/fonttools/fontspector/issues/947)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#947](https://github.com/fonttools/fontspector/issues/947)**
+    - 'Extrabold' was incorrectly recognized as 'Bold' ([`76b618a`](https://github.com/fonttools/fontspector/commit/76b618a8fcfab7f87877fb1ab58da3d49ec36d3c))
+</details>
+
 ## v1.7.0 (2026-09-18)
 
 ### Chore
@@ -29,7 +71,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    
    * test(opentype/fsselection): add unittest with 'Ita' filename
    
-    expected to fail because it is Regular font)
+   expected to fail because it is Regular font)
    
    * fix: formatting
    
@@ -43,7 +85,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 3 commits contributed to the release over the course of 9 calendar days.
+ - 4 commits contributed to the release over the course of 9 calendar days.
  - 73 days passed between releases.
  - 3 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 3 unique issues were worked on: [#898](https://github.com/fonttools/fontspector/issues/898), [#905](https://github.com/fonttools/fontspector/issues/905), [#908](https://github.com/fonttools/fontspector/issues/908)
@@ -60,6 +102,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Minimize the crates required by the hotfix crate ([`178f989`](https://github.com/fonttools/fontspector/commit/178f989dea5ccb0a2853fe9e32f7f6b270196b67))
  * **[#908](https://github.com/fonttools/fontspector/issues/908)**
     - Improvements for fonts with unusual file names ([`200f8a2`](https://github.com/fonttools/fontspector/commit/200f8a255e6a5e058583a4310d974801dd9acba4))
+ * **Uncategorized**
+    - Release fontspector-profile-opentype v1.7.0 ([`54eeb16`](https://github.com/fonttools/fontspector/commit/54eeb16dd6ee4bc17039570abb50dc865026d6af))
 </details>
 
 ## v1.6.0 (2026-07-07)
