@@ -1745,7 +1745,7 @@ dependencies = [
 
 [[package]]
 name = "fontspector-profile-googlefonts"
-version = "1.9.1"
+version = "1.10.0"
 dependencies = [
  "babelfont",
  "chrono",
