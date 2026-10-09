@@ -176,7 +176,10 @@ fn unique_names(c: &TestableCollection, _context: &Context) -> CheckFnResult {
 mod tests {
     use super::*;
     use fontspector_checkapi::{
-        codetesting::{assert_pass, assert_results_contain, run_check_with_config, test_able},
+        codetesting::{
+            assert_messages_contain, assert_pass, assert_results_contain, run_check_with_config,
+            test_able,
+        },
         StatusCode, TestableCollection, TestableType,
     };
     use std::collections::HashMap;
@@ -213,6 +216,10 @@ mod tests {
             &result,
             StatusCode::Fail,
             Some("duplicate-name-id-UNIQUE_ID".to_string()),
+        );
+        assert_messages_contain(
+            &result,
+            "not unique within the family. Found in fonts: SourceSansPro-Regular.otf, SourceSansPro-Regular.otf",
         );
     }
 
