@@ -2,5 +2,5 @@
 // TODO: add Monotype-specific checks
 mod fstype;
 pub use fstype::fstype;
-mod cmap_subtables;
-pub use cmap_subtables::cmap_subtables;
+mod cmap_encoding_records;
+pub use cmap_encoding_records::cmap_encoding_records;
