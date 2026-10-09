@@ -8,6 +8,7 @@ use skrifa::raw::{tables::cmap::PlatformId, TableProvider};
             platform 0 (Unicode), encoding 3 (Unicode BMP only) or 4 (Unicode full repertoire)
             platform 3 (Windows), encoding 1 (Unicode BMP) or 10 (Unicode full repertoire)
     ",
+    proposal = "https://github.com/Monotype/fontspector/issues/9",
     title = "Checking cmap encoding records."
 )]
 fn cmap_encoding_records(t: &Testable, _context: &Context) -> CheckFnResult {
