@@ -24,7 +24,7 @@ fn style_in_family_name(t: &Testable, _context: &Context) -> CheckFnResult {
     skip!(!font.has_table(b"name"), "no-name", "No name table.");
 
     let mut problems = vec![];
-    let reserved_style_names = vec!["Regular", "Bold", "Italic"];
+    let reserved_style_names = ["Regular", "Bold", "Italic"];
 
     for style_name in reserved_style_names.iter() {
         let platform_tuples = get_name_platform_tuples(font.font());
