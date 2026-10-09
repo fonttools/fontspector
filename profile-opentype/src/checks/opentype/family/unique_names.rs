@@ -179,7 +179,7 @@ fn get_filenames_from_paths(font_paths: &[String]) -> Vec<String> {
         .map(|font_path| {
             std::path::Path::new(font_path)
                 .file_name()
-                .unwrap()
+                .unwrap_or_else(|| panic!("Failed to get file name from path: {}", font_path))
                 .to_string_lossy()
                 .to_string()
         })
