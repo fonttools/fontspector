@@ -8,7 +8,7 @@ use skrifa::raw::types::NameId;
 #[check(
     id = "monotype/style_in_family_name",
     rationale = "
-        Is name ID 1 free of the reserved keywords 'Bold' and 'Italic'?
+        Is name ID 1 free of the reserved keywords 'Regular','Bold' and 'Italic'?
 
         Breaks down into two checks:
 
@@ -24,7 +24,7 @@ fn style_in_family_name(t: &Testable, _context: &Context) -> CheckFnResult {
     skip!(!font.has_table(b"name"), "no-name", "No name table.");
 
     let mut problems = vec![];
-    let reserved_style_names = vec!["Bold", "Italic"];
+    let reserved_style_names = vec!["Regular", "Bold", "Italic"];
 
     for style_name in reserved_style_names.iter() {
         let platform_tuples = get_name_platform_tuples(font.font());
