@@ -5,6 +5,86 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.1.0 (2026-10-09)
+
+### New Features
+
+ - <csr-id-5ac424de337de94d8f09835b3dc2cf41223a7a5b/> Source fixing
+   * feat: WIP source fixing infrastructure
+   
+   * chore: Better arg parsing
+   
+   * chore: CLI reporting fixes for source fixes
+   
+   * chore: typo
+   
+   * chore: More error handling, save a designspace file
+   
+   * feat(googlefonts/use_typo_metrics): Source-fix UFOs
+   
+   * chore: Don't try fixing directories
+   
+   * feat(soft_hyphen): Source fix
+   
+   * chore: Use git not local path
+   
+   * chore: Utility functions for source fixes
+   
+   * feat(linegaps): Source fix
+   
+   * chore(cli): Fontbakery users like uppercase names for -L
+   
+   * chore: Make attrs conditional
+   
+   * chore(cli): Add fix info to list checks output
+   
+   * feat(valid_glyphnames): Source fix
+   
+   * chore: Regenerate Cargo.lock
+   
+   * chore: This was never true
+   
+   * feat: Use interactive loop for source fixes too
+   
+   * chore: Thanks clippy
+   
+   * feat: Pipe results back into source fixes
+   
+   * chore: Make source map warning more prominent
+   
+   * feat(mandatory_glyphs): Sourcefix .notdef
+   
+   * feat(unreachable_glyphs): Sourcefix unreachable glyphs
+   
+   * chore: Thanks clippy
+   
+   * feat(line_breaks): Sourcefix line breaks in name table entries
+   
+   * feat(name/trailing_spaces): Sourcefix trailling spaces
+   
+   * chore: Source hygiene
+   
+   * feat(whitespace_widths): Sourcefix whitespace widths
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 1 commit contributed to the release over the course of 2 calendar days.
+ - 94 days passed between releases.
+ - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
+ - 1 unique issue was worked on: [#315](https://github.com/fonttools/fontspector/issues/315)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#315](https://github.com/fonttools/fontspector/issues/315)**
+    - Source fixing ([`5ac424d`](https://github.com/fonttools/fontspector/commit/5ac424de337de94d8f09835b3dc2cf41223a7a5b))
+</details>
+
 ## v1.0.2 (2026-07-07)
 
 ### Chore
@@ -43,7 +123,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 5 commits contributed to the release.
+ - 6 commits contributed to the release.
+ - 425 days passed between releases.
  - 5 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 5 unique issues were worked on: [#287](https://github.com/fonttools/fontspector/issues/287), [#299](https://github.com/fonttools/fontspector/issues/299), [#324](https://github.com/fonttools/fontspector/issues/324), [#531](https://github.com/fonttools/fontspector/issues/531), [#552](https://github.com/fonttools/fontspector/issues/552)
 
@@ -63,6 +144,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - More from rustybuzz to harfrust ([`4befd6c`](https://github.com/fonttools/fontspector/commit/4befd6c88900e2e06c363a8a6b1cdfc9518e9c91))
  * **[#552](https://github.com/fonttools/fontspector/issues/552)**
     - Refresh dependencies ([`3aff895`](https://github.com/fonttools/fontspector/commit/3aff895fb75d510fa826e19339424347b5d3ff61))
+ * **Uncategorized**
+    - Release fontspector-checkhelper v1.0.2 ([`b70a742`](https://github.com/fonttools/fontspector/commit/b70a74254e5b26582d10e26710fcd9397f5bab25))
 </details>
 
 ## v1.0.1 (2025-05-08)
@@ -91,10 +174,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## v1.0.0 (2025-05-08)
 
 <csr-id-67983658b8983813085ae402d472320998af8264/>
-
-### Other
-
- - <csr-id-67983658b8983813085ae402d472320998af8264/> coding style improve
 
 ### Commit Statistics
 

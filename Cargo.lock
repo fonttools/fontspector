@@ -1684,7 +1684,7 @@ dependencies = [
 
 [[package]]
 name = "fontspector-checkhelper"
-version = "1.0.2"
+version = "1.1.0"
 dependencies = [
  "darling 0.24.1",
  "proc-macro2",
