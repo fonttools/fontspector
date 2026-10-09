@@ -6,3 +6,5 @@ mod names;
 pub use names::style_in_family_name;
 mod widthclass;
 pub use widthclass::widthclass;
+mod cmap_subtables;
+pub use cmap_subtables::cmap_subtables;
