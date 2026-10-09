@@ -147,6 +147,15 @@ mod tests {
                 StatusCode::Fail,
                 Some("style-in-family-name-and-subfamily".to_string()),
             ),
+            (
+                "Family-Regular.ttf".to_string(),
+                HashMap::from([
+                    (NameId::FAMILY_NAME, "Family Regular"),
+                    (NameId::SUBFAMILY_NAME, "Regular"),
+                ]),
+                StatusCode::Fail,
+                Some("style-in-family-name-and-subfamily".to_string()),
+            ),
         ];
         for (filename, name_ids, expected_severity, expected_code) in test_examples {
             let mut builder = FontBuilder::new();
