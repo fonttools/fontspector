@@ -80,7 +80,7 @@ fn cmap_format_12(t: &Testable, context: &Context) -> CheckFnResult {
             "No format 12 subtable was found",
         ))
     } else {
-        Ok(Status::just_one_pass())
+        return_result(problems)
     }
 }
 
