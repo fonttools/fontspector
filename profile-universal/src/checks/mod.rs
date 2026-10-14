@@ -14,6 +14,7 @@ mod colr_glyph_entry_with_no_layers;
 mod consistent_axes;
 mod contour_count;
 mod control_chars;
+mod designspace;
 mod dsig;
 mod empty_glyph_on_gid1_for_colrv0;
 mod empty_letters;
