@@ -5,6 +5,187 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.9.0 (2026-10-09)
+
+### New Features
+
+ - <csr-id-5ac424de337de94d8f09835b3dc2cf41223a7a5b/> Source fixing
+   * feat: WIP source fixing infrastructure
+   
+   * chore: Better arg parsing
+   
+   * chore: CLI reporting fixes for source fixes
+   
+   * chore: typo
+   
+   * chore: More error handling, save a designspace file
+   
+   * feat(googlefonts/use_typo_metrics): Source-fix UFOs
+   
+   * chore: Don't try fixing directories
+   
+   * feat(soft_hyphen): Source fix
+   
+   * chore: Use git not local path
+   
+   * chore: Utility functions for source fixes
+   
+   * feat(linegaps): Source fix
+   
+   * chore(cli): Fontbakery users like uppercase names for -L
+   
+   * chore: Make attrs conditional
+   
+   * chore(cli): Add fix info to list checks output
+   
+   * feat(valid_glyphnames): Source fix
+   
+   * chore: Regenerate Cargo.lock
+   
+   * chore: This was never true
+   
+   * feat: Use interactive loop for source fixes too
+   
+   * chore: Thanks clippy
+   
+   * feat: Pipe results back into source fixes
+   
+   * chore: Make source map warning more prominent
+   
+   * feat(mandatory_glyphs): Sourcefix .notdef
+   
+   * feat(unreachable_glyphs): Sourcefix unreachable glyphs
+   
+   * chore: Thanks clippy
+   
+   * feat(line_breaks): Sourcefix line breaks in name table entries
+   
+   * feat(name/trailing_spaces): Sourcefix trailling spaces
+   
+   * chore: Source hygiene
+   
+   * feat(whitespace_widths): Sourcefix whitespace widths
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 1 commit contributed to the release over the course of 2 calendar days.
+ - 9 days passed between releases.
+ - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
+ - 1 unique issue was worked on: [#315](https://github.com/fonttools/fontspector/issues/315)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#315](https://github.com/fonttools/fontspector/issues/315)**
+    - Source fixing ([`5ac424d`](https://github.com/fonttools/fontspector/commit/5ac424de337de94d8f09835b3dc2cf41223a7a5b))
+</details>
+
+## v1.8.7 (2026-09-30)
+
+### Chore
+
+ - <csr-id-aa18529b5dea6a8fd9ad161e44c075666aba8c8f/> Stronger gating on freetype check
+   * chore(universal): Stronger gating on freetype check
+   
+   * ci: Check hotfi builds
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 2 commits contributed to the release.
+ - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
+ - 1 unique issue was worked on: [#941](https://github.com/fonttools/fontspector/issues/941)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#941](https://github.com/fonttools/fontspector/issues/941)**
+    - Stronger gating on freetype check ([`aa18529`](https://github.com/fonttools/fontspector/commit/aa18529b5dea6a8fd9ad161e44c075666aba8c8f))
+ * **Uncategorized**
+    - Release fontspector-profile-universal v1.8.7 ([`a39c361`](https://github.com/fonttools/fontspector/commit/a39c36174132dabd638b1520ecd9e2b92c488f11))
+</details>
+
+## v1.8.6 (2026-09-30)
+
+### Chore
+
+ - <csr-id-3bd4ae11df7b6550a9bab2213ffc8d10600d053b/> Make freetype dependency optional
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 2 commits contributed to the release.
+ - 12 days passed between releases.
+ - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
+ - 1 unique issue was worked on: [#940](https://github.com/fonttools/fontspector/issues/940)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#940](https://github.com/fonttools/fontspector/issues/940)**
+    - Make freetype dependency optional ([`3bd4ae1`](https://github.com/fonttools/fontspector/commit/3bd4ae11df7b6550a9bab2213ffc8d10600d053b))
+ * **Uncategorized**
+    - Release fontspector-profile-universal v1.8.6 ([`7c85abf`](https://github.com/fonttools/fontspector/commit/7c85abfec9c031076510cbc2b78497835985e786))
+</details>
+
+## v1.8.5 (2026-09-18)
+
+### Chore
+
+ - <csr-id-f3deb23c9db46e05f55d7249d79c4a473f1eab07/> Macros apparently need semicolons
+ - <csr-id-178f989dea5ccb0a2853fe9e32f7f6b270196b67/> Minimize the crates required by the hotfix crate
+   * chore: Minimize the crates required by the hotfix crate
+   
+   * chore: Update fontc deps
+ - <csr-id-a193d56a4e4051b2f464bc59b9351a4439c023ce/> Move from dead fontations to skrifa/write_fonts
+   * chore: Drop fontations dep, use skrifa/write_fonts
+   
+   * chore: Thanks clippy
+
+### Bug Fixes
+
+ - <csr-id-1b971869f0af5e628ed5733837e588e18a7d23ba/> Promote Adobe's STAT_strings to universal, move current to GF
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 5 commits contributed to the release over the course of 9 calendar days.
+ - 38 days passed between releases.
+ - 4 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 4 unique issues were worked on: [#898](https://github.com/fonttools/fontspector/issues/898), [#905](https://github.com/fonttools/fontspector/issues/905), [#915](https://github.com/fonttools/fontspector/issues/915), [#917](https://github.com/fonttools/fontspector/issues/917)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#898](https://github.com/fonttools/fontspector/issues/898)**
+    - Move from dead fontations to skrifa/write_fonts ([`a193d56`](https://github.com/fonttools/fontspector/commit/a193d56a4e4051b2f464bc59b9351a4439c023ce))
+ * **[#905](https://github.com/fonttools/fontspector/issues/905)**
+    - Minimize the crates required by the hotfix crate ([`178f989`](https://github.com/fonttools/fontspector/commit/178f989dea5ccb0a2853fe9e32f7f6b270196b67))
+ * **[#915](https://github.com/fonttools/fontspector/issues/915)**
+    - Macros apparently need semicolons ([`f3deb23`](https://github.com/fonttools/fontspector/commit/f3deb23c9db46e05f55d7249d79c4a473f1eab07))
+ * **[#917](https://github.com/fonttools/fontspector/issues/917)**
+    - Promote Adobe's STAT_strings to universal, move current to GF ([`1b97186`](https://github.com/fonttools/fontspector/commit/1b971869f0af5e628ed5733837e588e18a7d23ba))
+ * **Uncategorized**
+    - Release fontspector-profile-universal v1.8.5 ([`d1fa740`](https://github.com/fonttools/fontspector/commit/d1fa740bb2f0425da1d894dafa379aef1ffef0b2))
+</details>
+
 ## v1.8.4 (2026-08-11)
 
 ### Chore
@@ -19,7 +200,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 2 commits contributed to the release over the course of 21 calendar days.
+ - 3 commits contributed to the release over the course of 21 calendar days.
  - 35 days passed between releases.
  - 2 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 2 unique issues were worked on: [#875](https://github.com/fonttools/fontspector/issues/875), [#880](https://github.com/fonttools/fontspector/issues/880)
@@ -40,6 +221,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Thanks clippy ([`ba4aa40`](https://github.com/fonttools/fontspector/commit/ba4aa4052252bc103ba0742bea043c75d3f25265))
  * **[#880](https://github.com/fonttools/fontspector/issues/880)**
     - Use gvar/HVAR peaks in suspicious_sidebearings ([`ce4d7b6`](https://github.com/fonttools/fontspector/commit/ce4d7b63623f4ccd076dcea4888fefda55971793))
+ * **Uncategorized**
+    - Release fontspector-profile-universal v1.8.4 ([`00e9457`](https://github.com/fonttools/fontspector/commit/00e94573b949adf7641f86b4411684235ad41bdd))
 </details>
 
 ## v1.8.3 (2026-07-07)

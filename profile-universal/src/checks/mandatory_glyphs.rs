@@ -1,5 +1,5 @@
 use fontspector_checkapi::{
-    pens::HasInkPen, prelude::*, testfont, FileTypeConvert, Metadata, DEFAULT_LOCATION,
+    pens::HasInkPen, prelude::*, testfont, FileTypeConvert, Metadata, SourceFile, DEFAULT_LOCATION,
 };
 use serde_json::json;
 use skrifa::{GlyphId, MetadataProvider};
@@ -22,6 +22,7 @@ use skrifa::{GlyphId, MetadataProvider};
     ",
     title="Font contains '.notdef' as its first glyph?",
     proposal="https://github.com/fonttools/fontbakery/issues/4829",  // legacy check
+    fix_source=sourcefix_mandatory_glyphs
 )]
 fn mandatory_glyphs(f: &Testable, _context: &Context) -> CheckFnResult {
     let font = testfont!(f);
@@ -90,6 +91,39 @@ fn mandatory_glyphs(f: &Testable, _context: &Context) -> CheckFnResult {
     }
 
     return_result(problems)
+}
+
+fn sourcefix_mandatory_glyphs(
+    source: &mut SourceFile,
+    problems: &[Status],
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
+    let is_blank = problems
+        .iter()
+        .any(|status| status.code == Some("notdef-is-blank".to_string()));
+    log::debug!("is_blank: {}", is_blank);
+    log::debug!("Problems: {:?}", problems);
+    // Pull it out of glyphlist
+    let notdef_position = source
+        .source
+        .glyphs
+        .0
+        .iter()
+        .position(|g| g.name == ".notdef");
+    if let Some(pos) = notdef_position {
+        let mut notdef = source.source.glyphs.0.remove(pos);
+        if !is_blank {
+            // Make it first and de-encode it
+            notdef.codepoints.clear();
+            source.source.glyphs.0.insert(0, notdef);
+            log::debug!("Moved '.notdef' glyph to the first position and cleared its codepoints.");
+        } else {
+            log::debug!("'.notdef' glyph is blank, not moving it to the first position.");
+        }
+    } else {
+        log::debug!("'.notdef' glyph not found in the source.");
+    }
+    Ok(FixResult::Fixed)
 }
 
 #[cfg(test)]

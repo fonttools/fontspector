@@ -1,6 +1,6 @@
 [package]
 name = "fontspector-profile-universal"
-version = "1.8.4"
+version = "1.9.0"
 edition = "2021"
 authors = [
     "Simon Cozens <simon@simon-cozens.org>",
@@ -15,7 +15,7 @@ license = "Apache-2.0"
 [target.'cfg(not(target_family = "wasm"))'.dependencies]
 freetype-rs = { version = "0", features = [
     "bundled",
-] } # For freetype_rasterizer
+], optional = true } # For freetype_rasterizer
 reqwest = { version = "0.12", features = ["blocking"] } # For fontdata namecheck
 
 [dependencies]
@@ -40,12 +40,13 @@ kurbo = { workspace = true }
 stringcase = "0.4.0"
 fontdrasil = { workspace = true }
 ordered-float = "5.1.0"
+babelfont.workspace = true
 
 [features]
 # The "check" feature enables checks with dependencies that are not required
 # for hotfixing (e.g. fontspector-hotfix, which only needs fix functions).
 default = ["check"]
-check = ["dep:interpolatable"]
+check = ["dep:interpolatable", "dep:freetype-rs"]
 
 [lints]
 workspace = true

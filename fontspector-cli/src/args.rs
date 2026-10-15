@@ -112,6 +112,32 @@ pub struct Args {
     #[clap(long, help_heading = "Fix problems")]
     pub fix_sources: bool,
 
+    #[arg(long, help_heading = "Fix problems", value_parser = parse_source_map)]
+    pub source_map: Vec<(String, String)>,
+
     /// Input files
     pub inputs: Vec<String>,
+}
+
+fn parse_source_map(s: &str) -> Result<(String, String), String> {
+    let parts: Vec<&str> = s.splitn(2, ':').collect();
+    if parts.len() != 2 {
+        return Err(format!(
+            "Invalid source map entry (should be binary_file.ttf:source.glyphs): {s}"
+        ));
+    }
+    #[allow(clippy::indexing_slicing)] // We know there are exactly two parts
+    if parts[0].ends_with(".glyphs")
+        || parts[0].ends_with(".glyphspackage")
+        || parts[0].ends_with(".ufo")
+        || parts[0].ends_with(".designspace")
+        || parts[1].ends_with(".ttf")
+        || parts[1].ends_with(".otf")
+    {
+        return Err(format!(
+            "Invalid source map key (the binary font should go on the left): {s}",
+        ));
+    }
+    #[allow(clippy::indexing_slicing)] // We know there are exactly two parts
+    Ok((parts[0].to_string(), parts[1].to_string()))
 }

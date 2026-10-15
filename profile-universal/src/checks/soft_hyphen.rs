@@ -1,9 +1,12 @@
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata, MoreInfoReplies};
+use fontspector_checkapi::{
+    prelude::*, testfont, FileTypeConvert, Metadata, MoreInfoReplies, SourceFile,
+};
 use serde_json::json;
-use skrifa::raw::{tables::cmap::CmapSubtable, TableProvider};
-use skrifa::MetadataProvider;
-use write_fonts::tables::cmap::Cmap;
-use write_fonts::types::GlyphId;
+use skrifa::{
+    raw::{tables::cmap::CmapSubtable, TableProvider},
+    MetadataProvider,
+};
+use write_fonts::{tables::cmap::Cmap, types::GlyphId};
 
 #[check(
     id = "soft_hyphen",
@@ -28,6 +31,7 @@ use write_fonts::types::GlyphId;
     proposal = "https://github.com/fonttools/fontbakery/issues/3486",
     title = "Does the font contain a soft hyphen?",
     hotfix = fix_soft_hyphen,
+    fix_source = sourcefix_softhyphen,
 )]
 fn soft_hyphen(t: &Testable, context: &Context) -> CheckFnResult {
     let f = testfont!(t);
@@ -115,4 +119,20 @@ mod tests {
         let results = run_check(soft_hyphen, testable);
         assert_pass(&results);
     }
+}
+
+fn sourcefix_softhyphen(
+    s: &mut SourceFile,
+    _problems: &[Status],
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
+    let font = &mut s.source;
+    let had_one = font.glyphs.iter().any(|g| g.codepoints.contains(&0xAD));
+    if !had_one {
+        log::info!("No soft hyphen glyph found in Glyphs file.");
+        return Ok(FixResult::NotBroken);
+    }
+    font.glyphs.retain(|g| !g.codepoints.contains(&0xAD));
+    log::info!("Removing soft hyphen glyph from Glyphs file.");
+    Ok(FixResult::Fixed)
 }

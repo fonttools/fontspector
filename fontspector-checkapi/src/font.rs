@@ -184,8 +184,14 @@ impl TestFont<'_> {
             return Ok(true);
         }
         if self
-            .get_name_entry_strings(StringId::FULL_NAME)
-            .any(|x| x.to_lowercase().contains("bold"))
+            .get_name_entry_strings(StringId::SUBFAMILY_NAME)
+            .any(|x| matches!(x.to_lowercase().as_str(), "bold" | "bold italic"))
+            || self.get_name_entry_strings(StringId::FULL_NAME).any(|x| {
+                let name_parts: Vec<_> = x.split_whitespace().collect();
+                name_parts
+                    .iter()
+                    .any(|part| part.to_lowercase().as_str() == "bold")
+            })
         {
             return Ok(true);
         }

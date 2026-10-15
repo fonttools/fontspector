@@ -60,6 +60,9 @@ zip = { version = "8", features = [
     "deflate",
 ], default-features = false } # CLI and web
 
+# Source fixes
+babelfont = "0.2.2"
+
 [workspace.lints.clippy]
 unwrap_used = "deny"
 expect_used = "deny"

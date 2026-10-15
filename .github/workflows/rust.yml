@@ -66,6 +66,17 @@ jobs:
       - name: Lint for warnings
         run: cargo clippy --all-targets --all-features -- -D warnings
 
+  standalone-hotfix:
+    name: Check that fontspector-hotfix still compiles
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - name: Install protoc
+        run: sudo apt-get update && sudo apt-get install protobuf-compiler
+      - name: Build fontspector-hotfix
+        run: cargo build --package fontspector-hotfix
+
   wasm-still-builds:
     name: Check that the web site still builds
     runs-on: ubuntu-latest

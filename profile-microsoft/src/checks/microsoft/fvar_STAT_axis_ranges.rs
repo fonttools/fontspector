@@ -17,7 +17,7 @@ fn fvar_STAT_axis_ranges(t: &Testable, _context: &Context) -> CheckFnResult {
     let f = testfont!(t);
     let mut problems = vec![];
     let Ok(stat) = f.font().stat() else {
-        skip!("no-stat", "STAT table not found")
+        skip!("no-stat", "STAT table not found");
     };
     let stat_axis_tags = stat
         .design_axes()?

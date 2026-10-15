@@ -1,6 +1,8 @@
 use std::collections::HashSet;
 
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, GetSubstitutionMap, Metadata};
+use fontspector_checkapi::{
+    prelude::*, testfont, FileTypeConvert, GetSubstitutionMap, Metadata, SourceFile,
+};
 use itertools::Itertools;
 use serde_json::json;
 use skrifa::{
@@ -28,7 +30,8 @@ use skrifa::{
         to increase the font's file size.
     "#,
     proposal = "https://github.com/fonttools/fontbakery/issues/3160",
-    title = "Check font contains no unreachable glyphs"
+    title = "Check font contains no unreachable glyphs",
+    fix_source = sourcefix_unreachable_glyphs
 )]
 fn unreachable_glyphs(t: &Testable, context: &Context) -> CheckFnResult {
     let f = testfont!(t);
@@ -144,6 +147,40 @@ fn unreachable_glyphs(t: &Testable, context: &Context) -> CheckFnResult {
         problems.push(status);
     }
     return_result(problems)
+}
+
+fn sourcefix_unreachable_glyphs(
+    source: &mut SourceFile,
+    problems: &[Status],
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
+    let glyphs_to_fix = problems
+        .iter()
+        .flat_map(|x| &x.metadata)
+        .flat_map(|metadata| match &metadata {
+            Metadata::FontProblem { context, .. } => {
+                if let Some(context) = context {
+                    if let Some(glyphlist) = context.get("unreachable_glyphs") {
+                        if let Some(array) = glyphlist.as_array() {
+                            return array
+                                .iter()
+                                .filter_map(|v| v.as_str().map(String::from))
+                                .collect::<Vec<_>>();
+                        }
+                    }
+                }
+                vec![]
+            }
+            _ => vec![],
+        })
+        .collect::<Vec<_>>();
+    for glyph in glyphs_to_fix {
+        if let Some(g) = source.source.glyphs.get_mut(&glyph) {
+            g.exported = false;
+        }
+    }
+
+    Ok(FixResult::Fixed)
 }
 
 #[cfg(test)]

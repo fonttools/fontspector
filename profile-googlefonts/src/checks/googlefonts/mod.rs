@@ -15,6 +15,7 @@ mod fvar_instances;
 #[cfg(feature = "check")]
 mod glyph_coverage;
 mod has_ttfautohint_params;
+mod no_oblique_bit;
 #[cfg(feature = "check")]
 mod old_ttfautohint;
 mod parametric_axes_hidden;
@@ -67,6 +68,7 @@ pub use gasp::gasp;
 #[cfg(feature = "check")]
 pub use glyph_coverage::glyph_coverage;
 pub use has_ttfautohint_params::has_ttfautohint_params;
+pub use no_oblique_bit::no_oblique_bit;
 #[cfg(feature = "check")]
 pub use old_ttfautohint::old_ttfautohint;
 pub use parametric_axes_hidden::parametric_axes_hidden;

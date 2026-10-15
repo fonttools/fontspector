@@ -1,6 +1,6 @@
 [package]
 name = "fontspector-checkhelper"
-version = "1.0.2"
+version = "1.1.0"
 edition = "2021"
 description = "Macros for generating check functions for fontspector"
 license = "MIT OR Apache-2.0"
@@ -12,10 +12,10 @@ path = "src/lib.rs"
 proc-macro = true
 
 [dependencies]
-darling = "0.23.0"
-proc-macro2 = "1.0.86"
-quote = "1.0.37"
-syn = "2.0.76"
+darling = "0.24.1"
+proc-macro2 = "1.0.107"
+quote = "1.0.47"
+syn = "3.0.6"
 
 [lints]
 workspace = true

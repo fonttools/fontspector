@@ -14,7 +14,7 @@ use skrifa::raw::TableProvider;
 fn STAT_table_axis_order(t: &Testable, _context: &Context) -> CheckFnResult {
     let f = testfont!(t);
     let Ok(stat) = f.font().stat() else {
-        skip!("no-stat", "STAT table not found")
+        skip!("no-stat", "STAT table not found");
     };
 
     let mut axes = stat

@@ -1,6 +1,6 @@
 [package]
 name = "fontspector-checkapi"
-version = "1.7.1"
+version = "1.9.0"
 edition = "2021"
 description = "Library for developing checks for the fontspector font QA tool"
 license = "MIT OR Apache-2.0"
@@ -52,6 +52,7 @@ kurbo = { workspace = true, optional = true }
 thiserror = "2.0.12"
 schemars = { version = "1.2.1", optional = true, features = ["indexmap2"] }
 
+babelfont.workspace =  true 
 
 [lints]
 workspace = true

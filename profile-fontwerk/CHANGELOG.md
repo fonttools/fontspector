@@ -5,22 +5,77 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.3.3 (2026-09-18)
+
+### Chore
+
+ - <csr-id-178f989dea5ccb0a2853fe9e32f7f6b270196b67/> Minimize the crates required by the hotfix crate
+   * chore: Minimize the crates required by the hotfix crate
+   
+   * chore: Update fontc deps
+ - <csr-id-a193d56a4e4051b2f464bc59b9351a4439c023ce/> Move from dead fontations to skrifa/write_fonts
+   * chore: Drop fontations dep, use skrifa/write_fonts
+   
+   * chore: Thanks clippy
+
+### Bug Fixes
+
+ - <csr-id-9f223e7b4504844293c9a16ef2fa613bbc255598/> extend excludes
+   * fix(monotype): extend excludes
+   
+   * refactor(fontwerk): make 'checks' not private
+   
+   * refactor(monotype): rework registered checks
+   
+   ---------
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 3 commits contributed to the release over the course of 9 calendar days.
+ - 84 days passed between releases.
+ - 3 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 3 unique issues were worked on: [#898](https://github.com/fonttools/fontspector/issues/898), [#905](https://github.com/fonttools/fontspector/issues/905), [#916](https://github.com/fonttools/fontspector/issues/916)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#898](https://github.com/fonttools/fontspector/issues/898)**
+    - Move from dead fontations to skrifa/write_fonts ([`a193d56`](https://github.com/fonttools/fontspector/commit/a193d56a4e4051b2f464bc59b9351a4439c023ce))
+ * **[#905](https://github.com/fonttools/fontspector/issues/905)**
+    - Minimize the crates required by the hotfix crate ([`178f989`](https://github.com/fonttools/fontspector/commit/178f989dea5ccb0a2853fe9e32f7f6b270196b67))
+ * **[#916](https://github.com/fonttools/fontspector/issues/916)**
+    - Extend excludes ([`9f223e7`](https://github.com/fonttools/fontspector/commit/9f223e7b4504844293c9a16ef2fa613bbc255598))
+</details>
+
 ## v1.3.2 (2026-06-26)
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 1 commit contributed to the release.
+ - 39 days passed between releases.
+ - 0 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 0 issues like '(#ID)' were seen in commit messages
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.7.1, fontspector-profile-fontwerk v1.3.2, fontspector-profile-googlefonts v1.8.2, fontspector-profile-iso15008 v1.0.7, fontspector-profile-opentype v1.5.1, fontspector-profile-universal v1.8.2, fontspector-hotfix v0.3.1, fontspector v1.7.2 ([`accdd2a`](https://github.com/fonttools/fontspector/commit/accdd2a9c3ab285e71e5a047120cbe366cd80a84))
+</details>
 
 ## v1.3.1 (2026-05-18)
 
 <csr-id-7b32eca0846e594655f304250928295ffbf6496a/>
-
-### Refactor
-
- - <csr-id-7b32eca0846e594655f304250928295ffbf6496a/> New plugin architecture
-   * refactor: Remove fontbakery-bridge
-   
-   * refactor: New plugin architecture
-   
-   * feat: Demonstrate Python-based plugins
-   
-   * docs: New plugin architecture
 
 ### Commit Statistics
 
@@ -54,7 +109,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <csr-read-only-do-not-edit/>
 
  - 2 commits contributed to the release.
- - 16 days passed between releases.
+ - 17 days passed between releases.
  - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
  - 1 unique issue was worked on: [#635](https://github.com/fonttools/fontspector/issues/635)
 
@@ -73,10 +128,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## v1.2.3 (2026-02-06)
 
 <csr-id-19b91cdf15a6d8ea7e60b616199d28e03c76ba4d/>
-
-### Chore
-
- - <csr-id-19b91cdf15a6d8ea7e60b616199d28e03c76ba4d/> Reformat
 
 ### Commit Statistics
 
@@ -104,18 +155,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <csr-id-a755d98f2dcb10c675c0084588ca16eee2a5f313/>
 <csr-id-c69d124501d4251aee6a0d54233a3cc627d5f325/>
 
-### Refactor
-
- - <csr-id-a755d98f2dcb10c675c0084588ca16eee2a5f313/> Regular weight fonts often don't have 'Regular' in its name, fix edge cases
- - <csr-id-c69d124501d4251aee6a0d54233a3cc627d5f325/> replace get_name_PEL_codes and get_name_entry_string
-   + fix uniitest (because of different sorting of platform _tuples)
-
 ### Commit Statistics
 
 <csr-read-only-do-not-edit/>
 
  - 3 commits contributed to the release over the course of 25 calendar days.
- - 48 days passed between releases.
+ - 49 days passed between releases.
  - 2 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 2 unique issues were worked on: [#480](https://github.com/fonttools/fontspector/issues/480), [#583](https://github.com/fonttools/fontspector/issues/583)
 
@@ -201,40 +246,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    * fix(fontwerk/glyph_coverage): removing .case glyphs from minimum character set.
 * feat(fontwerk/weightclass): new test to meet fontwerk standards + .exclude_check("googlefonts/weightclass")
 
-### Other
-
- - <csr-id-90205a8089d1394f957cdf13cdcc461b73824425/> fontspector-checkapi v1.1.2, fontspector-fontbakery-bridge v1.2.0, fontspector-profile-fontwerk v1.1.0, fontspector-profile-googlefonts v1.3.0, fontspector-profile-opentype v1.2.1, fontspector-profile-universal v1.1.2, fontspector v1.4.0
-
-### Test
-
- - <csr-id-abd4d4cf426666d0dac52706a763fb01d0e85d2c/> Move the tests from Python to Rust
-   * chore(codetesting): Improve codetesting story slightly
-   
-   * test(contour_count): WIP move test to Rust
-   
-   * chore: Helper function for check testing
-   
-   * test: Move many tests to Rust, by some strange magic
-   
-   * test: add test files
-   
-   * chore: Helper function for check testing with parameters
-   
-   * test: Move many more tests to Rust, thanks to my little electronic friend
-   
-   * chore: Change test helper functions to take references
-   
-   * test: Two more tests to Rust
-   
-   * chore: Fix up warnings
-   
-   * test: Four more tests to Rust
-
 ### Commit Statistics
 
 <csr-read-only-do-not-edit/>
 
  - 5 commits contributed to the release over the course of 54 calendar days.
+ - 75 days passed between releases.
  - 4 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 3 unique issues were worked on: [#356](https://github.com/fonttools/fontspector/issues/356), [#410](https://github.com/fonttools/fontspector/issues/410), [#418](https://github.com/fonttools/fontspector/issues/418)
 
@@ -289,7 +306,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <csr-unknown>
 <csr-unknown>
 <csr-unknown>
+<csr-unknown>
 Don’t bump the version number manually, this will happen automatically on release<csr-unknown/>
+<csr-unknown/>
 <csr-unknown/>
 <csr-unknown/>
 <csr-unknown/>
@@ -300,10 +319,6 @@ Don’t bump the version number manually, this will happen automatically on rele
 ## v1.0.0 (2025-07-02)
 
 <csr-id-367ab6a38fcae4d5053531becf969c697af1de66/>
-
-### Chore
-
- - <csr-id-367ab6a38fcae4d5053531becf969c697af1de66/> Add CHANGELOG
 
 ### New Features
 
