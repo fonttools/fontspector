@@ -212,6 +212,7 @@ def test_check_family_win_ascent_and_descent(mada_ttFonts, check):
     assert message == (
         "OS/2.usWinAscent value should be"
         " equal or greater than 880, but got 776 instead."
+        " The highest point is in glyph 'uni030A.cap'."
     )
     # multi font input
     check_results = check(mada_ttFonts)
@@ -219,11 +220,13 @@ def test_check_family_win_ascent_and_descent(mada_ttFonts, check):
     assert message == (
         "OS/2.usWinAscent value should be"
         " equal or greater than 918, but got 776 instead."
+        " The highest point is in glyph 'uni06D3'."
     )
     message = assert_results_contain([check_results[1]], FAIL, "descent")
     assert message == (
         "OS/2.usWinDescent value should be"
         " equal or greater than 406, but got 322 instead."
+        " The lowest point is in glyph 'uni0646'."
     )
 
     # Fix usWinAscent
