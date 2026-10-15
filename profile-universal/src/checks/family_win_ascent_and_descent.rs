@@ -8,8 +8,6 @@ use skrifa::{
     GlyphId, MetadataProvider,
 };
 
-use super::designspace::denormalize_location;
-
 /// A pen which records the lowest and highest Y coordinate it is given,
 /// including off-curve control points. This matches how the glyf table's
 /// yMin and yMax are defined.
@@ -87,7 +85,7 @@ impl Metrics {
         };
         let name = font.glyph_name_for_id_synthesise(extreme.glyph);
         let location = if extreme.location.iter().any(|v| *v != 0.0) {
-            denormalize_location(font, &extreme.location)
+            font.denormalize_location(&extreme.location)
                 .ok()
                 .map(|settings| {
                     settings

@@ -8,8 +8,6 @@ use skrifa::{
     setting::{Setting, VariationSetting},
     GlyphId,
 };
-
-use super::designspace::denormalize_location;
 use std::collections::HashMap;
 
 fn glyph_variations(
@@ -25,7 +23,7 @@ fn glyph_variations(
                 .flat_map(|t| {
                     let tuple: Vec<f32> =
                         t.peak().values.iter().map(|v| v.get().to_f32()).collect();
-                    denormalize_location(font, &tuple)
+                    font.denormalize_location(&tuple)
                 })
                 .collect()
         }))
