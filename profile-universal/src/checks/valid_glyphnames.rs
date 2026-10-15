@@ -276,6 +276,7 @@ mod tests {
             ),
             ("", NameValidity::Naughty),
             (" ", NameValidity::Naughty),
+            ("zero.tnum", NameValidity::OK),
         ];
         for (name, expected_result) in tests {
             let result = test_glyph_name(&name);
