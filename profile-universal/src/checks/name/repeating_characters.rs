@@ -25,9 +25,7 @@ fn repeating_characters(t: &Testable, context: &Context) -> CheckFnResult {
     let default_name_ids_to_be_checked: Vec<u16> = vec![1, 2, 3, 4, 6, 16, 17, 21, 22, 25];
     let name_ids_to_be_checked = config
         .get("name_ids_to_be_checked")
-        .map_or(default_name_ids_to_be_checked, |v| {
-            convert_json_to_vec_numbers(v)
-        });
+        .map_or(default_name_ids_to_be_checked, convert_json_to_vec_numbers);
     let check_name_ids = name_ids_to_be_checked
         .iter()
         .map(|v| NameId::new(*v))
@@ -36,19 +34,19 @@ fn repeating_characters(t: &Testable, context: &Context) -> CheckFnResult {
     let default_fail_chars = vec![' ']; // default space
     let fail_chars = config
         .get("FAIL")
-        .map_or(default_fail_chars, |v| convert_json_to_vec_chars(v));
+        .map_or(default_fail_chars, convert_json_to_vec_chars);
 
     let default_warn_chars = vec!['-'];
     let warn_chars = config
         .get("WARN")
-        .map_or(default_warn_chars, |v| convert_json_to_vec_chars(v));
+        .map_or(default_warn_chars, convert_json_to_vec_chars);
 
     let mut default_pass_chars = ('a'..='z').collect::<Vec<char>>();
     default_pass_chars.extend(('A'..='Z').collect::<Vec<char>>());
     default_pass_chars.extend(('0'..='9').collect::<Vec<char>>());
     let pass_chars: Vec<char> = config
         .get("PASS")
-        .map_or(default_pass_chars, |v| convert_json_to_vec_chars(v));
+        .map_or(default_pass_chars, convert_json_to_vec_chars);
 
     let mut problems: Vec<Status> = vec![];
 
