@@ -1,9 +1,9 @@
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
 
-const OPTIONAL_TABLE_TAGS: [&[u8; 4]; 20] = [
-    b"cvt ", b"fpgm", b"loca", b"prep", b"VORG", b"EBDT", b"EBLC", b"EBSC", b"BASE", b"GPOS",
-    b"GSUB", b"JSTF", b"gasp", b"hdmx", b"LTSH", b"PCLT", b"VDMX", b"vhea", b"vmtx", b"kern",
+const OPTIONAL_TABLE_TAGS: [&[u8; 4]; 19] = [
+    b"cvt ", b"fpgm", b"prep", b"VORG", b"EBDT", b"EBLC", b"EBSC", b"BASE", b"GPOS", b"GSUB",
+    b"JSTF", b"gasp", b"hdmx", b"LTSH", b"PCLT", b"VDMX", b"vhea", b"vmtx", b"kern",
 ];
 
 #[check(
@@ -25,6 +25,10 @@ const OPTIONAL_TABLE_TAGS: [&[u8; 4]; 20] = [
         - OS/2 (OS/2 and Windows specific metrics)⏎
         - post (PostScript information)
 
+        The spec also documents that TrueType outlines require the following table:
+
+        - loca (Index to Location)
+
         The spec also documents that variable fonts require the following table:
 
         - STAT (Style attributes)
@@ -40,7 +44,8 @@ const OPTIONAL_TABLE_TAGS: [&[u8; 4]; 20] = [
           at which grayscaling is used under Windows. Etc.
     ",
     proposal = "https://github.com/fonttools/fontbakery/issues/4829",  // legacy check
-    proposal = "https://github.com/fonttools/fontspector/issues/516"  // vmtx + VVAR
+    proposal = "https://github.com/fonttools/fontspector/issues/516",  // vmtx + VVAR
+    proposal = "https://github.com/fonttools/fontspector/issues/957"  // loca
 )]
 fn required_tables(t: &Testable, _context: &Context) -> CheckFnResult {
     let f = testfont!(t);
@@ -107,8 +112,13 @@ fn required_tables(t: &Testable, _context: &Context) -> CheckFnResult {
         } else {
             missing.push("CFF ".to_string());
         }
-    } else if version == 0x00010000 && !f.has_table(b"glyf") {
-        missing.push("glyf".to_string());
+    } else if version == 0x00010000 {
+        if !f.has_table(b"glyf") {
+            missing.push("glyf".to_string());
+        }
+        if !f.has_table(b"loca") {
+            missing.push("loca".to_string());
+        }
     }
 
     if !missing.is_empty() {
@@ -173,7 +183,7 @@ mod tests {
 
     #[test]
     fn test_truetype_font_optional_tables() {
-        // Verify INFO is reported with optional tables (loca, GPOS, GSUB)
+        // Verify INFO is reported with optional tables (GPOS, GSUB)
         let testable = test_able("mada/Mada-Regular.ttf");
         let results = run_check(required_tables, testable);
         assert_results_contain(
@@ -181,7 +191,6 @@ mod tests {
             StatusCode::Info,
             Some("optional-tables".to_string()),
         );
-        assert_messages_contain(&results, "loca");
         assert_messages_contain(&results, "GPOS");
         assert_messages_contain(&results, "GSUB");
     }
@@ -252,8 +261,8 @@ mod tests {
         // Note: maxp is required for TestFont initialization, so removing it
         // causes an ERROR rather than FAIL. We skip it here since the behavior
         // is technically correct (font can't be processed without maxp).
-        let tables_to_test: [&[u8; 4]; 8] = [
-            b"cmap", b"head", b"hhea", b"hmtx", b"name", b"OS/2", b"post", b"glyf",
+        let tables_to_test: [&[u8; 4]; 9] = [
+            b"cmap", b"head", b"hhea", b"hmtx", b"name", b"OS/2", b"post", b"glyf", b"loca",
         ];
 
         for required in tables_to_test.iter() {
