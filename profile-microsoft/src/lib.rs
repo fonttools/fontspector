@@ -1,4 +1,4 @@
-mod checks;
+pub mod checks;
 
 use fontspector_checkapi::{FontspectorError, ProfileBuilder, Registry};
 
