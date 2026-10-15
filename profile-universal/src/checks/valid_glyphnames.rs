@@ -271,8 +271,12 @@ mod tests {
         let tests = vec![
             ("space", NameValidity::OK),
             (
-                "some_very_long_name_which_exceeds_the_limit",
+                "some_very_long_name_which_almost_exceeds_the_limit", // 50 characters
                 NameValidity::Long,
+            ),
+            (
+                "some_very_long_name_which_exceeds_the_limit_of_sixty_three_characters", // 69 characters
+                NameValidity::Naughty,
             ),
             ("", NameValidity::Naughty),
             (" ", NameValidity::Naughty),
