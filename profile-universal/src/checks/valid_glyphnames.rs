@@ -8,6 +8,7 @@ use skrifa::{
     GlyphId as SkrifaGlyphId, MetadataProvider,
 };
 
+#[derive(Debug, PartialEq)]
 enum NameValidity {
     OK,
     Naughty,
@@ -240,7 +241,7 @@ fn sourcefix_valid_glyphnames(
 
 #[cfg(test)]
 mod tests {
-    use super::valid_glyphnames;
+    use super::{test_glyph_name, valid_glyphnames, NameValidity};
     use fontspector_checkapi::codetesting::{assert_pass, assert_skip, run_check, test_able};
 
     #[test]
@@ -263,5 +264,22 @@ mod tests {
         let testable = test_able("source-sans-pro/VAR/SourceSansVariable-Roman.otf");
         let results = run_check(valid_glyphnames, testable);
         assert_skip(&results);
+    }
+    #[test]
+    fn test_various_glyphnames() {
+        // Related to: https://github.com/Monotype/fontspector/issues/14
+        let tests = vec![
+            ("space", NameValidity::OK),
+            (
+                "some_very_long_name_which_exceeds_the_limit",
+                NameValidity::Long,
+            ),
+            ("", NameValidity::Naughty),
+            (" ", NameValidity::Naughty),
+        ];
+        for (name, expected_result) in tests {
+            let result = test_glyph_name(&name);
+            assert_eq!(result, expected_result);
+        }
     }
 }
