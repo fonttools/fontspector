@@ -349,4 +349,22 @@ mod tests {
             assert_eq!(result, expected_result);
         }
     }
+
+    #[test]
+    fn test_various_glyphnames_with_more_characters() {
+        // Related to: https://github.com/Monotype/fontspector/issues/14
+
+        let tests = vec![
+            // Valid glyph names according to Olli
+            ("ie-cy", NameValidity::OK),
+            ("Schwa-cy", NameValidity::OK),
+            ("De-cy.loclBGR", NameValidity::OK),
+            ("one-thai", NameValidity::OK),
+            ("one-ar", NameValidity::OK),
+        ];
+        for (name, expected_result) in tests {
+            let result = test_glyph_name(&name);
+            assert_eq!(result, expected_result);
+        }
+    }
 }
