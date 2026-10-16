@@ -262,8 +262,11 @@ fn convert_json_to_vec_chars(json_value: &serde_json::Value) -> Vec<char> {
 mod tests {
     use super::{test_glyph_name, valid_glyphnames, NameValidity};
     use fontspector_checkapi::{
-        codetesting::{assert_pass, assert_skip, run_check, test_able, assert_messages_contain, assert_results_contain},
-        FileTypeConvert, StatusCode
+        codetesting::{
+            assert_messages_contain, assert_pass, assert_results_contain, assert_skip, run_check,
+            test_able,
+        },
+        FileTypeConvert, StatusCode,
     };
 
     #[test]
@@ -281,19 +284,19 @@ mod tests {
             .from_testable(&testable)
             .unwrap();
 
-        let glyph_names: Vec<String> = [
-            ".notdef".to_string(), 
-            "invalid-name".to_string()
-            ].to_vec();
+        let glyph_names: Vec<String> = [".notdef".to_string(), "invalid-name".to_string()].to_vec();
 
-        let new_post = write_fonts::tables::post::Post::new_v2(
-            glyph_names.iter().map(String::as_str)
-        );
+        let new_post =
+            write_fonts::tables::post::Post::new_v2(glyph_names.iter().map(String::as_str));
 
         testable.set(f.rebuild_with_new_table(&new_post).unwrap());
 
         let results = run_check(valid_glyphnames, testable);
-        assert_results_contain(&results, StatusCode::Fail, Some("found-invalid-names".to_string()));
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("found-invalid-names".to_string()),
+        );
     }
 
     #[test]
