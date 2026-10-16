@@ -1,5 +1,5 @@
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
-use skrifa::{raw::types::NameId, MetadataProvider};
+use skrifa::{raw::types::NameId, raw::TableProvider, MetadataProvider};
 
 #[check(
     id = "opentype/varfont/valid_nameids",
@@ -24,7 +24,8 @@ use skrifa::{raw::types::NameId, MetadataProvider};
         2 or 17 can be used; otherwise, values must be greater than 255 and less
         than 32768.
     "#,
-    proposal = "https://github.com/fonttools/fontbakery/issues/3703"
+    proposal = "https://github.com/fonttools/fontbakery/issues/3703",
+    proposal = "https://github.com/Monotype/fontspector/issues/19"
 )]
 fn valid_nameids(t: &Testable, _context: &Context) -> CheckFnResult {
     let f = testfont!(t);
@@ -32,6 +33,14 @@ fn valid_nameids(t: &Testable, _context: &Context) -> CheckFnResult {
     let mut problems = vec![];
     let valid_nameid = |n: NameId| (256..32768).contains(&n.to_u16());
     let valid_subfamily_nameid = |n: NameId| matches!(n.to_u16(), 2 | 17 | 256..32768);
+
+    let nameids_in_font = f
+        .font()
+        .name()?
+        .name_record()
+        .iter()
+        .map(|record| record.name_id())
+        .collect::<Vec<_>>();
 
     // Do the axes first
     for axis in f.font().axes().iter() {
@@ -49,7 +58,25 @@ fn valid_nameids(t: &Testable, _context: &Context) -> CheckFnResult {
 
     for instance in f.font().named_instances().iter() {
         let subfamily_name_id = instance.subfamily_name_id();
+        if !nameids_in_font.contains(&subfamily_name_id) {
+            problems.push(Status::fail(
+                "subfamily-nameid-missing-in-name-table",
+                &format!(
+                    "Instance subfamily name ID {} is missing in the name table.",
+                    subfamily_name_id.to_u16()
+                ),
+            ));
+        }
         if let Some(n) = instance.postscript_name_id() {
+            if !nameids_in_font.contains(&n) {
+                problems.push(Status::fail(
+                    "postscript-nameid-missing-in-name-table",
+                    &format!(
+                        "Instance PostScript name ID {} is missing in the name table.",
+                        n.to_u16()
+                    ),
+                ));
+            }
             if n != NameId::new(6) && !valid_nameid(n) {
                 problems.push(Status::fail(
                         &format!("invalid-postscript-nameid:{}", n.to_u16()),
@@ -77,12 +104,39 @@ fn valid_nameids(t: &Testable, _context: &Context) -> CheckFnResult {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use fontspector_checkapi::codetesting::{assert_pass, run_check, test_able};
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        StatusCode,
+    };
+    use write_fonts::tables::name::Name;
 
     #[test]
     fn test_valid_nameids_pass() {
         let testable = test_able("cabinvf/Cabin[wdth,wght].ttf");
         let result = run_check(valid_nameids, testable);
         assert_pass(&result);
+    }
+
+    #[test]
+    fn test_valid_nameids_fail() {
+        let mut testable = test_able("mutatorsans-vf/MutatorSans-VF.ttf");
+        let f = fontspector_checkapi::prelude::TTF
+            .from_testable(&testable)
+            .unwrap();
+
+        let name: Name = Name::default(); // empty 'name' table to trigger mismatch
+        testable.set(f.rebuild_with_new_table(&name).unwrap());
+
+        let result = run_check(valid_nameids, testable);
+        assert_results_contain(
+            &result,
+            StatusCode::Fail,
+            Some("subfamily-nameid-missing-in-name-table".to_string()),
+        );
+        assert_results_contain(
+            &result,
+            StatusCode::Fail,
+            Some("postscript-nameid-missing-in-name-table".to_string()),
+        );
     }
 }
