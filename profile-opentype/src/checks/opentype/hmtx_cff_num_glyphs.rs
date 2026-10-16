@@ -26,7 +26,6 @@ fn hmtx_cff_num_glyphs(t: &Testable, _context: &Context) -> CheckFnResult {
     );
 
     let number_of_h_metrics = font.font().hmtx()?.h_metrics().len();
-
     let cff_num_glyphs = font.font().cff()?.charset(0).unwrap().unwrap().num_glyphs();
 
     if number_of_h_metrics != cff_num_glyphs as usize {
@@ -35,7 +34,6 @@ fn hmtx_cff_num_glyphs(t: &Testable, _context: &Context) -> CheckFnResult {
             "Mismatch in number of glyphs between the \"hmtx\" table and the \"cff\" table.",
         ));
     } else if number_of_h_metrics != font.glyph_count {
-        // glyph_count == maxp.num_glyphs
         return Ok(Status::just_one_fail(
             "mismatch-number-of-glyphs-hmtx-maxp",
             "Mismatch in number of glyphs between the \"hmtx\" table and the \"maxp\" table.",
