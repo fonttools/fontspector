@@ -77,12 +77,34 @@ fn valid_nameids(t: &Testable, _context: &Context) -> CheckFnResult {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use fontspector_checkapi::codetesting::{assert_pass, run_check, test_able};
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        StatusCode,
+    };
+    use write_fonts::tables::name::Name;
 
     #[test]
     fn test_valid_nameids_pass() {
         let testable = test_able("cabinvf/Cabin[wdth,wght].ttf");
         let result = run_check(valid_nameids, testable);
         assert_pass(&result);
+    }
+
+    #[test]
+    fn test_valid_nameids_fail() {
+        let mut testable = test_able("cabinvf/Cabin[wdth,wght].ttf");
+        let f = fontspector_checkapi::prelude::TTF
+            .from_testable(&testable)
+            .unwrap();
+
+        let name: Name = Name::default(); // empty 'name' table to trigger mismatch
+        testable.set(f.rebuild_with_new_table(&name).unwrap());
+
+        let result = run_check(valid_nameids, testable);
+        assert_results_contain(
+            &result,
+            StatusCode::Fail,
+            Some("subfamily-nameid-missing-in-name-table".to_string()),
+        );
     }
 }
