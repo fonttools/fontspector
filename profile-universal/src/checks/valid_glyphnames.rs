@@ -291,11 +291,44 @@ mod tests {
         let results = run_check(valid_glyphnames, testable);
         assert_skip(&results);
     }
+
     #[test]
-    fn test_various_glyphnames() {
-        // Related to: https://github.com/Monotype/fontspector/issues/14
+    fn test_various_glyphnames_adobe() {
+        // According to ADOBE: https://github.com/adobe-type-tools/agl-specification
+        // must not start with a digit or period, and must be entirely comprised of characters from the following limited set:
+
+        // A through Z
+        // a through z
+        // 0 through 9
+        // . (period)
+        // _ (underscore)
+        // The only exception to these requirements is the special ‘.notdef’ glyph.
+
+        // For example, ‘twocents’, ‘a1’, and ‘_’ are valid glyph names, but ‘2cents’ and ‘.twocents’ are not.
         let tests = vec![
+            ("twocents", NameValidity::OK),
+            ("a1", NameValidity::OK),
+            ("_", NameValidity::OK),
+            ("2cents", NameValidity::Naughty),
+            (".twocents", NameValidity::Naughty),
             ("space", NameValidity::OK),
+            // Valid glyph names according to Adobe
+            ("a.sc", NameValidity::OK),
+            ("T.swash", NameValidity::OK),
+            ("T.begin", NameValidity::OK),
+            ("T.end", NameValidity::OK),
+            ("T.end1", NameValidity::OK),
+            ("T.alt01", NameValidity::OK),
+            ("T.alt02", NameValidity::OK),
+            ("one.superior", NameValidity::OK),
+            ("one.inferior", NameValidity::OK),
+            ("one.numerator", NameValidity::OK),
+            ("one.denominator", NameValidity::OK),
+            ("one.fitted", NameValidity::OK),
+            ("one.tab", NameValidity::OK),
+            ("one.oldstyle", NameValidity::OK),
+            ("one.taboldstyle", NameValidity::OK),
+            // Other examples
             (
                 "some_very_long_name_which_almost_exceeds_the_limit", // 50 characters
                 NameValidity::Long,
@@ -307,6 +340,9 @@ mod tests {
             ("", NameValidity::Naughty),
             (" ", NameValidity::Naughty),
             ("zero.tnum", NameValidity::OK),
+            (".notdef", NameValidity::OK),
+            ("u0041", NameValidity::OK),
+            ("u0041_0042", NameValidity::OK),
         ];
         for (name, expected_result) in tests {
             let result = test_glyph_name(&name);
