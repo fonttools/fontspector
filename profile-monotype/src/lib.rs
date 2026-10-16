@@ -45,9 +45,12 @@ impl fontspector_checkapi::ProfileProvider for Monotype {
                     ("vendor_id".to_string(), json!("MONO"))
                 ]),
             )
-            .with_overrides("valid_glyphnames", vec![
-                Override::new("found-invalid-names", StatusCode::Warn, "")
-            ])
+            .with_configuration_defaults(
+                "valid_glyphnames",
+                HashMap::from([
+                    ("ALLOWED_SPECIAL_CHARS".to_string(), json!([".", "_", "-"]))
+                ]),
+            )
             .add_section("Selected Name Table Checks") 
             .add_and_register_check(fw_checks::fontwerk::name_entries)
             .add_and_register_check(fw_checks::fontwerk::name_consistency)
