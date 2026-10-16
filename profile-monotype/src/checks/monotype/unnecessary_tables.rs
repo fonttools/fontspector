@@ -1,10 +1,8 @@
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
 
-// delete_pat = re.compile("(LINO|TSI.|MT..|ASC.|edt.|ABA.|SLST|FFTM|PfEd|TeX |BDF |bdat|bloc|ADFH|SPRK)".encode("utf-8"))
-const UNNECESSARY_TABLE_TAGS: [&[u8; 4]; 15] = [
-    b"LINO", b"TSI ", b"MT  ", b"ASC ", b"edt ", b"ABA ", b"SLST", b"FFTM", b"PfEd", b"TeX ",
-    b"BDF ", b"bdat", b"bloc", b"ADFH", b"SPRK",
+const UNNECESSARY_TABLE_TAGS: [&[u8; 4]; 10] = [
+    b"LINO", b"SLST", b"FFTM", b"PfEd", b"TeX ", b"BDF ", b"bdat", b"bloc", b"ADFH", b"SPRK",
 ];
 
 const UNNECESSARY_TABLE_TAGS_CFF: [&[u8; 4]; 6] =
@@ -46,6 +44,25 @@ fn unnecessary_tables(t: &Testable, _context: &Context) -> CheckFnResult {
             found_unnecessary_tables.push(String::from_utf8(tag.to_vec()).map_err(|_| {
                 FontspectorError::General(format!("Font tag '{:?}' wasn't UTF8?", tag.to_vec()))
             })?)
+        }
+    }
+
+    // Check if font contains tables starting with TSI.|MT..|ASC.|edt.|ABA.?
+    let font_tables = f
+        .font()
+        .table_directory
+        .table_records()
+        .iter()
+        .map(|record| record.tag().to_string())
+        .collect::<Vec<_>>();
+    for table in font_tables {
+        if table.starts_with("TSI")
+            || table.starts_with("MT")
+            || table.starts_with("ASC")
+            || table.starts_with("edt")
+            || table.starts_with("ABA")
+        {
+            found_unnecessary_tables.push(table);
         }
     }
 
@@ -117,6 +134,8 @@ mod tests {
         let mut testable = test_able("mada/Mada-Regular.ttf");
         let mut unnecessary_table_tags = UNNECESSARY_TABLE_TAGS.to_vec();
         unnecessary_table_tags.extend_from_slice(&UNNECESSARY_TABLE_TAGS_TTF);
+        let additional_tags: [&[u8; 4]; 5] = [b"MT01", b"TSI0", b"ASC0", b"edt0", b"ABA0"];
+        unnecessary_table_tags.extend_from_slice(&additional_tags);
 
         for optional in unnecessary_table_tags.iter() {
             remove_table(&mut testable, optional);
