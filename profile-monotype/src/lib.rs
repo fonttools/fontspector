@@ -3,7 +3,7 @@ mod checks;
 use serde_json::json;
 use std::collections::HashMap;
 
-use fontspector_checkapi::{FontspectorError, Override, ProfileBuilder, Registry, StatusCode};
+use fontspector_checkapi::{FontspectorError, ProfileBuilder, Registry};
 use profile_fontwerk::checks as fw_checks;
 use profile_googlefonts::checks as gf_checks;
 
