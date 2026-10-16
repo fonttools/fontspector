@@ -263,11 +263,13 @@ mod tests {
     use super::{test_glyph_name, valid_glyphnames, NameValidity};
     use fontspector_checkapi::{
         codetesting::{
-            assert_messages_contain, assert_pass, assert_results_contain, assert_skip, run_check,
+            assert_pass, assert_results_contain, assert_skip, run_check, run_check_with_config,
             test_able,
         },
-        FileTypeConvert, StatusCode,
+        FileTypeConvert, StatusCode, TestableType,
     };
+    use serde_json::json;
+    use std::collections::HashMap;
 
     #[test]
     fn test_valid_glyphnames_pass() {
@@ -297,6 +299,31 @@ mod tests {
             StatusCode::Fail,
             Some("found-invalid-names".to_string()),
         );
+    }
+
+    #[test]
+    fn test_valid_glyphnames_config() {
+        let mut testable = test_able("nunito/Nunito-Regular.ttf");
+
+        let f = fontspector_checkapi::prelude::TTF
+            .from_testable(&testable)
+            .unwrap();
+
+        let glyph_names: Vec<String> = [".notdef".to_string(), "invalid-name".to_string()].to_vec();
+
+        let new_post =
+            write_fonts::tables::post::Post::new_v2(glyph_names.iter().map(String::as_str));
+
+        testable.set(f.rebuild_with_new_table(&new_post).unwrap());
+
+        let config = HashMap::from([(
+            "valid_glyphnames".to_string(),
+            json!({"ALLOWED_SPECIAL_CHARS": [".", "_", "-"]}),
+        )]);
+        let results =
+            run_check_with_config(valid_glyphnames, TestableType::Single(&testable), config);
+
+        assert_pass(&results);
     }
 
     #[test]
