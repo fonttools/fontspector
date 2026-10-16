@@ -26,7 +26,15 @@ fn hmtx_cff_num_glyphs(t: &Testable, _context: &Context) -> CheckFnResult {
     );
 
     let number_of_h_metrics = font.font().hmtx()?.h_metrics().len();
-    let cff_num_glyphs = font.font().cff()?.charset(0).unwrap().unwrap().num_glyphs();
+    let charset = font.font().cff()?.charset(0).ok().flatten();
+    let cff_num_glyphs = if let Some(charset) = charset {
+        charset.num_glyphs()
+    } else {
+        return Ok(Status::just_one_fail(
+            "reading-cff-charset-failed",
+            "Failed to read the charset of the CFF table. Please inspect the CFF table for correctness.",
+        ));
+    };
 
     if number_of_h_metrics != cff_num_glyphs as usize {
         return Ok(Status::just_one_fail(
