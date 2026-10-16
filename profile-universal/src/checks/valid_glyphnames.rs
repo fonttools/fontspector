@@ -14,14 +14,14 @@ enum NameValidity {
     Naughty,
     Long,
 }
-fn test_glyph_name(s: &str) -> NameValidity {
+fn test_glyph_name(s: &str, allowed_special_chars: Vec<char>) -> NameValidity {
     if s.starts_with(".null") || s.starts_with(".notdef") || s.starts_with(".ttfautohint") {
         return NameValidity::OK;
     }
     // A valid name starts with a-zA-Z_, and contains up to 63 characters from a-zA-Z0-9._.
     if !(s.starts_with(|c: char| c.is_ascii_alphabetic() || c == '_')
         && s.chars()
-            .all(|c| c.is_ascii_alphanumeric() || c == '.' || c == '_')
+            .all(|c| c.is_ascii_alphanumeric() || allowed_special_chars.contains(&c))
         && s.len() < 63)
     {
         return NameValidity::Naughty;
@@ -57,7 +57,14 @@ fn test_glyph_name(s: &str) -> NameValidity {
     proposal = "https://github.com/fonttools/fontbakery/issues/2832",
     fix_source = sourcefix_valid_glyphnames,
 )]
-fn valid_glyphnames(f: &Testable, _context: &Context) -> CheckFnResult {
+fn valid_glyphnames(f: &Testable, context: &Context) -> CheckFnResult {
+    let config = context.local_config("valid_glyphnames");
+
+    let default_special_chars: Vec<char> = vec!['.', '_']; // default space
+    let allowed_special_chars = config
+        .get("ALLOWED_SPECIAL_CHARS")
+        .map_or(default_special_chars, convert_json_to_vec_chars);
+
     let font = testfont!(f);
     let mut problems: Vec<Status> = vec![];
     let post = font.font().post()?;
@@ -76,7 +83,7 @@ fn valid_glyphnames(f: &Testable, _context: &Context) -> CheckFnResult {
             if allnames.contains(&name) {
                 duplicates.insert(name.clone());
             }
-            match test_glyph_name(&name) {
+            match test_glyph_name(&name, allowed_special_chars.clone()) {
                 NameValidity::OK => {}
                 NameValidity::Naughty => {
                     badnames.insert(name.clone());
@@ -239,11 +246,23 @@ fn sourcefix_valid_glyphnames(
     }
 }
 
+fn convert_json_to_vec_chars(json_value: &serde_json::Value) -> Vec<char> {
+    if let Some(array) = json_value.as_array() {
+        array
+            .iter()
+            .filter_map(|v| v.as_str())
+            .flat_map(|s| s.chars())
+            .collect()
+    } else {
+        Vec::new()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::{test_glyph_name, valid_glyphnames, NameValidity};
     use fontspector_checkapi::{
-        codetesting::{assert_pass, assert_skip, run_check, test_able, assert_results_contain},
+        codetesting::{assert_pass, assert_skip, run_check, test_able, assert_messages_contain, assert_results_contain},
         FileTypeConvert, StatusCode
     };
 
@@ -305,6 +324,7 @@ mod tests {
         // The only exception to these requirements is the special ‘.notdef’ glyph.
 
         // For example, ‘twocents’, ‘a1’, and ‘_’ are valid glyph names, but ‘2cents’ and ‘.twocents’ are not.
+        let allowed_special_chars = vec!['.', '_'];
         let tests = vec![
             ("twocents", NameValidity::OK),
             ("a1", NameValidity::OK),
@@ -345,7 +365,7 @@ mod tests {
             ("u0041_0042", NameValidity::OK),
         ];
         for (name, expected_result) in tests {
-            let result = test_glyph_name(&name);
+            let result = test_glyph_name(&name, allowed_special_chars.clone());
             assert_eq!(result, expected_result);
         }
     }
@@ -353,7 +373,7 @@ mod tests {
     #[test]
     fn test_various_glyphnames_with_more_characters() {
         // Related to: https://github.com/Monotype/fontspector/issues/14
-
+        let allowed_special_chars = vec!['.', '_', '-'];
         let tests = vec![
             // Valid glyph names according to Olli
             ("ie-cy", NameValidity::OK),
@@ -363,7 +383,7 @@ mod tests {
             ("one-ar", NameValidity::OK),
         ];
         for (name, expected_result) in tests {
-            let result = test_glyph_name(&name);
+            let result = test_glyph_name(&name, allowed_special_chars.clone());
             assert_eq!(result, expected_result);
         }
     }
