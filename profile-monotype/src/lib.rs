@@ -31,6 +31,7 @@ impl fontspector_checkapi::ProfileProvider for Monotype {
                     ("fstype_value".to_string(), json!(4))
                 ]),
             )
+            .add_and_register_check(checks::monotype::style_in_family_name)
             // TODO: implement more Monotype-specific checks
             .include_profile("universal")
             .with_configuration_defaults(
