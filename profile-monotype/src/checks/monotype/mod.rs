@@ -8,4 +8,3 @@ mod widthclass;
 pub use widthclass::widthclass;
 mod weightclass;
 pub use weightclass::weightclass;
-
