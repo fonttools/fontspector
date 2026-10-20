@@ -148,6 +148,9 @@ name = "arrayvec"
 version = "0.7.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d3fb67a6e08acf24fdeccbac2cb6ac4305825bd1f117462e0e6f2f193345ad56"
+dependencies = [
+ "serde",
+]
 
 [[package]]
 name = "arrow"
@@ -1860,6 +1863,7 @@ dependencies = [
  "interpolatable",
  "itertools 0.15.0",
  "kurbo 0.13.1",
+ "linesweeper",
  "log",
  "ordered-float",
  "reqwest",
@@ -3081,6 +3085,19 @@ dependencies = [
  "libc",
  "pkg-config",
  "vcpkg",
+]
+
+[[package]]
+name = "linesweeper"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a25df1b0c5432893f41bba817150e323703ee5f6d974f3a6808ac7fd7f046d18"
+dependencies = [
+ "arrayvec",
+ "kurbo 0.13.1",
+ "polycool",
+ "rustc-hash",
+ "smallvec",
 ]
 
 [[package]]
