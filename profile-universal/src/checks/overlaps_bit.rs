@@ -31,11 +31,7 @@ pub fn has_overlaps(bez_path: &BezPath) -> Result<bool, FontspectorError> {
     )
     .map_err(|e| FontspectorError::General(format!("Linesweeper failed to check overlaps: {e}")))?;
 
-    let has_overlaps = Iterator::ne(
-        non_zero_beziers.contours().map(|nzc| &nzc.path),
-        even_odd_beziers.contours().map(|eoc| &eoc.path),
-    );
-    Ok(has_overlaps)
+    Ok(non_zero_beziers != even_odd_beziers)
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
@@ -58,10 +54,7 @@ fn classify_glyphs(f: &TestFont) -> Result<HashMap<GlyphId, OverlapProblem>, Fon
         glyph.draw(settings, &mut pen)?;
         let current_overlaps_bit = glyph.has_overlaps().unwrap_or(false);
         // Unify to single BezPath
-        let mut path = BezPath::new();
-        for pth in pen.0 {
-            path.extend(pth);
-        }
+        let path = BezPath::from_iter(pen.0);
         if !has_overlaps(&path)? {
             if current_overlaps_bit {
                 results.insert(gid, OverlapProblem::HasButShouldNot);
