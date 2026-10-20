@@ -185,13 +185,16 @@ fn fix_overlaps_bit(
                     }
                     _ => {}
                 },
-                Glyph::Composite(ref mut _composite_glyph) => match classification.get(&gid) {
+                Glyph::Composite(ref mut composite_glyph) => match classification.get(&gid) {
                     Some(&OverlapProblem::ShouldHaveButDoesNot) => {
-                        // No composite glyph overlaps field in write-fonts
-                        // composite_glyph.overlaps = true;
+                        if let Some(c) = composite_glyph.components_mut().first_mut() {
+                            c.flags.overlap_compound = true;
+                        }
                     }
                     Some(&OverlapProblem::HasButShouldNot) => {
-                        // composite_glyph.overlaps = false;
+                        if let Some(c) = composite_glyph.components_mut().first_mut() {
+                            c.flags.overlap_compound = false;
+                        }
                     }
                     _ => {}
                 },
