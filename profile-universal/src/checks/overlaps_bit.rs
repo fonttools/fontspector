@@ -54,7 +54,10 @@ fn classify_glyphs(f: &TestFont) -> Result<HashMap<GlyphId, OverlapProblem>, Fon
         glyph.draw(settings, &mut pen)?;
         let current_overlaps_bit = glyph.has_overlaps().unwrap_or(false);
         // Unify to single BezPath
-        let path = BezPath::from_iter(pen.0);
+        let mut path = BezPath::new();
+        for pth in pen.0 {
+            path.extend(pth);
+        }
         if !has_overlaps(&path)? {
             if current_overlaps_bit {
                 results.insert(gid, OverlapProblem::HasButShouldNot);
