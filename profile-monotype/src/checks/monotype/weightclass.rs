@@ -34,7 +34,7 @@ fn get_other_weight_name(weight_class: u16) -> Option<Vec<&'static str>> {
 #[check(
     id = "monotype/weightclass",
     rationale = "
-        We expect the following OS/2 usWeightClass values:
+        The following OS/2 usWeightClass values are expected for specified weight names:
 
         Hairline 50
         Thin 100
@@ -49,7 +49,7 @@ fn get_other_weight_name(weight_class: u16) -> Option<Vec<&'static str>> {
         ExtraBlack 950
     ",
     proposal = "https://github.com/Monotype/fontspector/issues/7",
-    title = "Check the OS/2 usWeightClass is appropriate for the font's best SubFamily name."
+    title = "Check if the OS/2 usWeightClass value is appropriate for the font's weight name."
 )]
 fn weightclass(t: &Testable, _context: &Context) -> CheckFnResult {
     let f = testfont!(t);
@@ -91,7 +91,7 @@ fn weightclass(t: &Testable, _context: &Context) -> CheckFnResult {
                     return Ok(Status::just_one_warn(
                         "weight-class-name-value-mismatch-other", 
                         &format!(
-                            "For OS/2 usWeightClass {value} we expect {preferred_name}, but got '{style_name}'."
+                            "For OS/2 usWeightClass {value} the expected weight name is '{preferred_name}', but got '{other_weight_name}'."
                         )
                     ));
                 }
@@ -100,14 +100,14 @@ fn weightclass(t: &Testable, _context: &Context) -> CheckFnResult {
         return Ok(Status::just_one_fail(
             "weight-class-name-value-mismatch", 
             &format!(
-                "For OS/2 usWeightClass {value} we expect '{preferred_name}', but got '{style_name}'. Either usWeightClass is wrong or style name. Please investigate."
+                "The weight name '{preferred_name}' expected for OS/2 usWeightClass {value} was not found in the font's style name '{style_name}'. Please investigate."
             )
         ));
     } else {
         return Ok(Status::just_one_fail(
             "bad-weight-class-value",
             &format!(
-                "OS/2 usWeightClass {value} does not match specifications. We expect: Hairline 50, Thin 100, ExtraLight 200, Light 300, Regular 400, Medium 500, SemiBold 600, Bold 700, ExtraBold 800, Black 900, ExtraBlack 950."
+                "OS/2 usWeightClass {value} does not match Monotype specification. Expected values are: Hairline 50, Thin 100, ExtraLight 200, Light 300, Regular 400, Medium 500, SemiBold 600, Bold 700, ExtraBold 800, Black 900, ExtraBlack 950."
             )
         ));
     }
@@ -159,36 +159,36 @@ mod tests {
         let weight_tests = [
             (1100, "DarkBlack", Some("OS/2 usWeightClass 1100 is outside the expected range of 1-1000.".to_string())),
             (50, "Hairline", Some("CSS only supports one of the following OS/2 weight class values '100, 200, 300, 400, 500, 600, 700, 800, 900'. If the font family has more than 9 weights, this does not work for any weight.".to_string())),
-            (400, "Hairline", Some("For OS/2 usWeightClass 400 we expect 'Regular', but got 'Hairline'. Either usWeightClass is wrong or style name. Please investigate.".to_string())),
+            (400, "Hairline", Some("The weight name 'Regular' expected for OS/2 usWeightClass 400 was not found in the font's style name 'Hairline'. Please investigate.".to_string())),
             (950, "XBlack", Some("CSS only supports one of the following OS/2 weight class values '100, 200, 300, 400, 500, 600, 700, 800, 900'. If the font family has more than 9 weights, this does not work for any weight.".to_string())),
-            (400, "XBlack", Some("For OS/2 usWeightClass 400 we expect 'Regular', but got 'XBlack'. Either usWeightClass is wrong or style name. Please investigate.".to_string())),
+            (400, "XBlack", Some("The weight name 'Regular' expected for OS/2 usWeightClass 400 was not found in the font's style name 'XBlack'. Please investigate.".to_string())),
             (400, "Regular", None),
-            (333, "Regular", Some("OS/2 usWeightClass 333 does not match specifications. We expect: Hairline 50, Thin 100, ExtraLight 200, Light 300, Regular 400, Medium 500, SemiBold 600, Bold 700, ExtraBold 800, Black 900, ExtraBlack 950.".to_string())),
+            (333, "Regular", Some("OS/2 usWeightClass 333 does not match Monotype specification. Expected values are: Hairline 50, Thin 100, ExtraLight 200, Light 300, Regular 400, Medium 500, SemiBold 600, Bold 700, ExtraBold 800, Black 900, ExtraBlack 950.".to_string())),
             (900, "Condensed Black", None),
             (600, "XXCond SemiBold Italic", None),
-            (500, "XXCond SemiBold Italic", Some("For OS/2 usWeightClass 500 we expect 'Medium', but got 'XXCond SemiBold Italic'. Either usWeightClass is wrong or style name. Please investigate.".to_string())),
+            (500, "XXCond SemiBold Italic", Some("The weight name 'Medium' expected for OS/2 usWeightClass 500 was not found in the font's style name 'XXCond SemiBold Italic'. Please investigate.".to_string())),
             (100, "Whatever Thin", None),
             (200, "ExtraLight", None),
             (200, "XLight", None),
             (300, "Light", None),
-            (300, "XLight", Some("For OS/2 usWeightClass 300 we expect 'Light', but got 'XLight'. Either usWeightClass is wrong or style name. Please investigate.".to_string())),
+            (300, "XLight", Some("The weight name 'Light' expected for OS/2 usWeightClass 300 was not found in the font's style name 'XLight'. Please investigate.".to_string())),
             (600, "SemiBold", None),
-            (600, "DemiBold", Some("For OS/2 usWeightClass 600 we expect 'SemiBold', but got 'DemiBold'. Either usWeightClass is wrong or style name. Please investigate.".to_string())),
+            (600, "DemiBold", Some("The weight name 'SemiBold' expected for OS/2 usWeightClass 600 was not found in the font's style name 'DemiBold'. Please investigate.".to_string())),
             (700, "Bold", None),
-            (700, "XBold", Some("For OS/2 usWeightClass 700 we expect 'Bold', but got 'XBold'. Either usWeightClass is wrong or style name. Please investigate.".to_string())),
+            (700, "XBold", Some("The weight name 'Bold' expected for OS/2 usWeightClass 700 was not found in the font's style name 'XBold'. Please investigate.".to_string())),
             (800, "XBold", None),
-            (800, "Black", Some("For OS/2 usWeightClass 800 we expect 'ExtraBold', but got 'Black'. Either usWeightClass is wrong or style name. Please investigate.".to_string())),
+            (800, "Black", Some("The weight name 'ExtraBold' expected for OS/2 usWeightClass 800 was not found in the font's style name 'Black'. Please investigate.".to_string())),
             (900, "Black", None),
-            (1000, "Black", Some("OS/2 usWeightClass 1000 does not match specifications. We expect: Hairline 50, Thin 100, ExtraLight 200, Light 300, Regular 400, Medium 500, SemiBold 600, Bold 700, ExtraBold 800, Black 900, ExtraBlack 950.".to_string())),
+            (1000, "Black", Some("OS/2 usWeightClass 1000 does not match Monotype specification. Expected values are: Hairline 50, Thin 100, ExtraLight 200, Light 300, Regular 400, Medium 500, SemiBold 600, Bold 700, ExtraBold 800, Black 900, ExtraBlack 950.".to_string())),
             (400, "Italic", None),
             (350, "SemiLight", Some("CSS only supports one of the following OS/2 weight class values '100, 200, 300, 400, 500, 600, 700, 800, 900'. If the font family has more than 9 weights, this does not work for any weight.".to_string())),
             (350, "SemiLight Italic", Some("CSS only supports one of the following OS/2 weight class values '100, 200, 300, 400, 500, 600, 700, 800, 900'. If the font family has more than 9 weights, this does not work for any weight.".to_string())),
             (400, "Cond Italic", None),
             (400, "Cond Regular Italic", None),
             (900, "Blk Italic", None),
-            (900, "Heavy",  Some("For OS/2 usWeightClass 900 we expect Black, but got 'Heavy'.".to_string())),
-            (400, "Blk Italic", Some("For OS/2 usWeightClass 400 we expect 'Regular', but got 'Blk Italic'. Either usWeightClass is wrong or style name. Please investigate.".to_string())),
-            (800, "UltraBold", Some("For OS/2 usWeightClass 800 we expect 'ExtraBold', but got 'UltraBold'. Either usWeightClass is wrong or style name. Please investigate.".to_string()))
+            (900, "Heavy",  Some("For OS/2 usWeightClass 900 the expected weight name is 'Black', but got 'Heavy'.".to_string())),
+            (400, "Blk Italic", Some("The weight name 'Regular' expected for OS/2 usWeightClass 400 was not found in the font's style name 'Blk Italic'. Please investigate.".to_string())),
+            (800, "UltraBold", Some("The weight name 'ExtraBold' expected for OS/2 usWeightClass 800 was not found in the font's style name 'UltraBold'. Please investigate.".to_string()))
             ];
         for (weight_class_value, style_name, expected_result) in weight_tests {
             let mut font_builder = FontBuilder::new();
