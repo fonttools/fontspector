@@ -4,6 +4,7 @@ use crate::{
     filetype::FileTypeConvert,
     Context, FileType, Testable,
 };
+use babelfont::NormalizedLocation;
 use fontdrasil::coords::{CoordConverter, DesignCoord, NormalizedCoord, UserCoord};
 use itertools::Either;
 use skrifa::{
@@ -632,6 +633,38 @@ impl TestFont<'_> {
                 })
                 .collect(),
         ))
+    }
+
+    /// Returns a list of the master locations in the font
+    ///
+    /// This is derived heuristically from locations of shared tuples in the `gvar` table.
+    /// This should work well enough for most "normal" fonts.
+    // Stolen from diffenator3
+    pub fn masters(&self) -> Result<Vec<NormalizedLocation>, FontspectorError> {
+        if !self.is_variable_font() {
+            return Ok(vec![NormalizedLocation::default()]);
+        }
+        let gvar = self.font().gvar()?;
+        let axes = self.font().axes();
+        let tuples = gvar.shared_tuples()?.tuples();
+        let peaks: Vec<NormalizedLocation> = tuples
+            .iter()
+            .flatten()
+            .map(|tuple| {
+                let coords = tuple
+                    .values()
+                    .iter()
+                    .map(|x| x.get().to_f32())
+                    .collect::<Vec<f32>>();
+                let normalized_location: NormalizedLocation = axes
+                    .iter()
+                    .zip(coords.iter())
+                    .map(|(axis, coord)| (axis.tag(), NormalizedCoord::new(*coord as f64)))
+                    .collect();
+                normalized_location
+            })
+            .collect();
+        Ok(peaks)
     }
 
     /// Convert a normalized designspace location into user-space variation settings.
