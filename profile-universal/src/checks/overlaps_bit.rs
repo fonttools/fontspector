@@ -1,13 +1,13 @@
 use std::collections::HashMap;
 
 use fontspector_checkapi::pens::BezGlyph;
-use fontspector_checkapi::{prelude::*, TestFont, DEFAULT_LOCATION};
+use fontspector_checkapi::{prelude::*, TestFont};
 use fontspector_checkapi::{
     return_result, testfont, CheckFnResult, Context, FileTypeConvert, FontspectorError, Testable,
 };
 use kurbo::BezPath;
 use linesweeper::{BinaryOp, FillRule};
-use skrifa::instance::Size;
+use skrifa::instance::{LocationRef, Size};
 use skrifa::outline::DrawSettings;
 use skrifa::raw::TableProvider;
 use skrifa::{GlyphId, MetadataProvider};
@@ -44,28 +44,31 @@ fn classify_glyphs(f: &TestFont) -> Result<HashMap<GlyphId, OverlapProblem>, Fon
     let mut results = HashMap::new();
 
     for gid in f.all_glyphs() {
-        let mut pen = BezGlyph::default();
         let Some(glyph) = f.font().outline_glyphs().get(gid) else {
             continue;
         };
-        let location = f.font().axes().location(DEFAULT_LOCATION);
-        let settings = DrawSettings::unhinted(Size::unscaled(), &location);
+        let mut any_overlap = false;
+        for master in f.masters()? {
+            let f2dot14s: Vec<skrifa::instance::NormalizedCoord> =
+                master.iter().map(|x| x.1.to_f2dot14()).collect::<Vec<_>>();
+            let settings = DrawSettings::unhinted(Size::unscaled(), LocationRef::new(&f2dot14s));
 
-        glyph.draw(settings, &mut pen)?;
-        let current_overlaps_bit = glyph.has_overlaps().unwrap_or(false);
-        // Unify to single BezPath
-        let mut path = BezPath::new();
-        for pth in pen.0 {
-            path.extend(pth);
-        }
-        if !has_overlaps(&path)? {
-            if current_overlaps_bit {
-                results.insert(gid, OverlapProblem::HasButShouldNot);
+            let mut pen = BezGlyph::default();
+            glyph.draw(settings, &mut pen)?;
+            // Unify to single BezPath
+            let mut path = BezPath::new();
+            for pth in pen.0 {
+                path.extend(pth);
             }
-            continue;
+            if has_overlaps(&path)? {
+                any_overlap = true;
+                break;
+            }
         }
-        if !current_overlaps_bit {
+        if any_overlap && !glyph.has_overlaps().unwrap_or(false) {
             results.insert(gid, OverlapProblem::ShouldHaveButDoesNot);
+        } else if !any_overlap && glyph.has_overlaps().unwrap_or(false) {
+            results.insert(gid, OverlapProblem::HasButShouldNot);
         }
     }
     Ok(results)
