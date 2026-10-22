@@ -78,7 +78,7 @@ fn unique_names(c: &TestableCollection, context: &Context) -> CheckFnResult {
                     &format!("missing-name-id-{}", name_id),
                     &format!(
                         "Font {} is missing a {} entry",
-                        font.filename.to_string_lossy().to_string(),
+                        font.filename.to_string_lossy(),
                         name_id
                     ),
                 ));
