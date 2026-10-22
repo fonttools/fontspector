@@ -99,7 +99,7 @@ def test_check_mandatory_glyphs(check):
     """Font contains the first few mandatory glyphs (.null or NULL, CR and space)?"""
     from fontTools import subset
 
-    ttFont = TTFont(TEST_FILE("nunito/Nunito-Regular.ttf"))
+    ttFont = TTFont(TEST_FILE("montserrat/Montserrat-Black.ttf"))
     assert_PASS(check(ttFont))
 
     options = subset.Options()
