@@ -86,8 +86,10 @@ fn unique_names(c: &TestableCollection, context: &Context) -> CheckFnResult {
                         .collect::<String>(),
                 )
             };
+            let missing_name_entry = format!("<missing {}>", name_id);
+            let name_entry_display = name_entry.as_deref().unwrap_or(&missing_name_entry);
             name_entries
-                .entry(name_entry)
+                .entry(name_entry_display.to_string())
                 .or_insert_with(Vec::new)
                 .push(font.filename.to_string_lossy().to_string());
         }
@@ -98,7 +100,7 @@ fn unique_names(c: &TestableCollection, context: &Context) -> CheckFnResult {
                 problems.push(Status::fail(
                     &format!("duplicate-name-id-{}", name_id),
                     &format!(
-                        "The name '{:?}' is not unique within the family. Found in fonts: {}",
+                        "The name '{}' is not unique within the family. Found in fonts: {}",
                         name_entry_string,
                         filenames.join(", "),
                     ),
@@ -175,7 +177,7 @@ fn unique_names(c: &TestableCollection, context: &Context) -> CheckFnResult {
                 problems.push(Status::fail(
                     &format!("duplicate-name-id-{name_id_family}-{name_id_subfamily}"),
                     &format!(
-                        "The name '{:?}' is not unique within the family. Found in fonts: {}",
+                        "The name '{}' is not unique within the family. Found in fonts: {}",
                         name_entry_string,
                         filenames.join(", ")
                     ),
