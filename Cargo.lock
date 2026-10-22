@@ -381,7 +381,7 @@ dependencies = [
  "unicode-normalization",
  "uuid",
  "vfbreader",
- "write-fonts",
+ "write-fonts 0.52.0",
 ]
 
 [[package]]
@@ -1417,7 +1417,7 @@ dependencies = [
  "smol_str",
  "thiserror 2.0.21",
  "tracing-subscriber",
- "write-fonts",
+ "write-fonts 0.52.0",
 ]
 
 [[package]]
@@ -1503,9 +1503,9 @@ dependencies = [
 
 [[package]]
 name = "font-types"
-version = "0.12.6"
+version = "0.12.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6c92d9081c7ab3bd83ef1eecdfad090f3d966e3ce74106779664114cfe1a6274"
+checksum = "835ae9d781464a79026cde387f9cbc650c9a4909d7cf7e658b127e3c35d2f35d"
 dependencies = [
  "bytemuck",
  "serde",
@@ -1531,7 +1531,7 @@ dependencies = [
  "thiserror 2.0.21",
  "tinystr",
  "tracing",
- "write-fonts",
+ "write-fonts 0.52.0",
 ]
 
 [[package]]
@@ -1561,7 +1561,7 @@ dependencies = [
  "tracing-subscriber",
  "ufo2fontir",
  "vergen-gitcl",
- "write-fonts",
+ "write-fonts 0.52.0",
 ]
 
 [[package]]
@@ -1576,7 +1576,7 @@ dependencies = [
  "serde",
  "smol_str",
  "thiserror 2.0.21",
- "write-fonts",
+ "write-fonts 0.52.0",
 ]
 
 [[package]]
@@ -1598,7 +1598,7 @@ dependencies = [
  "smol_str",
  "thiserror 2.0.21",
  "tracing",
- "write-fonts",
+ "write-fonts 0.52.0",
 ]
 
 [[package]]
@@ -1618,7 +1618,7 @@ dependencies = [
  "smol_str",
  "thiserror 2.0.21",
  "tracing",
- "write-fonts",
+ "write-fonts 0.52.0",
 ]
 
 [[package]]
@@ -1682,7 +1682,7 @@ dependencies = [
  "skrifa",
  "thiserror 2.0.21",
  "toml",
- "write-fonts",
+ "write-fonts 0.55.0",
 ]
 
 [[package]]
@@ -1719,7 +1719,7 @@ dependencies = [
  "itertools 0.15.0",
  "pluginator",
  "skrifa",
- "write-fonts",
+ "write-fonts 0.55.0",
 ]
 
 [[package]]
@@ -1743,7 +1743,7 @@ dependencies = [
  "regex",
  "serde_json",
  "skrifa",
- "write-fonts",
+ "write-fonts 0.55.0",
 ]
 
 [[package]]
@@ -1784,7 +1784,7 @@ dependencies = [
  "unicode-properties",
  "unicode-script",
  "unicode_names2",
- "write-fonts",
+ "write-fonts 0.55.0",
  "yeslogic-unicode-blocks",
 ]
 
@@ -1797,7 +1797,7 @@ dependencies = [
  "itertools 0.15.0",
  "kurbo 0.13.1",
  "skrifa",
- "write-fonts",
+ "write-fonts 0.55.0",
 ]
 
 [[package]]
@@ -1809,7 +1809,7 @@ dependencies = [
  "pluginator",
  "regex",
  "skrifa",
- "write-fonts",
+ "write-fonts 0.55.0",
 ]
 
 [[package]]
@@ -1823,7 +1823,7 @@ dependencies = [
  "regex",
  "serde_json",
  "skrifa",
- "write-fonts",
+ "write-fonts 0.55.0",
 ]
 
 [[package]]
@@ -1837,7 +1837,7 @@ dependencies = [
  "serde_json",
  "skrifa",
  "unicode-properties",
- "write-fonts",
+ "write-fonts 0.55.0",
 ]
 
 [[package]]
@@ -1874,7 +1874,7 @@ dependencies = [
  "tabled",
  "unicode-properties",
  "unicode_names2",
- "write-fonts",
+ "write-fonts 0.55.0",
 ]
 
 [[package]]
@@ -2145,7 +2145,7 @@ dependencies = [
  "serde",
  "smol_str",
  "thiserror 2.0.21",
- "write-fonts",
+ "write-fonts 0.52.0",
 ]
 
 [[package]]
@@ -2165,7 +2165,7 @@ dependencies = [
  "smol_str",
  "thiserror 2.0.21",
  "tracing",
- "write-fonts",
+ "write-fonts 0.52.0",
 ]
 
 [[package]]
@@ -2200,7 +2200,7 @@ dependencies = [
  "serde_json",
  "skrifa",
  "syn 2.0.119",
- "write-fonts",
+ "write-fonts 0.52.0",
 ]
 
 [[package]]
@@ -4255,9 +4255,23 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "005c8acf251756c478b0bf402885bfd88a1476020c4c7e6060edc1aa68da38ea"
 dependencies = [
  "bytemuck",
- "font-types 0.12.6",
+ "font-types 0.12.7",
  "once_cell",
  "serde",
+]
+
+[[package]]
+name = "read-fonts"
+version = "0.46.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bdaa4fffe9ff3ca2c353fa9729792805b9b3e324695ff5a081f860612e81b330"
+dependencies = [
+ "bytemuck",
+ "foldhash 0.2.0",
+ "font-types 0.12.7",
+ "once_cell",
+ "smallvec",
+ "yoke",
 ]
 
 [[package]]
@@ -5632,7 +5646,7 @@ dependencies = [
  "smol_str",
  "thiserror 2.0.21",
  "tracing",
- "write-fonts",
+ "write-fonts 0.52.0",
 ]
 
 [[package]]
@@ -5892,7 +5906,7 @@ dependencies = [
  "bitflags 2.13.2",
  "encoding_rs",
  "error-stack",
- "font-types 0.12.6",
+ "font-types 0.12.7",
  "hex",
  "log",
  "phf 0.14.0",
@@ -6362,12 +6376,25 @@ version = "0.52.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "843cebb7bd36359861dbce43d54ac8b33dfdf7b80a95913adc1ef7c7bb881e62"
 dependencies = [
- "font-types 0.12.6",
+ "font-types 0.12.7",
  "indexmap 2.14.2",
  "kurbo 0.13.1",
  "log",
  "read-fonts 0.43.3",
  "serde",
+]
+
+[[package]]
+name = "write-fonts"
+version = "0.55.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3e91ad74b39f48f456560ed1ccc75959efa19bf6f0817d1560751bb49db84f6c"
+dependencies = [
+ "font-types 0.12.7",
+ "indexmap 2.14.2",
+ "kurbo 0.13.1",
+ "log",
+ "read-fonts 0.46.0",
 ]
 
 [[package]]
