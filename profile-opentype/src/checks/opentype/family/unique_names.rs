@@ -67,31 +67,22 @@ fn unique_names(c: &TestableCollection, context: &Context) -> CheckFnResult {
                 // Skip checking the Variations PostScript Name Prefix for non-variable fonts.
                 continue;
             }
-            let name_entry = if name_id == &NameId::TYPOGRAPHIC_SUBFAMILY_NAME
-                || name_id == &NameId::WWS_SUBFAMILY_NAME
-            {
-                font.best_subfamilyname()
+            if let Some(name) = font.font().localized_strings(*name_id).english_or_first() {
+                let name_string = name.chars().collect::<String>();
+                name_entries
+                    .entry(name_string)
+                    .or_insert_with(Vec::new)
+                    .push(font.filename.to_string_lossy().to_string());
             } else {
-                Some(
-                    font.font()
-                        .localized_strings(*name_id)
-                        .english_or_first()
-                        .ok_or_else(|| {
-                            FontspectorError::General(format!(
-                                "Font {} is missing a {name_id} entry",
-                                font.filename.to_string_lossy()
-                            ))
-                        })?
-                        .chars()
-                        .collect::<String>(),
-                )
-            };
-            let missing_name_entry = format!("<missing {}>", name_id);
-            let name_entry_display = name_entry.as_deref().unwrap_or(&missing_name_entry);
-            name_entries
-                .entry(name_entry_display.to_string())
-                .or_insert_with(Vec::new)
-                .push(font.filename.to_string_lossy().to_string());
+                problems.push(Status::fail(
+                    &format!("missing-name-id-{}", name_id),
+                    &format!(
+                        "Font {} is missing a {} entry",
+                        font.filename.to_string_lossy().to_string(),
+                        name_id
+                    ),
+                ));
+            }
         }
 
         for (name_entry_string, font_paths) in &name_entries {
@@ -590,8 +581,8 @@ mod tests {
                     ]),
                 ]
                 .to_vec(),
-                StatusCode::Error,
-                None,
+                StatusCode::Fail,
+                Some("missing-name-id-VARIATIONS_POSTSCRIPT_NAME_PREFIX".to_string()),
                 HashMap::from([(
                     "opentype/family/unique_names".to_string(),
                     serde_json::json!({ "unique_name_ids": [3, 4, 6, 25] }),
