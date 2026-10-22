@@ -1,4 +1,3 @@
-use fontdrasil::coords::{NormalizedCoord, NormalizedLocation};
 use fontspector_checkapi::{
     pens::BezGlyph, prelude::*, skip, testfont, FileTypeConvert, Metadata, TestFont,
 };
@@ -7,38 +6,9 @@ use serde_json::json;
 use skrifa::{
     raw::{ReadError, TableProvider},
     setting::{Setting, VariationSetting},
-    GlyphId, Tag,
+    GlyphId,
 };
 use std::collections::HashMap;
-
-fn denormalize_location(
-    font: &TestFont,
-    tuple: &[f32],
-) -> Result<Vec<VariationSetting>, FontspectorError> {
-    let all_axes = font.fontdrasil_axes()?.ok_or(FontspectorError::General(
-        "Axes went away between function calls".to_string(),
-    ))?;
-    let loc: NormalizedLocation = all_axes
-        .iter()
-        .zip(tuple)
-        .filter(|&(_axis, peak)| *peak != 0.0)
-        .map(|(axis, peak)| (axis.tag, NormalizedCoord::new(*peak as f64)))
-        .collect();
-    let user = loc.to_user(&all_axes).map_err(|e| {
-        FontspectorError::General(format!(
-            "Failed to convert location to user coordinates: {}",
-            e
-        ))
-    })?;
-    // And now back to skrifa
-    Ok(user
-        .iter()
-        .map(|(tag, value)| VariationSetting {
-            selector: Tag::new(&tag.to_be_bytes()), // different version madness
-            value: value.to_f64() as f32,
-        })
-        .collect())
-}
 
 fn glyph_variations(
     font: &TestFont,
@@ -53,7 +23,7 @@ fn glyph_variations(
                 .flat_map(|t| {
                     let tuple: Vec<f32> =
                         t.peak().values.iter().map(|v| v.get().to_f32()).collect();
-                    denormalize_location(font, &tuple)
+                    font.denormalize_location(&tuple)
                 })
                 .collect()
         }))
