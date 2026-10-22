@@ -522,4 +522,76 @@ mod tests {
             assert_results_contain(&result, expected_severity, expected_code);
         }
     }
+
+    #[test]
+    fn test_unique_names_variable_font_no_name_id_25() {
+        let combo_ids_tests = [(
+            [
+                HashMap::from([
+                    (NameId::UNIQUE_ID, "Unique-Font-ID-1"),
+                    (NameId::FULL_NAME, "Variable Family Upright"),
+                    (NameId::POSTSCRIPT_NAME, "VariableFamily-Upright"),
+                    // No VARIATIONS_POSTSCRIPT_NAME_PREFIX: The spec says "if present in a variable font", implying it's OK for it not to be present.
+                ]),
+                HashMap::from([
+                    (NameId::UNIQUE_ID, "Unique-Font-ID-2"),
+                    (NameId::FULL_NAME, "Variable Family Italic"),
+                    (NameId::POSTSCRIPT_NAME, "VariableFamily-Italic"),
+                    (
+                        NameId::VARIATIONS_POSTSCRIPT_NAME_PREFIX,
+                        "VariableFamily-Upright",
+                    ),
+                ]),
+            ]
+            .to_vec(),
+            StatusCode::Fail,
+            Some("duplicate-name-id-VARIATIONS_POSTSCRIPT_NAME_PREFIX".to_string()),
+        )];
+        for (combo_vec, expected_severity, expected_code) in combo_ids_tests {
+            let mut testables: Vec<Testable> = Vec::new();
+
+            for new_font_ids in &combo_vec {
+                let mut font_builder = FontBuilder::new();
+                let maxp = Maxp::default();
+                font_builder.add_table(&maxp).unwrap();
+
+                let mut name: Name = Name::default();
+                let mut new_records = Vec::new();
+
+                let mut ps_name = "unknown";
+
+                for (name_id, value) in new_font_ids {
+                    let name_rec = NameRecord::new(3, 1, 1033, *name_id, value.to_string().into());
+                    new_records.push(name_rec);
+                    if name_id == &NameId::POSTSCRIPT_NAME {
+                        ps_name = value;
+                    }
+                    // we need to add the Fvar table to force is_variable to be true
+                    let fvar = Fvar::default();
+                    font_builder.add_table(&fvar).unwrap();
+                }
+
+                new_records.sort();
+                name.name_record = new_records;
+                font_builder.add_table(&name).unwrap();
+
+                let font = font_builder.build();
+                let testable = Testable::new_with_contents(format!("{ps_name}.otf"), font);
+                testables.push(testable);
+            }
+
+            let collection = TestableCollection {
+                testables,
+                directory: "".to_string(),
+            };
+
+            let result = run_check_with_config(
+                unique_names,
+                TestableType::Collection(&collection),
+                HashMap::new(),
+            );
+
+            assert_results_contain(&result, expected_severity, expected_code);
+        }
+    }
 }
