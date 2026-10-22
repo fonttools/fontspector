@@ -74,31 +74,6 @@ fn trailing_spaces(f: &Testable, _context: &Context) -> CheckFnResult {
                 });
                 problems.push(status);
             }
-            // disabled because covered by name/repeating_characters
-            // if name_record
-            //     .string(name_table.string_data())
-            //     .map(|s| s.to_string())
-            //     .map(|s| s.contains("  "))
-            //     .unwrap_or(false)
-            // {
-            //     let string_value = name_record
-            //         .string(name_table.string_data())
-            //         .map_err(|_| FontspectorError::General("Error reading string".to_string()))?
-            //         .to_string();
-            //     let message = format!(
-            //         "Name table record {name_rec_info} has double spaces:\n`{:}`",
-            //         string_value
-            //     );
-            //     let mut status = Status::warn("double-spaces", &message);
-            //     status.add_metadata(Metadata::TableProblem {
-            //         table_tag: "name".to_string(),
-            //         field_name: Some(format!("nameID {}", name_record.name_id)),
-            //         actual: Some(json!(string_value)),
-            //         expected: Some(json!(string_value.replace("  ", " "))),
-            //         message,
-            //     });
-            //     problems.push(status);
-            // }
         }
     }
     return_result(problems)
@@ -126,11 +101,6 @@ fn sourcefix_trailing_spaces(
                 *entry = entry.trim_end().to_string();
                 log::info!("Removed trailing spaces in name entry {}.", name_id);
             }
-            // disabled because covered by name/repeating_characters
-            // if entry.contains("  ") {
-            //     *entry = entry.replace("  ", " ");
-            //     log::info!("Removed double spaces in name entry {}.", name_id);
-            // }
         }
     }
     Ok(FixResult::Fixed)
@@ -183,35 +153,4 @@ mod tests {
             Some("leading-space".to_string()),
         );
     }
-
-    // disabled because covered by name/repeating_characters
-    // #[test]
-    // fn test_trailing_spaces() {
-    //     let mut builder = FontBuilder::new();
-    //     builder.add_table(&Maxp::default()).unwrap();
-    //     let mut name_table = Name::default();
-    //     let mut new_records = Vec::new();
-    //     let nids = [(0, "Copyright 2026 Foundry Name.  With double spaces.")];
-    //     for (nid, s) in nids.iter() {
-    //         let name_rec = NameRecord::new(3, 1, 1033, NameId::new(*nid), (*s).to_string().into());
-    //         new_records.push(name_rec);
-    //     }
-    //     new_records.sort();
-    //     name_table.name_record = new_records;
-    //     builder.add_table(&name_table).unwrap();
-
-    //     let testable = Testable::new_with_contents("demo.ttf", builder.build().clone());
-
-    //     let results = run_check_with_config(
-    //         super::trailing_spaces,
-    //         TestableType::Single(&testable),
-    //         HashMap::new(),
-    //     );
-    //     assert_messages_contain(&results, "has double spaces");
-    //     assert_results_contain(
-    //         &results,
-    //         StatusCode::Warn,
-    //         Some("double-spaces".to_string()),
-    //     );
-    // }
 }
