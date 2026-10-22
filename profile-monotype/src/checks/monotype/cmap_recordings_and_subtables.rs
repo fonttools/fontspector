@@ -46,7 +46,7 @@ fn cmap_recordings_and_subtables(t: &Testable, _context: &Context) -> CheckFnRes
                         &format!(
                             "For platform {} encoding {}: we expected cmap subtable to be in format 4 but got {}.",
                             encoding_record.platform_id() as u16,
-                            encoding_record.encoding_id() as u16,
+                            encoding_record.encoding_id(),
                             subtable.format(),
                         ),
                     ));
@@ -66,7 +66,7 @@ fn cmap_recordings_and_subtables(t: &Testable, _context: &Context) -> CheckFnRes
                         &format!(
                             "For platform {} encoding {}: we expected cmap subtable to be in format 12 but got {}.",
                             encoding_record.platform_id() as u16,
-                            encoding_record.encoding_id() as u16,
+                            encoding_record.encoding_id(),
                             subtable.format(),
                         ),
                     ));
