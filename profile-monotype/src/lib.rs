@@ -23,6 +23,12 @@ impl fontspector_checkapi::ProfileProvider for Monotype {
             .add_and_register_check(gf_checks::googlefonts::family::tnum_horizontal_metrics)
             .add_and_register_check(gf_checks::googlefonts::family::equal_codepoint_coverage)
             .include_profile("opentype")
+            .with_configuration_defaults(
+                "opentype/family/unique_names",
+                HashMap::from([
+                    ("unique_name_ids".to_string(), json!([3, 4, 6, 25])),
+                ]),
+            )
             .add_section("Monotype Checks")
             .add_and_register_check(checks::monotype::fstype)
             .with_configuration_defaults(
