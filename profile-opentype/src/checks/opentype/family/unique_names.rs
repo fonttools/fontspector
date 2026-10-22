@@ -15,10 +15,6 @@ use skrifa::{raw::types::NameId, MetadataProvider};
               The complete, unique, human readable name of the font. 
 
             * 6	PostScript name.
-
-            [...]
-
-            * 25 Variations PostScript Name Prefix.
             
         https://learn.microsoft.com/en-us/typography/opentype/spec/name
 
@@ -33,19 +29,36 @@ use skrifa::{raw::types::NameId, MetadataProvider};
         These name table entries must be unique within a font family.
     "#,
     proposal = "https://github.com/Monotype/fontspector/issues/8",
-    title = "Verify that name id (1+2), 3, 4, 6, (16+17), (21+22), 25 are unique within a font family.",
+    title = "Verify that name id (1+2), 3, 4, 6, (16+17), (21+22) are unique within a font family.",
     implementation = "all"
 )]
-fn unique_names(c: &TestableCollection, _context: &Context) -> CheckFnResult {
+fn unique_names(c: &TestableCollection, context: &Context) -> CheckFnResult {
     let fonts = TTF.from_collection(c);
     let mut problems = vec![];
 
-    let name_ids_to_check = vec![
-        NameId::UNIQUE_ID,                         // Name ID 3
-        NameId::FULL_NAME,                         // Name ID 4
-        NameId::POSTSCRIPT_NAME,                   // Name ID 6
-        NameId::VARIATIONS_POSTSCRIPT_NAME_PREFIX, // Name ID 25
-    ];
+    let local_config = context.local_config("opentype/family/unique_names");
+    let config = local_config.as_object();
+
+    let unique_ids: Vec<u16> = if let Some(config) = config {
+        config
+            .get("unique_name_ids")
+            .ok_or(FontspectorError::skip(
+                "no-unique-name-ids",
+                "Add the `unique_name_ids` key to a `fontspector.toml` file.",
+            ))?
+            .as_array()
+            .ok_or(FontspectorError::skip(
+                "invalid-unique-name-ids",
+                "The `unique_name_ids` key in the configuration file must be an array.",
+            ))?
+            .iter()
+            .filter_map(|v| v.as_u64().map(|n| n as u16))
+            .collect()
+    } else {
+        vec![3, 4, 6]
+    };
+
+    let name_ids_to_check: Vec<NameId> = unique_ids.iter().map(|id| NameId::new(*id)).collect();
 
     for name_id in &name_ids_to_check {
         let mut name_entries = HashMap::new();
@@ -305,7 +318,7 @@ mod tests {
         assert_results_contain(
             &result,
             StatusCode::Fail,
-            Some("duplicate-name-id-VARIATIONS_POSTSCRIPT_NAME_PREFIX".to_string()),
+            Some("duplicate-name-id-UNIQUE_ID".to_string()),
         );
     }
 
@@ -446,31 +459,6 @@ mod tests {
                 StatusCode::Pass,
                 None,
             ),
-            (
-                [
-                    HashMap::from([
-                        (NameId::UNIQUE_ID, "Unique-Font-ID-1"),
-                        (NameId::FULL_NAME, "Variable Family Upright"),
-                        (NameId::POSTSCRIPT_NAME, "VariableFamily-Upright"),
-                        (
-                            NameId::VARIATIONS_POSTSCRIPT_NAME_PREFIX,
-                            "VariableFamily-Upright",
-                        ),
-                    ]),
-                    HashMap::from([
-                        (NameId::UNIQUE_ID, "Unique-Font-ID-2"),
-                        (NameId::FULL_NAME, "Variable Family Italic"),
-                        (NameId::POSTSCRIPT_NAME, "VariableFamily-Italic"),
-                        (
-                            NameId::VARIATIONS_POSTSCRIPT_NAME_PREFIX,
-                            "VariableFamily-Upright",
-                        ),
-                    ]),
-                ]
-                .to_vec(),
-                StatusCode::Fail,
-                Some("duplicate-name-id-VARIATIONS_POSTSCRIPT_NAME_PREFIX".to_string()),
-            ),
         ];
         for (combo_vec, expected_severity, expected_code) in combo_ids_tests {
             let mut testables: Vec<Testable> = Vec::new();
@@ -525,29 +513,90 @@ mod tests {
 
     #[test]
     fn test_unique_names_variable_font_no_name_id_25() {
-        let combo_ids_tests = [(
-            [
-                HashMap::from([
-                    (NameId::UNIQUE_ID, "Unique-Font-ID-1"),
-                    (NameId::FULL_NAME, "Variable Family Upright"),
-                    (NameId::POSTSCRIPT_NAME, "VariableFamily-Upright"),
-                    // No VARIATIONS_POSTSCRIPT_NAME_PREFIX: The spec says "if present in a variable font", implying it's OK for it not to be present.
-                ]),
-                HashMap::from([
-                    (NameId::UNIQUE_ID, "Unique-Font-ID-2"),
-                    (NameId::FULL_NAME, "Variable Family Italic"),
-                    (NameId::POSTSCRIPT_NAME, "VariableFamily-Italic"),
-                    (
-                        NameId::VARIATIONS_POSTSCRIPT_NAME_PREFIX,
-                        "VariableFamily-Upright",
-                    ),
-                ]),
-            ]
-            .to_vec(),
-            StatusCode::Fail,
-            Some("duplicate-name-id-VARIATIONS_POSTSCRIPT_NAME_PREFIX".to_string()),
-        )];
-        for (combo_vec, expected_severity, expected_code) in combo_ids_tests {
+        let combo_ids_tests = [
+            (
+                [
+                    HashMap::from([
+                        (NameId::UNIQUE_ID, "Unique-Font-ID-1"),
+                        (NameId::FULL_NAME, "Variable Family Upright"),
+                        (NameId::POSTSCRIPT_NAME, "VariableFamily-Upright"),
+                        // No VARIATIONS_POSTSCRIPT_NAME_PREFIX: The spec says "if present in a variable font", implying it's OK for it not to be present.
+                    ]),
+                    HashMap::from([
+                        (NameId::UNIQUE_ID, "Unique-Font-ID-2"),
+                        (NameId::FULL_NAME, "Variable Family Italic"),
+                        (NameId::POSTSCRIPT_NAME, "VariableFamily-Italic"),
+                        (
+                            NameId::VARIATIONS_POSTSCRIPT_NAME_PREFIX,
+                            "VariableFamily-Upright",
+                        ),
+                    ]),
+                ]
+                .to_vec(),
+                StatusCode::Pass,
+                None,
+                HashMap::from([(
+                    "opentype/family/unique_names".to_string(),
+                    serde_json::json!({ "unique_name_ids": [3, 4, 6] }),
+                )]),
+            ),
+            (
+                [
+                    HashMap::from([
+                        (NameId::UNIQUE_ID, "Unique-Font-ID-1"),
+                        (NameId::FULL_NAME, "Variable Family Upright"),
+                        (NameId::POSTSCRIPT_NAME, "VariableFamily-Upright"),
+                        (
+                            NameId::VARIATIONS_POSTSCRIPT_NAME_PREFIX,
+                            "VariableFamily-Upright",
+                        ),
+                    ]),
+                    HashMap::from([
+                        (NameId::UNIQUE_ID, "Unique-Font-ID-2"),
+                        (NameId::FULL_NAME, "Variable Family Italic"),
+                        (NameId::POSTSCRIPT_NAME, "VariableFamily-Italic"),
+                        (
+                            NameId::VARIATIONS_POSTSCRIPT_NAME_PREFIX,
+                            "VariableFamily-Upright",
+                        ),
+                    ]),
+                ]
+                .to_vec(),
+                StatusCode::Fail,
+                Some("duplicate-name-id-VARIATIONS_POSTSCRIPT_NAME_PREFIX".to_string()),
+                HashMap::from([(
+                    "opentype/family/unique_names".to_string(),
+                    serde_json::json!({ "unique_name_ids": [3, 4, 6, 25] }),
+                )]),
+            ),
+            (
+                [
+                    HashMap::from([
+                        (NameId::UNIQUE_ID, "Unique-Font-ID-1"),
+                        (NameId::FULL_NAME, "Variable Family Upright"),
+                        (NameId::POSTSCRIPT_NAME, "VariableFamily-Upright"),
+                        // No VARIATIONS_POSTSCRIPT_NAME_PREFIX: The spec says "if present in a variable font", implying it's OK for it not to be present.
+                    ]),
+                    HashMap::from([
+                        (NameId::UNIQUE_ID, "Unique-Font-ID-2"),
+                        (NameId::FULL_NAME, "Variable Family Italic"),
+                        (NameId::POSTSCRIPT_NAME, "VariableFamily-Italic"),
+                        (
+                            NameId::VARIATIONS_POSTSCRIPT_NAME_PREFIX,
+                            "VariableFamily-Upright",
+                        ),
+                    ]),
+                ]
+                .to_vec(),
+                StatusCode::Error,
+                None,
+                HashMap::from([(
+                    "opentype/family/unique_names".to_string(),
+                    serde_json::json!({ "unique_name_ids": [3, 4, 6, 25] }),
+                )]),
+            ),
+        ];
+        for (combo_vec, expected_severity, expected_code, config) in combo_ids_tests {
             let mut testables: Vec<Testable> = Vec::new();
 
             for new_font_ids in &combo_vec {
@@ -585,11 +634,8 @@ mod tests {
                 directory: "".to_string(),
             };
 
-            let result = run_check_with_config(
-                unique_names,
-                TestableType::Collection(&collection),
-                HashMap::new(),
-            );
+            let result =
+                run_check_with_config(unique_names, TestableType::Collection(&collection), config);
 
             assert_results_contain(&result, expected_severity, expected_code);
         }
