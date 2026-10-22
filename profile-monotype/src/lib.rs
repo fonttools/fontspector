@@ -32,7 +32,6 @@ impl fontspector_checkapi::ProfileProvider for Monotype {
                 ]),
             )
             .add_and_register_check(checks::monotype::style_in_family_name)
-            .add_and_register_check(checks::monotype::cmap_subtables)
             .add_and_register_check(checks::monotype::cmap_encoding_records)
             // TODO: implement more Monotype-specific checks
             .add_and_register_check(checks::monotype::widthclass)
