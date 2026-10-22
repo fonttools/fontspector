@@ -4,6 +4,7 @@ use crate::{
     filetype::FileTypeConvert,
     Context, FileType, Testable,
 };
+use babelfont::NormalizedLocation;
 use fontdrasil::coords::{CoordConverter, DesignCoord, NormalizedCoord, UserCoord};
 use itertools::Either;
 use skrifa::{
@@ -633,6 +634,72 @@ impl TestFont<'_> {
                 .collect(),
         ))
     }
+
+    /// Returns a list of the master locations in the font
+    ///
+    /// This is derived heuristically from locations of shared tuples in the `gvar` table.
+    /// This should work well enough for most "normal" fonts.
+    // Stolen from diffenator3
+    pub fn masters(&self) -> Result<Vec<NormalizedLocation>, FontspectorError> {
+        if !self.is_variable_font() {
+            return Ok(vec![NormalizedLocation::default()]);
+        }
+        let gvar = self.font().gvar()?;
+        let axes = self.font().axes();
+        let tuples = gvar.shared_tuples()?.tuples();
+        let peaks: Vec<NormalizedLocation> = tuples
+            .iter()
+            .flatten()
+            .map(|tuple| {
+                let coords = tuple
+                    .values()
+                    .iter()
+                    .map(|x| x.get().to_f32())
+                    .collect::<Vec<f32>>();
+                let normalized_location: NormalizedLocation = axes
+                    .iter()
+                    .zip(coords.iter())
+                    .map(|(axis, coord)| (axis.tag(), NormalizedCoord::new(*coord as f64)))
+                    .collect();
+                normalized_location
+            })
+            .collect();
+        Ok(peaks)
+    }
+
+    /// Convert a normalized designspace location into user-space variation settings.
+    ///
+    /// `tuple` holds one normalized value per fvar axis, in fvar order, as found
+    /// in gvar tuple peaks. Axes at their default (0.0) are omitted from the
+    /// result. The avar table is taken into account.
+    pub fn denormalize_location(
+        &self,
+        tuple: &[f32],
+    ) -> Result<Vec<VariationSetting>, FontspectorError> {
+        let all_axes = self.fontdrasil_axes()?.ok_or(FontspectorError::General(
+            "Font has no variation axes".to_string(),
+        ))?;
+        let loc: fontdrasil::coords::NormalizedLocation = all_axes
+            .iter()
+            .zip(tuple)
+            .filter(|&(_axis, peak)| *peak != 0.0)
+            .map(|(axis, peak)| (axis.tag, NormalizedCoord::new(*peak as f64)))
+            .collect();
+        let user = loc.to_user(&all_axes).map_err(|e| {
+            FontspectorError::General(format!(
+                "Failed to convert location to user coordinates: {}",
+                e
+            ))
+        })?;
+        // And now back to skrifa
+        Ok(user
+            .iter()
+            .map(|(tag, value)| VariationSetting {
+                selector: Tag::new(&tag.to_be_bytes()), // different version madness
+                value: value.to_f64() as f32,
+            })
+            .collect())
+    }
 }
 
 /// Is a codepoint a CJK character?
@@ -686,6 +753,7 @@ impl VerticalMetrics {
 }
 
 /// A selector for a platform, encoding, and language in a font's name table.
+#[derive(Clone)]
 pub struct PlatformSelector {
     /// The platform ID eg. 3 = Windows
     pub platform_id: u16,
