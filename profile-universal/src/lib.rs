@@ -106,6 +106,7 @@ impl fontspector_checkapi::ProfileProvider for Universal {
             .add_and_register_check(checks::has_unicodes)
             .add_and_register_check(checks::required_name_ids)
             .add_and_register_check(checks::suspicious_sidebearings)
+            .add_and_register_check(checks::overlaps_bit)
             .build("universal", cr)
 
         //  Checks which don't make sense any more

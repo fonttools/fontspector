@@ -148,6 +148,9 @@ name = "arrayvec"
 version = "0.7.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d3fb67a6e08acf24fdeccbac2cb6ac4305825bd1f117462e0e6f2f193345ad56"
+dependencies = [
+ "serde",
+]
 
 [[package]]
 name = "arrow"
@@ -1726,7 +1729,7 @@ dependencies = [
  "fontspector-checkapi",
  "norad 0.18.4",
  "pluginator",
- "quick-xml 0.41.0",
+ "quick-xml 0.42.0",
  "serde_json",
 ]
 
@@ -1820,6 +1823,7 @@ dependencies = [
  "regex",
  "serde_json",
  "skrifa",
+ "write-fonts",
 ]
 
 [[package]]
@@ -1860,6 +1864,7 @@ dependencies = [
  "interpolatable",
  "itertools 0.15.0",
  "kurbo 0.13.1",
+ "linesweeper",
  "log",
  "ordered-float",
  "reqwest",
@@ -3084,6 +3089,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "linesweeper"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a25df1b0c5432893f41bba817150e323703ee5f6d974f3a6808ac7fd7f046d18"
+dependencies = [
+ "arrayvec",
+ "kurbo 0.13.1",
+ "polycool",
+ "rustc-hash",
+ "smallvec",
+]
+
+[[package]]
 name = "linux-raw-sys"
 version = "0.4.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4129,7 +4147,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e660451e55124f798a69a5af3f49ccfbefbd41910eefd25caf2393e1f3473ec1"
 dependencies = [
  "memchr",
- "serde",
 ]
 
 [[package]]
@@ -4139,6 +4156,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "41b1177fdf999d2321d3fb46ff47159d9c1fb9ad66a4879f8c50a0b504615e9b"
 dependencies = [
  "memchr",
+ "serde",
 ]
 
 [[package]]
