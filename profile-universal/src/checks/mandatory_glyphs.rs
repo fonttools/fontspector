@@ -1,8 +1,9 @@
 use fontspector_checkapi::{
-    pens::HasInkPen, prelude::*, testfont, FileTypeConvert, Metadata, SourceFile, DEFAULT_LOCATION,
+    pens::ContourCountPen, prelude::*, testfont, FileTypeConvert, Metadata, SourceFile,
+    DEFAULT_LOCATION,
 };
 use serde_json::json;
-use skrifa::{GlyphId, MetadataProvider};
+use skrifa::{raw::TableProvider, GlyphId, MetadataProvider};
 
 #[check(
     id="mandatory_glyphs",
@@ -16,6 +17,12 @@ use skrifa::{GlyphId, MetadataProvider};
         if a glyph is missing and not be aware of the active font’s limitation.
 
         https://docs.microsoft.com/en-us/typography/opentype/spec/recom#glyph-0-the-notdef-glyph
+
+        Specific requirements to the .notdef glyph:
+
+        - Is glyph 0 named .notdef?
+        - Does .notdef have a non-zero advance width?
+        - Does glyph 0 (.notdef) have a non-empty outline?
 
         Pre-v1.8, it was recommended that fonts should also contain 'space', 'CR'
         and '.null' glyphs. This might have been relevant for MacOS 9 applications.
@@ -73,9 +80,10 @@ fn mandatory_glyphs(f: &Testable, _context: &Context) -> CheckFnResult {
         });
         problems.push(status);
     }
-    let mut pen = HasInkPen::new();
+    let mut pen = ContourCountPen::new();
     font.draw_glyph(gid_0, &mut pen, DEFAULT_LOCATION)?;
-    if !pen.has_ink() {
+    let contour_count = pen.contour_count();
+    if contour_count == 0 {
         let message = "The '.notdef' glyph should contain a drawing, but it is blank.";
         let mut status = Status::fail("notdef-is-blank", message);
         status.add_metadata(Metadata::GlyphProblem {
@@ -88,6 +96,47 @@ fn mandatory_glyphs(f: &Testable, _context: &Context) -> CheckFnResult {
             message: message.to_string(),
         });
         problems.push(status);
+    } else if contour_count == 1 || contour_count == 2 {
+        // .notdef has 1 or 2 contours. It looks like it is a TOFU.
+        // passing information about the 2-contour TOFU
+        problems.push(Status::pass());
+    } else if contour_count == 3 {
+        problems.push(Status::info(
+            "notdef-contours-3",
+            ".notdef has 3 contours. It might be a black box with a white question mark.",
+        ));
+    } else if contour_count == 4 {
+        problems.push(Status::info(
+            "notdef-contours-4",
+            ".notdef has 4 contours. It might be a TOFU with a question mark.",
+        ));
+    } else if contour_count == 5 {
+        problems.push(Status::info(
+            "notdef-contours-5",
+            ".notdef has 5 contours. It looks like it is a TOFU with a cross.",
+        ));
+    } else if contour_count >= 6 {
+        // For example GlyphsApp adds a .notdef with 10 contours by default.
+        // We don't want any fancy outlines.
+        // We want a nice tofu or question mark in a box.
+        problems.push(Status::warn(
+            "notdef-too-many-contours",
+            &format!(
+                ".notdef is expected to have a few contours, only, but this has {}.",
+                contour_count
+            ),
+        ));
+    }
+
+    // Does .notdef have a non-zero advance width?
+    let upem = font.font().head()?.units_per_em() as f32;
+    let hmtx = font.font().hmtx()?;
+    let advance_width = hmtx.advance(gid_0).map(|x| x as f32).unwrap_or(upem);
+    if advance_width == 0.0 {
+        problems.push(Status::fail(
+            "notdef-advance-width-0",
+            ".notdef is expected to have a width.",
+        ));
     }
 
     return_result(problems)
@@ -129,12 +178,57 @@ fn sourcefix_mandatory_glyphs(
 #[cfg(test)]
 mod tests {
     use super::mandatory_glyphs;
-    use fontspector_checkapi::codetesting::{assert_pass, run_check, test_able};
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        FileTypeConvert, StatusCode,
+    };
+    use skrifa::raw::TableProvider;
+    use write_fonts::{from_obj::ToOwnedTable, tables::hmtx::Hmtx, types::GlyphId};
 
     #[test]
     fn test_mandatory_glyphs_pass() {
-        let testable = test_able("nunito/Nunito-Regular.ttf");
+        let testable = test_able("montserrat/Montserrat-Black.ttf");
         let results = run_check(mandatory_glyphs, testable);
         assert_pass(&results);
+    }
+
+    #[test]
+    fn test_notdef_fail_notdef_contours_too_many() {
+        // sample fonts with GlyphsApp notdef outlines
+        let tests = [
+            "nunito/Nunito-Regular.ttf",
+            "bad_character_set/control_chars/FontbakeryTesterCCGood-Regular.ttf",
+        ];
+        for test in tests {
+            let testable = test_able(test);
+            let results = run_check(mandatory_glyphs, testable);
+            assert_results_contain(
+                &results,
+                StatusCode::Warn,
+                Some("notdef-too-many-contours".to_string()),
+            );
+        }
+    }
+
+    #[test]
+    fn test_notdef_fail_notdef_advance_width() {
+        let mut testable = test_able("montserrat/Montserrat-Black.ttf");
+        let f = fontspector_checkapi::prelude::TTF
+            .from_testable(&testable)
+            .unwrap();
+
+        let mut hmtx: Hmtx = f.font().hmtx().unwrap().to_owned_table();
+        let glyphid = GlyphId::new(0);
+        if let Some(metric) = hmtx.h_metrics.get_mut(glyphid.to_u32() as usize) {
+            metric.advance = 0;
+        }
+        testable.set(f.rebuild_with_new_table(&hmtx).unwrap());
+
+        let results = run_check(mandatory_glyphs, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("notdef-advance-width-0".to_string()),
+        );
     }
 }
