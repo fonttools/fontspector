@@ -122,7 +122,7 @@ fn mandatory_glyphs(f: &Testable, _context: &Context) -> CheckFnResult {
         problems.push(Status::warn(
             "notdef-too-many-contours",
             &format!(
-                ".notdef is expected to have a few contours, only, but this has {}.",
+                ".notdef is expected to have a few contours only, but this has {}. Best practice is a simple TOFU or question mark in a box.",
                 contour_count
             ),
         ));
