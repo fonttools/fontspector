@@ -1,7 +1,10 @@
 #![deny(clippy::unwrap_used, clippy::expect_used)]
 mod checks;
 mod naming;
-pub use naming::get_name_tuples;
+pub use naming::{
+    extract, family_naming_info, get_name_tuples, name_string_with_fallback, FontNaming,
+    NameStrings, ResolvedStyle, StyleParts,
+};
 use serde_json::json;
 use std::collections::HashMap;
 
