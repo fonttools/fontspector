@@ -22,6 +22,7 @@ serde_json = { workspace = true }
 regex = { workspace = true }
 profile-googlefonts = { path = "../profile-googlefonts", version = "1.0.0", package = "fontspector-profile-googlefonts" }
 profile-fontwerk = { path = "../profile-fontwerk", version = "1.0.0", package = "fontspector-profile-fontwerk" }
+profile-microsoft = { path = "../profile-microsoft", package = "fontspector-profile-microsoft" }
 
 [features]
 # The "check" feature enables dependencies only needed for checks, not fixes.
