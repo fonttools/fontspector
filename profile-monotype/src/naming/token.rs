@@ -1,3 +1,9 @@
+//
+// token.rs
+//
+// Copyright © 2026 Monotype Imaging, Inc. All rights reserved
+//
+
 use regex::Regex;
 use std::sync::LazyLock;
 

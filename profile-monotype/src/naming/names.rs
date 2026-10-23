@@ -110,6 +110,20 @@ mod tests {
     }
 
     #[test]
+    fn name_string_with_fallback_22_uses_name_id_2() {
+        let name_ids = HashMap::from([
+            (NameId::FAMILY_NAME, "Garamond Classico"),
+            (NameId::SUBFAMILY_NAME, "Italic"),
+            (NameId::FULL_NAME, "Garamond Classico Italic"),
+            (NameId::POSTSCRIPT_NAME, "GaramondClassico-Italic"),
+        ]);
+        let testable = build_testable(name_ids);
+        let font = font_from_name_ids(&testable);
+        let sty = name_string_with_fallback(&font, 22, true);
+        assert_eq!(sty.as_deref(), Some("Italic"));
+    }
+
+    #[test]
     fn name_string_with_fallback_21_uses_name_id_1() {
         let name_ids = HashMap::from([
             (NameId::FAMILY_NAME, "Garamond Classico"),
@@ -121,6 +135,23 @@ mod tests {
         let font = font_from_name_ids(&testable);
         let fam = name_string_with_fallback(&font, 21, true);
         assert_eq!(fam.as_deref(), Some("Garamond Classico"));
+    }
+
+    #[test]
+    fn extract_family_name_xcn_xblk_extra_black_extra_condensed() {
+        let name_ids = HashMap::from([
+            (NameId::FAMILY_NAME, "Family Name XCn XBlk"),
+            (NameId::SUBFAMILY_NAME, "Regular"),
+            (NameId::FULL_NAME, "Family Name"),
+            (NameId::POSTSCRIPT_NAME, "FamilyName-XCnXBlk"),
+            (NameId::TYPOGRAPHIC_FAMILY_NAME, "Family Name XCond"),
+            (NameId::TYPOGRAPHIC_SUBFAMILY_NAME, "XBlack"),
+        ]);
+        let testable = build_testable(name_ids);
+        let font = font_from_name_ids(&testable);
+        let ex = extract(&font);
+        assert_eq!(ex.style.weight, "ExtraBlack");
+        assert_eq!(ex.style.width, "ExtraCondensed");
     }
 
     #[test]
