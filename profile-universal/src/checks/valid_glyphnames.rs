@@ -8,19 +8,20 @@ use skrifa::{
     GlyphId as SkrifaGlyphId, MetadataProvider,
 };
 
+#[derive(Debug, PartialEq)]
 enum NameValidity {
     OK,
     Naughty,
     Long,
 }
-fn test_glyph_name(s: &str) -> NameValidity {
+fn test_glyph_name(s: &str, allowed_special_chars: Vec<char>) -> NameValidity {
     if s.starts_with(".null") || s.starts_with(".notdef") || s.starts_with(".ttfautohint") {
         return NameValidity::OK;
     }
     // A valid name starts with a-zA-Z_, and contains up to 63 characters from a-zA-Z0-9._.
     if !(s.starts_with(|c: char| c.is_ascii_alphabetic() || c == '_')
         && s.chars()
-            .all(|c| c.is_ascii_alphanumeric() || c == '.' || c == '_')
+            .all(|c| c.is_ascii_alphanumeric() || allowed_special_chars.contains(&c))
         && s.len() < 63)
     {
         return NameValidity::Naughty;
@@ -56,7 +57,14 @@ fn test_glyph_name(s: &str) -> NameValidity {
     proposal = "https://github.com/fonttools/fontbakery/issues/2832",
     fix_source = sourcefix_valid_glyphnames,
 )]
-fn valid_glyphnames(f: &Testable, _context: &Context) -> CheckFnResult {
+fn valid_glyphnames(f: &Testable, context: &Context) -> CheckFnResult {
+    let config = context.local_config("valid_glyphnames");
+
+    let default_special_chars: Vec<char> = vec!['.', '_']; // default space
+    let allowed_special_chars = config
+        .get("ALLOWED_SPECIAL_CHARS")
+        .map_or(default_special_chars, convert_json_to_vec_chars);
+
     let font = testfont!(f);
     let mut problems: Vec<Status> = vec![];
     let post = font.font().post()?;
@@ -75,7 +83,7 @@ fn valid_glyphnames(f: &Testable, _context: &Context) -> CheckFnResult {
             if allnames.contains(&name) {
                 duplicates.insert(name.clone());
             }
-            match test_glyph_name(&name) {
+            match test_glyph_name(&name, allowed_special_chars.clone()) {
                 NameValidity::OK => {}
                 NameValidity::Naughty => {
                     badnames.insert(name.clone());
@@ -238,15 +246,83 @@ fn sourcefix_valid_glyphnames(
     }
 }
 
+fn convert_json_to_vec_chars(json_value: &serde_json::Value) -> Vec<char> {
+    if let Some(array) = json_value.as_array() {
+        array
+            .iter()
+            .filter_map(|v| v.as_str())
+            .flat_map(|s| s.chars())
+            .collect()
+    } else {
+        Vec::new()
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use super::valid_glyphnames;
-    use fontspector_checkapi::codetesting::{assert_pass, assert_skip, run_check, test_able};
+    use super::{test_glyph_name, valid_glyphnames, NameValidity};
+    use fontspector_checkapi::{
+        codetesting::{
+            assert_pass, assert_results_contain, assert_skip, run_check, run_check_with_config,
+            test_able,
+        },
+        FileTypeConvert, StatusCode, TestableType,
+    };
+    use serde_json::json;
+    use std::collections::HashMap;
 
     #[test]
     fn test_valid_glyphnames_pass() {
         let testable = test_able("nunito/Nunito-Regular.ttf");
         let results = run_check(valid_glyphnames, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_valid_glyphnames_fail() {
+        let mut testable = test_able("nunito/Nunito-Regular.ttf");
+
+        let f = fontspector_checkapi::prelude::TTF
+            .from_testable(&testable)
+            .unwrap();
+
+        let glyph_names: Vec<String> = [".notdef".to_string(), "invalid-name".to_string()].to_vec();
+
+        let new_post =
+            write_fonts::tables::post::Post::new_v2(glyph_names.iter().map(String::as_str));
+
+        testable.set(f.rebuild_with_new_table(&new_post).unwrap());
+
+        let results = run_check(valid_glyphnames, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("found-invalid-names".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_valid_glyphnames_config() {
+        let mut testable = test_able("nunito/Nunito-Regular.ttf");
+
+        let f = fontspector_checkapi::prelude::TTF
+            .from_testable(&testable)
+            .unwrap();
+
+        let glyph_names: Vec<String> = [".notdef".to_string(), "invalid-name".to_string()].to_vec();
+
+        let new_post =
+            write_fonts::tables::post::Post::new_v2(glyph_names.iter().map(String::as_str));
+
+        testable.set(f.rebuild_with_new_table(&new_post).unwrap());
+
+        let config = HashMap::from([(
+            "valid_glyphnames".to_string(),
+            json!({"ALLOWED_SPECIAL_CHARS": [".", "_", "-"]}),
+        )]);
+        let results =
+            run_check_with_config(valid_glyphnames, TestableType::Single(&testable), config);
+
         assert_pass(&results);
     }
 
@@ -263,5 +339,82 @@ mod tests {
         let testable = test_able("source-sans-pro/VAR/SourceSansVariable-Roman.otf");
         let results = run_check(valid_glyphnames, testable);
         assert_skip(&results);
+    }
+
+    #[test]
+    fn test_various_glyphnames_adobe() {
+        // According to ADOBE: https://github.com/adobe-type-tools/agl-specification
+        // must not start with a digit or period, and must be entirely comprised of characters from the following limited set:
+
+        // A through Z
+        // a through z
+        // 0 through 9
+        // . (period)
+        // _ (underscore)
+        // The only exception to these requirements is the special ‘.notdef’ glyph.
+
+        // For example, ‘twocents’, ‘a1’, and ‘_’ are valid glyph names, but ‘2cents’ and ‘.twocents’ are not.
+        let allowed_special_chars = vec!['.', '_'];
+        let tests = vec![
+            ("twocents", NameValidity::OK),
+            ("a1", NameValidity::OK),
+            ("_", NameValidity::OK),
+            ("2cents", NameValidity::Naughty),
+            (".twocents", NameValidity::Naughty),
+            ("space", NameValidity::OK),
+            // Valid glyph names according to Adobe
+            ("a.sc", NameValidity::OK),
+            ("T.swash", NameValidity::OK),
+            ("T.begin", NameValidity::OK),
+            ("T.end", NameValidity::OK),
+            ("T.end1", NameValidity::OK),
+            ("T.alt01", NameValidity::OK),
+            ("T.alt02", NameValidity::OK),
+            ("one.superior", NameValidity::OK),
+            ("one.inferior", NameValidity::OK),
+            ("one.numerator", NameValidity::OK),
+            ("one.denominator", NameValidity::OK),
+            ("one.fitted", NameValidity::OK),
+            ("one.tab", NameValidity::OK),
+            ("one.oldstyle", NameValidity::OK),
+            ("one.taboldstyle", NameValidity::OK),
+            // Other examples
+            (
+                "some_very_long_name_which_almost_exceeds_the_limit", // 50 characters
+                NameValidity::Long,
+            ),
+            (
+                "some_very_long_name_which_exceeds_the_limit_of_sixty_three_characters", // 69 characters
+                NameValidity::Naughty,
+            ),
+            ("", NameValidity::Naughty),
+            (" ", NameValidity::Naughty),
+            ("zero.tnum", NameValidity::OK),
+            (".notdef", NameValidity::OK),
+            ("u0041", NameValidity::OK),
+            ("u0041_0042", NameValidity::OK),
+        ];
+        for (name, expected_result) in tests {
+            let result = test_glyph_name(&name, allowed_special_chars.clone());
+            assert_eq!(result, expected_result);
+        }
+    }
+
+    #[test]
+    fn test_various_glyphnames_with_more_characters() {
+        // Related to: https://github.com/Monotype/fontspector/issues/14
+        let allowed_special_chars = vec!['.', '_', '-'];
+        let tests = vec![
+            // Valid glyph names according to Olli
+            ("ie-cy", NameValidity::OK),
+            ("Schwa-cy", NameValidity::OK),
+            ("De-cy.loclBGR", NameValidity::OK),
+            ("one-thai", NameValidity::OK),
+            ("one-ar", NameValidity::OK),
+        ];
+        for (name, expected_result) in tests {
+            let result = test_glyph_name(&name, allowed_special_chars.clone());
+            assert_eq!(result, expected_result);
+        }
     }
 }

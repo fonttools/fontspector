@@ -3,7 +3,7 @@ mod checks;
 use serde_json::json;
 use std::collections::HashMap;
 
-use fontspector_checkapi::{FontspectorError, Override, ProfileBuilder, Registry, StatusCode};
+use fontspector_checkapi::{FontspectorError, ProfileBuilder, Registry};
 use profile_fontwerk::checks as fw_checks;
 use profile_googlefonts::checks as gf_checks;
 
@@ -23,6 +23,12 @@ impl fontspector_checkapi::ProfileProvider for Monotype {
             .add_and_register_check(gf_checks::googlefonts::family::tnum_horizontal_metrics)
             .add_and_register_check(gf_checks::googlefonts::family::equal_codepoint_coverage)
             .include_profile("opentype")
+            .with_configuration_defaults(
+                "opentype/family/unique_names",
+                HashMap::from([
+                    ("unique_name_ids".to_string(), json!([3, 4, 6, 25])),
+                ]),
+            )
             .add_section("Monotype Checks")
             .add_and_register_check(checks::monotype::fstype)
             .with_configuration_defaults(
@@ -47,9 +53,12 @@ impl fontspector_checkapi::ProfileProvider for Monotype {
                     ("vendor_id".to_string(), json!("MONO"))
                 ]),
             )
-            .with_overrides("valid_glyphnames", vec![
-                Override::new("found-invalid-names", StatusCode::Warn, "")
-            ])
+            .with_configuration_defaults(
+                "valid_glyphnames",
+                HashMap::from([
+                    ("ALLOWED_SPECIAL_CHARS".to_string(), json!([".", "_", "-"]))
+                ]),
+            )
             .add_section("Selected Name Table Checks") 
             .add_and_register_check(fw_checks::fontwerk::name_entries)
             .add_and_register_check(fw_checks::fontwerk::name_consistency)
