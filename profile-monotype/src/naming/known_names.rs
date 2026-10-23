@@ -327,53 +327,53 @@ pub static NONSENSE: LazyLock<HashSet<&'static str>> = LazyLock::new(|| {
 
 include!("style_maps_raw.inc");
 
-fn build_style_lookup(
+/// First canonical key match in table iteration order (matches Python `_lookup_style`).
+fn lookup_style(
+    name: &str,
     raw: &'static [(&'static str, &'static [&'static str])],
-) -> HashMap<&'static str, &'static str> {
-    let mut map = HashMap::new();
+) -> Option<&'static str> {
     for (key, aliases) in raw {
-        map.insert(*key, *key);
-        for alias in *aliases {
-            map.insert(*alias, *key);
+        if name == *key || aliases.contains(&name) {
+            return Some(*key);
         }
     }
-    map
+    None
 }
-
-fn lookup_style(name: &str, table: &HashMap<&'static str, &'static str>) -> Option<&'static str> {
-    table.get(name).copied()
-}
-
-static WEIGHTS: LazyLock<HashMap<&'static str, &'static str>> =
-    LazyLock::new(|| build_style_lookup(WEIGHTS_RAW));
-static WIDTHS: LazyLock<HashMap<&'static str, &'static str>> =
-    LazyLock::new(|| build_style_lookup(WIDTHS_RAW));
-static SLOPES: LazyLock<HashMap<&'static str, &'static str>> =
-    LazyLock::new(|| build_style_lookup(SLOPES_RAW));
-static DESIGNS: LazyLock<HashMap<&'static str, &'static str>> =
-    LazyLock::new(|| build_style_lookup(DESIGNS_RAW));
-static MODIFIERS: LazyLock<HashMap<&'static str, &'static str>> =
-    LazyLock::new(|| build_style_lookup(MODIFIERS_RAW));
 
 pub fn is_weight(name: &str) -> Option<&'static str> {
-    lookup_style(name, &WEIGHTS)
+    lookup_style(name, WEIGHTS_RAW)
 }
 
 pub fn is_width(name: &str) -> Option<&'static str> {
-    lookup_style(name, &WIDTHS)
+    lookup_style(name, WIDTHS_RAW)
 }
 
 pub fn is_slope(name: &str) -> Option<&'static str> {
-    lookup_style(name, &SLOPES)
+    lookup_style(name, SLOPES_RAW)
 }
 
 pub fn is_design(name: &str) -> Option<&'static str> {
-    lookup_style(name, &DESIGNS)
+    lookup_style(name, DESIGNS_RAW)
 }
 
 pub fn is_modifier(name: &str) -> Option<&'static str> {
     if name.is_empty() {
         return None;
     }
-    lookup_style(name, &MODIFIERS)
+    lookup_style(name, MODIFIERS_RAW)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn width_alias_ex_resolves_to_expanded_not_extended() {
+        assert_eq!(is_width("Ex"), Some("Expanded"));
+    }
+
+    #[test]
+    fn weight_alias_bk_resolves_to_book_not_black() {
+        assert_eq!(is_weight("Bk"), Some("Book"));
+    }
 }

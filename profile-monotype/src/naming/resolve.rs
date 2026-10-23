@@ -59,6 +59,15 @@ fn append_style_field(current: &mut Option<String>, new_value: String) {
     }
 }
 
+fn strip_redundant_regular_from_weight(weight: &mut Option<String>) {
+    if let Some(w) = weight {
+        if w.contains(' ') {
+            let filtered: Vec<&str> = w.split(' ').filter(|part| *part != "Regular").collect();
+            *w = filtered.join(" ");
+        }
+    }
+}
+
 fn set_weight(weight: &mut Option<String>, new_weight: String, found_weight: &str) {
     if weight.is_none() {
         *weight = Some(new_weight);
@@ -228,13 +237,8 @@ pub fn resolve_names(
                 extra = name.clone();
                 last_name = LastName::Extra;
             }
-        }
-    }
 
-    if let Some(ref mut w) = weight {
-        if w.contains(' ') {
-            let filtered: Vec<&str> = w.split(' ').filter(|part| *part != "Regular").collect();
-            *w = filtered.join(" ");
+            strip_redundant_regular_from_weight(&mut weight);
         }
     }
 
@@ -375,6 +379,35 @@ mod tests {
         assert_eq!(style.slope, None);
         assert_eq!(style.design, None);
         assert_eq!(style.extra, "75");
+    }
+
+    #[test]
+    fn comp_exp_width_uses_expanded_not_extended() {
+        let name_parts = parts(&["Prensa", "Comp", "Exp"]);
+        let (family, style) = resolve_names(&name_parts, true, true);
+        assert_eq!(family, "Prensa");
+        assert_eq!(style.width.as_deref(), Some("Compressed Expanded"));
+    }
+
+    #[test]
+    fn bold_regular_keeps_bold_without_final_regular_strip() {
+        let name_parts = parts(&["Prensa", "Bold", "Regular"]);
+        let (family, style) = resolve_names(&name_parts, true, true);
+        assert_eq!(family, "Prensa");
+        assert_eq!(style.weight.as_deref(), Some("Bold"));
+        assert_eq!(style.extra, "");
+    }
+
+    #[test]
+    fn multi_word_weight_regular_stripped_only_when_extra_branch_runs() {
+        let with_extra = parts(&["Prensa", "Normal", "Bold", "Regular", "opt"]);
+        let (_, style) = resolve_names(&with_extra, true, true);
+        assert_eq!(style.weight.as_deref(), Some("Normal Bold"));
+        assert_eq!(style.extra, "opt");
+
+        let without_extra = parts(&["Prensa", "Normal", "Bold", "Regular"]);
+        let (_, style) = resolve_names(&without_extra, true, true);
+        assert_eq!(style.weight.as_deref(), Some("Normal Bold"));
     }
 
     #[test]
