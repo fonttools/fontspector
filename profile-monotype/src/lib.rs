@@ -6,6 +6,7 @@ use std::collections::HashMap;
 use fontspector_checkapi::{FontspectorError, ProfileBuilder, Registry};
 use profile_fontwerk::checks as fw_checks;
 use profile_googlefonts::checks as gf_checks;
+use profile_microsoft::checks as ms_checks;
 
 pub struct Monotype;
 impl fontspector_checkapi::ProfileProvider for Monotype {
@@ -22,6 +23,8 @@ impl fontspector_checkapi::ProfileProvider for Monotype {
             .add_section("Selected Family Checks")
             .add_and_register_check(gf_checks::googlefonts::family::tnum_horizontal_metrics)
             .add_and_register_check(gf_checks::googlefonts::family::equal_codepoint_coverage)
+            .add_section("Selected Other Checks")
+            .add_and_register_check(ms_checks::microsoft::vertical_metrics)
             .include_profile("opentype")
             .with_configuration_defaults(
                 "opentype/family/unique_names",
@@ -40,6 +43,7 @@ impl fontspector_checkapi::ProfileProvider for Monotype {
             .add_and_register_check(checks::monotype::style_in_family_name)
             // TODO: implement more Monotype-specific checks
             .add_and_register_check(checks::monotype::widthclass)
+            .add_and_register_check(checks::monotype::vertical_metrics_sane)
             .include_profile("universal")
             .with_configuration_defaults(
                 "universal/required_name_ids",
