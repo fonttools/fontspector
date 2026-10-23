@@ -3,6 +3,7 @@
 **Date:** 2026-10-23  
 **Repo:** `fontspector.monotype`  
 **Branch:** `feat/monotype-font-naming-extractor`  
+**Spec path:** `profile-monotype/superpowers/specs/` (repo root `docs/` is gitignored)  
 **Source of truth (behavior):** `fonttools-fonttoolkit` — `Extractor` / `get_family_naming_info` / `nc_extractor` / `nc_processor` / `nc_known_names`
 
 ## Goal
