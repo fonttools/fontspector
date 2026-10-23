@@ -24,11 +24,7 @@ fn camel_to_tuple(
     is_font_name: bool,
 ) -> Vec<String> {
     if !normalized_names {
-        return camel
-            .split(' ')
-            .filter(|s| !s.is_empty())
-            .map(String::from)
-            .collect();
+        return camel.split(' ').map(String::from).collect();
     }
 
     let mut camel = camel.to_string();
@@ -64,16 +60,38 @@ fn camel_to_tuple(
             .next()
             .is_some_and(|c| c.is_lowercase())
         {
-            let mut s = name.to_string();
-            if let Some(first) = s.get_mut(0..1) {
-                first.make_ascii_uppercase();
-            }
-            names.push(s);
+            names.push(capitalize_like_python(name));
         } else {
             names.push(name.to_string());
         }
     }
     names
+}
+
+/// Matches Python ``str.capitalize()``: first character uppercased, remainder lowercased.
+fn capitalize_like_python(s: &str) -> String {
+    let mut chars = s.chars();
+    match chars.next() {
+        None => String::new(),
+        Some(first) => {
+            let mut out = String::new();
+            out.extend(first.to_uppercase());
+            for c in chars {
+                out.extend(c.to_lowercase());
+            }
+            out
+        }
+    }
+}
+
+fn style_for_tokenization(style: Option<&str>) -> Option<&str> {
+    style.and_then(|s| {
+        if s.is_empty() || s.chars().all(char::is_whitespace) {
+            None
+        } else {
+            Some(s)
+        }
+    })
 }
 
 fn split_fontname_tuple(fontname_tuple: &[String]) -> (Vec<String>, Vec<String>) {
@@ -139,7 +157,7 @@ pub fn get_name_tuples(
 ) -> (String, String, Vec<String>, Vec<String>) {
     let mut names_tuple = camel_to_tuple(name, normalized_names, is_font_name);
 
-    let style_tuple = if let Some(style_str) = style {
+    let style_tuple = if let Some(style_str) = style_for_tokenization(style) {
         camel_to_tuple(style_str, normalized_names, is_font_name)
     } else {
         Vec::new()
@@ -161,7 +179,7 @@ pub fn get_name_tuples(
 
 #[cfg(test)]
 mod tests {
-    use super::get_name_tuples;
+    use super::{camel_to_tuple, capitalize_like_python, get_name_tuples};
 
     #[test]
     fn present_lt_std_light_italic() {
@@ -171,6 +189,26 @@ mod tests {
         assert_eq!(pv, "Std");
         assert_eq!(family, vec!["Present".to_string()]);
         assert_eq!(style, vec!["Light".to_string(), "Italic".to_string()]);
+    }
+
+    #[test]
+    fn unnormalized_split_keeps_empty_tokens() {
+        assert_eq!(
+            camel_to_tuple("a  b", false, false),
+            vec![String::from("a"), String::from(""), String::from("b")]
+        );
+    }
+
+    #[test]
+    fn capitalize_lowercases_remainder_like_python() {
+        assert_eq!(capitalize_like_python("aLIC"), "Alic");
+        assert_eq!(capitalize_like_python("light"), "Light");
+    }
+
+    #[test]
+    fn whitespace_only_style_skipped() {
+        let (_, _, _, style) = get_name_tuples("Present", Some("   "), true, false);
+        assert!(style.is_empty());
     }
 
     #[test]
