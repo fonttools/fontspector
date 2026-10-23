@@ -65,6 +65,7 @@ impl fontspector_checkapi::ProfileProvider for OpenType {
             .add_and_register_check(checks::opentype::vendor_id)
             .add_and_register_check(checks::opentype::weight_class_fvar)
             .add_and_register_check(checks::opentype::xavgcharwidth)
+            .add_and_register_check(checks::opentype::hmtx_cff_num_glyphs)
             .build("opentype", cr)
     }
 }
