@@ -61,8 +61,8 @@ fn family_and_style_max_length(t: &Testable, context: &Context) -> CheckFnResult
 
     let mut problems = vec![];
     for name in f.get_name_entry_strings(NameId::FULL_NAME) {
-        if strip_ribbi(&name).len() > full_name_length {
-            let chars_too_long_count = strip_ribbi(&name).len() - full_name_length;
+        if strip_ribbi(&name).chars().count() > full_name_length {
+            let chars_too_long_count = strip_ribbi(&name).chars().count() - full_name_length;
             let chars_too_long = chars_too_long_count.to_string();
             let message = format!(
                 "Name ID 4 'Full Font Name' exceeds {} characters ({} characters too long). This has been found to cause problems with the dropdown menu in old versions of Microsoft Word as well as shaping issues for some accented letters in Microsoft Word on Windows 10 and 11.",
@@ -73,7 +73,7 @@ fn family_and_style_max_length(t: &Testable, context: &Context) -> CheckFnResult
             status.add_metadata(Metadata::TableProblem {
                 table_tag: "name".to_string(),
                 field_name: Some("nameID 4".to_string()),
-                actual: Some(json!(strip_ribbi(&name).len())),
+                actual: Some(json!(strip_ribbi(&name).chars().count())),
                 expected: Some(json!(full_name_length)),
                 message: message.clone(),
             });
@@ -81,8 +81,8 @@ fn family_and_style_max_length(t: &Testable, context: &Context) -> CheckFnResult
         }
     }
     for name in f.get_name_entry_strings(NameId::POSTSCRIPT_NAME) {
-        if name.len() > postscript_name_length {
-            let chars_too_long_count = name.len() - postscript_name_length;
+        if name.chars().count() > postscript_name_length {
+            let chars_too_long_count = name.chars().count() - postscript_name_length;
             let chars_too_long = chars_too_long_count.to_string();
             let message = format!(
                 "Name ID 6 'PostScript Name' exceeds {} characters ({} characters too long). This has been found to cause problems with PostScript printers, especially on Mac platforms.",
@@ -93,7 +93,7 @@ fn family_and_style_max_length(t: &Testable, context: &Context) -> CheckFnResult
             status.add_metadata(Metadata::TableProblem {
                 table_tag: "name".to_string(),
                 field_name: Some("nameID 6".to_string()),
-                actual: Some(json!(name.len())),
+                actual: Some(json!(name.chars().count())),
                 expected: Some(json!(postscript_name_length)),
                 message: message.clone(),
             });
@@ -113,8 +113,9 @@ fn family_and_style_max_length(t: &Testable, context: &Context) -> CheckFnResult
                     // Use typo if present, nameid=1 otherwise
                     let family_name = typo_family_names.get(key).unwrap_or(string);
                     let full_instance_name = format!("{family_name} {instance_name}");
-                    if full_instance_name.len() > instance_name_length {
-                        let chars_too_long_count = full_instance_name.len() - instance_name_length;
+                    if full_instance_name.chars().count() > instance_name_length {
+                        let chars_too_long_count =
+                            full_instance_name.chars().count() - instance_name_length;
                         let chars_too_long = chars_too_long_count.to_string();
                         let message = format!(
                             "Variable font instance name '{}' formed by space-separated concatenation of font family name (nameID {}) and instance subfamily nameID {} exceeds {} characterss ({} characters too long).\n\nThis has been found to cause shaping issues for some accented letters in Microsoft Word on Windows 10 and 11.",
@@ -128,7 +129,7 @@ fn family_and_style_max_length(t: &Testable, context: &Context) -> CheckFnResult
                         status.add_metadata(Metadata::TableProblem {
                             table_tag: "fvar".to_string(),
                             field_name: Some("instance name".to_string()),
-                            actual: Some(json!(full_instance_name.len())),
+                            actual: Some(json!(full_instance_name.chars().count())),
                             expected: Some(json!(instance_name_length)),
                             message: message.clone(),
                         });
