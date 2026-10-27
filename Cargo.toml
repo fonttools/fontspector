@@ -61,7 +61,19 @@ zip = { version = "8", features = [
 ], default-features = false } # CLI and web
 
 # Source fixes
-babelfont = "0.2.2"
+# vfb is left out: it pulls in vfbreader (GPL-3.0-or-later OR LGPL-3.0-or-later),
+# and fontspector never loads .vfb sources.
+babelfont = { version = "0.2.2", default-features = false, features = [
+    "glyphs",
+    "ufo",
+    "fontlab",
+    "fontforge",
+    "fontra",
+    "fontir",
+    "types",
+    "robocjk",
+    "ttf",
+] }
 
 [workspace.lints.clippy]
 unwrap_used = "deny"
