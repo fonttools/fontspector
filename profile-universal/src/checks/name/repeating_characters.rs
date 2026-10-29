@@ -242,6 +242,43 @@ mod tests {
     }
 
     #[test]
+    fn test_repeating_characters_fail_name_id_above_255() {
+        let mut builder = FontBuilder::new();
+        builder.add_table(&Maxp::default()).unwrap();
+        let mut name_table = Name::default();
+        let mut new_records = Vec::new();
+
+        // add example record for eg.:
+        // stylistic set name or fvar instance name
+        // (any name ID above 255)
+        let name_rec_256 = NameRecord::new(
+            3,
+            1,
+            1033,
+            NameId::new(256),
+            ("Some  Familyname").to_string().into(),
+        );
+        new_records.push(name_rec_256);
+
+        new_records.sort();
+        name_table.name_record = new_records;
+        builder.add_table(&name_table).unwrap();
+
+        let testable = Testable::new_with_contents("demo.ttf", builder.build().clone());
+
+        let results = run_check(repeating_characters, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("repeated-characters-fail".to_string()),
+        );
+        assert_messages_contain(
+            &results,
+            "Name table record 3/1/1033/NameId 256 has repeated characters ` `",
+        );
+    }
+
+    #[test]
     fn test_repeating_characters_fail_with_config() {
         let mut builder = FontBuilder::new();
         builder.add_table(&Maxp::default()).unwrap();
