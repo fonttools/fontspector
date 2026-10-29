@@ -58,24 +58,18 @@ fn vertical_metrics_sane(t: &Testable, _context: &Context) -> CheckFnResult {
     }
 
     // Is OS/2.usWinAscent > 0?
-    if metrics.os2_win_ascent <= 0 {
+    if metrics.os2_win_ascent == 0 {
         problems.push(Status::fail(
             "bad-os2-win-ascent",
-            &format!(
-                "OS/2.usWinAscent is {}; it should be strictly positive",
-                metrics.os2_win_ascent
-            ),
+            "OS/2.usWinAscent is 0; it should be strictly positive",
         ));
     }
 
     // Is OS/2.usWinDescent > 0?
-    if metrics.os2_win_descent <= 0 {
+    if metrics.os2_win_descent == 0 {
         problems.push(Status::fail(
             "bad-os2-win-descent",
-            &format!(
-                "OS/2.usWinDescent is {}; it should be strictly positive",
-                metrics.os2_win_descent
-            ),
+            "OS/2.usWinDescent is 0; it should be strictly positive",
         ));
     }
 
