@@ -14,7 +14,7 @@ use skrifa::raw::TableProvider;
         WARN: [-]
         PASS: [a-z, A-Z, 0-9]
 
-        name_ids_to_be_checked: [1, 2, 3, 4, 6, 16, 17, 21, 22, 25]
+        config: name_ids_to_be_checked or name_ids_to_be_skipped
     ",
     proposal = "https://github.com/Monotype/fontspector/issues/11",
     title = "Are there duplicate characters in the NAME table?"
@@ -22,11 +22,27 @@ use skrifa::raw::TableProvider;
 fn repeating_characters(t: &Testable, context: &Context) -> CheckFnResult {
     let config = context.local_config("name/repeating_characters");
 
-    let default_name_ids_to_be_checked: Vec<u16> = vec![1, 2, 3, 4, 6, 16, 17, 21, 22, 25];
+    let mut default_name_ids_to_be_checked: Vec<u16> = vec![];
+    // get all name IDs of a font
+    if let Ok(name_table) = testfont!(t).font().name() {
+        for name_record in name_table.name_record().iter() {
+            let name_id = name_record.name_id.get().to_u16();
+            default_name_ids_to_be_checked.push(name_id);
+        }
+    }
     let name_ids_to_be_checked = config
         .get("name_ids_to_be_checked")
         .map_or(default_name_ids_to_be_checked, convert_json_to_vec_numbers);
     let check_name_ids = name_ids_to_be_checked
+        .iter()
+        .map(|v| NameId::new(*v))
+        .collect::<Vec<_>>();
+
+    let default_name_ids_to_be_skipped: Vec<u16> = vec![];
+    let name_ids_to_be_skipped = config
+        .get("name_ids_to_be_skipped")
+        .map_or(default_name_ids_to_be_skipped, convert_json_to_vec_numbers);
+    let skip_name_ids = name_ids_to_be_skipped
         .iter()
         .map(|v| NameId::new(*v))
         .collect::<Vec<_>>();
@@ -52,6 +68,10 @@ fn repeating_characters(t: &Testable, context: &Context) -> CheckFnResult {
 
     if let Ok(name_table) = testfont!(t).font().name() {
         for name_record in name_table.name_record().iter() {
+            if skip_name_ids.contains(&name_record.name_id.get()) {
+                // Skipping name IDs
+                continue;
+            }
             if !check_name_ids.contains(&name_record.name_id.get()) {
                 // Skipping name record with name_id not in the list of IDs to be checked.
                 // Often name IDs containing URLs have repeated characters eg. www
@@ -172,8 +192,31 @@ mod tests {
     #[test]
     fn test_repeating_characters_pass() {
         let testable = test_able("montserrat/Montserrat-Regular.ttf");
-        let results = run_check(repeating_characters, testable);
+        let config = HashMap::from([(
+            "name/repeating_characters".to_string(),
+            json!({"name_ids_to_be_skipped": [10, 11, 12, 13, 14]}),
+        )]);
+        let results = run_check_with_config(
+            repeating_characters,
+            TestableType::Single(&testable),
+            config,
+        );
         assert_pass(&results);
+    }
+
+    #[test]
+    fn test_repeating_characters_info() {
+        let testable = test_able("montserrat/Montserrat-Regular.ttf");
+        let results = run_check(repeating_characters, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Info,
+            Some("repeated-characters-info".to_string()),
+        );
+        assert_messages_contain(
+            &results,
+            "Name table record 1/0/0/VENDOR_URL has repeated characters `/`",
+        );
     }
 
     #[test]
