@@ -85,7 +85,10 @@ fn valid_default_instance_nameids(t: &Testable, _context: &Context) -> CheckFnRe
     }
 
     if !default_instance_found {
-        problems.push(Status::fail("missing-default-instance", "The font does not have a default instance."));
+        problems.push(Status::fail(
+            "missing-default-instance",
+            "The font does not have a default instance.",
+        ));
     }
 
     return_result(problems)
@@ -96,9 +99,11 @@ fn valid_default_instance_nameids(t: &Testable, _context: &Context) -> CheckFnRe
 mod tests {
     use super::*;
     use fontspector_checkapi::{
-        StatusCode, codetesting::{
-            add_table, assert_messages_contain, assert_pass, assert_results_contain, run_check, test_able,
+        codetesting::{
+            add_table, assert_messages_contain, assert_pass, assert_results_contain, run_check,
+            test_able,
         },
+        StatusCode,
     };
 
     #[test]
@@ -126,9 +131,6 @@ mod tests {
             StatusCode::Fail,
             Some("missing-default-instance".to_string()),
         );
-        assert_messages_contain(
-            &results,
-            "The font does not have a default instance.",
-        );
+        assert_messages_contain(&results, "The font does not have a default instance.");
     }
 }
