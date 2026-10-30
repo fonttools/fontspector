@@ -55,7 +55,7 @@ fn registered_axis_tags(t: &Testable, _context: &Context) -> CheckFnResult {
             let name_id = axis.name_id();
             let axis_name = f.get_best_name(&[name_id]);
 
-            if axis_name.is_none() {
+            let Some(axis_name) = axis_name else {
                 problems.push(Status::fail(
                     "missing-registered-axis-name",
                     &format!(
@@ -64,8 +64,7 @@ fn registered_axis_tags(t: &Testable, _context: &Context) -> CheckFnResult {
                     ),
                 ));
                 continue;
-            }
-            let axis_name = axis_name.unwrap();
+            };
             if axis_name != *registered_name {
                 problems.push(Status::warn(
                     "invalid-registered-axis-name",
