@@ -15,6 +15,7 @@ members = [
     "profile-universal",
     "profile-testplugin",
     "profile-googlefonts",
+    "profile-silfonts",
     "fontspector-web",
     "fontspector-py",
 ]
