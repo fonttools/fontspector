@@ -45,6 +45,7 @@ impl fontspector_checkapi::ProfileProvider for Monotype {
             .add_and_register_check(checks::monotype::cmap_recordings_and_subtables)
             // TODO: implement more Monotype-specific checks
             .add_and_register_check(checks::monotype::widthclass)
+            .add_and_register_check(checks::monotype::weightclass)
             .include_profile("universal")
             .with_configuration_defaults(
                 "universal/required_name_ids",
