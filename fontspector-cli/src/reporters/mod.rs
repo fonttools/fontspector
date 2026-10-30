@@ -117,7 +117,11 @@ pub fn create_user_home_templates_directory(force: bool) -> PathBuf {
         let mut file = zip
             .by_index(i)
             .expect("Internal error: couldn't read from templates zip file");
-        let path = templates_dir.join(file.mangled_name());
+        #[allow(clippy::expect_used)] // Internal error
+        let path = templates_dir.join(
+            file.mangled_name()
+                .expect("Internal error: bundled templates zip is invalid"),
+        );
         if !path.exists() || force {
             // Create any intermediate subdirectories
             if let Some(parent) = path.parent() {
