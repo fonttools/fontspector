@@ -28,6 +28,7 @@ impl fontspector_checkapi::ProfileProvider for OpenType {
             .add_and_register_check(checks::opentype::fsselection)
             .add_and_register_check(checks::opentype::fsselection_wws)
             .add_and_register_check(checks::opentype::fvar::axis_ranges_correct)
+            .add_and_register_check(checks::opentype::fvar::registered_axis_tags)
             .add_and_register_check(checks::opentype::fvar::regular_coords_correct)
             .add_and_register_check(checks::opentype::fvar::valid_range)
             .add_and_register_check(checks::opentype::GDEF_mark_chars)
