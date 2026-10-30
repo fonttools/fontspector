@@ -1,0 +1,79 @@
+FONTLOG
+Awami Nastaliq font
+=================
+
+This file provides detailed information on the Awami Nastaliq font software.
+This information should be distributed along with the Awami Nastaliq font
+and any derivative works.
+
+Basic Font Information
+----------------------
+
+Awami Nastaliq is a Nastaliq-style Arabic script font supporting a wide variety of
+languages of Southwest Asia, including but not limited to Urdu. This font is aimed
+at minority language support. This makes it unique among Nastaliq fonts.
+
+Awami means "of the people", "of the common population" or "public".
+
+The Awami Nastaliq font does not provide complete coverage of all the characters
+defined in Unicode for Arabic script. Because the font style is specifically
+intended for languages using the Nastaliq style of southwest Asia, the character
+set for this font is aimed at those languages.
+
+This font makes use of state-of-the-art font technologies to support complex
+typographic issues. Font smarts have been implemented using OpenType.
+
+Two font are included in this release:
+
+* Awami OT TechPre MinKern Regular
+* Awami OT TechPre AutoKern Regular
+
+For detailed documentation see the contents of the 'documentation-techpre' folder.
+
+Awami is a of SIL Global.
+
+## ChangeLog
+---------
+(This should list both major and minor changes, most recent first.)
+
+### 2026 Apr 29 (WSTech team) Awami OT TechPre MinKern and Awami OT TechPre AutoKern Version 0.500 (technical preview)
+- Initial version of OpenType font (based on Awami Nastaliq version 3.300)
+
+Information for Contributors
+----------------------------
+We welcome contributions to this font project, such as new glyphs, enhanced
+smart font code, or bug fixes. The best way to begin the process is to file
+an issue in the Github project (https://github.com/silnrsi/font-awami)
+or respond to an existing issue and express your interest. Then we can begin
+to correspond with you regarding what all might be required and discuss how
+to best submit your contributions.
+
+To enable us to accept contributions in a way that honors your contribution
+and respects your copyright while preserving long-term flexibility for open
+source licensing, you would also need to agree to the SIL International
+Contributor License Agreement for Font Software (v1.0) prior to sending us
+your contribution. To read more about this requirement and find out how to
+submit the required form, please visit the CLA information page
+(https://software.sil.org/fontcla).
+
+Acknowledgements
+----------------
+(Here is where contributors can be acknowledged. If you make modifications
+be sure to add your name (N), email (E), web-address (W) and description
+(D). This list is sorted by last name in alphabetical order.)
+
+N: Sharon Correll
+E: fonts@sil.org
+W: https://software.sil.org/wstech/
+D: Script engineering, font design, and build support
+
+N: Peter Martin
+E: fonts@sil.org
+W: https://software.sil.org/wstech/
+D: Lead designer
+
+The Awami Nastaliq project is maintained by SIL Global.
+
+For more information please visit the Awami Nastaliq font page on
+SIL Global's website:
+https://software.sil.org/awami/
