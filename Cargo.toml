@@ -56,7 +56,7 @@ kurbo = "0.13"                                     # For italic angle check
 
 regex = "1.10.6"
 
-zip = { version = "8", features = [
+zip = { version = "9", features = [
     "deflate",
 ], default-features = false } # CLI and web
 
