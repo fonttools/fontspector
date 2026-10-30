@@ -26,6 +26,7 @@ impl fontspector_checkapi::ProfileProvider for Monotype {
             .add_section("Selected Other Checks")
             .add_and_register_check(ms_checks::microsoft::office_ribz_req)
             .add_and_register_check(ms_checks::microsoft::STAT_table_eliding_bit)
+            .add_and_register_check(ms_checks::microsoft::vertical_metrics)
             .include_profile("opentype")
             .with_configuration_defaults(
                 "opentype/family/unique_names",
@@ -46,6 +47,7 @@ impl fontspector_checkapi::ProfileProvider for Monotype {
             // TODO: implement more Monotype-specific checks
             .add_and_register_check(checks::monotype::widthclass)
             .add_and_register_check(checks::monotype::weightclass)
+            .add_and_register_check(checks::monotype::vertical_metrics_sane)
             .include_profile("universal")
             .with_configuration_defaults(
                 "universal/required_name_ids",
