@@ -8,3 +8,5 @@ mod widthclass;
 pub use widthclass::widthclass;
 mod cmap_recordings_and_subtables;
 pub use cmap_recordings_and_subtables::cmap_recordings_and_subtables;
+mod weightclass;
+pub use weightclass::weightclass;
