@@ -18,7 +18,7 @@ fontc = ["dep:fontc", "dep:glyphs2fontir", "dep:fontir"]
 
 [build-dependencies]
 walkdir = "2.5"
-zip = "8"
+zip = { workspace = true }
 quote = "1.0"
 shadow-rs = "2.0.0"
 
