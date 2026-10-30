@@ -156,6 +156,24 @@ mod tests {
     }
 
     #[test]
+    fn test_registered_axis_tags_invalid_unregistered_tag() {
+        let mut testable = test_able("shantell/ShantellSans[BNCE,INFM,SPAC,wght].ttf");
+        let f = fontspector_checkapi::prelude::TTF
+            .from_testable(&testable)
+            .unwrap();
+        let mut fvar_new: write_fonts::tables::fvar::Fvar =
+            f.font().fvar().unwrap().to_owned_table();
+        fvar_new.axis_instance_arrays.axes[1].axis_tag = Tag::new(b"infm");
+        testable.set(f.rebuild_with_new_table(&fvar_new).unwrap());
+        let result = run_check(registered_axis_tags, testable);
+        assert_results_contain(
+            &result,
+            StatusCode::Fail,
+            Some("invalid-unregistered-axis-tag".to_string()),
+        );
+    }
+
+    #[test]
     fn test_registered_axis_tags_invalid_name() {
         let mut testable = test_able("shantell/ShantellSans[BNCE,INFM,SPAC,wght].ttf");
         set_name_entry(
