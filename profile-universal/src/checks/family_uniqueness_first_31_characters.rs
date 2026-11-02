@@ -237,9 +237,7 @@ mod tests {
         assert_results_contain(&results, StatusCode::Pass, None);
     }
 
-    fn build_collection_from_name_maps(
-        fonts: &[(&str, &[(u16, &str)])],
-    ) -> TestableCollection {
+    fn build_collection_from_name_maps(fonts: &[(&str, &[(u16, &str)])]) -> TestableCollection {
         let mut testables: Vec<Testable> = vec![];
         for (file_name, records) in fonts {
             let mut builder = FontBuilder::new();
@@ -374,8 +372,7 @@ mod tests {
 
     #[test]
     fn test_missing_style_name_ids_skips() {
-        let collection =
-            build_collection_from_name_maps(&[("a.ttf", &[(16, "Family Only")])]);
+        let collection = build_collection_from_name_maps(&[("a.ttf", &[(16, "Family Only")])]);
         let results = run_check_with_config(
             family_uniqueness_first_31_characters,
             TestableType::Collection(&collection),
