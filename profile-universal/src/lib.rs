@@ -69,6 +69,7 @@ impl fontspector_checkapi::ProfileProvider for Universal {
             .add_and_register_check(checks::name::no_copyright_on_description)
             .add_and_register_check(checks::name::italic_names)
             .add_and_register_check(checks::name::trailing_spaces)
+            .add_and_register_check(checks::name::repeating_characters)
             .add_and_register_check(checks::nested_components)
             .add_and_register_check(checks::no_mac_entries)
             .add_and_register_check(checks::os2_metrics_match_hhea)
