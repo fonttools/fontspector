@@ -38,7 +38,10 @@ fn empty_records(t: &Testable, _context: &Context) -> CheckFnResult {
 mod tests {
     use super::*;
     use fontspector_checkapi::{
-        codetesting::{assert_pass, assert_results_contain, assert_messages_contain, run_check, set_name_entry, test_able},
+        codetesting::{
+            assert_messages_contain, assert_pass, assert_results_contain, run_check,
+            set_name_entry, test_able,
+        },
         StatusCode,
     };
     use skrifa::raw::types::NameId;
