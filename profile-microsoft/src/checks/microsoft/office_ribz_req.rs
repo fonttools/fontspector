@@ -1,4 +1,5 @@
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
+use skrifa::string::StringId;
 
 #[check(
     id = "microsoft/office_ribz_req",
@@ -18,7 +19,7 @@ use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
 )]
 fn office_ribz_req(t: &Testable, _context: &Context) -> CheckFnResult {
     let f = testfont!(t);
-    let Some(subfamily_name) = f.best_subfamilyname() else {
+    let Some(subfamily_name) = f.get_best_name(&[StringId::SUBFAMILY_NAME]) else {
         return Ok(Status::just_one_fail(
             "nameid2-missing",
             "Name ID 2 (sub family) missing.",
