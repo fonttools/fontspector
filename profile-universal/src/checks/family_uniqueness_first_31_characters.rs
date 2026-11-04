@@ -207,11 +207,63 @@ mod tests {
     }
 
     #[test]
-    fn test_family_uniqueness_first_31_characters_japanese() {
-        let testable_reg = test_able("japanese/FOTKinutaMinchoStdN-R.otf");
-        let testable_bold = test_able("japanese/FOTKinutaMinchoStdN-B.otf");
-        let testable_light = test_able("japanese/FOTKinutaMinchoStdN-L.otf");
-        let testables: Vec<Testable> = vec![testable_reg, testable_bold, testable_light];
+    fn test_family_uniqueness_skips_unsupported_name_entry_encodings() {
+        assert!(
+            !supported_name_entry_encoding(1, 1),
+            "test fixture relies on platform 1 / encoding 1 being unsupported"
+        );
+
+        let win_families = ["WinUniqueFamilyAlpha", "WinUniqueFamilyBeta"];
+        let subfamily_names = ["StyleA", "StyleB"];
+        let mut testables: Vec<Testable> = vec![];
+
+        for (index, subfamily) in subfamily_names.iter().enumerate() {
+            let mut builder = FontBuilder::new();
+            builder.add_table(&Maxp::default()).unwrap();
+            let mut name_table = Name::default();
+            let mut new_records = Vec::new();
+
+            new_records.push(NameRecord::new(
+                3,
+                1,
+                1033,
+                NameId::new(16),
+                win_families[index].to_string().into(),
+            ));
+            new_records.push(NameRecord::new(
+                3,
+                1,
+                1033,
+                NameId::new(17),
+                subfamily.to_string().into(),
+            ));
+
+            // Identical NID 16+17 on unsupported (1, 1) — would fail if not skipped.
+            new_records.push(NameRecord::new(
+                1,
+                1,
+                0,
+                NameId::new(16),
+                "SameNameSixteenForDupTest".into(),
+            ));
+            new_records.push(NameRecord::new(
+                1,
+                1,
+                0,
+                NameId::new(17),
+                "SameSubSeventeen".into(),
+            ));
+
+            new_records.sort();
+            name_table.name_record = new_records;
+            builder.add_table(&name_table).unwrap();
+            let file_name = format!("unsupported-encoding-skip-{index}.ttf");
+            testables.push(Testable::new_with_contents(
+                file_name,
+                builder.build().clone(),
+            ));
+        }
+
         let collection = TestableCollection {
             testables,
             directory: "".to_string(),
@@ -221,6 +273,6 @@ mod tests {
             TestableType::Collection(&collection),
             HashMap::new(),
         );
-        assert_results_contain(&results, StatusCode::Pass, None);
+        assert_pass(&results);
     }
 }
