@@ -101,8 +101,8 @@ mod tests {
 
     use super::*;
     use fontspector_checkapi::{FileTypeConvert, StatusCode, Testable, TestableType, TTF};
-    use skrifa::{raw::TableProvider, Tag};
     use skrifa::raw::types::NameId;
+    use skrifa::{raw::TableProvider, Tag};
     use write_fonts::{
         tables::{
             maxp::Maxp,
