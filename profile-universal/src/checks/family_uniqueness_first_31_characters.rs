@@ -244,14 +244,14 @@ mod tests {
                 1,
                 0,
                 NameId::new(16),
-                "SameNameSixteenForDupTest".into(),
+                "SameNameSixteenForDupTest".to_string().into(),
             ));
             new_records.push(NameRecord::new(
                 1,
                 1,
                 0,
                 NameId::new(17),
-                "SameSubSeventeen".into(),
+                "SameSubSeventeen".to_string().into(),
             ));
 
             new_records.sort();
