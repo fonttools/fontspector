@@ -11,7 +11,6 @@ use skrifa::{
     font::FontRef,
     outline::{DrawSettings, OutlinePen},
     prelude::Size,
-    raw::{tables::name::NameString, TopLevelTable},
     raw::{
         tables::{
             gdef::GlyphClassDef,
@@ -19,9 +18,10 @@ use skrifa::{
             gpos::{PairPos, PairPosFormat1, PairPosFormat2, PositionSubtables},
             head::MacStyle,
             layout::{Feature, FeatureRecord},
+            name::{Encoding, NameString},
             os2::SelectionFlags,
         },
-        ReadError, TableProvider,
+        ReadError, TableProvider, TopLevelTable,
     },
     setting::VariationSetting,
     string::StringId,
@@ -762,6 +762,15 @@ pub struct PlatformSelector {
     /// The language ID for the platform and encoding, eg. 1033 = en-US
     pub language_id: u16,
 }
+
+/// Returns true if fontations can decode strings for this platform/encoding pair.
+///
+/// This mirrors [`Encoding::new`](Encoding::new) in read-fonts: supported pairs
+/// include Unicode (platform 0), Mac Roman (1, 0), and Windows UTF-16 (3, 0/1/10).
+pub fn supported_name_entry_encoding(platform_id: u16, encoding_id: u16) -> bool {
+    !matches!(Encoding::new(platform_id, encoding_id), Encoding::Unknown)
+}
+
 /// Get a string from the font's name table by platform_id, encoding_id, language_id and name_id
 pub fn get_name_entry_string<'a>(
     font: &'a FontRef,
@@ -800,4 +809,29 @@ pub fn get_name_platform_tuples(font: FontRef) -> HashSet<(u16, u16, u16)> {
         }
     }
     codes
+}
+
+#[cfg(test)]
+mod supported_name_entry_encoding_tests {
+    use super::supported_name_entry_encoding;
+
+    #[test]
+    fn supported_platform_encoding_pairs() {
+        for (platform_id, encoding_id) in [(0, 0), (0, 1), (1, 0), (3, 0), (3, 1), (3, 10)] {
+            assert!(
+                supported_name_entry_encoding(platform_id, encoding_id),
+                "expected ({platform_id}, {encoding_id}) to be supported"
+            );
+        }
+    }
+
+    #[test]
+    fn unsupported_platform_encoding_pairs() {
+        for (platform_id, encoding_id) in [(1, 1), (2, 0), (3, 2)] {
+            assert!(
+                !supported_name_entry_encoding(platform_id, encoding_id),
+                "expected ({platform_id}, {encoding_id}) to be unsupported"
+            );
+        }
+    }
 }

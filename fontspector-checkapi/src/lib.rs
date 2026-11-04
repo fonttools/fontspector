@@ -62,8 +62,8 @@ pub use fix::{
     MoreInfoRequest,
 };
 pub use font::{
-    get_name_entry_string, get_name_platform_tuples, PlatformSelector, TestFont, DEFAULT_LOCATION,
-    TTF,
+    get_name_entry_string, get_name_platform_tuples, supported_name_entry_encoding,
+    PlatformSelector, TestFont, DEFAULT_LOCATION, TTF,
 };
 pub use gsub::{GetSubstitutionMap, SubstitutionMap};
 pub use profile::{Override, Profile, ProfileBuilder};

@@ -1,6 +1,6 @@
 use fontspector_checkapi::{
-    get_name_entry_string, get_name_platform_tuples, prelude::*, skip, FileTypeConvert,
-    PlatformSelector, TestableCollection,
+    get_name_entry_string, get_name_platform_tuples, prelude::*, skip,
+    supported_name_entry_encoding, FileTypeConvert, PlatformSelector, TestableCollection,
 };
 use skrifa::string::StringId;
 use std::{collections::HashMap, vec};
@@ -32,6 +32,9 @@ fn family_uniqueness_first_31_characters(
     for font in fonts.iter() {
         let platform_tuples = get_name_platform_tuples(font.font());
         for platform_tuple in platform_tuples {
+            if !supported_name_entry_encoding(platform_tuple.0, platform_tuple.1) {
+                continue;
+            }
             let mut full_name = String::new();
             let id_pair = [
                 StringId::TYPOGRAPHIC_FAMILY_NAME,
@@ -191,6 +194,24 @@ mod tests {
         let testable_reg = test_able("mada/Mada-Regular.ttf");
         let testable_bold = test_able("mada/Mada-Bold.ttf");
         let testables: Vec<Testable> = vec![testable_reg, testable_bold];
+        let collection = TestableCollection {
+            testables,
+            directory: "".to_string(),
+        };
+        let results = run_check_with_config(
+            family_uniqueness_first_31_characters,
+            TestableType::Collection(&collection),
+            HashMap::new(),
+        );
+        assert_results_contain(&results, StatusCode::Pass, None);
+    }
+
+    #[test]
+    fn test_family_uniqueness_first_31_characters_japanese() {
+        let testable_reg = test_able("japanese/FOTKinutaMinchoStdN-R.otf");
+        let testable_bold = test_able("japanese/FOTKinutaMinchoStdN-B.otf");
+        let testable_light = test_able("japanese/FOTKinutaMinchoStdN-L.otf");
+        let testables: Vec<Testable> = vec![testable_reg, testable_bold, testable_light];
         let collection = TestableCollection {
             testables,
             directory: "".to_string(),
