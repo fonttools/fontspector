@@ -205,18 +205,23 @@ pub(crate) fn check_impl(args: TokenStream, input: TokenStream) -> TokenStream {
 
         #[allow(non_upper_case_globals)]
         #[doc=#doc_string]
-        pub const #check_ident : Check = Check {
-            id: #id,
-            proposal: #proposal,
-            title: #title,
-            rationale: #rationale,
-            applies_to: #applies_to,
-            implementation: #implementation,
-            hotfix: #hotfix,
-            fix_source: #fix_source,
-            flags: CheckFlags::default(),
-            _metadata: #metadata,
+        pub const #check_ident : Check = {
+            let check = Check::new(
+            #id,
+            #title,
+            #rationale,
+            #proposal,
+            #implementation,
+            #hotfix,
+            #applies_to,
+            CheckFlags::default(),
+            #metadata,
+            );
+            #[cfg(feature = "sourcefix")]
+            let check = check.with_source_fix(#fix_source);
+            check
         };
+
     )
     .into()
 }

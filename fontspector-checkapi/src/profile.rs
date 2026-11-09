@@ -2,10 +2,7 @@ use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use crate::{
-    plugin::current_executable_is_plugin, Check, CheckId, Context, FontspectorError, Registry,
-    StatusCode, TestableType,
-};
+use crate::{Check, CheckId, Context, FontspectorError, Registry, StatusCode, TestableType};
 use std::collections::HashMap;
 
 #[cfg_attr(feature = "schemars", derive(schemars::JsonSchema))]
@@ -380,6 +377,11 @@ impl<'a> ProfileBuilder<'a> {
         // without having to link to them.
         registry.register_profile(name, self.profile, !current_executable_is_plugin())
     }
+}
+
+/// Are we a fontspector plugin?
+pub(crate) fn current_executable_is_plugin() -> bool {
+    std::env::var("FONTSPECTOR_PLUGIN").is_ok()
 }
 
 impl Default for ProfileBuilder<'_> {

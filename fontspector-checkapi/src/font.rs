@@ -4,8 +4,9 @@ use crate::{
     filetype::FileTypeConvert,
     Context, FileType, Testable,
 };
-use babelfont::NormalizedLocation;
-use fontdrasil::coords::{CoordConverter, DesignCoord, NormalizedCoord, UserCoord};
+use fontdrasil::coords::{
+    CoordConverter, DesignCoord, NormalizedCoord, NormalizedLocation, UserCoord,
+};
 use itertools::Either;
 use skrifa::{
     font::FontRef,

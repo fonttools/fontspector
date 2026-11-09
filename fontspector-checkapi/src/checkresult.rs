@@ -38,6 +38,7 @@ pub struct CheckResult {
     /// Whether or not a hotfix was available for this check
     pub hotfix_available: bool,
     /// Whether or not a source fix was available for this check
+    #[cfg(feature = "sourcefix")]
     pub sourcefix_available: bool,
 }
 
@@ -55,10 +56,13 @@ impl Serialize for CheckResult {
         s.serialize_field("worst_status", &self.worst_status())?;
         // s.serialize_field("time", &self.time)?;
         s.serialize_field("hotfix_available", &self.hotfix_available)?;
+        #[cfg(feature = "sourcefix")]
         s.serialize_field("sourcefix_available", &self.sourcefix_available)?;
         if let Some(hotfix_result) = &self.hotfix_result {
             s.serialize_field("hotfix_result", hotfix_result)?;
         }
+
+        #[cfg(feature = "sourcefix")]
         if let Some(sourcefix_result) = &self.sourcefix_result {
             s.serialize_field("sourcefix_result", sourcefix_result)?;
         }
@@ -88,6 +92,7 @@ impl CheckResult {
             sourcefix_result: None,
             time: duration,
             hotfix_available: check.hotfix.is_some(),
+            #[cfg(feature = "sourcefix")]
             sourcefix_available: check.fix_source.is_some(),
         }
     }
