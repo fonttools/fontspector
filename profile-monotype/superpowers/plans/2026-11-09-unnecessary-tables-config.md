@@ -222,7 +222,7 @@ fn parse_prefixes(config: &Value, key: &str) -> Result<Vec<String>, Status> {
                 &format!("Config key '{key}' must contain only strings."),
             ));
         };
-        if s.is_empty() || !s.is_ascii() {
+        if s.is_empty() || s.len() >= 4 || !s.is_ascii() {
             return Err(Status::fail(
                 "invalid-config",
                 &format!(
