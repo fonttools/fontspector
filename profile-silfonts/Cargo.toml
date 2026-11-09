@@ -16,6 +16,8 @@ fontspector-checkapi = { path = "../fontspector-checkapi", features = [
 ], version = "1.0.0" }
 regex = { workspace = true }
 skrifa = { workspace = true }
+[features]
+sourcefix = ["fontspector-checkapi/sourcefix"]
 
 [lints]
 workspace = true

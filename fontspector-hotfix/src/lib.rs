@@ -19,6 +19,7 @@
 //! }
 //! ```
 
+#[cfg(feature = "cli")]
 use dialoguer::{theme::ColorfulTheme, Confirm, Input, Select};
 use fontspector_checkapi::{
     CheckId, DialogFieldType, FixResult, FontspectorError, MoreInfoReplies, MoreInfoRequest,
@@ -32,6 +33,7 @@ use profile_opentype::OpenType;
 use profile_universal::Universal;
 use serde_json::Value;
 use std::io::Write;
+#[cfg(feature = "cli")]
 use termimad::MadSkin;
 
 #[doc(hidden)]
@@ -64,7 +66,7 @@ pub use fontspector_checkapi::Testable;
 /// Result of applying hotfixes
 pub type HotfixResult = Result<bool, FontspectorError>;
 
-/// Apply hotfixes to a testable for the given check IDs.
+/// Apply hotfixes to a testable for the given check IDs, interactively if needed.
 ///
 /// For each check ID provided, this function looks up the check in the registry
 /// and runs its hotfix function (if available) on the testable.
@@ -82,11 +84,8 @@ pub type HotfixResult = Result<bool, FontspectorError>;
 /// # Errors
 ///
 /// Returns an error if any hotfix function encounters an error during execution.
-pub fn apply_hotfixes(
-    testable: &mut Testable,
-    check_ids: &[CheckId],
-    interactive: bool,
-) -> HotfixResult {
+#[cfg(feature = "cli")]
+pub fn apply_hotfixes_interactive(testable: &mut Testable, check_ids: &[CheckId]) -> HotfixResult {
     let mut any_modified = false;
 
     let registry = get_registry();
@@ -109,20 +108,12 @@ pub fn apply_hotfixes(
         loop {
             match hotfix(testable, options) {
                 Ok(FixResult::MoreInfoNeeded(dialog)) => {
-                    if !interactive {
-                        log::error!(
-                            "Hotfix for '{}' requires more information, but interactive mode is disabled",
-                            check_id
-                        );
-                        break;
-                    } else {
-                        if !header_shown {
-                            show_header(testable, check_id, check.title);
-                            header_shown = true;
-                        }
-
-                        options = run_dialog(&dialog);
+                    if !header_shown {
+                        show_header(testable, check_id, check.title);
+                        header_shown = true;
                     }
+
+                    options = run_dialog(&dialog);
                     continue;
                 }
                 Ok(hotfix_result) => {
@@ -149,6 +140,72 @@ pub fn apply_hotfixes(
     Ok(any_modified)
 }
 
+/// Apply hotfixes to a testable for the given check IDs.
+///
+/// For each check ID provided, this function looks up the check in the registry
+/// and runs its hotfix function (if available) on the testable.
+///
+/// # Arguments
+///
+/// * `testable` - A mutable reference to the testable (font) to modify
+/// * `check_ids` - A slice of check IDs to apply hotfixes for
+///
+/// # Returns
+///
+/// Returns `Ok(true)` if any hotfix modified the testable, `Ok(false)` if no
+/// modifications were made, or an `Err` if any hotfix failed.
+///
+/// # Errors
+///
+/// Returns an error if any hotfix function encounters an error during execution.
+pub fn apply_hotfixes(testable: &mut Testable, check_ids: &[CheckId]) -> HotfixResult {
+    let mut any_modified = false;
+
+    let registry = get_registry();
+
+    for check_id in check_ids {
+        let Some(check) = registry.checks.get(check_id.as_str()) else {
+            log::warn!("Check ID '{}' not found in registry", check_id);
+            continue;
+        };
+
+        let Some(hotfix) = check.hotfix else {
+            log::debug!("Check '{}' has no hotfix function", check_id);
+            continue;
+        };
+
+        log::info!("Applying hotfix for check '{}'", check_id);
+        match hotfix(testable, None) {
+            Ok(FixResult::MoreInfoNeeded(_)) => {
+                log::warn!(
+                    "More information is needed to apply the hotfix for check '{}'",
+                    check_id
+                );
+            }
+            Ok(hotfix_result) => {
+                if matches!(hotfix_result, FixResult::Fixed) {
+                    log::info!("Check '{}' modified the font", check_id);
+                    any_modified = true;
+                } else {
+                    log::debug!(
+                        "Check '{}' completed with result: {:?}",
+                        check_id,
+                        hotfix_result
+                    );
+                }
+                break;
+            }
+            Err(e) => {
+                log::error!("Hotfix for '{}' failed: {}", check_id, e);
+                return Err(e);
+            }
+        }
+    }
+
+    Ok(any_modified)
+}
+
+#[cfg(feature = "cli")]
 fn show_header(testable: &mut Testable, check_id: &str, check_name: &str) {
     let skin = MadSkin::default();
     let filename = testable.filename.to_string_lossy();
@@ -163,6 +220,7 @@ fn show_header(testable: &mut Testable, check_id: &str, check_name: &str) {
     );
 }
 
+#[cfg(feature = "cli")]
 fn run_dialog(dialog: &MoreInfoRequest) -> Option<MoreInfoReplies> {
     let mut replies = MoreInfoReplies::default();
     for field in &dialog.0 {

@@ -101,7 +101,7 @@ fn registered_axis_tags(t: &Testable, _context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
-#[allow(clippy::unwrap_used, clippy::expect_used)]
+#[allow(clippy::unwrap_used, clippy::expect_used, clippy::indexing_slicing)]
 #[cfg(test)]
 mod tests {
     use super::registered_axis_tags;
