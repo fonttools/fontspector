@@ -45,8 +45,7 @@ profile-googlefonts = { path = "../profile-googlefonts", version = "1.0.0", pack
 profile-monotype = { path = "../profile-monotype", version = "1.0.0", package = "fontspector-profile-monotype", features = [
     "sourcefix",
 ] }
-profile-silfonts = { path = "../profile-silfonts", version = "1.0.0",
-package = "fontspector-profile-silfonts", features = [
+profile-silfonts = { path = "../profile-silfonts", version = "1.0.0", package = "fontspector-profile-silfonts", features = [
     "sourcefix",
 ] }
 clap = { version = "4", features = ["derive", "string"] }
