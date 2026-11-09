@@ -155,7 +155,11 @@ mod tests {
         FileTypeConvert, StatusCode,
     };
     use skrifa::raw::TableProvider;
-    use write_fonts::from_obj::ToOwnedTable;
+    use write_fonts::{
+        from_obj::{FromTableRef as _, ToOwnedTable},
+        tables::glyf::Glyf,
+        FontBuilder,
+    };
 
     fn make_testable_with_angle_and_style(angle: f32, style: &str) -> Testable {
         let source = test_able("cabin/Cabin-Regular.ttf");
@@ -230,5 +234,78 @@ mod tests {
             StatusCode::Fail,
             Some("non-zero-upright".to_string()),
         );
+    }
+
+    //Cairo, check left and right-leaning explicitly
+    #[test]
+    fn test_cairo_rightslanted() {
+        let mut source = test_able("cairo/CairoPlay-Italic.rightslanted.ttf");
+        source.filename = "CairoPlay-Italic.ttf".into();
+        let result = run_check(super::italic_angle, source);
+        assert_pass(&result);
+
+        let mut source = test_able("cairo/CairoPlay-Italic.rightslanted.ttf");
+        source.filename = "CairoPlay-Italic.ttf".into();
+        let f = TTF.from_testable(&source).unwrap();
+        let mut post: write_fonts::tables::post::Post = f.font().post().unwrap().to_owned_table();
+        post.italic_angle = write_fonts::types::Fixed::from_f64(-post.italic_angle.to_f64());
+        let new_bytes = f.rebuild_with_new_table(&post).unwrap();
+        let testable = Testable::new_with_contents("CairoPlay-Italic.ttf".to_string(), new_bytes);
+        let result = run_check(super::italic_angle, testable);
+        assert_results_contain(&result, StatusCode::Warn, Some("positive".to_string()));
+    }
+
+    #[test]
+    fn test_cairo_leftslanted() {
+        let mut source = test_able("cairo/CairoPlay-Italic.leftslanted.ttf");
+        source.filename = "CairoPlay-Italic.ttf".into();
+        let result = run_check(super::italic_angle, source);
+        assert_pass(&result);
+
+        let mut source = test_able("cairo/CairoPlay-Italic.leftslanted.ttf");
+        source.filename = "CairoPlay-Italic.ttf".into();
+        let f = TTF.from_testable(&source).unwrap();
+        let mut post: write_fonts::tables::post::Post = f.font().post().unwrap().to_owned_table();
+        post.italic_angle = write_fonts::types::Fixed::from_f64(-post.italic_angle.to_f64());
+        let new_bytes = f.rebuild_with_new_table(&post).unwrap();
+        let testable = Testable::new_with_contents("CairoPlay-Italic.ttf".to_string(), new_bytes);
+        let result = run_check(super::italic_angle, testable);
+        assert_results_contain(&result, StatusCode::Warn, Some("negative".to_string()));
+    }
+
+    #[test]
+    fn test_empty_glyphs() {
+        let mut source = test_able("cairo/CairoPlay-Italic.rightslanted.ttf");
+        source.filename = "CairoPlay-Italic.ttf".into();
+        let f = TTF.from_testable(&source).unwrap();
+        let loca = f.font().loca(None).unwrap();
+        let glyf = f.font().glyf().unwrap();
+        let mut builder = write_fonts::tables::glyf::GlyfLocaBuilder::new();
+
+        for gid in f.all_glyphs() {
+            if let Some(name) = f.glyph_name_for_id(gid) {
+                if name == "I" {
+                    builder
+                        .add_glyph(&write_fonts::tables::glyf::Glyph::Simple(
+                            write_fonts::tables::glyf::SimpleGlyph::default(),
+                        ))
+                        .unwrap();
+                } else {
+                    if let Ok(Some(g)) = loca.get_glyf(gid, &glyf) {
+                        let glyph = write_fonts::tables::glyf::Glyph::from_table_ref(&g);
+                        builder.add_glyph(&glyph).unwrap();
+                    }
+                }
+            }
+        }
+        let (glyf, loca, _loca_format) = builder.build();
+        let mut new_font = FontBuilder::new();
+        new_font.add_table(&glyf).unwrap();
+        new_font.add_table(&loca).unwrap();
+        new_font.copy_missing_tables(f.font());
+        let new_bytes = new_font.build();
+        let testable = Testable::new_with_contents("CairoPlay-Italic.ttf".to_string(), new_bytes);
+        let result = run_check(super::italic_angle, testable);
+        assert_results_contain(&result, StatusCode::Warn, Some("empty-glyphs".to_string()));
     }
 }
