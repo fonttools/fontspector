@@ -1,0 +1,22 @@
+[project]
+name = "fontspectorapi"
+dynamic = ["version"]
+authors = [
+    { name = "Simon Cozens", email = "simon@simon-cozens.org" },
+]
+requires-python = ">=3.10"
+dependencies = [
+    "fonttools>=4.57.0",
+]
+
+[build-system]
+requires = ["setuptools>=74.1.0", "setuptools_scm[toml]>=8.1.0"]
+build-backend = "setuptools.build_meta"
+
+#[build-system]
+#requires = ["uv_build>=0.11.15,<0.12", "setuptools_scm"]
+#build-backend = "uv_build"
+
+[tool.setuptools_scm]
+git_describe_command = "git describe --match 'fontspector-checkapi-v*' --tags"
+root = "../"

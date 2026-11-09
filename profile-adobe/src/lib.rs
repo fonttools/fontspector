@@ -1,20 +1,20 @@
 //! Adobe Fonts Profile for Fontspector Checks
 mod checks;
 
-use fontspector_checkapi::{Override, ProfileBuilder, Registry, StatusCode};
+use fontspector_checkapi::{FontspectorError, Override, ProfileBuilder, Registry, StatusCode};
 
 ///  This is the main plugin struct for the Adobe Fonts profile.
 pub struct Adobe;
-impl fontspector_checkapi::Plugin for Adobe {
-    fn register(&self, cr: &mut Registry) -> Result<(), String> {
+impl fontspector_checkapi::ProfileProvider for Adobe {
+    fn register(&self, cr: &mut Registry) -> Result<(), FontspectorError> {
         let builder = ProfileBuilder::new()
             .include_profile("universal")
+            // The universal profile now includes the "Adobe version" STAT_strings check, so we no longer need to add it here.
             .add_section("Adobe Fonts Checks")
             // "Adobe Fonts Checks" = ["adobefonts/family/consistent_upm", "adobefonts/nameid_1_win_english", "adobefonts/unsupported_tables", "adobefonts/STAT_strings"]
             .add_and_register_check(checks::adobefonts::family::consistent_upm)
             .add_and_register_check(checks::adobefonts::nameid_1_win_english)
             .add_and_register_check(checks::adobefonts::unsupported_tables)
-            .add_and_register_check(checks::adobefonts::STAT_strings)
             .exclude_check("opentype/xavgcharwidth")
             .exclude_check("designspace_has_consistent_codepoints")
             .exclude_check("designspace_has_consistent_glyphset")
@@ -27,7 +27,6 @@ impl fontspector_checkapi::Plugin for Adobe {
             .exclude_check("ufo_recommended_fields")
             .exclude_check("ufo_required_fields")
             .exclude_check("ufo_unnecessary_fields")
-            .exclude_check("STAT_strings")
             .exclude_check("transformed_components")
             .exclude_check("unreachable_glyphs")
             .exclude_check("whitespace_ink")
@@ -71,6 +70,3 @@ impl fontspector_checkapi::Plugin for Adobe {
         builder.build("adobefonts", cr)
     }
 }
-
-#[cfg(not(target_family = "wasm"))]
-pluginator::plugin_implementation!(fontspector_checkapi::Plugin, Adobe);

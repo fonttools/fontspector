@@ -1,5 +1,5 @@
-use fontations::skrifa::Tag;
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
+use skrifa::Tag;
 
 const INSTRUCTIONS: [u8; 7] = [0xb8, 0x01, 0xff, 0x85, 0xb0, 0x04, 0x8d];
 

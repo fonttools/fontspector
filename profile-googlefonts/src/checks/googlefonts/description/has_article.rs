@@ -68,3 +68,58 @@ fn has_article(c: &TestableCollection, _context: &Context) -> CheckFnResult {
     }
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used)]
+
+    use std::collections::HashMap;
+
+    use super::has_article;
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, test_able},
+        StatusCode, Testable, TestableCollection, TestableType,
+    };
+
+    fn run(files: Vec<Testable>) -> Option<fontspector_checkapi::CheckResult> {
+        let collection = TestableCollection::from_testables(files, None);
+        fontspector_checkapi::codetesting::run_check_with_config(
+            has_article,
+            TestableType::Collection(&collection),
+            HashMap::new(),
+        )
+    }
+
+    #[test]
+    fn test_check_description_has_article() {
+        // Good: Noto font with both ARTICLE and DESCRIPTION
+        assert_pass(&run(vec![
+            test_able("notosanskhudawadi/NotoSansKhudawadi-Regular.ttf"),
+            test_able("notosanskhudawadi/METADATA.pb"),
+            test_able("notosanskhudawadi/DESCRIPTION.en_us.html"),
+            test_able("notosanskhudawadi/article/ARTICLE.en_us.html"),
+        ]));
+
+        // Bad: Noto font missing ARTICLE
+        assert_results_contain(
+            &run(vec![
+                test_able("noto_sans_tamil_supplement/NotoSansTamilSupplement-Regular.ttf"),
+                test_able("noto_sans_tamil_supplement/METADATA.pb"),
+            ]),
+            StatusCode::Fail,
+            Some("missing-article".to_string()),
+        );
+
+        // Bad: non-Noto font with both DESCRIPTION and ARTICLE
+        assert_results_contain(
+            &run(vec![
+                test_able("tirodevanagarihindi/TiroDevanagariHindi-Regular.ttf"),
+                test_able("tirodevanagarihindi/METADATA.pb"),
+                test_able("tirodevanagarihindi/DESCRIPTION.en_us.html"),
+                test_able("tirodevanagarihindi/article/ARTICLE.en_us.html"),
+            ]),
+            StatusCode::Fail,
+            Some("description-and-article".to_string()),
+        );
+    }
+}

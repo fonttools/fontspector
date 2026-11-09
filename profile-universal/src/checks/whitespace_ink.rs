@@ -1,8 +1,8 @@
-use fontations::skrifa::MetadataProvider;
 use fontspector_checkapi::{
     pens::HasInkPen, prelude::*, testfont, FileTypeConvert, Metadata, DEFAULT_LOCATION,
 };
 use serde_json::json;
+use skrifa::MetadataProvider;
 use unicode_properties::{GeneralCategory, UnicodeGeneralCategory};
 
 const EXTRA_NON_DRAWING: [u32; 6] = [0x180E, 0x200B, 0x2028, 0x2029, 0x2060, 0xFEFF];

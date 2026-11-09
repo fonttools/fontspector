@@ -1,6 +1,6 @@
-use fontations::skrifa::{raw::TableProvider, Tag};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
+use skrifa::{raw::TableProvider, Tag};
 use std::cmp::Ordering;
 
 #[check(
@@ -59,5 +59,17 @@ fn glyf_unused_data(t: &Testable, _context: &Context) -> CheckFnResult {
         return_result(problems)
     } else {
         Err(FontspectorError::General("Invalid loca table".to_string()))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use fontspector_checkapi::codetesting::{assert_pass, run_check, test_able};
+
+    #[test]
+    fn test_glyf_unused_data_pass() {
+        let testable = test_able("nunito/Nunito-Regular.ttf");
+        let result = run_check(super::glyf_unused_data, testable);
+        assert_pass(&result);
     }
 }

@@ -49,3 +49,30 @@ fn OFL_copyright(t: &Testable, _context: &Context) -> CheckFnResult {
     }
     Ok(Status::just_one_pass())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::OFL_copyright;
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        StatusCode, Testable,
+    };
+
+    #[test]
+    fn test_check_license_ofl_copyright() {
+        assert_results_contain(
+            &run_check(OFL_copyright, test_able("mada/OFL.txt")),
+            StatusCode::Fail,
+            Some("bad-format".to_string()),
+        );
+
+        let good_text = concat!(
+            "Copyright 2019 The Montserrat Project Authors",
+            " (https://github.com/julietaula/montserrat)\n"
+        );
+        assert_pass(&run_check(
+            OFL_copyright,
+            Testable::new_with_contents("OFL.txt", good_text.as_bytes().to_vec()),
+        ));
+    }
+}

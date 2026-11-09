@@ -69,3 +69,33 @@ fn glyph_coverage(c: &TestableCollection, context: &Context) -> CheckFnResult {
     }
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+
+    use super::glyph_coverage;
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, test_able},
+        Testable, TestableCollection, TestableType,
+    };
+
+    fn run(files: Vec<Testable>) -> Option<fontspector_checkapi::CheckResult> {
+        let collection = TestableCollection::from_testables(files, None);
+        fontspector_checkapi::codetesting::run_check_with_config(
+            glyph_coverage,
+            TestableType::Collection(&collection),
+            HashMap::new(),
+        )
+    }
+
+    #[test]
+    fn test_check_glyph_coverage() {
+        assert_pass(&run(vec![test_able("cabin/Cabin-Regular.ttf")]));
+
+        assert_pass(&run(vec![
+            test_able("moiraione/MoiraiOne-Regular.ttf"),
+            test_able("moiraione/METADATA.pb"),
+        ]));
+    }
+}

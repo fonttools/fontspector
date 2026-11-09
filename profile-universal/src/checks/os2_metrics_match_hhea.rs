@@ -1,6 +1,7 @@
-use fontations::skrifa::raw::TableProvider;
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
+use skrifa::raw::TableProvider;
+use write_fonts::from_obj::ToOwnedTable;
 
 #[check(
     id = "os2_metrics_match_hhea",
@@ -16,7 +17,8 @@ use serde_json::json;
         released font may cause reflow in user documents and unhappy users.
     ",
     proposal = "https://github.com/fonttools/fontbakery/issues/4829",
-    title = "Checking OS/2 Metrics match hhea Metrics."
+    title = "Checking OS/2 Metrics match hhea Metrics.",
+    hotfix = fix_os2_metrics_match_hhea,
 )]
 fn os2_metrics_match_hhea(t: &Testable, context: &Context) -> CheckFnResult {
     let f = testfont!(t);
@@ -88,4 +90,41 @@ fn os2_metrics_match_hhea(t: &Testable, context: &Context) -> CheckFnResult {
         problems.push(status);
     }
     return_result(problems)
+}
+
+fn fix_os2_metrics_match_hhea(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
+    let f = testfont!(t);
+    let hhea = f.font().hhea()?;
+    let mut os2: write_fonts::tables::os2::Os2 = f.font().os2()?.to_owned_table();
+    os2.s_typo_ascender = hhea.ascender().to_i16();
+    os2.s_typo_descender = hhea.descender().to_i16();
+    os2.s_typo_line_gap = hhea.line_gap().to_i16();
+    t.set(f.rebuild_with_new_table(&os2)?);
+    Ok(FixResult::Fixed)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::os2_metrics_match_hhea;
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        StatusCode,
+    };
+
+    #[test]
+    fn test_os2_metrics_match_hhea_fail_linegap() {
+        let testable = test_able("mada/Mada-Regular.ttf");
+        let results = run_check(os2_metrics_match_hhea, testable);
+        assert_results_contain(&results, StatusCode::Fail, Some("lineGap".to_string()));
+    }
+
+    #[test]
+    fn test_os2_metrics_match_hhea_pass() {
+        let testable = test_able("mada/Mada-Black.ttf");
+        let results = run_check(os2_metrics_match_hhea, testable);
+        assert_pass(&results);
+    }
 }

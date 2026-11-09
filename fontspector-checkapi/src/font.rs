@@ -4,37 +4,36 @@ use crate::{
     filetype::FileTypeConvert,
     Context, FileType, Testable,
 };
-use fontations::{
-    read::{tables::name::NameString, TopLevelTable},
-    skrifa::{
-        font::FontRef,
-        outline::{DrawSettings, OutlinePen},
-        prelude::Size,
-        raw::{
-            tables::{
-                gdef::GlyphClassDef,
-                glyf::Glyph,
-                gpos::{PairPos, PairPosFormat1, PairPosFormat2, PositionSubtables},
-                head::MacStyle,
-                layout::{Feature, FeatureRecord},
-                os2::SelectionFlags,
-            },
-            ReadError, TableProvider,
-        },
-        setting::VariationSetting,
-        string::StringId,
-        GlyphId, GlyphId16, GlyphNames, MetadataProvider, Tag,
-    },
-    write::{validate::Validate, FontWrite},
-};
+use babelfont::NormalizedLocation;
 use fontdrasil::coords::{CoordConverter, DesignCoord, NormalizedCoord, UserCoord};
 use itertools::Either;
+use skrifa::{
+    font::FontRef,
+    outline::{DrawSettings, OutlinePen},
+    prelude::Size,
+    raw::{
+        tables::{
+            gdef::GlyphClassDef,
+            glyf::Glyph,
+            gpos::{PairPos, PairPosFormat1, PairPosFormat2, PositionSubtables},
+            head::MacStyle,
+            layout::{Feature, FeatureRecord},
+            name::{Encoding, NameString},
+            os2::SelectionFlags,
+        },
+        ReadError, TableProvider, TopLevelTable,
+    },
+    setting::VariationSetting,
+    string::StringId,
+    GlyphId, GlyphId16, GlyphNames, MetadataProvider, Tag,
+};
 use std::{
     collections::{BTreeMap, HashMap, HashSet},
     error::Error,
     fmt::{Debug, Formatter},
     path::{Path, PathBuf},
 };
+use write_fonts::{validate::Validate, FontWrite};
 
 /// A Font to be tested
 pub struct TestFont<'a> {
@@ -83,6 +82,11 @@ impl TestFont<'_> {
         })
     }
 
+    /// The underlying font data for this TestFont
+    pub fn font_data(&self) -> &[u8] {
+        self.font_data
+    }
+
     /// A [read-fonts](https://docs.rs/read-fonts/) font object
     pub fn font(&self) -> FontRef<'_> {
         #[allow(clippy::expect_used)] // We just tested for it in the initializer
@@ -118,7 +122,19 @@ impl TestFont<'_> {
                 }
             }
         }
-        None
+        if self.is_bold().ok()? {
+            if self.is_italic().ok()? {
+                Some("BoldItalic")
+            } else {
+                Some("Bold")
+            }
+        } else {
+            if self.is_italic().ok()? {
+                Some("Italic")
+            } else {
+                Some("Regular")
+            }
+        }
     }
 
     /// Is this a RIBBI font?
@@ -149,6 +165,35 @@ impl TestFont<'_> {
         }
         let post = font.post()?;
         if post.italic_angle().to_f32() != 0.0 {
+            return Ok(true);
+        }
+        Ok(false)
+    }
+
+    /// Is this font bold?
+    pub fn is_bold(&self) -> Result<bool, ReadError> {
+        let font = self.font();
+        let os2 = font.os2()?;
+        if os2.fs_selection().contains(SelectionFlags::BOLD) {
+            return Ok(true);
+        }
+        if os2.us_weight_class() == 700 {
+            return Ok(true);
+        }
+        let head = font.head()?;
+        if head.mac_style().contains(MacStyle::BOLD) {
+            return Ok(true);
+        }
+        if self
+            .get_name_entry_strings(StringId::SUBFAMILY_NAME)
+            .any(|x| matches!(x.to_lowercase().as_str(), "bold" | "bold italic"))
+            || self.get_name_entry_strings(StringId::FULL_NAME).any(|x| {
+                let name_parts: Vec<_> = x.split_whitespace().collect();
+                name_parts
+                    .iter()
+                    .any(|part| part.to_lowercase().as_str() == "bold")
+            })
+        {
             return Ok(true);
         }
         Ok(false)
@@ -515,7 +560,7 @@ impl TestFont<'_> {
         &self,
         table: &T,
     ) -> Result<Vec<u8>, FontspectorError> {
-        let mut new_font = fontations::write::FontBuilder::new();
+        let mut new_font = write_fonts::FontBuilder::new();
         new_font.add_table(table)?;
         new_font.copy_missing_tables(self.font());
         Ok(new_font.build())
@@ -549,8 +594,7 @@ impl TestFont<'_> {
                         converter: CoordConverter::default_normalization(min, default, max),
                         hidden: axis.is_hidden(),
                         // Argh version incompatibilities
-                        tag: fontdrasil::types::Tag::new_checked(axis.tag().to_string().as_bytes())
-                            .unwrap(),
+                        tag: Tag::new_checked(axis.tag().to_string().as_bytes()).unwrap(),
                         name: self.get_best_name(&[axis.name_id()]).unwrap_or_default(),
                         min,
                         default,
@@ -581,11 +625,80 @@ impl TestFont<'_> {
                             .position(|(_, to)| to.to_f64() == 0.0)
                             .unwrap_or(0);
                         fd_axis.converter = CoordConverter::new(desired_mapping, default_idx)
+                            .unwrap_or_else(|_| {
+                                CoordConverter::default_normalization(min, default, max)
+                            })
                     }
                     fd_axis
                 })
                 .collect(),
         ))
+    }
+
+    /// Returns a list of the master locations in the font
+    ///
+    /// This is derived heuristically from locations of shared tuples in the `gvar` table.
+    /// This should work well enough for most "normal" fonts.
+    // Stolen from diffenator3
+    pub fn masters(&self) -> Result<Vec<NormalizedLocation>, FontspectorError> {
+        if !self.is_variable_font() {
+            return Ok(vec![NormalizedLocation::default()]);
+        }
+        let gvar = self.font().gvar()?;
+        let axes = self.font().axes();
+        let tuples = gvar.shared_tuples()?.tuples();
+        let peaks: Vec<NormalizedLocation> = tuples
+            .iter()
+            .flatten()
+            .map(|tuple| {
+                let coords = tuple
+                    .values()
+                    .iter()
+                    .map(|x| x.get().to_f32())
+                    .collect::<Vec<f32>>();
+                let normalized_location: NormalizedLocation = axes
+                    .iter()
+                    .zip(coords.iter())
+                    .map(|(axis, coord)| (axis.tag(), NormalizedCoord::new(*coord as f64)))
+                    .collect();
+                normalized_location
+            })
+            .collect();
+        Ok(peaks)
+    }
+
+    /// Convert a normalized designspace location into user-space variation settings.
+    ///
+    /// `tuple` holds one normalized value per fvar axis, in fvar order, as found
+    /// in gvar tuple peaks. Axes at their default (0.0) are omitted from the
+    /// result. The avar table is taken into account.
+    pub fn denormalize_location(
+        &self,
+        tuple: &[f32],
+    ) -> Result<Vec<VariationSetting>, FontspectorError> {
+        let all_axes = self.fontdrasil_axes()?.ok_or(FontspectorError::General(
+            "Font has no variation axes".to_string(),
+        ))?;
+        let loc: fontdrasil::coords::NormalizedLocation = all_axes
+            .iter()
+            .zip(tuple)
+            .filter(|&(_axis, peak)| *peak != 0.0)
+            .map(|(axis, peak)| (axis.tag, NormalizedCoord::new(*peak as f64)))
+            .collect();
+        let user = loc.to_user(&all_axes).map_err(|e| {
+            FontspectorError::General(format!(
+                "Failed to convert location to user coordinates: {}",
+                e
+            ))
+        })?;
+        // And now back to skrifa
+        Ok(user
+            .iter()
+            .map(|(tag, value)| VariationSetting {
+                selector: Tag::new(&tag.to_be_bytes()), // different version madness
+                value: value.to_f64() as f32,
+            })
+            .collect())
     }
 }
 
@@ -640,6 +753,7 @@ impl VerticalMetrics {
 }
 
 /// A selector for a platform, encoding, and language in a font's name table.
+#[derive(Clone)]
 pub struct PlatformSelector {
     /// The platform ID eg. 3 = Windows
     pub platform_id: u16,
@@ -648,6 +762,15 @@ pub struct PlatformSelector {
     /// The language ID for the platform and encoding, eg. 1033 = en-US
     pub language_id: u16,
 }
+
+/// Returns true if fontations can decode strings for this platform/encoding pair.
+///
+/// This mirrors [`Encoding::new`](Encoding::new) in read-fonts: supported pairs
+/// include Unicode (platform 0), Mac Roman (1, 0), and Windows UTF-16 (3, 0/1/10).
+pub fn supported_name_entry_encoding(platform_id: u16, encoding_id: u16) -> bool {
+    !matches!(Encoding::new(platform_id, encoding_id), Encoding::Unknown)
+}
+
 /// Get a string from the font's name table by platform_id, encoding_id, language_id and name_id
 pub fn get_name_entry_string<'a>(
     font: &'a FontRef,
@@ -686,4 +809,29 @@ pub fn get_name_platform_tuples(font: FontRef) -> HashSet<(u16, u16, u16)> {
         }
     }
     codes
+}
+
+#[cfg(test)]
+mod supported_name_entry_encoding_tests {
+    use super::supported_name_entry_encoding;
+
+    #[test]
+    fn supported_platform_encoding_pairs() {
+        for (platform_id, encoding_id) in [(0, 0), (0, 1), (1, 0), (3, 0), (3, 1), (3, 10)] {
+            assert!(
+                supported_name_entry_encoding(platform_id, encoding_id),
+                "expected ({platform_id}, {encoding_id}) to be supported"
+            );
+        }
+    }
+
+    #[test]
+    fn unsupported_platform_encoding_pairs() {
+        for (platform_id, encoding_id) in [(1, 1), (2, 0), (3, 2)] {
+            assert!(
+                !supported_name_entry_encoding(platform_id, encoding_id),
+                "expected ({platform_id}, {encoding_id}) to be unsupported"
+            );
+        }
+    }
 }

@@ -1,9 +1,9 @@
-use fontations::skrifa::{
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
+use skrifa::{
     raw::{types::NameId, TableProvider},
     MetadataProvider,
 };
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
-use serde_json::json;
 
 fn parse_version(v: impl Iterator<Item = char>) -> String {
     let mut result = String::new();
@@ -94,9 +94,16 @@ fn font_version(f: &Testable, _context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
+#[allow(clippy::unwrap_used, clippy::expect_used)]
 #[cfg(test)]
 mod tests {
     use super::*;
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, set_name_entry, test_able},
+        StatusCode,
+    };
+    use skrifa::raw::TableProvider;
+    use write_fonts::from_obj::ToOwnedTable;
 
     #[test]
     fn test_parser() {
@@ -107,5 +114,66 @@ mod tests {
         let v = "Version 1.2.3";
         let parsed = parse_version(v.chars());
         assert_eq!(parsed, "1.2");
+    }
+
+    #[test]
+    fn test_font_version_pass() {
+        let testable = test_able("nunito/Nunito-Regular.ttf");
+        let result = run_check(font_version, testable);
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_font_version_near_mismatch() {
+        let mut testable = test_able("nunito/Nunito-Regular.ttf");
+        let f = TTF.from_testable(&testable).unwrap();
+        let mut head: write_fonts::tables::head::Head = f.font().head().unwrap().to_owned_table();
+        head.font_revision = skrifa::raw::types::Fixed::from_f64(1.00098);
+        testable.set(f.rebuild_with_new_table(&head).unwrap());
+        set_name_entry(
+            &mut testable,
+            3,
+            1,
+            0x0409,
+            NameId::VERSION_STRING,
+            "Version 1.001".to_string(),
+        );
+        set_name_entry(
+            &mut testable,
+            1,
+            0,
+            0,
+            NameId::VERSION_STRING,
+            "Version 1.001".to_string(),
+        );
+        let result = run_check(font_version, testable);
+        assert_results_contain(&result, StatusCode::Warn, Some("near-mismatch".to_string()));
+    }
+
+    #[test]
+    fn test_font_version_fail_mismatch() {
+        let mut testable = test_able("nunito/Nunito-Regular.ttf");
+        let f = TTF.from_testable(&testable).unwrap();
+        let mut head: write_fonts::tables::head::Head = f.font().head().unwrap().to_owned_table();
+        head.font_revision = skrifa::raw::types::Fixed::from_f64(3.1);
+        testable.set(f.rebuild_with_new_table(&head).unwrap());
+        set_name_entry(
+            &mut testable,
+            3,
+            1,
+            0x0409,
+            NameId::VERSION_STRING,
+            "Version 3.000".to_string(),
+        );
+        set_name_entry(
+            &mut testable,
+            1,
+            0,
+            0,
+            NameId::VERSION_STRING,
+            "Version 3.000".to_string(),
+        );
+        let result = run_check(font_version, testable);
+        assert_results_contain(&result, StatusCode::Fail, Some("mismatch".to_string()));
     }
 }

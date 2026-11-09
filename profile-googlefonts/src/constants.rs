@@ -3,6 +3,7 @@ use std::sync::LazyLock;
 use regex::Regex;
 
 /// The Open Font License body text, used in the `googlefonts/license/OFL_body_text` check.
+#[cfg_attr(not(feature = "check"), allow(dead_code))]
 pub const OFL_BODY_TEXT: &str =
     "\nThis Font Software is licensed under the SIL Open Font License, Version 1.1.\n\
 This license is copied below, and is also available with a FAQ at:\n\
@@ -97,6 +98,7 @@ FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM\n\
 OTHER DEALINGS IN THE FONT SOFTWARE.";
 
 /// The most recent release of ttfautohint. Keep me up to date!
+#[cfg_attr(not(feature = "check"), allow(dead_code))]
 pub const LATEST_TTFAUTOHINT_VERSION: &str = "1.8.4";
 
 // example string:
@@ -105,9 +107,27 @@ pub const LATEST_TTFAUTOHINT_VERSION: &str = "1.8.4";
 pub(crate) static TTFAUTOHINT_RE: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"ttfautohint \(v(.*)\) ([^;]*)").unwrap());
 
+#[cfg_attr(not(feature = "check"), allow(dead_code))]
 pub(crate) static EXPECTED_COPYRIGHT_PATTERN: LazyLock<Regex> = LazyLock::new(|| {
     #[allow(clippy::unwrap_used)]
         Regex::new(
             r#"copyright \d{4}(-\d{4})?(,\s*\d{4}(-\d{4})?)*,? (the .* project authors \([^\@]*\)|google llc. all rights reserved)"#,
         ).unwrap()
 });
+
+pub(crate) fn gf_api_weight_name(weight: u16) -> &'static str {
+    match weight {
+        100 => "Thin",
+        200 => "ExtraLight",
+        250 => "Thin",
+        275 => "ExtraLight",
+        300 => "Light",
+        400 => "Regular",
+        500 => "Medium",
+        600 => "SemiBold",
+        700 => "Bold",
+        800 => "ExtraBold",
+        900 => "Black",
+        _ => "bad value",
+    }
+}

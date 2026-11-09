@@ -1,16 +1,14 @@
-use fontations::{
-    skrifa::{
-        raw,
-        raw::{tables::glyf::Glyf, ReadError, TableProvider},
-        FontRef, GlyphId, Tag,
-    },
-    write::{
-        from_obj::FromTableRef,
-        tables::glyf::{GlyfLocaBuilder, Glyph},
-        FontBuilder,
-    },
-};
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, TestFont};
+use skrifa::{
+    raw,
+    raw::{tables::glyf::Glyf, ReadError, TableProvider},
+    FontRef, GlyphId, Tag,
+};
+use write_fonts::{
+    from_obj::FromTableRef,
+    tables::glyf::{GlyfLocaBuilder, Glyph},
+    FontBuilder,
+};
 
 fn is_hinted(font: &TestFont) -> bool {
     if font.has_table(b"fpgm") || font.has_table(b"prep") || font.has_table(b"cvt ") {

@@ -45,3 +45,25 @@ fn smallcaps_before_ligatures(t: &Testable, _context: &Context) -> CheckFnResult
         "'smcp' lookups are not defined before 'liga' lookups.",
     ));
 }
+
+#[cfg(test)]
+mod tests {
+    use fontspector_checkapi::{
+        codetesting::{assert_results_contain, run_check, test_able},
+        StatusCode,
+    };
+
+    #[test]
+    fn test_smallcaps_before_ligatures_skip_no_smcp() {
+        // Mada Regular has no 'smcp' feature, so check should SKIP
+        let testable = test_able("mada/Mada-Regular.ttf");
+        let results = run_check(super::smallcaps_before_ligatures, testable);
+        assert_results_contain(&results, StatusCode::Skip, Some("no-smcp".to_string()));
+    }
+
+    // Note: The Python test constructs GSUB FeatureRecords from scratch using fontTools,
+    // setting up smcp with LookupListIndex=[0] and liga with LookupListIndex=[1] (PASS),
+    // then swapping them (FAIL). This requires GSUB table manipulation which is not
+    // available in the current Rust test utilities. A dedicated test font with both
+    // smcp and liga features would be needed to test the PASS and FAIL paths.
+}
