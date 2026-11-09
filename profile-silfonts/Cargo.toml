@@ -1,8 +1,7 @@
 [package]
 name = "fontspector-profile-silfonts"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
-publish = false
 
 [lib]
 name = "fontspector_profile_silfonts"
@@ -12,7 +11,9 @@ name = "silfonts-fontspectorplugin"
 path = "src/main.rs"
 
 [dependencies]
-fontspector-checkapi = { path = "../fontspector-checkapi" }
+fontspector-checkapi = { path = "../fontspector-checkapi", features = [
+    "kurbo",
+], version = "1.0.0" }
 regex = { workspace = true }
 skrifa = { workspace = true }
 
