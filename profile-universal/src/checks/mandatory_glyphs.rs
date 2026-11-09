@@ -175,6 +175,7 @@ fn sourcefix_mandatory_glyphs(
     Ok(FixResult::Fixed)
 }
 
+#[allow(clippy::unwrap_used)]
 #[cfg(test)]
 mod tests {
     use super::mandatory_glyphs;

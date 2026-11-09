@@ -258,6 +258,7 @@ fn convert_json_to_vec_chars(json_value: &serde_json::Value) -> Vec<char> {
     }
 }
 
+#[allow(clippy::unwrap_used)]
 #[cfg(test)]
 mod tests {
     use super::{test_glyph_name, valid_glyphnames, NameValidity};
@@ -395,7 +396,7 @@ mod tests {
             ("u0041_0042", NameValidity::OK),
         ];
         for (name, expected_result) in tests {
-            let result = test_glyph_name(&name, allowed_special_chars.clone());
+            let result = test_glyph_name(name, allowed_special_chars.clone());
             assert_eq!(result, expected_result);
         }
     }
@@ -413,7 +414,7 @@ mod tests {
             ("one-ar", NameValidity::OK),
         ];
         for (name, expected_result) in tests {
-            let result = test_glyph_name(&name, allowed_special_chars.clone());
+            let result = test_glyph_name(name, allowed_special_chars.clone());
             assert_eq!(result, expected_result);
         }
     }

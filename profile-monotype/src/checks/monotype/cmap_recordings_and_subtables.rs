@@ -84,6 +84,7 @@ fn cmap_recordings_and_subtables(t: &Testable, _context: &Context) -> CheckFnRes
     return_result(problems)
 }
 
+#[allow(clippy::unwrap_used)]
 #[cfg(test)]
 mod tests {
     use super::cmap_recordings_and_subtables;
