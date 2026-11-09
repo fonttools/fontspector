@@ -213,6 +213,7 @@ pub(crate) fn check_impl(args: TokenStream, input: TokenStream) -> TokenStream {
             applies_to: #applies_to,
             implementation: #implementation,
             hotfix: #hotfix,
+            #[cfg(feature = "sourcefix")]
             fix_source: #fix_source,
             flags: CheckFlags::default(),
             _metadata: #metadata,

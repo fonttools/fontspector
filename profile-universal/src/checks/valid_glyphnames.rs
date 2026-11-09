@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata, SourceFile};
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
 use itertools::Itertools;
 use serde_json::json;
 use skrifa::{
@@ -221,8 +221,9 @@ fn valid_glyphnames(f: &Testable, context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
+#[cfg(feature = "sourcefix")]
 fn sourcefix_valid_glyphnames(
-    s: &mut SourceFile,
+    s: &mut fontspector_checkapi::source::SourceFile,
     _problems: &[Status],
     _replies: Option<MoreInfoReplies>,
 ) -> Result<FixResult, FontspectorError> {

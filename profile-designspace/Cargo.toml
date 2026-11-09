@@ -19,7 +19,9 @@ pluginator = { workspace = true }
 
 [features]
 # The "check" feature enables dependencies only needed for checks, not fixes.
-default = ["check"]
+# We are acting on sources in this profile, so we include the sourcefix feature by default.
+default = ["check", "sourcefix"]
+sourcefix = ["fontspector-checkapi/sourcefix"]
 check = []
 
 [lints]

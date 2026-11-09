@@ -3,11 +3,10 @@ use std::time::Duration;
 use crate::{
     context::Context,
     error::FontspectorError,
-    fix::{HotfixFunction, MoreInfoReplies},
-    source::SourceFile,
+    fix::HotfixFunction,
     status::CheckFnResult,
     testable::{TestableCollection, TestableType},
-    CheckResult, FixResult, Registry, Status, Testable,
+    CheckResult, Registry, Status, Testable,
 };
 
 /// A check ID is a unique identifier for a check
@@ -52,11 +51,12 @@ pub enum CheckImplementation<'a> {
 ///
 /// The `&[Status]` argument gives the fixer the failing subresults of the
 /// check, so that it can inspect their metadata to decide what to fix.
+#[cfg(feature = "sourcefix")]
 pub type FixSourceFunction = dyn Fn(
-    &mut SourceFile,
+    &mut crate::source::SourceFile,
     &[Status],
-    Option<MoreInfoReplies>,
-) -> Result<FixResult, FontspectorError>;
+    Option<crate::MoreInfoReplies>,
+) -> Result<crate::fix::FixResult, FontspectorError>;
 
 #[derive(Clone)]
 /// A check definition
@@ -74,6 +74,7 @@ pub struct Check<'a> {
     /// Function pointer implementing a hotfix to the binary file
     pub hotfix: Option<&'a HotfixFunction>,
     /// Function pointer implementing a hotfix to the font source file
+    #[cfg(feature = "sourcefix")]
     pub fix_source: Option<&'a FixSourceFunction>,
     /// A registered file type that this check applies to
     pub applies_to: &'a str,

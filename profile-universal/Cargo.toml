@@ -40,13 +40,14 @@ kurbo = { workspace = true }
 stringcase = "0.4.0"
 fontdrasil = { workspace = true }
 ordered-float = "5.1.0"
-babelfont.workspace = true
+babelfont = { workspace = true, optional = true }
 linesweeper = "0.5.0"
 
 [features]
 # The "check" feature enables checks with dependencies that are not required
 # for hotfixing (e.g. fontspector-hotfix, which only needs fix functions).
 default = ["check"]
+sourcefix = ["fontspector-checkapi/sourcefix", "dep:babelfont"]
 check = ["dep:interpolatable", "dep:freetype-rs"]
 
 [lints]

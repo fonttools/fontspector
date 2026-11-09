@@ -1,6 +1,5 @@
 use fontspector_checkapi::{
-    pens::ContourCountPen, prelude::*, testfont, FileTypeConvert, Metadata, SourceFile,
-    DEFAULT_LOCATION,
+    pens::ContourCountPen, prelude::*, testfont, FileTypeConvert, Metadata, DEFAULT_LOCATION,
 };
 use serde_json::json;
 use skrifa::{raw::TableProvider, GlyphId, MetadataProvider};
@@ -142,8 +141,9 @@ fn mandatory_glyphs(f: &Testable, _context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
+#[cfg(feature = "sourcefix")]
 fn sourcefix_mandatory_glyphs(
-    source: &mut SourceFile,
+    source: &mut fontspector_checkapi::source::SourceFile,
     problems: &[Status],
     _replies: Option<MoreInfoReplies>,
 ) -> Result<FixResult, FontspectorError> {

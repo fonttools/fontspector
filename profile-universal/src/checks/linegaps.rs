@@ -1,5 +1,4 @@
-use babelfont::MetricType;
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata, SourceFile};
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
 use skrifa::raw::TableProvider;
 use write_fonts::from_obj::ToOwnedTable;
@@ -82,17 +81,18 @@ fn fix_linegaps(
     Ok(FixResult::Fixed)
 }
 
+#[cfg(feature = "sourcefix")]
 fn sourcefix_linegaps(
-    s: &mut SourceFile,
+    s: &mut fontspector_checkapi::source::SourceFile,
     _problems: &[Status],
     _replies: Option<MoreInfoReplies>,
 ) -> Result<FixResult, FontspectorError> {
     let font = &mut s.source;
     for master in font.masters.iter_mut() {
-        if let Some(linegap) = master.metrics.get_mut(&MetricType::HheaLineGap) {
+        if let Some(linegap) = master.metrics.get_mut(&babelfont::MetricType::HheaLineGap) {
             *linegap = 0;
         }
-        if let Some(os2_linegap) = master.metrics.get_mut(&MetricType::TypoLineGap) {
+        if let Some(os2_linegap) = master.metrics.get_mut(&babelfont::MetricType::TypoLineGap) {
             *os2_linegap = 0;
         }
     }

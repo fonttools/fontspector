@@ -1608,7 +1608,6 @@ version = "1.0.0"
 dependencies = [
  "fontspector-checkapi",
  "itertools 0.15.0",
- "pluginator",
  "skrifa",
  "write-fonts",
 ]
@@ -1641,7 +1640,6 @@ dependencies = [
 name = "fontspector-profile-googlefonts"
 version = "1.10.0"
 dependencies = [
- "babelfont",
  "chrono",
  "edit-distance",
  "fontspector-checkapi",

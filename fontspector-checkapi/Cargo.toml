@@ -17,8 +17,10 @@ crate-type = ["cdylib", "rlib"]
 [features]
 default = []
 python = []
+plugin = ["clap"]
 schemars = ["dep:schemars"]
-clap = []
+sourcefix = ["dep:babelfont"]
+clap = ["dep:clap"]
 
 [build-dependencies]
 minreq = { version = "2.6.0", features = ["https"] }
@@ -37,7 +39,7 @@ indexmap = { workspace = true }
 glob-match = "0.2.1"
 
 # Argument parsing for plugin CLI
-clap = { version = "4", features = ["derive", "cargo"] }
+clap = { version = "4", features = ["derive", "cargo"], optional = true }
 
 # Serializing and deserializing profiles
 toml = { workspace = true }
@@ -52,7 +54,7 @@ kurbo = { workspace = true, optional = true }
 thiserror = "2.0.12"
 schemars = { version = "1.2.1", optional = true, features = ["indexmap2"] }
 
-babelfont.workspace =  true 
+babelfont = { workspace = true, optional = true }
 
 [lints]
 workspace = true
