@@ -89,6 +89,8 @@ fn unnecessary_tables(t: &Testable, _context: &Context) -> CheckFnResult {
 #[allow(clippy::unwrap_used, clippy::expect_used)]
 #[cfg(test)]
 mod tests {
+    use std::collections::HashMap;
+
     use super::{
         unnecessary_tables, UNNECESSARY_TABLE_TAGS, UNNECESSARY_TABLE_TAGS_CFF,
         UNNECESSARY_TABLE_TAGS_TTF,
@@ -96,36 +98,139 @@ mod tests {
     use fontspector_checkapi::{
         codetesting::{
             add_table, assert_messages_contain, assert_pass, assert_results_contain, remove_table,
-            run_check, test_able,
+            run_check_with_config, test_able,
         },
-        StatusCode,
+        StatusCode, TestableType,
     };
+    use serde_json::json;
+
+    fn default_unnecessary_tables_config() -> HashMap<String, serde_json::Value> {
+        HashMap::from([(
+            "monotype/unnecessary_tables".to_string(),
+            json!({
+                "unnecessary_table_tags": [
+                    "LINO", "SLST", "FFTM", "PfEd", "TeX ", "BDF ", "bdat", "bloc", "ADFH", "SPRK"
+                ],
+                "unnecessary_table_tags_cff": ["gasp", "cvt ", "fpgm", "glyf", "loca", "prep"],
+                "unnecessary_table_tags_ttf": ["VORG"],
+                "unnecessary_table_tags_variable": ["kern"],
+                "unnecessary_table_prefixes": ["TSI", "MT", "ASC", "edt", "ABA"],
+            }),
+        )])
+    }
+
+    #[test]
+    fn test_invalid_tag_length_fails_config() {
+        let testable = test_able("mada/Mada-Regular.ttf");
+        let config = HashMap::from([(
+            "monotype/unnecessary_tables".to_string(),
+            json!({
+                "unnecessary_table_tags": ["TOOLONG"],
+                "unnecessary_table_tags_cff": [],
+                "unnecessary_table_tags_ttf": [],
+                "unnecessary_table_tags_variable": [],
+                "unnecessary_table_prefixes": [],
+            }),
+        )]);
+        let results = run_check_with_config(
+            unnecessary_tables,
+            TestableType::Single(&testable),
+            config,
+        );
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("invalid-config".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_non_ascii_tag_fails_config() {
+        let testable = test_able("mada/Mada-Regular.ttf");
+        let config = HashMap::from([(
+            "monotype/unnecessary_tables".to_string(),
+            json!({
+                "unnecessary_table_tags": ["Täg "],
+                "unnecessary_table_tags_cff": [],
+                "unnecessary_table_tags_ttf": [],
+                "unnecessary_table_tags_variable": [],
+                "unnecessary_table_prefixes": [],
+            }),
+        )]);
+        let results = run_check_with_config(
+            unnecessary_tables,
+            TestableType::Single(&testable),
+            config,
+        );
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("invalid-config".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_missing_config_key_fails() {
+        let testable = test_able("mada/Mada-Regular.ttf");
+        let config = HashMap::from([(
+            "monotype/unnecessary_tables".to_string(),
+            json!({
+                "unnecessary_table_tags": ["LINO"],
+            }),
+        )]);
+        let results = run_check_with_config(
+            unnecessary_tables,
+            TestableType::Single(&testable),
+            config,
+        );
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("invalid-config".to_string()),
+        );
+    }
 
     #[test]
     fn test_ttf_font_pass() {
         let testable = test_able("mada/Mada-Regular.ttf");
-        let results = run_check(unnecessary_tables, testable);
+        let results = run_check_with_config(
+            unnecessary_tables,
+            TestableType::Single(&testable),
+            default_unnecessary_tables_config(),
+        );
         assert_pass(&results);
     }
 
     #[test]
     fn test_ttf_variable_font_pass() {
         let testable = test_able("varfont/inter/Inter[slnt,wght].ttf");
-        let results = run_check(unnecessary_tables, testable);
+        let results = run_check_with_config(
+            unnecessary_tables,
+            TestableType::Single(&testable),
+            default_unnecessary_tables_config(),
+        );
         assert_pass(&results);
     }
 
     #[test]
     fn test_cff_font_pass() {
         let testable = test_able("source-sans-pro/OTF/SourceSansPro-Black.otf");
-        let results = run_check(unnecessary_tables, testable);
+        let results = run_check_with_config(
+            unnecessary_tables,
+            TestableType::Single(&testable),
+            default_unnecessary_tables_config(),
+        );
         assert_pass(&results);
     }
 
     #[test]
     fn test_cff2_font_pass() {
         let testable = test_able("source-sans-pro/VAR/SourceSansVariable-Italic.otf");
-        let results = run_check(unnecessary_tables, testable);
+        let results = run_check_with_config(
+            unnecessary_tables,
+            TestableType::Single(&testable),
+            default_unnecessary_tables_config(),
+        );
         assert_pass(&results);
     }
 
@@ -144,7 +249,11 @@ mod tests {
         for optional in unnecessary_table_tags.iter() {
             let mut test_font = testable.clone();
             add_table(&mut test_font, optional);
-            let results = run_check(unnecessary_tables, test_font);
+            let results = run_check_with_config(
+                unnecessary_tables,
+                TestableType::Single(&test_font),
+                default_unnecessary_tables_config(),
+            );
             assert_results_contain(
                 &results,
                 StatusCode::Fail,
@@ -168,7 +277,11 @@ mod tests {
         for optional in unnecessary_table_tags.iter() {
             let mut test_font = testable.clone();
             add_table(&mut test_font, optional);
-            let results = run_check(unnecessary_tables, test_font);
+            let results = run_check_with_config(
+                unnecessary_tables,
+                TestableType::Single(&test_font),
+                default_unnecessary_tables_config(),
+            );
             assert_results_contain(
                 &results,
                 StatusCode::Fail,
