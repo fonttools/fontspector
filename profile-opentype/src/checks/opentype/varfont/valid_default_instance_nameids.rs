@@ -51,10 +51,13 @@ fn valid_default_instance_nameids(t: &Testable, _context: &Context) -> CheckFnRe
     } else {
         name2.clone()
     };
+    let mut default_instance_found = false;
     let default_coords = vec![F2Dot14::from_f32(0.0); f.font().axes().len()];
     for (index, instance) in f.font().named_instances().iter().enumerate() {
         if instance.location().coords() != default_coords {
             continue;
+        } else {
+            default_instance_found = true;
         }
         let subfamily_name = f
             .get_name_entry_strings(instance.subfamily_name_id())
@@ -80,6 +83,14 @@ fn valid_default_instance_nameids(t: &Testable, _context: &Context) -> CheckFnRe
             )));
         }
     }
+
+    if !default_instance_found {
+        problems.push(Status::fail(
+            "missing-default-instance",
+            "The font does not have a default instance.",
+        ));
+    }
+
     return_result(problems)
 }
 
@@ -87,7 +98,13 @@ fn valid_default_instance_nameids(t: &Testable, _context: &Context) -> CheckFnRe
 #[cfg(test)]
 mod tests {
     use super::*;
-    use fontspector_checkapi::codetesting::{assert_pass, run_check, test_able};
+    use fontspector_checkapi::{
+        codetesting::{
+            add_table, assert_messages_contain, assert_pass, assert_results_contain, run_check,
+            test_able,
+        },
+        StatusCode,
+    };
 
     #[test]
     fn test_valid_default_instance_nameids_pass_cabin() {
@@ -101,5 +118,19 @@ mod tests {
         let testable = test_able("mutatorsans-vf/MutatorSans-VF.ttf");
         let result = run_check(valid_default_instance_nameids, testable);
         assert_pass(&result);
+    }
+
+    #[test]
+    fn test_valid_default_instance_nameids_fail() {
+        let mut testable = test_able("cabinvf/Cabin[wdth,wght].ttf");
+        // We intentionally create an new empty 'fvar' table to trigger the check failure.
+        add_table(&mut testable, b"fvar");
+        let results = run_check(valid_default_instance_nameids, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("missing-default-instance".to_string()),
+        );
+        assert_messages_contain(&results, "The font does not have a default instance.");
     }
 }
