@@ -45,6 +45,34 @@ impl fontspector_checkapi::ProfileProvider for Monotype {
             .add_and_register_check(checks::monotype::style_in_family_name)
             .add_and_register_check(checks::monotype::cmap_recordings_and_subtables)
             .add_and_register_check(checks::monotype::unnecessary_tables)
+            .with_configuration_defaults(
+                "monotype/unnecessary_tables",
+                HashMap::from([
+                    (
+                        "unnecessary_table_tags".to_string(),
+                        json!([
+                            "LINO", "SLST", "FFTM", "PfEd", "TeX ", "BDF ",
+                            "bdat", "bloc", "ADFH", "SPRK"
+                        ]),
+                    ),
+                    (
+                        "unnecessary_table_tags_cff".to_string(),
+                        json!(["gasp", "cvt ", "fpgm", "glyf", "loca", "prep"]),
+                    ),
+                    (
+                        "unnecessary_table_tags_ttf".to_string(),
+                        json!(["VORG"]),
+                    ),
+                    (
+                        "unnecessary_table_tags_variable".to_string(),
+                        json!(["kern"]),
+                    ),
+                    (
+                        "unnecessary_table_prefixes".to_string(),
+                        json!(["TSI", "MT", "ASC", "edt", "ABA"]),
+                    ),
+                ]),
+            )
             // TODO: implement more Monotype-specific checks
             .add_and_register_check(checks::monotype::widthclass)
             .add_and_register_check(checks::monotype::weightclass)
