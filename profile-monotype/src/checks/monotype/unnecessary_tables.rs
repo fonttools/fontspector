@@ -43,10 +43,12 @@ fn parse_prefixes(config: &Value, key: &str) -> Result<Vec<String>, Status> {
                 &format!("Config key '{key}' must contain only strings."),
             ));
         };
-        if s.is_empty() || !s.is_ascii() {
+        if s.is_empty() || s.len() >= 4 || !s.is_ascii() {
             return Err(Status::fail(
                 "invalid-config",
-                &format!("Invalid table prefix '{s}' in '{key}': must be non-empty ASCII."),
+                &format!(
+                    "Invalid table prefix '{s}' in '{key}': must be ASCII and 1–3 characters."
+                ),
             ));
         }
         prefixes.push(s.to_string());
@@ -251,6 +253,31 @@ mod tests {
             "monotype/unnecessary_tables".to_string(),
             json!({
                 "unnecessary_table_tags": ["LINO"],
+            }),
+        )]);
+        let results = run_check_with_config(
+            unnecessary_tables,
+            TestableType::Single(&testable),
+            config,
+        );
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("invalid-config".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_invalid_prefix_length_fails_config() {
+        let testable = test_able("mada/Mada-Regular.ttf");
+        let config = HashMap::from([(
+            "monotype/unnecessary_tables".to_string(),
+            json!({
+                "unnecessary_table_tags": [],
+                "unnecessary_table_tags_cff": [],
+                "unnecessary_table_tags_ttf": [],
+                "unnecessary_table_tags_variable": [],
+                "unnecessary_table_prefixes": ["ABCD"],
             }),
         )]);
         let results = run_check_with_config(

@@ -226,7 +226,7 @@ fn parse_prefixes(config: &Value, key: &str) -> Result<Vec<String>, Status> {
             return Err(Status::fail(
                 "invalid-config",
                 &format!(
-                    "Invalid table prefix '{s}' in '{key}': must be non-empty ASCII."
+                    "Invalid table prefix '{s}' in '{key}': must be ASCII and 1–3 characters."
                 ),
             ));
         }

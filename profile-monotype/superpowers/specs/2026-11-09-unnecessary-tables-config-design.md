@@ -34,7 +34,7 @@ unnecessary_table_prefixes = ["TSI", "MT"]
 2. For each required key above, require a JSON array of strings.
 3. Validate:
    - **Tags:** exactly 4 bytes, ASCII only; convert to `[u8; 4]` for `has_table`.
-   - **Prefixes:** non-empty, ASCII only.
+   - **Prefixes:** ASCII only, length 1–3 characters (`< 4`).
 4. On missing key, wrong type, or malformed entry: return Fail with code `invalid-config` and a clear message. Do not silently ignore bad entries and do not fall back to hardcoded lists in the check file.
 5. Build the effective tag list: base tags + CFF or TTF tags by sfnt version + variable tags if `is_variable_font()`.
 6. Scan font table names for any that start with a configured prefix.
