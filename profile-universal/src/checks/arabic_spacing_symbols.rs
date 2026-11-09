@@ -1,6 +1,6 @@
-use fontations::skrifa::{raw::tables::gdef::GlyphClassDef, MetadataProvider};
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
+use skrifa::{raw::tables::gdef::GlyphClassDef, MetadataProvider};
 
 const ARABIC_SPACING_SYMBOLS: [u16; 17] = [
     0xFBB2, // Dot Above

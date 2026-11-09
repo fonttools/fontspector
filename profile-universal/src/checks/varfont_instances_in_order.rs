@@ -61,3 +61,16 @@ fn varfont_instances_in_order(t: &Testable, context: &Context) -> CheckFnResult 
     }
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::varfont_instances_in_order;
+    use fontspector_checkapi::codetesting::{assert_pass, run_check, test_able};
+
+    #[test]
+    fn test_varfont_instances_in_order_pass() {
+        let testable = test_able("ibmplexsans-vf/IBMPlexSansVar-Roman.ttf");
+        let results = run_check(varfont_instances_in_order, testable);
+        assert_pass(&results);
+    }
+}

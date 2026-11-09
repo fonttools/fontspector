@@ -50,3 +50,64 @@ fn dirname_matches_nameid_1(t: &Testable, _context: &Context) -> CheckFnResult {
         Ok(Status::just_one_pass())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::dirname_matches_nameid_1;
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_file},
+        StatusCode, Testable,
+    };
+
+    #[test]
+    fn test_check_repo_dirname_matches_nameid_1() {
+        let src_family = test_file("rosarivo");
+        let tmp_root = std::env::temp_dir().join("fontspector-dirname-nameid1");
+        let _ = std::fs::remove_dir_all(&tmp_root);
+        let tmp_gf_dir = tmp_root.join("ofl/rosarivo");
+        let parent = tmp_gf_dir.parent().unwrap_or_else(|| {
+            panic!(
+                "Failed to determine temp parent directory for {:?}",
+                tmp_gf_dir
+            )
+        });
+        std::fs::create_dir_all(parent)
+            .unwrap_or_else(|e| panic!("Failed creating temp dirs: {e}"));
+        std::fs::create_dir_all(&tmp_gf_dir)
+            .unwrap_or_else(|e| panic!("Failed creating family temp dir {:?}: {e}", tmp_gf_dir));
+        let entries = std::fs::read_dir(&src_family)
+            .unwrap_or_else(|e| panic!("Failed reading fixture dir {:?}: {e}", src_family));
+        for entry in entries {
+            let entry = entry.unwrap_or_else(|e| panic!("Failed reading fixture entry: {e}"));
+            let from = entry.path();
+            let to = tmp_gf_dir.join(entry.file_name());
+            std::fs::copy(&from, &to)
+                .unwrap_or_else(|e| panic!("Failed copying {:?} -> {:?}: {e}", from, to));
+        }
+
+        let regular = tmp_gf_dir.join("Rosarivo-Regular.ttf");
+        let regular_testable = Testable::new(regular.clone())
+            .unwrap_or_else(|e| panic!("Failed to load temp test font {:?}: {e}", regular));
+        assert_pass(&run_check(dirname_matches_nameid_1, regular_testable));
+
+        let renamed = tmp_root.join("ofl/not_rosarivo");
+        std::fs::rename(&tmp_gf_dir, &renamed).unwrap_or_else(|e| {
+            panic!(
+                "Failed renaming temp dir {:?} -> {:?}: {e}",
+                tmp_gf_dir, renamed
+            )
+        });
+        let bad_regular = renamed.join("Rosarivo-Regular.ttf");
+        assert_results_contain(
+            &run_check(
+                dirname_matches_nameid_1,
+                Testable::new(bad_regular)
+                    .unwrap_or_else(|e| panic!("Failed loading renamed test font: {e}")),
+            ),
+            StatusCode::Fail,
+            Some("mismatch".to_string()),
+        );
+
+        let _ = std::fs::remove_dir_all(&tmp_root);
+    }
+}

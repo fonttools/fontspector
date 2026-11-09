@@ -141,6 +141,7 @@ pub(crate) fn check_impl(args: TokenStream, input: TokenStream) -> TokenStream {
         block,
         // Other attributes applied to this function
         attrs,
+        ..
     } = parse_macro_input!(input as ItemFn);
 
     let check_ident = &sig.ident;

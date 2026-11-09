@@ -1,27 +1,34 @@
 #![allow(clippy::expect_used, clippy::unwrap_used)]
-use std::{collections::HashMap, path::PathBuf};
+use std::{
+    collections::{BTreeMap, BTreeSet, HashMap},
+    path::PathBuf,
+};
 
+use fontspector_checkapi::prelude::*;
 use js_sys::{Reflect, Uint8Array};
 use serde_json::{json, Value};
 use wasm_bindgen::prelude::*;
 extern crate console_error_panic_hook;
 use fontspector_checkapi::{
-    Check, CheckResult, Context, Plugin, Profile, Registry, StatusCode, TestFont, Testable,
-    TestableCollection, TestableType,
+    Check, CheckResult, Context, HotfixFunction, Profile, ProfileProvider, Registry, StatusCode,
+    TestFont, Testable, TestableCollection, TestableType,
 };
 use profile_adobe::Adobe;
 use profile_fontwerk::Fontwerk;
 use profile_googlefonts::GoogleFonts;
 use profile_iso15008::Iso15008;
 use profile_microsoft::Microsoft;
+use profile_monotype::Monotype;
 use profile_opentype::OpenType;
 use profile_universal::Universal;
+use std::io::Write;
+use zip::ZipWriter;
 
-// #[wasm_bindgen]
-// extern "C" {
-//     #[wasm_bindgen(js_namespace = console)]
-//     fn log(s: &str);
-// }
+#[wasm_bindgen]
+extern "C" {
+    #[wasm_bindgen(js_namespace = console)]
+    fn log(s: &str);
+}
 
 #[wasm_bindgen]
 pub fn version() -> String {
@@ -51,15 +58,34 @@ fn register_profiles<'a>() -> Registry<'a> {
     Fontwerk
         .register(&mut registry)
         .expect("Couldn't register Fontwerk profile, fontspector bug");
+    Monotype
+        .register(&mut registry)
+        .expect("Couldn't register Monotype profile, fontspector bug");
 
     {
         let (name, toml) = ("fontbureau", include_str!("../../profiles/fontbureau.toml"));
         let profile = Profile::from_toml(toml).expect("Couldn't load profile, fontspector bug");
         registry
-            .register_profile(name, profile)
+            .register_profile(name, profile, true)
             .expect("Couldn't register profile, fontspector bug");
     }
-
+    {
+        let (name, toml) = (
+            "typenetwork",
+            include_str!("../../profiles/typenetwork.toml"),
+        );
+        let profile = Profile::from_toml(toml).expect("Couldn't load profile, fontspector bug");
+        registry
+            .register_profile(name, profile, true)
+            .expect("Couldn't register profile, fontspector bug");
+    }
+    {
+        let (name, toml) = ("workspace", include_str!("../../profiles/workspace.toml"));
+        let profile = Profile::from_toml(toml).expect("Couldn't load profile, fontspector bug");
+        registry
+            .register_profile(name, profile, true)
+            .expect("Couldn't register profile, fontspector bug");
+    }
     registry
 }
 
@@ -83,6 +109,22 @@ pub fn best_family_name(fonts: &JsValue) -> Result<String, JsValue> {
     Ok(names.join(", "))
 }
 
+fn fonts_to_testables(fonts: &JsValue) -> Result<Vec<Testable>, JsValue> {
+    Reflect::own_keys(fonts)?
+        .into_iter()
+        .map(|filename| {
+            let file: JsValue = Reflect::get(fonts, &filename)?;
+            let contents = Uint8Array::new(&file).to_vec();
+
+            Ok(Testable {
+                filename: filename.as_string().unwrap().into(),
+                source: None,
+                contents,
+            })
+        })
+        .collect::<Result<Vec<Testable>, JsValue>>()
+}
+
 #[wasm_bindgen]
 pub fn check_fonts(
     fonts: &JsValue,
@@ -92,19 +134,7 @@ pub fn check_fonts(
 ) -> Result<String, JsValue> {
     console_error_panic_hook::set_once();
     let registry = register_profiles();
-    let testables: Vec<Testable> = Reflect::own_keys(fonts)?
-        .into_iter()
-        .map(|filename| {
-            let file: JsValue = Reflect::get(fonts, &filename).unwrap();
-            let contents = Uint8Array::new(&file).to_vec();
-
-            Testable {
-                filename: filename.as_string().unwrap().into(),
-                source: None,
-                contents,
-            }
-        })
-        .collect();
+    let testables: Vec<Testable> = fonts_to_testables(fonts)?;
     let min_severity = StatusCode::from_string(loglevels);
     let collection = TestableCollection::from_testables(testables, None);
 
@@ -119,6 +149,7 @@ pub fn check_fonts(
         full_lists,
         cache: Default::default(),
         overrides: vec![],
+        check_id: None,
     };
     let all_testables: Vec<TestableType> = collection.collection_and_files().collect();
 
@@ -186,4 +217,122 @@ pub fn dump_checks() -> Result<String, JsValue> {
         }
     }
     serde_json::to_string_pretty(&checks).map_err(|e| e.to_string().into())
+}
+
+struct FixRequest<'a> {
+    check_id: String,
+    fixer: &'a HotfixFunction,
+    dialogue: Option<MoreInfoReplies>,
+}
+
+fn parse_request_dialogue(request: &JsValue) -> Result<Option<MoreInfoReplies>, JsValue> {
+    let details = Reflect::get(request, &JsValue::from_str("details"))?;
+    if details.is_null() || details.is_undefined() {
+        return Ok(None);
+    }
+
+    serde_wasm_bindgen::from_value(details)
+        .map(Some)
+        .map_err(|e| format!("Could not parse fix request details: {e}").into())
+}
+
+#[wasm_bindgen]
+pub fn fix_fonts(fonts: &JsValue, requests: &JsValue) -> Result<Uint8Array, JsValue> {
+    console_error_panic_hook::set_once();
+    let mut testables: Vec<Testable> = fonts_to_testables(fonts)?;
+    let registry = register_profiles();
+    let mut logfile = String::new();
+
+    // Gather all the testables and their fixes first. Have to do this in multiple passes to
+    // avoid mutably borrowing the same testable multiple times.
+    let mut to_fix: BTreeMap<String, (&mut Testable, Vec<FixRequest<'_>>)> = BTreeMap::new();
+    let mut filenames_we_need = BTreeSet::new();
+    for request in js_sys::try_iter(requests)?.ok_or("not iterable!")? {
+        let request = request?;
+        let filename = Reflect::get(&request, &JsValue::from_str("filename"))?
+            .as_string()
+            .ok_or("filename is not a string")?;
+        filenames_we_need.insert(filename.clone());
+    }
+    // Now map them to their testables
+    for testable in &mut testables {
+        if filenames_we_need.contains(&testable.filename.to_string_lossy().to_string()) {
+            to_fix.insert(
+                testable.filename.to_string_lossy().to_string(),
+                (testable, vec![]),
+            );
+        }
+    }
+    // Next pass gathers fix functions and dialogue options
+    for request in js_sys::try_iter(requests)?.ok_or("not iterable!")? {
+        let request = request?;
+        let check_id = Reflect::get(&request, &JsValue::from_str("check_id"))?
+            .as_string()
+            .ok_or("check_id is not a string")?;
+        let check = registry
+            .checks
+            .get(&check_id)
+            .ok_or_else(|| format!("Could not find check with id {check_id}"))?;
+        let fixer = check
+            .hotfix
+            .as_ref()
+            .ok_or_else(|| format!("Check {check_id} does not have a fixer"))?;
+        let filename = Reflect::get(&request, &JsValue::from_str("filename"))?
+            .as_string()
+            .ok_or("filename is not a string")?;
+        let dialogue = parse_request_dialogue(&request)?;
+        if let Some((_, fixes)) = to_fix.get_mut(&filename) {
+            fixes.push(FixRequest {
+                check_id: check_id.to_string(),
+                fixer: *fixer,
+                dialogue,
+            });
+        }
+    }
+
+    // Now run all the fixes at once
+    for (filename, (testable, fixes)) in to_fix.into_iter() {
+        logfile.push_str(&format!("Fixing {filename}:\n"));
+        for fix_request in fixes.iter() {
+            let check_id = &fix_request.check_id;
+            let fixer = &fix_request.fixer;
+            let options = fix_request.dialogue.clone();
+
+            match fixer(testable, options) {
+                Ok(FixResult::Fixed) => {
+                    logfile.push_str(&format!("  - Applied fix for {check_id}\n"))
+                }
+                Ok(FixResult::FixFailed(s)) => logfile.push_str(&format!(
+                    "  - Fix for {check_id} did not apply cleanly ({s}), manual review needed\n"
+                )),
+                Ok(FixResult::MoreInfoNeeded(_)) => logfile.push_str(&format!(
+                    "  - Fix for {check_id} needs more information, manual review needed\n"
+                )),
+                Ok(_) => {}
+                Err(e) => {
+                    logfile.push_str(&format!("  - Error applying fix for {check_id}: {e}\n"))
+                }
+            }
+        }
+    }
+
+    let mut cur = std::io::Cursor::new(Vec::new());
+    let mut zip = ZipWriter::new(&mut cur);
+    for testable in testables {
+        zip.start_file(
+            testable.filename.to_string_lossy(),
+            zip::write::SimpleFileOptions::default(),
+        )
+        .map_err(|e| e.to_string())?;
+        zip.write_all(&testable.contents)
+            .map_err(|e| e.to_string())?;
+    }
+    zip.start_file("fix_log.txt", zip::write::SimpleFileOptions::default())
+        .map_err(|e| e.to_string())?;
+    zip.write_all(logfile.as_bytes())
+        .map_err(|e| e.to_string())?;
+    zip.finish().map_err(|e| e.to_string())?;
+    let zip_data = cur.into_inner();
+    let js_array = Uint8Array::from(zip_data.as_slice());
+    Ok(js_array)
 }

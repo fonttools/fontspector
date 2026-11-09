@@ -11,12 +11,18 @@ crate-type = ["cdylib", "rlib"]
 fontspector-checkapi = { path = "../fontspector-checkapi", features = [
     "kurbo",
 ] }
-fontations = { workspace = true }
+skrifa = { workspace = true }
+write-fonts = { workspace = true }
 itertools = { workspace = true }
 
 [target.'cfg(not(target_family = "wasm"))'.dependencies]
 # Plugin architecture
 pluginator = { workspace = true }
+
+[features]
+# The "check" feature enables dependencies only needed for checks, not fixes.
+default = ["check"]
+check = []
 
 [lints]
 workspace = true

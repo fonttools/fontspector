@@ -6,6 +6,22 @@ use itertools::Itertools;
 use std::{collections::BTreeMap, io::Write, path::Path};
 use termimad::MadSkin;
 
+/// Wrap a check ID with an OSC 8 terminal hyperlink to the fontspector wiki page.
+/// Only emits OSC 8 escape sequences when the terminal supports ANSI output.
+pub(crate) fn check_id_link(check_id: &str) -> String {
+    if colored::control::SHOULD_COLORIZE.should_colorize() {
+        let colored_id = check_id.bright_cyan();
+        let wiki_slug = check_id.replace('/', "-");
+        let url = format!(
+            "https://github.com/fonttools/fontspector/wiki/{}",
+            wiki_slug
+        );
+        format!("\x1b]8;;{url}\x1b\\{colored_id}\x1b]8;;\x1b\\")
+    } else {
+        check_id.to_string()
+    }
+}
+
 pub(crate) struct TerminalReporter {
     succinct: bool,
 }
@@ -58,20 +74,27 @@ impl Reporter for TerminalReporter {
                     }
 
                     if self.succinct {
-                        let _ = writeln!(
+                        let _ = write!(
                             std::io::stdout(),
                             "{:}: {:} {:} [{}]",
                             Path::new(filename)
                                 .file_name()
                                 .unwrap_or_default()
                                 .to_string_lossy(),
-                            result.check_id.bright_cyan(),
+                            check_id_link(&result.check_id),
                             colored_status(result.worst_status(), None),
                             subresults
                                 .iter()
                                 .map(|r| colored_status(r.severity, r.code.as_deref()))
                                 .join(" ")
                         );
+                        if result.hotfix_result == Some(FixResult::Fixed) {
+                            termimad::print_inline(" [hotfixed]");
+                        }
+                        if result.sourcefix_result == Some(FixResult::Fixed) {
+                            termimad::print_inline(" [source fixed]");
+                        }
+                        let _ = writeln!(std::io::stdout());
                         continue;
                     }
 
@@ -83,7 +106,7 @@ impl Reporter for TerminalReporter {
                         let _ = writeln!(std::io::stdout(), "  Section: {sectionname}\n");
                         sectionheading_done = true;
                     }
-                    let _ = writeln!(std::io::stdout(), ">> {:}", result.check_id);
+                    let _ = writeln!(std::io::stdout(), ">> {:}", check_id_link(&result.check_id));
                     if args.verbose > 0 {
                         let _ = writeln!(std::io::stdout(), "   {:}", result.check_name);
                         let _ = write!(
@@ -106,7 +129,7 @@ impl Reporter for TerminalReporter {
                         Some(FixResult::Fixed) => {
                             termimad::print_inline("  Hotfix applied.\n")
                         }
-                        Some(FixResult::FixError(e)) => {
+                        Some(FixResult::FixFailed(e)) => {
                             termimad::print_inline(&format!("  Hotfix failed: {e:}\n"))
                         }
                         _ => {}
@@ -118,7 +141,7 @@ impl Reporter for TerminalReporter {
                         Some(FixResult::Fixed) => {
                             termimad::print_inline("  Source fix applied.\n")
                         }
-                        Some(FixResult::FixError(e)) => {
+                        Some(FixResult::FixFailed(e)) => {
                             termimad::print_inline(&format!("  Source fix failed: {e:}\n"))
                         }
                         _ => {}

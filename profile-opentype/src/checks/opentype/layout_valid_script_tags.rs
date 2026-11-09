@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
-use fontations::skrifa::raw::TableProvider;
 use fontspector_checkapi::{constants::VALID_SCRIPT_TAGS, prelude::*, testfont, FileTypeConvert};
+use skrifa::raw::TableProvider;
 
 #[check(
     id = "opentype/layout_valid_script_tags",

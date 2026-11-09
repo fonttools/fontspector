@@ -1,0 +1,96 @@
+name: Build binary matrix
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: "Version string for archive naming (e.g. 1.2.3 or dev)"
+        required: true
+        type: string
+      upload-to-release:
+        description: "Upload built artifacts to a GitHub release"
+        required: false
+        type: boolean
+        default: false
+      release-tag:
+        description: "The full release tag to upload to (e.g. fontspector-v1.2.3)"
+        required: false
+        type: string
+      checkout-ref:
+        description: "Git ref to checkout (defaults to the event's ref)"
+        required: false
+        type: string
+
+jobs:
+  build:
+    name: ${{ matrix.os.build }}
+    permissions:
+      contents: write
+      id-token: write
+    runs-on: ${{ matrix.os.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - build: linux
+            os: ubuntu-22.04
+            target: x86_64-unknown-linux-gnu
+
+          - build: macos
+            os: macos-latest
+            target: x86_64-apple-darwin
+
+          - build: macos-m1
+            os: macos-latest
+            target: aarch64-apple-darwin
+
+          - build: windows-gnu
+            os: windows-latest
+            target: x86_64-pc-windows-gnu
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+          fetch-depth: 0
+          ref: ${{ inputs.checkout-ref }}
+
+      - run: rustup toolchain install stable --profile minimal
+
+      - if: matrix.os.target == 'x86_64-apple-darwin'
+        run: rustup target add x86_64-apple-darwin
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          cache-workspace-crates: true
+          add-job-id-key: false
+
+      - name: Build
+        run: cargo build --verbose --release --target ${{ matrix.os.target }}
+
+      - name: Build archive
+        shell: bash
+        run: |
+          dirname="fontspector-${{ inputs.version }}-${{ matrix.os.target }}"
+          mkdir "$dirname"
+          if [ "${{ matrix.os.os }}" = "windows-latest" ]; then
+              mv "target/${{ matrix.os.target }}/release/"*.exe "$dirname"
+              7z a "$dirname.zip" "$dirname"
+              echo "ASSET=$dirname.zip" >> $GITHUB_ENV
+          else
+              mv "target/${{ matrix.os.target }}/release/fontspector" "$dirname"
+              tar -czf "$dirname.tar.gz" "$dirname"
+              echo "ASSET=$dirname.tar.gz" >> $GITHUB_ENV
+          fi
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.ASSET }}
+          path: ${{ env.ASSET }}
+
+      - if: inputs.upload-to-release
+        name: Add artefact to release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "${{ inputs.release-tag }}" "${{ env.ASSET }}"

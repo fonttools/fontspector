@@ -64,3 +64,54 @@ fn equal_codepoint_coverage(c: &TestableCollection, context: &Context) -> CheckF
     }
     return_result(problems)
 }
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+
+    use super::equal_codepoint_coverage;
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, deencode_glyph, test_able},
+        StatusCode, Testable, TestableCollection, TestableType,
+    };
+
+    fn run(files: Vec<Testable>) -> Option<fontspector_checkapi::CheckResult> {
+        let collection = TestableCollection::from_testables(files, None);
+        fontspector_checkapi::codetesting::run_check_with_config(
+            equal_codepoint_coverage,
+            TestableType::Collection(&collection),
+            HashMap::new(),
+        )
+    }
+
+    fn cabin_family() -> Vec<Testable> {
+        vec![
+            test_able("cabin/Cabin-BoldItalic.ttf"),
+            test_able("cabin/Cabin-Bold.ttf"),
+            test_able("cabin/Cabin-Italic.ttf"),
+            test_able("cabin/Cabin-MediumItalic.ttf"),
+            test_able("cabin/Cabin-Medium.ttf"),
+            test_able("cabin/Cabin-Regular.ttf"),
+            test_able("cabin/Cabin-SemiBoldItalic.ttf"),
+            test_able("cabin/Cabin-SemiBold.ttf"),
+        ]
+    }
+
+    #[test]
+    fn test_check_family_equal_codepoint_coverage() {
+        assert_pass(&run(cabin_family()));
+
+        let mut bad = cabin_family();
+        let to_modify = bad
+            .get_mut(1)
+            .unwrap_or_else(|| panic!("Expected at least two fonts in cabin family fixture"));
+        if let Err(error) = deencode_glyph(to_modify, 8730) {
+            panic!("Failed to deencode glyph for test setup: {error}");
+        }
+        assert_results_contain(
+            &run(bad),
+            StatusCode::Fail,
+            Some("glyphset-diverges".to_string()),
+        );
+    }
+}

@@ -1,4 +1,6 @@
-use fontations::skrifa::{
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
+use serde_json::json;
+use skrifa::{
     raw::{
         tables::glyf::{Glyph, PointFlags},
         types::Point,
@@ -6,8 +8,6 @@ use fontations::skrifa::{
     },
     GlyphId,
 };
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
-use serde_json::json;
 
 #[check(
     id = "opentype/points_out_of_bounds",
@@ -83,4 +83,16 @@ fn points_out_of_bounds(t: &Testable, _context: &Context) -> CheckFnResult {
         }
     }
     return_result(problems)
+}
+
+#[cfg(test)]
+mod tests {
+    use fontspector_checkapi::codetesting::{assert_pass, run_check, test_able};
+
+    #[test]
+    fn test_points_out_of_bounds_pass() {
+        let testable = test_able("familysans/FamilySans-Regular.ttf");
+        let result = run_check(super::points_out_of_bounds, testable);
+        assert_pass(&result);
+    }
 }

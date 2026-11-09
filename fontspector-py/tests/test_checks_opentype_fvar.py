@@ -366,6 +366,9 @@ def test_check_varfont_valid_subfamily_nameid(check):
     inst_2.subfamilyNameID = 17
     inst_3.subfamilyNameID = 256
     inst_4.subfamilyNameID = 32767
+    name_table = ttFont["name"]
+    for nid in [2, 17, 256, 32767]:
+        name_table.setName(f"fvar instance name {nid}", nid, 3, 1, 0x409)
     assert_PASS(check(ttFont), "with a good varfont...")
 
     # Change two instances' subfamilyNameID to invalid values
@@ -405,6 +408,9 @@ def test_check_varfont_valid_postscript_nameid(check):
     inst_2.postscriptNameID = 0xFFFF
     inst_3.postscriptNameID = 256
     inst_4.postscriptNameID = 32767
+    name_table = ttFont["name"]
+    for nid in [6, 0xFFFF, 256, 32767]:
+        name_table.setName(f"fvar instance name {nid}", nid, 3, 1, 0x409)
     assert_PASS(check(ttFont), "with a good varfont...")
 
     # Change two instances' postScriptNameID to invalid values

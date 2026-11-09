@@ -1,11 +1,11 @@
 mod checks;
 
-use fontspector_checkapi::{ProfileBuilder, Registry};
+use fontspector_checkapi::{FontspectorError, ProfileBuilder, Registry};
 
 pub struct OpenType;
 
-impl fontspector_checkapi::Plugin for OpenType {
-    fn register(&self, cr: &mut Registry<'_>) -> Result<(), String> {
+impl fontspector_checkapi::ProfileProvider for OpenType {
+    fn register(&self, cr: &mut Registry<'_>) -> Result<(), FontspectorError> {
         let builder = ProfileBuilder::new();
         builder
             .add_section("Opentype Specification Checks")
@@ -18,6 +18,7 @@ impl fontspector_checkapi::Plugin for OpenType {
             .add_and_register_check(checks::opentype::code_pages)
             .add_and_register_check(checks::opentype::family::bold_italic_unique_for_nameid1)
             .add_and_register_check(checks::opentype::family::consistent_family_name)
+            .add_and_register_check(checks::opentype::family::unique_names)
             .add_and_register_check(checks::opentype::family::equal_font_versions)
             .add_and_register_check(checks::opentype::family::max_4_fonts_per_family_name)
             .add_and_register_check(checks::opentype::family_naming_recommendations)
@@ -25,8 +26,11 @@ impl fontspector_checkapi::Plugin for OpenType {
             .add_and_register_check(checks::opentype::family::underline_thickness)
             .add_and_register_check(checks::opentype::font_version)
             .add_and_register_check(checks::opentype::fsselection)
+            .add_and_register_check(checks::opentype::fsselection_wws)
             .add_and_register_check(checks::opentype::fvar::axis_ranges_correct)
+            .add_and_register_check(checks::opentype::fvar::registered_axis_tags)
             .add_and_register_check(checks::opentype::fvar::regular_coords_correct)
+            .add_and_register_check(checks::opentype::fvar::valid_range)
             .add_and_register_check(checks::opentype::GDEF_mark_chars)
             .add_and_register_check(checks::opentype::GDEF_non_mark_chars)
             .add_and_register_check(checks::opentype::GDEF_spacing_marks)
@@ -63,6 +67,7 @@ impl fontspector_checkapi::Plugin for OpenType {
             .add_and_register_check(checks::opentype::vendor_id)
             .add_and_register_check(checks::opentype::weight_class_fvar)
             .add_and_register_check(checks::opentype::xavgcharwidth)
+            .add_and_register_check(checks::opentype::hmtx_cff_num_glyphs)
             .build("opentype", cr)
     }
 }

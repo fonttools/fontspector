@@ -30,7 +30,7 @@ and ensure article page has minimum length and includes visual assets.",
 )]
 fn images(c: &TestableCollection, _context: &Context) -> CheckFnResult {
     let Some(article) = c.get_file("ARTICLE.en_us.html") else {
-        skip!("no-article", "ARTICLE.en_us.html not present")
+        skip!("no-article", "ARTICLE.en_us.html not present");
     };
     let mut problems = vec![];
     let fragment = Html::parse_fragment(std::str::from_utf8(&article.contents)?);

@@ -1,7 +1,7 @@
-use fontspector_checkapi::prelude::*;
+use fontspector_checkapi::{prelude::*, DialogField};
 use serde_json::json;
 
-struct Test;
+pub struct Test;
 
 #[check(
     id = "test/say_hello",
@@ -10,12 +10,12 @@ struct Test;
     proposal = "https://github.com/simoncozens/fontspector/commit/5fdf9750991176c8e2776557ce6c17c642c24a73"
 )]
 fn say_hello(_c: &Testable, context: &Context) -> CheckFnResult {
-    println!("Hello from the test plugin!");
+    eprintln!("Hello from the test plugin!");
     context
         .cache
         .write()?
         .insert("Hello".to_string(), json!("World"));
-    println!("My context was: {context:?}");
+    eprintln!("My context was: {context:?}");
     return_result(vec![])
 }
 
@@ -74,17 +74,55 @@ fn check_cache(_c: &Testable, context: &Context) -> CheckFnResult {
     }
 }
 
-impl fontspector_checkapi::Plugin for Test {
-    fn register(&self, cr: &mut Registry) -> Result<(), String> {
+#[check(
+    id = "test/test_hotfix_with_dialogue",
+    title = "Check we can have a hotfix that opens a dialogue",
+    rationale = "This check is part of the example of how to create plugins.",
+    hotfix = hotfix_with_dialogue,
+    applies_to = "TTF"
+)]
+fn check_hotfix_with_dialogue(_c: &Testable, _context: &Context) -> CheckFnResult {
+    Ok(Status::just_one_fail(
+        "hotfix-dialogue",
+        "This check has a hotfix that opens a dialogue",
+    ))
+}
+
+fn hotfix_with_dialogue(
+    _t: &mut Testable,
+    replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
+    if replies.is_none() {
+        println!("No replies yet, asking for more info...");
+        return Ok(FixResult::MoreInfoNeeded(MoreInfoRequest(vec![
+            DialogField::new_choice(
+                "animal",
+                "What is your favourite pet?",
+                vec![("dog", "dog"), ("cat", "cat"), ("rabbit", "rabbit")],
+            ),
+            DialogField::new_boolean("boxticker", "Do you like checking checkboxes?"),
+            DialogField::new_number("age", "How old are you?"),
+        ])));
+    }
+    println!("Got replies: {replies:?}");
+
+    Ok(FixResult::Fixed)
+}
+
+impl fontspector_checkapi::ProfileProvider for Test {
+    fn register(&self, cr: &mut Registry) -> Result<(), FontspectorError> {
         let toml = FileType::new("*.toml");
         cr.register_filetype("TOML", toml);
 
         cr.register_simple_profile(
             "test",
-            vec![validate_toml, say_hello, check_metadata, check_cache],
+            vec![
+                validate_toml,
+                say_hello,
+                check_metadata,
+                check_cache,
+                check_hotfix_with_dialogue,
+            ],
         )
     }
 }
-
-#[cfg(not(target_family = "wasm"))]
-pluginator::plugin_implementation!(fontspector_checkapi::Plugin, Test);

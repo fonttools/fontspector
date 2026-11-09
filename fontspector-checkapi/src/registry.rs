@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{Check, CheckId, FileType, Profile, Testable, TTF};
+use crate::{Check, CheckId, FileType, FontspectorError, Profile, Testable, TTF};
 
 #[derive(Default)]
 /// The Registry object
@@ -10,7 +10,7 @@ pub struct Registry<'a> {
     /// All known checks, by ID
     pub checks: HashMap<CheckId, Check<'a>>,
     /// All known profiles, by name
-    pub(crate) profiles: HashMap<String, Profile>,
+    pub profiles: HashMap<String, Profile>,
     /// All known filetypes, by name
     pub(crate) filetypes: HashMap<String, FileType<'a>>,
 }
@@ -33,18 +33,16 @@ impl<'a> Registry<'a> {
         self.profiles.iter()
     }
 
-    /// Load a plugin from a path
-    #[cfg(not(target_family = "wasm"))]
-    pub fn load_plugin(&mut self, plugin_path: &str) -> Result<(), String> {
-        let plugin = unsafe { crate::load_plugin(plugin_path) }.unwrap_or_else(|e| {
-            panic!("Could not load plugin {plugin_path:?}: {e:?}");
-        });
-        plugin.register(self)
-    }
-
     /// Register a new [Profile]
-    pub fn register_profile(&mut self, name: &str, mut profile: Profile) -> Result<(), String> {
-        profile.validate(self)?;
+    pub fn register_profile(
+        &mut self,
+        name: &str,
+        mut profile: Profile,
+        validate: bool,
+    ) -> Result<(), FontspectorError> {
+        if validate {
+            profile.validate(self)?;
+        }
         self.profiles.insert(name.to_string(), profile);
         Ok(())
     }
@@ -69,7 +67,7 @@ impl<'a> Registry<'a> {
         &mut self,
         name: &str,
         checks: Vec<Check<'a>>,
-    ) -> Result<(), String> {
+    ) -> Result<(), FontspectorError> {
         let mut profile = Profile::default();
         profile.sections.insert(
             name.to_string(),
@@ -78,7 +76,7 @@ impl<'a> Registry<'a> {
         for check in checks {
             self.register_check(check);
         }
-        self.register_profile(name, profile)
+        self.register_profile(name, profile, false)
     }
 
     /// Returns true if a check has an "experimental" flag

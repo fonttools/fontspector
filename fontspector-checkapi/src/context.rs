@@ -33,6 +33,8 @@ pub struct Context {
     pub cache: Arc<RwLock<Map<String, Value>>>,
     /// Any overrides for this check, from the profile or the user's configuration file.
     pub overrides: Vec<Override>,
+    /// The ID of the check currently being run, used for external/subprocess checks
+    pub check_id: Option<String>,
 }
 
 impl Context {
@@ -46,6 +48,7 @@ impl Context {
             full_lists: self.full_lists,
             cache: Arc::new(RwLock::new(Map::new())),
             overrides: self.overrides.clone(),
+            check_id: self.check_id.clone(),
         }
     }
 
@@ -93,6 +96,7 @@ impl Context {
             full_lists: self.full_lists,
             cache: self.cache.clone(),
             overrides: our_overrides,
+            check_id: Some(check.id.to_string()),
         }
     }
 

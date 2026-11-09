@@ -1,6 +1,7 @@
-use fontations::skrifa::{raw::TableProvider, GlyphId, MetadataProvider};
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata, TestFont};
 use serde_json::json;
+use skrifa::{raw::TableProvider, GlyphId, MetadataProvider};
+use write_fonts::from_obj::ToOwnedTable;
 
 const AVG_CHAR_WEIGHTS: [(char, u32); 27] = [
     ('a', 64),
@@ -36,6 +37,7 @@ const AVG_CHAR_WEIGHTS: [(char, u32); 27] = [
     id = "opentype/xavgcharwidth",
     proposal = "https://github.com/fonttools/fontbakery/issues/4829",
     title = "Checking OS/2 fsSelection value.",
+    hotfix = fix_xavgcharwidth,
     rationale = "
         The OS/2.xAvgCharWidth field is used to calculate the width of a string of
         characters. It is the average width of all non-zero width glyphs in the font.
@@ -47,48 +49,8 @@ const AVG_CHAR_WEIGHTS: [(char, u32); 27] = [
 )]
 fn xavgcharwidth(f: &Testable, _context: &Context) -> CheckFnResult {
     let font = testfont!(f);
-    let os2 = font.font().os2()?;
-    let hmtx = font.font().hmtx()?;
-    let charmap = font.font().charmap();
-    let (rule, expected) = if os2.version() >= 3 {
-        let advances = hmtx
-            .h_metrics()
-            .iter()
-            .map(|metric| metric.advance.get() as u32)
-            .filter(|&w| w > 0)
-            .collect::<Vec<_>>();
-        if advances.is_empty() {
-            return Err(FontspectorError::General(
-                "No non-zero width glyphs in font for average character width calculation"
-                    .to_string(),
-            ));
-        }
-        (
-            "the average of the widths of all glyphs in the font",
-            advances.iter().sum::<u32>() / advances.len() as u32,
-        )
-    } else {
-        let ids: Vec<Option<GlyphId>> = AVG_CHAR_WEIGHTS
-            .iter()
-            .map(|(c, _)| charmap.map(*c))
-            .collect();
-        if ids.iter().any(|id| id.is_none()) {
-            return Err(FontspectorError::General(
-                "Missing glyph in font for average character width calculation".to_string(),
-            ));
-        }
-        #[allow(clippy::unwrap_used)] // We know all the characters are in the font
-        let advances = ids
-            .iter()
-            .zip(AVG_CHAR_WEIGHTS.iter())
-            .map(|(id, (_, w))| hmtx.advance(id.unwrap()).unwrap_or(0) as u32 * w)
-            .collect::<Vec<_>>();
-        (
-            "the weighted average of the widths of the latin lowercase glyphs in the font",
-            advances.iter().sum::<u32>() / 1000u32,
-        )
-    };
-    let actual = os2.x_avg_char_width();
+    let (rule, expected) = compute_expected_xavgcharwidth(&font)?;
+    let actual = font.font().os2()?.x_avg_char_width();
     let difference = (expected as i16).abs_diff(actual);
     let mut problems = vec![];
     match difference {
@@ -121,4 +83,119 @@ fn xavgcharwidth(f: &Testable, _context: &Context) -> CheckFnResult {
         }
     }
     return_result(problems)
+}
+
+fn compute_expected_xavgcharwidth(
+    font: &TestFont,
+) -> Result<(&'static str, u32), FontspectorError> {
+    let os2 = font.font().os2()?;
+    let hmtx = font.font().hmtx()?;
+    let charmap = font.font().charmap();
+    if os2.version() >= 3 {
+        let advances = hmtx
+            .h_metrics()
+            .iter()
+            .map(|metric| metric.advance.get() as u32)
+            .filter(|&w| w > 0)
+            .collect::<Vec<_>>();
+        if advances.is_empty() {
+            return Err(FontspectorError::General(
+                "No non-zero width glyphs in font for average character width calculation"
+                    .to_string(),
+            ));
+        }
+        Ok((
+            "the average of the widths of all glyphs in the font",
+            advances.iter().sum::<u32>() / advances.len() as u32,
+        ))
+    } else {
+        let ids: Vec<Option<GlyphId>> = AVG_CHAR_WEIGHTS
+            .iter()
+            .map(|(c, _)| charmap.map(*c))
+            .collect();
+        if ids.iter().any(|id| id.is_none()) {
+            return Err(FontspectorError::General(
+                "Missing glyph in font for average character width calculation".to_string(),
+            ));
+        }
+        #[allow(clippy::unwrap_used)] // We know all the characters are in the font
+        let advances = ids
+            .iter()
+            .zip(AVG_CHAR_WEIGHTS.iter())
+            .map(|(id, (_, w))| hmtx.advance(id.unwrap()).unwrap_or(0) as u32 * w)
+            .collect::<Vec<_>>();
+        Ok((
+            "the weighted average of the widths of the latin lowercase glyphs in the font",
+            advances.iter().sum::<u32>() / 1000u32,
+        ))
+    }
+}
+
+fn fix_xavgcharwidth(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
+    let f = testfont!(t);
+    let (_, expected) = compute_expected_xavgcharwidth(&f)?;
+    let mut os2: write_fonts::tables::os2::Os2 = f.font().os2()?.to_owned_table();
+    os2.x_avg_char_width = expected as i16;
+    t.set(f.rebuild_with_new_table(&os2)?);
+    Ok(FixResult::Fixed)
+}
+
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        StatusCode,
+    };
+    use skrifa::raw::TableProvider;
+    use write_fonts::from_obj::ToOwnedTable;
+
+    #[test]
+    fn test_xavgcharwidth_pass() {
+        let testable = test_able("nunito/Nunito-Regular.ttf");
+        let result = run_check(xavgcharwidth, testable);
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_xavgcharwidth_close() {
+        let mut testable = test_able("nunito/Nunito-Regular.ttf");
+        let f = TTF.from_testable(&testable).unwrap();
+        let mut os2: write_fonts::tables::os2::Os2 = f.font().os2().unwrap().to_owned_table();
+        os2.x_avg_char_width = 556;
+        testable.set(f.rebuild_with_new_table(&os2).unwrap());
+        let result = run_check(xavgcharwidth, testable);
+        assert_results_contain(
+            &result,
+            StatusCode::Info,
+            Some("xAvgCharWidth-close".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_xavgcharwidth_wrong() {
+        let mut testable = test_able("nunito/Nunito-Regular.ttf");
+        let f = TTF.from_testable(&testable).unwrap();
+        let mut os2: write_fonts::tables::os2::Os2 = f.font().os2().unwrap().to_owned_table();
+        os2.x_avg_char_width = 500;
+        testable.set(f.rebuild_with_new_table(&os2).unwrap());
+        let result = run_check(xavgcharwidth, testable);
+        assert_results_contain(
+            &result,
+            StatusCode::Warn,
+            Some("xAvgCharWidth-wrong".to_string()),
+        );
+    }
+
+    // TODO: The Python test also covers the following edge cases which
+    // require font subsetting (via fontTools.subset) - hard to port:
+    // 1. Subset font to [a-z, space], OS/2 version=2, xAvgCharWidth=447 -> PASS
+    // 2. Subset font, xAvgCharWidth=450 -> INFO "xAvgCharWidth-close"
+    // 3. Subset font, xAvgCharWidth=500 -> WARN "xAvgCharWidth-wrong"
+    // 4. Further subset font (removing 'a') -> ERROR
+    // These could be covered by pre-building subsetted font fixtures.
 }

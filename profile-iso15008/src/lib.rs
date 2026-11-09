@@ -4,12 +4,12 @@
 //!  the design of fonts for use in automotive displays.
 mod checks;
 
-use fontspector_checkapi::{ProfileBuilder, Registry};
+use fontspector_checkapi::{FontspectorError, ProfileBuilder, Registry};
 
 /// This is the main plugin struct for the ISO15008 profile.
 pub struct Iso15008;
-impl fontspector_checkapi::Plugin for Iso15008 {
-    fn register(&self, cr: &mut Registry) -> Result<(), String> {
+impl fontspector_checkapi::ProfileProvider for Iso15008 {
+    fn register(&self, cr: &mut Registry) -> Result<(), FontspectorError> {
         let builder = ProfileBuilder::new()
             .add_section("Iso15008 Fonts Checks")
             .add_and_register_check(checks::iso15008::intercharacter_spacing)

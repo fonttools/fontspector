@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
-use fontations::skrifa::{raw::TableProvider, MetadataProvider};
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
+use skrifa::{raw::TableProvider, MetadataProvider};
 
 #[check(
     id = "opentype/varfont/STAT_axis_record_for_each_axis",
@@ -46,4 +46,23 @@ fn STAT_axis_record_for_each_axis(t: &Testable, context: &Context) -> CheckFnRes
             ),
         )
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use fontspector_checkapi::codetesting::{assert_pass, assert_skip, run_check, test_able};
+
+    #[test]
+    fn test_stat_axis_record_pass() {
+        let testable = test_able("cabinvf/Cabin[wdth,wght].ttf");
+        let result = run_check(super::STAT_axis_record_for_each_axis, testable);
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_stat_axis_record_not_variable_skip() {
+        let testable = test_able("source-sans-pro/TTF/SourceSansPro-Black.ttf");
+        let result = run_check(super::STAT_axis_record_for_each_axis, testable);
+        assert_skip(&result);
+    }
 }

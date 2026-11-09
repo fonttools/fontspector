@@ -1,6 +1,7 @@
-use fontations::skrifa::raw::TableProvider;
 use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
+use skrifa::raw::TableProvider;
+use write_fonts::tables::name::{Name, NameRecord};
 
 #[check(
     id = "no_mac_entries",
@@ -14,7 +15,8 @@ use serde_json::json;
         Olli Meier a couple years ago (as of January/2022) that these entries are
         outdated and should not be produced anymore.",
     proposal = "https://github.com/googlefonts/gftools/issues/469",
-    title = "Ensure font doesn't have Mac name table entries (platform=1)."
+    title = "Ensure font doesn't have Mac name table entries (platform=1).",
+    hotfix = fix_no_mac_entries,
 )]
 fn no_mac_entries(t: &Testable, _context: &Context) -> CheckFnResult {
     let f = testfont!(t);
@@ -34,6 +36,35 @@ fn no_mac_entries(t: &Testable, _context: &Context) -> CheckFnResult {
         }
     }
     return_result(problems)
+}
+
+fn fix_no_mac_entries(
+    t: &mut Testable,
+    _replies: Option<MoreInfoReplies>,
+) -> Result<FixResult, FontspectorError> {
+    let f = testfont!(t);
+    let name_table = f.font().name()?;
+    let new_records: Vec<NameRecord> = name_table
+        .name_record()
+        .iter()
+        .filter(|r| r.platform_id() != 1)
+        .map(|r| {
+            let string = r
+                .string(name_table.string_data())
+                .map(|s| s.chars().collect::<String>())
+                .unwrap_or_default();
+            NameRecord::new(
+                r.platform_id(),
+                r.encoding_id(),
+                r.language_id(),
+                r.name_id(),
+                string.into(),
+            )
+        })
+        .collect();
+    let new_name = Name::new(new_records);
+    t.set(f.rebuild_with_new_table(&new_name)?);
+    Ok(FixResult::Fixed)
 }
 
 #[cfg(test)]

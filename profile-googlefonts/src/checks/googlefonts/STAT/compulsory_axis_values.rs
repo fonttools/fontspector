@@ -1,10 +1,10 @@
-use fontations::skrifa::{
-    raw::{tables::stat::AxisValue, TableProvider},
-    FontRef, MetadataProvider,
-};
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
 use hashbrown::HashMap;
 use itertools::Itertools;
+use skrifa::{
+    raw::{tables::stat::AxisValue, TableProvider},
+    FontRef, MetadataProvider,
+};
 use tabled::builder::Builder;
 
 use crate::utils::build_expected_font;
