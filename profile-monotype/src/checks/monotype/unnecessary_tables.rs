@@ -341,6 +341,39 @@ mod tests {
     }
 
     #[test]
+    fn test_custom_prefix_override() {
+        let mut testable = test_able("mada/Mada-Regular.ttf");
+        for tag in [b"MT01", b"TSI0", b"ASC0", b"edt0", b"ABA0"] {
+            remove_table(&mut testable, tag);
+        }
+        add_table(&mut testable, b"ZZZ0");
+
+        let mut config = default_unnecessary_tables_config();
+        config.insert(
+            "monotype/unnecessary_tables".to_string(),
+            json!({
+                "unnecessary_table_tags": [],
+                "unnecessary_table_tags_cff": [],
+                "unnecessary_table_tags_ttf": [],
+                "unnecessary_table_tags_variable": [],
+                "unnecessary_table_prefixes": ["ZZZ"],
+            }),
+        );
+
+        let results = run_check_with_config(
+            unnecessary_tables,
+            TestableType::Single(&testable),
+            config,
+        );
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("unnecessary-tables".to_string()),
+        );
+        assert_messages_contain(&results, "ZZZ0");
+    }
+
+    #[test]
     fn test_unnecessary_tables_cff() {
         let mut testable = test_able("source-sans-pro/OTF/SourceSansPro-Black.otf");
         let unnecessary_table_tags = tags_from_strs(&[
