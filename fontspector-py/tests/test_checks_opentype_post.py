@@ -32,6 +32,7 @@ def test_check_italic_angle(check):
         ttFont["post"].italicAngle = value
         with tempfile.NamedTemporaryFile(suffix="-" + style + ".ttf") as temp:
             ttFont.save(temp)
+            temp.flush()
 
             if expected_result != PASS:
                 assert_results_contain(
@@ -50,24 +51,29 @@ def test_check_italic_angle(check):
     ttFont = TTFont(TEST_FILE("cairo/CairoPlay-Italic.rightslanted.ttf"))
     with tempfile.NamedTemporaryFile(suffix="-Italic.ttf") as temp:
         ttFont.save(temp)
+        temp.flush()
         assert_PASS(check(temp.name))
     with tempfile.NamedTemporaryFile(suffix="-Italic.ttf") as temp:
         ttFont["post"].italicAngle *= -1
         ttFont.save(temp)
+        temp.flush()
         assert_results_contain(check(temp.name), WARN, "positive")
 
     ttFont = TTFont(TEST_FILE("cairo/CairoPlay-Italic.leftslanted.ttf"))
     with tempfile.NamedTemporaryFile(suffix="-Italic.ttf") as temp:
         ttFont.save(temp)
+        temp.flush()
         assert_PASS(check(temp.name))
     ttFont["post"].italicAngle *= -1
     with tempfile.NamedTemporaryFile(suffix="-Italic.ttf") as temp:
         ttFont.save(temp)
+        temp.flush()
         assert_results_contain(check(temp.name), WARN, "negative")
 
     ttFont = TTFont(TEST_FILE("cairo/CairoPlay-Italic.rightslanted.ttf"))
     with tempfile.NamedTemporaryFile(suffix="-Italic.ttf") as temp:
         ttFont.save(temp)
+        temp.flush()
         assert_PASS(check(temp.name))
     with tempfile.NamedTemporaryFile(suffix="-Italic.ttf") as temp:
         ttFont["glyf"]["I"].endPtsOfContours = []
@@ -75,4 +81,5 @@ def test_check_italic_angle(check):
         ttFont["glyf"]["I"].flags = []
         ttFont["glyf"]["I"].numberOfContours = 0
         ttFont.save(temp)
+        temp.flush()
         assert_results_contain(check(temp.name), WARN, "empty-glyphs")
