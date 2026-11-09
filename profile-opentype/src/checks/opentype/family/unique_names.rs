@@ -29,7 +29,7 @@ use skrifa::{raw::types::NameId, MetadataProvider};
         These name table entries must be unique within a font family.
     "#,
     proposal = "https://github.com/Monotype/fontspector/issues/8",
-    title = "Verify that name id (1+2), 3, 4, 6, (16+17), (21+22) are unique within a font family.",
+    title = "Verify that specific names and specific combined names are unique within the family.",
     implementation = "all"
 )]
 fn unique_names(c: &TestableCollection, context: &Context) -> CheckFnResult {

@@ -207,6 +207,7 @@ mod tests {
         assert_results_contain(&results, StatusCode::Pass, None);
     }
 
+    #[allow(clippy::indexing_slicing)]
     #[test]
     fn test_family_uniqueness_skips_unsupported_name_entry_encodings() {
         assert!(
@@ -223,22 +224,16 @@ mod tests {
             let mut builder = FontBuilder::new();
             builder.add_table(&Maxp::default()).unwrap();
             let mut name_table = Name::default();
-            let mut new_records = Vec::new();
-
-            new_records.push(NameRecord::new(
-                3,
-                1,
-                1033,
-                NameId::new(16),
-                win_families[index].to_string().into(),
-            ));
-            new_records.push(NameRecord::new(
-                3,
-                1,
-                1033,
-                NameId::new(17),
-                subfamily.to_string().into(),
-            ));
+            let mut new_records = vec![
+                NameRecord::new(
+                    3,
+                    1,
+                    1033,
+                    NameId::new(16),
+                    win_families[index].to_string().into(),
+                ),
+                NameRecord::new(3, 1, 1033, NameId::new(17), subfamily.to_string().into()),
+            ];
 
             new_records.sort();
             name_table.name_record = new_records;

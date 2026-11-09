@@ -21,6 +21,7 @@ harfrust = { workspace = true }
 [features]
 # The "check" feature enables dependencies only needed for checks, not fixes.
 default = ["check"]
+sourcefix = ["fontspector-checkapi/sourcefix"]
 check = []
 
 [lints]

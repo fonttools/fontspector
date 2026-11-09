@@ -1,4 +1,4 @@
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata, SourceFile};
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
 use skrifa::raw::{tables::os2::SelectionFlags, TableProvider};
 use write_fonts::from_obj::ToOwnedTable;
@@ -66,8 +66,9 @@ fn fix_use_typo_metrics(
     Ok(FixResult::Fixed)
 }
 
+#[cfg(feature = "sourcefix")]
 fn sourcefix_use_typo_metrics(
-    s: &mut SourceFile,
+    s: &mut fontspector_checkapi::source::SourceFile,
     _problems: &[Status],
     _replies: Option<MoreInfoReplies>,
 ) -> Result<FixResult, FontspectorError> {

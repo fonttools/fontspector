@@ -27,4 +27,10 @@ profile-microsoft = { path = "../profile-microsoft", package = "fontspector-prof
 [features]
 # The "check" feature enables dependencies only needed for checks, not fixes.
 default = ["check"]
+sourcefix = [
+    "fontspector-checkapi/sourcefix",
+    "profile-microsoft/sourcefix",
+    "profile-googlefonts/sourcefix",
+    "profile-fontwerk/sourcefix",
+]
 check = []

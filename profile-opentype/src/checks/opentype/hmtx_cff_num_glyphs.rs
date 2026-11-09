@@ -51,6 +51,7 @@ fn hmtx_cff_num_glyphs(t: &Testable, _context: &Context) -> CheckFnResult {
     }
 }
 
+#[allow(clippy::unwrap_used)]
 #[cfg(test)]
 mod tests {
     use super::hmtx_cff_num_glyphs;

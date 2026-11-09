@@ -73,6 +73,7 @@ fn style_in_family_name(t: &Testable, _context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
+#[allow(clippy::unwrap_used)]
 #[cfg(test)]
 mod tests {
     use super::*;

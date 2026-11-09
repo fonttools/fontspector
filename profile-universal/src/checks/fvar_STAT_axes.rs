@@ -44,6 +44,7 @@ fn fvar_stat_axes(t: &Testable, _context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
+#[allow(clippy::unwrap_used)]
 #[cfg(test)]
 mod tests {
     use super::fvar_stat_axes;

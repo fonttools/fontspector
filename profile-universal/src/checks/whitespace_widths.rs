@@ -1,4 +1,4 @@
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata, SourceFile};
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
 use skrifa::{raw::TableProvider, MetadataProvider};
 use write_fonts::{from_obj::ToOwnedTable, tables::hmtx::Hmtx};
@@ -78,8 +78,9 @@ fn fix_whitespace_widths(
     Ok(FixResult::Unfixable)
 }
 
+#[cfg(feature = "sourcefix")]
 fn sourcefix_whitespace_widths(
-    s: &mut SourceFile,
+    s: &mut fontspector_checkapi::source::SourceFile,
     _problems: &[Status],
     _replies: Option<MoreInfoReplies>,
 ) -> Result<FixResult, FontspectorError> {

@@ -124,6 +124,12 @@ fn empty_letters(t: &Testable, context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
+fn is_blank_glyph(f: &TestFont, gid: GlyphId) -> Result<bool, FontspectorError> {
+    let mut pen = HasInkPen::default();
+    f.draw_glyph(gid, &mut pen, DEFAULT_LOCATION)?;
+    Ok(!pen.has_ink())
+}
+
 #[cfg(test)]
 mod tests {
     use fontspector_checkapi::{
@@ -175,10 +181,4 @@ mod tests {
     // that maps arbitrary codepoints to existing glyphs by name, which goes beyond
     // the current remap_glyph utility. The hangul empty glyph code path is tested
     // indirectly through the check logic.
-}
-
-fn is_blank_glyph(f: &TestFont, gid: GlyphId) -> Result<bool, FontspectorError> {
-    let mut pen = HasInkPen::default();
-    f.draw_glyph(gid, &mut pen, DEFAULT_LOCATION)?;
-    Ok(!pen.has_ink())
 }
