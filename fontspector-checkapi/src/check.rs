@@ -88,6 +88,41 @@ pub struct Check<'a> {
 unsafe impl Sync for Check<'_> {}
 
 impl<'a> Check<'a> {
+    /// Create a new check definition
+    #[allow(clippy::too_many_arguments)] // Only the macro should use it
+    pub const fn new(
+        id: &'a str,
+        title: &'a str,
+        rationale: &'a str,
+        proposal: &'a [&'a str],
+        implementation: CheckImplementation<'a>,
+        hotfix: Option<&'a HotfixFunction>,
+        applies_to: &'a str,
+        flags: CheckFlags,
+        _metadata: Option<&'static str>,
+    ) -> Self {
+        Self {
+            id,
+            title,
+            rationale,
+            proposal,
+            implementation,
+            hotfix,
+            #[cfg(feature = "sourcefix")]
+            fix_source: None,
+            applies_to,
+            flags,
+            _metadata,
+        }
+    }
+
+    /// Add a source file fix function to the check definition
+    #[cfg(feature = "sourcefix")]
+    pub const fn with_source_fix(mut self, fix: Option<&'a FixSourceFunction>) -> Self {
+        self.fix_source = fix;
+        self
+    }
+
     /// Does this check run on a collection of files?
     pub fn runs_on_collection(&self) -> bool {
         matches!(self.implementation, CheckImplementation::CheckAll(_))
