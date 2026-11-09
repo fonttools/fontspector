@@ -10,3 +10,6 @@ report*
 *.csv
 venv
 fontspector.toml
+
+.superpowers/
+**/superpowers/
