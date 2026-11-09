@@ -209,11 +209,8 @@ mod tests {
                 "unnecessary_table_prefixes": [],
             }),
         )]);
-        let results = run_check_with_config(
-            unnecessary_tables,
-            TestableType::Single(&testable),
-            config,
-        );
+        let results =
+            run_check_with_config(unnecessary_tables, TestableType::Single(&testable), config);
         assert_results_contain(
             &results,
             StatusCode::Fail,
@@ -234,11 +231,8 @@ mod tests {
                 "unnecessary_table_prefixes": [],
             }),
         )]);
-        let results = run_check_with_config(
-            unnecessary_tables,
-            TestableType::Single(&testable),
-            config,
-        );
+        let results =
+            run_check_with_config(unnecessary_tables, TestableType::Single(&testable), config);
         assert_results_contain(
             &results,
             StatusCode::Fail,
@@ -255,11 +249,8 @@ mod tests {
                 "unnecessary_table_tags": ["LINO"],
             }),
         )]);
-        let results = run_check_with_config(
-            unnecessary_tables,
-            TestableType::Single(&testable),
-            config,
-        );
+        let results =
+            run_check_with_config(unnecessary_tables, TestableType::Single(&testable), config);
         assert_results_contain(
             &results,
             StatusCode::Fail,
@@ -280,11 +271,8 @@ mod tests {
                 "unnecessary_table_prefixes": ["ABCD"],
             }),
         )]);
-        let results = run_check_with_config(
-            unnecessary_tables,
-            TestableType::Single(&testable),
-            config,
-        );
+        let results =
+            run_check_with_config(unnecessary_tables, TestableType::Single(&testable), config);
         assert_results_contain(
             &results,
             StatusCode::Fail,
@@ -387,11 +375,8 @@ mod tests {
             }),
         );
 
-        let results = run_check_with_config(
-            unnecessary_tables,
-            TestableType::Single(&testable),
-            config,
-        );
+        let results =
+            run_check_with_config(unnecessary_tables, TestableType::Single(&testable), config);
         assert_results_contain(
             &results,
             StatusCode::Fail,
