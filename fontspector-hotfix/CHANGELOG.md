@@ -5,19 +5,56 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## v0.6.0 (2026-10-09)
+## v0.7.0 (2026-11-10)
+
+### Chore
+
+ - <csr-id-72c96f7ba104074edfb9f5e52a682faaa13cd1bd/> Hide sourcefixes behind feature to slim deps
+   * chore: Lint fixups
+   
+   * chore: Hide sourcefixes behind feature to slim deps
+   
+   * chore: Work under unification
 
 ### Other
 
- - <csr-id-042342c79470d8859f6845c079e43cb23ba75aa5/> Release fontspector-checkapi v1.9.0, safety bump fontspector-hotfix v0.6.0
+ - <csr-id-e56e2691e0e47599ac84dc63facad84856defa83/> Release fontspector-checkapi v1.10.0, safety bump fontspector-hotfix v0.7.0
 
 ### Commit Statistics
 
 <csr-read-only-do-not-edit/>
 
- - 1 commit contributed to the release.
+ - 2 commits contributed to the release.
+ - 32 days passed between releases.
+ - 2 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 1 unique issue was worked on: [#1000](https://github.com/fonttools/fontspector/issues/1000)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#1000](https://github.com/fonttools/fontspector/issues/1000)**
+    - Hide sourcefixes behind feature to slim deps ([`72c96f7`](https://github.com/fonttools/fontspector/commit/72c96f7ba104074edfb9f5e52a682faaa13cd1bd))
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.10.0, safety bump fontspector-hotfix v0.7.0 ([`e56e269`](https://github.com/fonttools/fontspector/commit/e56e2691e0e47599ac84dc63facad84856defa83))
+</details>
+
+## v0.6.0 (2026-10-09)
+
+### Other
+
+ - <csr-id-042342c79470d8859f6845c079e43cb23ba75aa5/> Release fontspector-checkapi v1.9.0, safety bump fontspector-hotfix v0.6.0
+ - <csr-id-7830f7ddc7c907c7ce83813efc26bb80a63f1784/> Release fontspector-hotfix v0.6.0
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 2 commits contributed to the release.
  - 10 days passed between releases.
- - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
+ - 2 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 0 issues like '(#ID)' were seen in commit messages
 
 ### Commit Details
@@ -27,6 +64,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <details><summary>view details</summary>
 
  * **Uncategorized**
+    - Release fontspector-hotfix v0.6.0 ([`7830f7d`](https://github.com/fonttools/fontspector/commit/7830f7ddc7c907c7ce83813efc26bb80a63f1784))
     - Release fontspector-checkapi v1.9.0, safety bump fontspector-hotfix v0.6.0 ([`042342c`](https://github.com/fonttools/fontspector/commit/042342c79470d8859f6845c079e43cb23ba75aa5))
 </details>
 
