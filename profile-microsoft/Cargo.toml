@@ -2,6 +2,10 @@
 name = "fontspector-profile-microsoft"
 version = "0.1.0"
 edition = "2021"
+description = "Fontspector checks for Microsoft font conformance"
+repository = "https://github.com/fonttools/fontspector"
+homepage = "https://fonttools.github.io/fontspector/"
+license = "Apache-2.0"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
@@ -14,7 +18,7 @@ path = "src/main.rs"
 fontspector-checkapi = { path = "../fontspector-checkapi", features = [
     "kurbo",
     "plugin",
-] }
+], version = "1.0.0" }
 skrifa = { workspace = true }
 write-fonts = { workspace = true }
 regex = { workspace = true }
