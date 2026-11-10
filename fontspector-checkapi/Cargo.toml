@@ -23,7 +23,7 @@ sourcefix = ["dep:babelfont"]
 clap = ["dep:clap"]
 
 [build-dependencies]
-minreq = { version = "2.6.0", features = ["https"] }
+minreq = { version = "3.0.0", features = ["https"] }
 scraper = "0.27.0"
 regex = { workspace = true }
 
