@@ -8,9 +8,7 @@ fn parse_unique_name_ids(config: &Value, key: &str) -> Result<Vec<u16>, Status> 
     let Some(arr) = config.get(key).and_then(|v| v.as_array()) else {
         return Err(Status::fail(
             "invalid-config",
-            &format!(
-                "Missing or non-array config key '{key}' for opentype/family/unique_names."
-            ),
+            &format!("Missing or non-array config key '{key}' for opentype/family/unique_names."),
         ));
     };
     let mut ids = Vec::with_capacity(arr.len());
@@ -36,9 +34,7 @@ fn parse_unique_name_id_pairs(config: &Value, key: &str) -> Result<Vec<(NameId, 
     let Some(arr) = config.get(key).and_then(|v| v.as_array()) else {
         return Err(Status::fail(
             "invalid-config",
-            &format!(
-                "Missing or non-array config key '{key}' for opentype/family/unique_names."
-            ),
+            &format!("Missing or non-array config key '{key}' for opentype/family/unique_names."),
         ));
     };
     let mut pairs = Vec::with_capacity(arr.len());
@@ -126,7 +122,8 @@ fn unique_names(c: &TestableCollection, context: &Context) -> CheckFnResult {
         Ok(v) => v,
         Err(status) => return return_result(vec![status]),
     };
-    let name_ids_to_check_combo = match parse_unique_name_id_pairs(&config, "unique_name_id_pairs") {
+    let name_ids_to_check_combo = match parse_unique_name_id_pairs(&config, "unique_name_id_pairs")
+    {
         Ok(v) => v,
         Err(status) => return return_result(vec![status]),
     };
