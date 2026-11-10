@@ -42,6 +42,9 @@ profile-iso15008 = { path = "../profile-iso15008", version = "1.0.0", package = 
 profile-googlefonts = { path = "../profile-googlefonts", version = "1.0.0", package = "fontspector-profile-googlefonts", features = [
     "sourcefix",
 ] }
+profile-microsoft = { path = "../profile-microsoft", version = "0.1.0", package = "fontspector-profile-microsoft", features = [
+    "sourcefix",
+] }
 profile-monotype = { path = "../profile-monotype", version = "1.0.0", package = "fontspector-profile-monotype", features = [
     "sourcefix",
 ] }

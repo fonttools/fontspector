@@ -1520,6 +1520,7 @@ dependencies = [
  "fontspector-profile-fontwerk",
  "fontspector-profile-googlefonts",
  "fontspector-profile-iso15008",
+ "fontspector-profile-microsoft",
  "fontspector-profile-monotype",
  "fontspector-profile-opentype",
  "fontspector-profile-silfonts",
