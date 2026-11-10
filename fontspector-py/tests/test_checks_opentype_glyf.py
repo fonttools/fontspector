@@ -50,20 +50,3 @@ def test_check_points_out_of_bounds(check):
 
     ttFont = TTFont(TEST_FILE("familysans/FamilySans-Regular.ttf"))
     assert_PASS(check(ttFont))
-
-
-@check_id("opentype/glyf_non_transformed_duplicate_components")
-def test_check_glyf_non_transformed_duplicate_components(check):
-    """
-    Check glyphs do not have duplicate components which have the checksame x,y coordinates.
-    """
-
-    ttFont = TTFont(TEST_FILE("nunito/Nunito-Regular.ttf"))
-    assert_PASS(check(ttFont))
-
-    # Set qutodbl's components to have the same x,y values
-    ttFont["glyf"]["quotedbl"].components[0].x = 0
-    ttFont["glyf"]["quotedbl"].components[1].x = 0
-    ttFont["glyf"]["quotedbl"].components[0].y = 0
-    ttFont["glyf"]["quotedbl"].components[1].y = 0
-    assert_results_contain(check(ttFont), FAIL, "found-duplicates")

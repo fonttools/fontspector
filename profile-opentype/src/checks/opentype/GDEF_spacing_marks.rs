@@ -40,12 +40,18 @@ fn GDEF_spacing_marks(f: &Testable, context: &Context) -> CheckFnResult {
 
 #[cfg(test)]
 mod tests {
-    use fontspector_checkapi::codetesting::{assert_pass, assert_skip, run_check, test_able};
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
+    use fontspector_checkapi::codetesting::{
+        assert_pass, assert_results_contain, assert_skip, remove_table, run_check,
+        set_gdef_glyph_classes, test_able,
+    };
+    use fontspector_checkapi::StatusCode;
 
     #[test]
     fn test_gdef_spacing_marks_skip_no_gdef() {
         let mut testable = test_able("familysans/FamilySans-Regular.ttf");
-        fontspector_checkapi::codetesting::remove_table(&mut testable, b"GDEF");
+        remove_table(&mut testable, b"GDEF");
         let result = run_check(super::GDEF_spacing_marks, testable);
         assert_skip(&result);
     }
@@ -55,5 +61,26 @@ mod tests {
         let testable = test_able("nunito/Nunito-Regular.ttf");
         let result = run_check(super::GDEF_spacing_marks, testable);
         assert_pass(&result);
+    }
+
+    #[test]
+    fn test_gdef_spacing_marks_empty_gdef_pass() {
+        let mut testable = test_able("nunito/Nunito-Regular.ttf");
+        set_gdef_glyph_classes(&mut testable, &[]).unwrap();
+        let result = run_check(super::GDEF_spacing_marks, testable);
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_gdef_spacing_marks_spacing_glyph_warn() {
+        // 'A' has a non-zero advance width, so it should not be a mark glyph.
+        let mut testable = test_able("nunito/Nunito-Regular.ttf");
+        set_gdef_glyph_classes(&mut testable, &[("A", 3)]).unwrap();
+        let result = run_check(super::GDEF_spacing_marks, testable);
+        assert_results_contain(
+            &result,
+            StatusCode::Warn,
+            Some("spacing-mark-glyphs".to_string()),
+        );
     }
 }

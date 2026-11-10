@@ -267,114 +267,172 @@ fn ital_axis(c: &TestableCollection, _context: &Context) -> CheckFnResult {
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
     use super::*;
     use fontspector_checkapi::{
-        codetesting::{assert_pass, assert_results_contain, run_check_with_config, test_able},
+        codetesting::{
+            assert_messages_contain, assert_pass, assert_results_contain, run_check_with_config,
+            test_able,
+        },
         StatusCode, Testable, TestableType,
     };
     use std::collections::HashMap;
+    use write_fonts::from_obj::ToOwnedTable;
+    use write_fonts::tables::stat::{AxisValue as WriteAxisValue, Stat};
+    use write_fonts::types::Tag;
 
-    #[test]
-    fn test_stat_ital_axis_pass() {
-        let testables: Vec<Testable> = vec![
-            test_able("shantell/ShantellSans[BNCE,INFM,SPAC,wght].ttf"),
-            test_able("shantell/ShantellSans-Italic[BNCE,INFM,SPAC,wght].ttf"),
-        ];
+    fn run_on(fonts: Vec<Testable>) -> Option<fontspector_checkapi::CheckResult> {
         let collection = TestableCollection {
-            testables,
+            testables: fonts,
             directory: "".to_string(),
         };
-        let result = run_check_with_config(
+        run_check_with_config(
             super::ital_axis,
             TestableType::Collection(&collection),
             HashMap::new(),
-        );
+        )
+    }
+
+    /// Apply a mutation to the font's STAT table and rebuild the font.
+    fn with_modified_stat(t: &mut Testable, f: impl FnOnce(&mut Stat)) {
+        let font = TTF.from_testable(t).unwrap();
+        let mut stat: Stat = font.font().stat().unwrap().to_owned_table();
+        f(&mut stat);
+        let new_bytes = font.rebuild_with_new_table(&stat).unwrap();
+        t.set(new_bytes);
+    }
+
+    /// Apply a mutation to every STAT axis value belonging to the `ital` axis.
+    fn for_ital_axis_values(stat: &mut Stat, mut f: impl FnMut(&mut WriteAxisValue)) {
+        let Some(ital_pos) = stat
+            .design_axes
+            .iter()
+            .position(|axis| axis.axis_tag == Tag::new(b"ital"))
+        else {
+            return;
+        };
+        if let Some(values) = stat.offset_to_axis_values.as_mut() {
+            for value in values.iter_mut() {
+                // Format 4 combines several axes and is ignored by the check, so
+                // we do not treat it as belonging to the 'ital' axis.
+                let axis_index = match &**value {
+                    WriteAxisValue::Format1(v) => Some(v.axis_index),
+                    WriteAxisValue::Format2(v) => Some(v.axis_index),
+                    WriteAxisValue::Format3(v) => Some(v.axis_index),
+                    WriteAxisValue::Format4(_) => None,
+                };
+                if axis_index == Some(ital_pos as u16) {
+                    f(value);
+                }
+            }
+        }
+    }
+
+    fn set_ital_axis_value(stat: &mut Stat, new_value: f32) {
+        for_ital_axis_values(stat, |value| match value {
+            WriteAxisValue::Format1(v) => {
+                v.value = write_fonts::types::Fixed::from_f64(new_value as f64)
+            }
+            WriteAxisValue::Format2(v) => {
+                v.nominal_value = write_fonts::types::Fixed::from_f64(new_value as f64)
+            }
+            WriteAxisValue::Format3(v) => {
+                v.value = write_fonts::types::Fixed::from_f64(new_value as f64)
+            }
+            WriteAxisValue::Format4(_) => {}
+        });
+    }
+
+    fn set_ital_axis_flags(stat: &mut Stat, new_flags: AxisValueTableFlags) {
+        for_ital_axis_values(stat, |value| match value {
+            WriteAxisValue::Format1(v) => v.flags = new_flags,
+            WriteAxisValue::Format2(v) => v.flags = new_flags,
+            WriteAxisValue::Format3(v) => v.flags = new_flags,
+            WriteAxisValue::Format4(v) => v.flags = new_flags,
+        });
+    }
+
+    fn set_ital_axis_linked_value(stat: &mut Stat, new_value: f32) {
+        for_ital_axis_values(stat, |value| {
+            if let WriteAxisValue::Format3(v) = value {
+                v.linked_value = write_fonts::types::Fixed::from_f64(new_value as f64);
+            }
+        });
+    }
+
+    fn remove_ital_axis(stat: &mut Stat) {
+        stat.design_axes
+            .retain(|axis| axis.axis_tag != Tag::new(b"ital"));
+    }
+
+    fn move_ital_axis_to_front(stat: &mut Stat) {
+        let ital = stat
+            .design_axes
+            .iter()
+            .find(|axis| axis.axis_tag == Tag::new(b"ital"))
+            .cloned();
+        if let Some(ital) = ital {
+            stat.design_axes
+                .retain(|axis| axis.axis_tag != Tag::new(b"ital"));
+            stat.design_axes.insert(0, ital);
+        }
+    }
+
+    fn roman() -> Testable {
+        test_able("shantell/ShantellSans[BNCE,INFM,SPAC,wght].ttf")
+    }
+
+    fn italic() -> Testable {
+        test_able("shantell/ShantellSans-Italic[BNCE,INFM,SPAC,wght].ttf")
+    }
+
+    #[test]
+    fn test_stat_ital_axis_pass() {
+        let result = run_on(vec![roman(), italic()]);
         assert_pass(&result);
     }
 
     #[test]
     fn test_stat_ital_axis_standalone_italic_pass() {
         // A standalone italic with a valid ital axis should pass
-        let testables: Vec<Testable> = vec![test_able(
-            "shantell/ShantellSans-Italic[BNCE,INFM,SPAC,wght].ttf",
-        )];
-        let collection = TestableCollection {
-            testables,
-            directory: "".to_string(),
-        };
-        let result = run_check_with_config(
-            super::ital_axis,
-            TestableType::Collection(&collection),
-            HashMap::new(),
-        );
+        let result = run_on(vec![italic()]);
         assert_pass(&result);
     }
 
     #[test]
     fn test_stat_ital_axis_roman_only_pass() {
-        let testables: Vec<Testable> =
-            vec![test_able("shantell/ShantellSans[BNCE,INFM,SPAC,wght].ttf")];
-        let collection = TestableCollection {
-            testables,
-            directory: "".to_string(),
-        };
-        let result = run_check_with_config(
-            super::ital_axis,
-            TestableType::Collection(&collection),
-            HashMap::new(),
-        );
+        let result = run_on(vec![roman()]);
         assert_pass(&result);
     }
 
     #[test]
     fn test_ital_axis_static_fonts_missing_stat() {
-        let testables: Vec<Testable> = vec![
+        let result = run_on(vec![
             test_able("cabin/Cabin-Regular.ttf"),
             test_able("cabin/Cabin-Italic.ttf"),
-        ];
-        let collection = TestableCollection {
-            testables,
-            directory: "".to_string(),
-        };
-        let results = run_check_with_config(
-            ital_axis,
-            TestableType::Collection(&collection),
-            HashMap::new(),
-        );
-        assert_results_contain(
-            &results,
-            StatusCode::Warn,
-            Some("no-stat-table".to_string()),
-        );
+        ]);
+        assert_results_contain(&result, StatusCode::Warn, Some("no-stat-table".to_string()));
     }
 
     #[test]
     fn test_ital_axis_static_fonts_with_stat() {
-        let testable_1 = test_able("notosans/static/NotoSans-Black.ttf");
-        let testable_2 = test_able("notosans/static/NotoSans-BlackItalic.ttf");
-        let testables: Vec<Testable> = vec![testable_1, testable_2];
-        let collection = TestableCollection {
-            testables,
-            directory: "".to_string(),
-        };
-        let results = run_check_with_config(
-            ital_axis,
-            TestableType::Collection(&collection),
-            HashMap::new(),
-        );
-        assert_results_contain(&results, StatusCode::Pass, None);
+        let result = run_on(vec![
+            test_able("notosans/static/NotoSans-Black.ttf"),
+            test_able("notosans/static/NotoSans-BlackItalic.ttf"),
+        ]);
+        assert_results_contain(&result, StatusCode::Pass, None);
     }
 
     #[test]
     fn test_segment_collection_static() {
-        let testable_1 = test_able("montserrat/Montserrat-Regular.ttf");
-        let testable_2 = test_able("montserrat/Montserrat-Italic.ttf");
-        let testable_3 = test_able("montserrat/Montserrat-Bold.ttf");
-        let testable_4 = test_able("montserrat/Montserrat-BoldItalic.ttf");
-        let testable_5 = test_able("montserrat/Montserrat-Light.ttf");
-        let testable_6 = test_able("montserrat/Montserrat-LightItalic.ttf");
         let testables: Vec<Testable> = vec![
-            testable_1, testable_2, testable_3, testable_4, testable_5, testable_6,
+            test_able("montserrat/Montserrat-Regular.ttf"),
+            test_able("montserrat/Montserrat-Italic.ttf"),
+            test_able("montserrat/Montserrat-Bold.ttf"),
+            test_able("montserrat/Montserrat-BoldItalic.ttf"),
+            test_able("montserrat/Montserrat-Light.ttf"),
+            test_able("montserrat/Montserrat-LightItalic.ttf"),
         ];
         let collection = TestableCollection {
             testables,
@@ -387,5 +445,133 @@ mod tests {
             assert!(roman.is_some());
             assert!(italic.is_some());
         }
+    }
+
+    #[test]
+    fn test_stat_ital_axis_missing_ital_axis() {
+        // Removing the ital axis from both fonts should FAIL.
+        let mut roman = roman();
+        let mut italic = italic();
+        with_modified_stat(&mut roman, remove_ital_axis);
+        with_modified_stat(&mut italic, remove_ital_axis);
+
+        let result = run_on(vec![roman, italic]);
+        assert_results_contain(
+            &result,
+            StatusCode::Fail,
+            Some("missing-ital-axis".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_stat_ital_axis_wrong_value_roman() {
+        // Roman fonts must have ital=0
+        let mut roman = roman();
+        with_modified_stat(&mut roman, |stat| set_ital_axis_value(stat, 1.0));
+
+        let result = run_on(vec![roman]);
+        assert_results_contain(
+            &result,
+            StatusCode::Warn,
+            Some("wrong-ital-axis-value".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_stat_ital_axis_wrong_flag_roman() {
+        // Roman ital axis values must be elidable
+        let mut roman = roman();
+        with_modified_stat(&mut roman, |stat| {
+            set_ital_axis_flags(stat, AxisValueTableFlags::empty())
+        });
+
+        let result = run_on(vec![roman]);
+        assert_results_contain(
+            &result,
+            StatusCode::Warn,
+            Some("wrong-ital-axis-flag".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_stat_ital_axis_wrong_value_italic() {
+        // Italic fonts must have ital=1
+        let mut italic = italic();
+        with_modified_stat(&mut italic, |stat| set_ital_axis_value(stat, 0.0));
+
+        let result = run_on(vec![roman(), italic]);
+        assert_results_contain(
+            &result,
+            StatusCode::Warn,
+            Some("wrong-ital-axis-value".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_stat_ital_axis_wrong_flag_italic() {
+        // Italic ital axis values must not be elidable
+        let mut italic = italic();
+        with_modified_stat(&mut italic, |stat| {
+            set_ital_axis_flags(stat, AxisValueTableFlags::ELIDABLE_AXIS_VALUE_NAME)
+        });
+
+        let result = run_on(vec![roman(), italic]);
+        assert_results_contain(
+            &result,
+            StatusCode::Warn,
+            Some("wrong-ital-axis-flag".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_stat_ital_axis_wrong_linked_value() {
+        // Roman fonts should link to the italic value 1.0
+        let mut roman = roman();
+        with_modified_stat(&mut roman, |stat| set_ital_axis_linked_value(stat, 0.4));
+
+        let result = run_on(vec![roman]);
+        assert_results_contain(
+            &result,
+            StatusCode::Warn,
+            Some("wrong-ital-axis-linkedvalue".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_stat_ital_axis_not_last() {
+        let mut italic = italic();
+        with_modified_stat(&mut italic, move_ital_axis_to_front);
+
+        let result = run_on(vec![roman(), italic]);
+        assert_results_contain(
+            &result,
+            StatusCode::Warn,
+            Some("ital-axis-not-last".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_stat_ital_axis_last_pass() {
+        // The unmodified pair should not produce an ordering warning
+        let result = run_on(vec![roman(), italic()]);
+        let subresults = &result.as_ref().unwrap().subresults;
+        assert!(!subresults
+            .iter()
+            .any(|s| s.code.as_deref() == Some("ital-axis-not-last")));
+        assert!(!subresults
+            .iter()
+            .any(|s| s.code.as_deref() == Some("missing-ital-axis")));
+    }
+
+    #[test]
+    fn test_stat_ital_axis_missing_ital_axis_message() {
+        // The check only insists on an 'ital' axis when it can pair up a
+        // roman and an italic font, so remove the axis from both.
+        let mut roman = roman();
+        let mut italic = italic();
+        with_modified_stat(&mut roman, remove_ital_axis);
+        with_modified_stat(&mut italic, remove_ital_axis);
+        let result = run_on(vec![roman, italic]);
+        assert_messages_contain(&result, "lacks an 'ital' axis");
     }
 }

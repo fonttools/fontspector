@@ -199,7 +199,14 @@ fn contour_count(t: &Testable, context: &Context) -> CheckFnResult {
 
 #[cfg(test)]
 mod tests {
-    use fontspector_checkapi::codetesting::{assert_pass, run_check, test_able};
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
+    use fontspector_checkapi::{
+        codetesting::{
+            assert_pass, assert_results_contain, glyph_by_name, run_check, set_glyph, test_able,
+        },
+        StatusCode,
+    };
 
     use super::*;
 
@@ -208,5 +215,26 @@ mod tests {
         let test_font = test_able("ibmplexsans-vf/IBMPlexSansVar-Roman.ttf");
         let result = run_check(contour_count, test_font);
         assert_pass(&result);
+    }
+
+    #[test]
+    fn test_contour_count_warn_wrong_contour_count() {
+        // Swap the glyf 'Idotaccent' (expected 2, 3 or 6 contours) with 'c'
+        // (1 contour)
+        let mut test_font = test_able("ibmplexsans-vf/IBMPlexSansVar-Roman.ttf");
+        let c = glyph_by_name(&test_font, "c").unwrap();
+        set_glyph(&mut test_font, "Idotaccent", &c).unwrap();
+        let result = run_check(contour_count, test_font);
+        assert_results_contain(&result, StatusCode::Warn, Some("contour-count".to_string()));
+    }
+
+    #[test]
+    fn test_contour_count_fail_no_contours() {
+        // Swap the glyf 'Idotaccent' with 'space' (0 contours)
+        let mut test_font = test_able("ibmplexsans-vf/IBMPlexSansVar-Roman.ttf");
+        let space = glyph_by_name(&test_font, "space").unwrap();
+        set_glyph(&mut test_font, "Idotaccent", &space).unwrap();
+        let result = run_check(contour_count, test_font);
+        assert_results_contain(&result, StatusCode::Fail, Some("no-contour".to_string()));
     }
 }

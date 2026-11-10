@@ -50,7 +50,17 @@ fn STAT_axis_record_for_each_axis(t: &Testable, context: &Context) -> CheckFnRes
 
 #[cfg(test)]
 mod tests {
-    use fontspector_checkapi::codetesting::{assert_pass, assert_skip, run_check, test_able};
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
+    use fontspector_checkapi::codetesting::{
+        assert_messages_contain, assert_pass, assert_results_contain, assert_skip, run_check,
+        test_able,
+    };
+    use fontspector_checkapi::{FileTypeConvert, StatusCode, TTF};
+    use skrifa::raw::TableProvider;
+    use write_fonts::from_obj::ToOwnedTable;
+    use write_fonts::tables::stat::Stat;
+    use write_fonts::types::Tag;
 
     #[test]
     fn test_stat_axis_record_pass() {
@@ -64,5 +74,25 @@ mod tests {
         let testable = test_able("source-sans-pro/TTF/SourceSansPro-Black.ttf");
         let result = run_check(super::STAT_axis_record_for_each_axis, testable);
         assert_skip(&result);
+    }
+
+    #[test]
+    fn test_stat_axis_record_missing_axis() {
+        let mut testable = test_able("cabinvf/Cabin[wdth,wght].ttf");
+        let f = TTF.from_testable(&testable).unwrap();
+        let mut stat: Stat = f.font().stat().unwrap().to_owned_table();
+        // Remove the first Axis Record (`wdth`)
+        stat.design_axes
+            .retain(|axis| axis.axis_tag != Tag::new(b"wdth"));
+        let new_bytes = f.rebuild_with_new_table(&stat).unwrap();
+        testable.set(new_bytes);
+
+        let result = run_check(super::STAT_axis_record_for_each_axis, testable);
+        assert_results_contain(
+            &result,
+            StatusCode::Fail,
+            Some("missing-axis-records".to_string()),
+        );
+        assert_messages_contain(&result, "* wdth");
     }
 }
