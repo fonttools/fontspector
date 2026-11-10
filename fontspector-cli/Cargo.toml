@@ -13,26 +13,38 @@ readme = "../README.md"
 pkg-url = "{ repo }/releases/download/fontspector-v{ version }/{ name }-v{ version }-{target}{ archive-suffix }"
 
 [features]
-python = ["fontspector-checkapi/python"]
 fontc = ["dep:fontc", "dep:glyphs2fontir", "dep:fontir"]
 
 [build-dependencies]
 walkdir = "2.5"
-zip = "8"
+zip = { workspace = true }
 quote = "1.0"
 shadow-rs = "2.0.0"
 
 [dependencies]
 fontspector-checkapi = { path = "../fontspector-checkapi", version = "1.0.0", features = [
     "clap",
+    "sourcefix",
 ] }
 # These profiles are baked-in
-profile-universal = { path = "../profile-universal", version = "1.0.0", package = "fontspector-profile-universal" }
-profile-fontwerk = { path = "../profile-fontwerk", version = "1.0.0", package = "fontspector-profile-fontwerk" }
-profile-opentype = { path = "../profile-opentype", version = "1.0.0", package = "fontspector-profile-opentype" }
-profile-iso15008 = { path = "../profile-iso15008", version = "1.0.0", package = "fontspector-profile-iso15008" }
-profile-googlefonts = { path = "../profile-googlefonts", version = "1.0.0", package = "fontspector-profile-googlefonts" }
-profile-monotype = { path = "../profile-monotype", version = "1.0.0", package = "fontspector-profile-monotype" }
+profile-universal = { path = "../profile-universal", version = "1.0.0", package = "fontspector-profile-universal", features = [
+    "sourcefix",
+] }
+profile-fontwerk = { path = "../profile-fontwerk", version = "1.0.0", package = "fontspector-profile-fontwerk", features = [
+    "sourcefix",
+] }
+profile-opentype = { path = "../profile-opentype", version = "1.0.0", package = "fontspector-profile-opentype", features = [
+    "sourcefix",
+] }
+profile-iso15008 = { path = "../profile-iso15008", version = "1.0.0", package = "fontspector-profile-iso15008", features = [
+    "sourcefix",
+] }
+profile-googlefonts = { path = "../profile-googlefonts", version = "1.0.0", package = "fontspector-profile-googlefonts", features = [
+    "sourcefix",
+] }
+profile-monotype = { path = "../profile-monotype", version = "1.0.0", package = "fontspector-profile-monotype", features = [
+    "sourcefix",
+] }
 clap = { version = "4", features = ["derive", "string"] }
 itertools = { workspace = true }
 log = { workspace = true }

@@ -25,6 +25,8 @@ impl fontspector_checkapi::ProfileProvider for Monotype {
             .add_and_register_check(gf_checks::googlefonts::family::equal_codepoint_coverage)
             .add_section("Selected Other Checks")
             .add_and_register_check(ms_checks::microsoft::office_ribz_req)
+            .add_and_register_check(ms_checks::microsoft::STAT_table_eliding_bit)
+            .add_and_register_check(ms_checks::microsoft::vertical_metrics)
             .include_profile("opentype")
             .with_configuration_defaults(
                 "opentype/family/unique_names",
@@ -41,8 +43,40 @@ impl fontspector_checkapi::ProfileProvider for Monotype {
                 ]),
             )
             .add_and_register_check(checks::monotype::style_in_family_name)
+            .add_and_register_check(checks::monotype::cmap_recordings_and_subtables)
+            .add_and_register_check(checks::monotype::unnecessary_tables)
+            .with_configuration_defaults(
+                "monotype/unnecessary_tables",
+                HashMap::from([
+                    (
+                        "unnecessary_table_tags".to_string(),
+                        json!([
+                            "LINO", "SLST", "FFTM", "PfEd", "TeX ", "BDF ",
+                            "bdat", "bloc", "ADFH", "SPRK"
+                        ]),
+                    ),
+                    (
+                        "unnecessary_table_tags_cff".to_string(),
+                        json!(["gasp", "cvt ", "fpgm", "glyf", "loca", "prep"]),
+                    ),
+                    (
+                        "unnecessary_table_tags_ttf".to_string(),
+                        json!(["VORG"]),
+                    ),
+                    (
+                        "unnecessary_table_tags_variable".to_string(),
+                        json!(["kern"]),
+                    ),
+                    (
+                        "unnecessary_table_prefixes".to_string(),
+                        json!(["TSI", "MT", "ASC", "edt", "ABA"]),
+                    ),
+                ]),
+            )
             // TODO: implement more Monotype-specific checks
             .add_and_register_check(checks::monotype::widthclass)
+            .add_and_register_check(checks::monotype::weightclass)
+            .add_and_register_check(checks::monotype::vertical_metrics_sane)
             .include_profile("universal")
             .with_configuration_defaults(
                 "universal/required_name_ids",

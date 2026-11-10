@@ -35,6 +35,7 @@ mod font;
 mod gsub;
 /// [OutlinePen](https://docs.rs/skrifa/latest/skrifa/outline/trait.OutlinePen.html) implementations useful for check implementors
 pub mod pens;
+#[cfg(feature = "plugin")]
 /// Utilities for building fontspector plugins
 pub mod plugin;
 /// Sets of checks that declare a particular "standard" of QA testing
@@ -43,6 +44,7 @@ mod profile;
 mod registry;
 
 /// Source files which can be fixed
+#[cfg(feature = "sourcefix")]
 pub mod source;
 /// Data structures representing the most basic elements of a check's result
 mod status;
@@ -50,9 +52,9 @@ mod status;
 mod testable;
 /// Common utility functions for check implementors
 mod utils;
-pub use check::{
-    return_result, Check, CheckFlags, CheckId, CheckImplementation, FixSourceFunction,
-};
+#[cfg(feature = "sourcefix")]
+pub use check::FixSourceFunction;
+pub use check::{return_result, Check, CheckFlags, CheckId, CheckImplementation};
 pub use checkresult::CheckResult;
 pub use context::Context;
 pub use error::FontspectorError;
@@ -62,12 +64,13 @@ pub use fix::{
     MoreInfoRequest,
 };
 pub use font::{
-    get_name_entry_string, get_name_platform_tuples, PlatformSelector, TestFont, DEFAULT_LOCATION,
-    TTF,
+    get_name_entry_string, get_name_platform_tuples, supported_name_entry_encoding,
+    PlatformSelector, TestFont, DEFAULT_LOCATION, TTF,
 };
 pub use gsub::{GetSubstitutionMap, SubstitutionMap};
 pub use profile::{Override, Profile, ProfileBuilder};
 pub use registry::Registry;
+#[cfg(feature = "sourcefix")]
 pub use source::SourceFile;
 pub use status::{CheckFnResult, Metadata, Status, StatusCode, StatusList};
 pub use testable::{Testable, TestableCollection, TestableType};

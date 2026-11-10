@@ -21,10 +21,11 @@ fn empty_records(t: &Testable, _context: &Context) -> CheckFnResult {
             problems.push(Status::fail(
                 "empty-record",
                 &format!(
-                    "Empty name record found for name ID={} platform ID={} encoding ID={}",
+                    "Empty name record found for name ID={} platform ID={} encoding ID={} language ID={}",
                     record.name_id(),
                     record.platform_id(),
                     record.encoding_id(),
+                    record.language_id(),
                 ),
             ));
         }
@@ -37,7 +38,10 @@ fn empty_records(t: &Testable, _context: &Context) -> CheckFnResult {
 mod tests {
     use super::*;
     use fontspector_checkapi::{
-        codetesting::{assert_pass, assert_results_contain, run_check, set_name_entry, test_able},
+        codetesting::{
+            assert_messages_contain, assert_pass, assert_results_contain, run_check,
+            set_name_entry, test_able,
+        },
         StatusCode,
     };
     use skrifa::raw::types::NameId;
@@ -63,5 +67,6 @@ mod tests {
         );
         let result = run_check(empty_records, testable);
         assert_results_contain(&result, StatusCode::Fail, Some("empty-record".to_string()));
+        assert_messages_contain(&result, "platform ID=3 encoding ID=1 language ID=1033");
     }
 }

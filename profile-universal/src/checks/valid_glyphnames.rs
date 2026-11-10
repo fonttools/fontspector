@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata, SourceFile};
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
 use itertools::Itertools;
 use serde_json::json;
 use skrifa::{
@@ -221,8 +221,9 @@ fn valid_glyphnames(f: &Testable, context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
+#[cfg(feature = "sourcefix")]
 fn sourcefix_valid_glyphnames(
-    s: &mut SourceFile,
+    s: &mut fontspector_checkapi::source::SourceFile,
     _problems: &[Status],
     _replies: Option<MoreInfoReplies>,
 ) -> Result<FixResult, FontspectorError> {
@@ -258,6 +259,7 @@ fn convert_json_to_vec_chars(json_value: &serde_json::Value) -> Vec<char> {
     }
 }
 
+#[allow(clippy::unwrap_used)]
 #[cfg(test)]
 mod tests {
     use super::{test_glyph_name, valid_glyphnames, NameValidity};
@@ -395,7 +397,7 @@ mod tests {
             ("u0041_0042", NameValidity::OK),
         ];
         for (name, expected_result) in tests {
-            let result = test_glyph_name(&name, allowed_special_chars.clone());
+            let result = test_glyph_name(name, allowed_special_chars.clone());
             assert_eq!(result, expected_result);
         }
     }
@@ -413,7 +415,7 @@ mod tests {
             ("one-ar", NameValidity::OK),
         ];
         for (name, expected_result) in tests {
-            let result = test_glyph_name(&name, allowed_special_chars.clone());
+            let result = test_glyph_name(name, allowed_special_chars.clone());
             assert_eq!(result, expected_result);
         }
     }

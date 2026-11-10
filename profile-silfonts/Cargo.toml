@@ -1,0 +1,24 @@
+[package]
+name = "fontspector-profile-silfonts"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+name = "fontspector_profile_silfonts"
+
+[[bin]]
+name = "silfonts-fontspectorplugin"
+path = "src/main.rs"
+
+[dependencies]
+fontspector-checkapi = { path = "../fontspector-checkapi", features = [
+    "plugin",
+] }
+regex = { workspace = true }
+skrifa = { workspace = true }
+[features]
+sourcefix = ["fontspector-checkapi/sourcefix"]
+
+[lints]
+workspace = true

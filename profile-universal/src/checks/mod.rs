@@ -26,6 +26,7 @@ mod file_size;
 mod fontdata_namecheck;
 #[cfg(all(feature = "check", not(target_family = "wasm")))]
 mod freetype_rasterizer;
+mod fvar_STAT_axes;
 mod fvar_instance_ps_names;
 mod fvar_name_entries;
 mod gpos7;
@@ -103,6 +104,7 @@ pub use file_size::file_size;
 pub use fontdata_namecheck::fontdata_namecheck;
 #[cfg(all(feature = "check", not(target_family = "wasm")))]
 pub use freetype_rasterizer::freetype_rasterizer;
+pub use fvar_STAT_axes::fvar_stat_axes;
 pub use fvar_instance_ps_names::fvar_instance_ps_names;
 pub use fvar_name_entries::fvar_name_entries;
 pub use gpos7::gpos7;
