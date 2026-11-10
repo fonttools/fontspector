@@ -1671,7 +1671,7 @@ dependencies = [
 
 [[package]]
 name = "fontspector-profile-iso15008"
-version = "1.0.8"
+version = "1.0.9"
 dependencies = [
  "fontspector-checkapi",
  "harfrust",
