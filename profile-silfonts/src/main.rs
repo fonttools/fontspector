@@ -1,6 +1,6 @@
 use fontspector_checkapi::plugin::plugin_main;
-use fontspector_profile_silfonts::SIL;
+use fontspector_profile_silfonts::SILfonts;
 
 fn main() {
-    plugin_main(SIL);
+    plugin_main(SILfonts);
 }

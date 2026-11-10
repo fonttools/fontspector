@@ -157,6 +157,7 @@ mod tests {
     use skrifa::raw::TableProvider;
     use write_fonts::{
         from_obj::{FromTableRef as _, ToOwnedTable},
+        tables::glyf::Glyf,
         FontBuilder,
     };
 
