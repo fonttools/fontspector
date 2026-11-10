@@ -1545,7 +1545,7 @@ dependencies = [
 
 [[package]]
 name = "fontspector-checkapi"
-version = "1.9.0"
+version = "1.10.0"
 dependencies = [
  "babelfont",
  "clap",
@@ -1580,7 +1580,7 @@ dependencies = [
 
 [[package]]
 name = "fontspector-hotfix"
-version = "0.6.0"
+version = "0.7.0"
 dependencies = [
  "clap",
  "dialoguer",

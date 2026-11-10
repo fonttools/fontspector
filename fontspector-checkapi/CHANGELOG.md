@@ -5,7 +5,100 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.10.0 (2026-11-10)
+
+### Chore
+
+ - <csr-id-72c96f7ba104074edfb9f5e52a682faaa13cd1bd/> Hide sourcefixes behind feature to slim deps
+   * chore: Lint fixups
+   
+   * chore: Hide sourcefixes behind feature to slim deps
+   
+   * chore: Work under unification
+
+### New Features
+
+ - <csr-id-c4d85c8714b339c96482b30e677a0c711d71a681/> Add overlaps bit test/fix
+   * feat(universal): Add overlaps bit test/fix
+   
+   * fix: Also set on composites
+   
+   * chore: Ricky plays golf
+ - <csr-id-74567865f188d27a10dd9fae239b112266d68437/> Is name ID 1 free of the reserved keywords?
+   * fix(PlatformSelector): make it cloneable
+   
+   * feat: create new monotype check 'style_in_family_name'
+   
+   * test(monotype/style_in_family_name): extend unittest with keyword 'Regular' in name ID 1+2
+   
+   * fix(monotype/style_in_family_name): add 'Regular' to reserved style names
+   
+   * fix(monotype/style_in_family_name): title description
+   
+   * refactor(monotype/style_in_family_name): make Lint happy
+   
+   ---------
+
+### Bug Fixes
+
+ - <csr-id-6dfa585dfc04078f8bd96a5be6d6c43d8bf32a25/> skip unsupported name encodings in family uniqueness check
+   * Skip unsupported name encodings in family uniqueness check.
+   
+   Add supported_name_entry_encoding via fontations Encoding::new so the check ignores platform/encoding pairs we cannot decode.
+ - <csr-id-25b43ccc5bac758a2d74d0797bd79b3607614961/> measure outlines across the designnspace
+   * fix(family/win_ascent_and_descent): measure outlines across the designspace
+   
+   The check compared usWinAscent/usWinDescent against head.yMin/yMax,
+   which only describe the default master. Variable fonts can grow taller
+   or deeper at other locations and still pass, then clip on Windows.
+   
+   Draw every glyph at the default location and at the peak of each of
+   its gvar tuples, and use those outline extremes instead. Fail messages
+   now name the glyph and axis location that set the extreme.
+   
+   * refactor(checkapi): make denormalize_location a TestFont method
+   
+   Review feedback: the helper belongs on TestFont in fontspector-checkapi
+   rather than in its own module in profile-universal.
+
+### Test
+
+ - <csr-id-99aa644d87c1e6c8528f3faa66c9baf7beab6aa2/> Port more tests to Rust
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 6 commits contributed to the release over the course of 22 calendar days.
+ - 32 days passed between releases.
+ - 6 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 6 unique issues were worked on: [#1000](https://github.com/fonttools/fontspector/issues/1000), [#1013](https://github.com/fonttools/fontspector/issues/1013), [#948](https://github.com/fonttools/fontspector/issues/948), [#952](https://github.com/fonttools/fontspector/issues/952), [#965](https://github.com/fonttools/fontspector/issues/965), [#998](https://github.com/fonttools/fontspector/issues/998)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#1000](https://github.com/fonttools/fontspector/issues/1000)**
+    - Hide sourcefixes behind feature to slim deps ([`72c96f7`](https://github.com/fonttools/fontspector/commit/72c96f7ba104074edfb9f5e52a682faaa13cd1bd))
+ * **[#1013](https://github.com/fonttools/fontspector/issues/1013)**
+    - Port more tests to Rust ([`99aa644`](https://github.com/fonttools/fontspector/commit/99aa644d87c1e6c8528f3faa66c9baf7beab6aa2))
+ * **[#948](https://github.com/fonttools/fontspector/issues/948)**
+    - Is name ID 1 free of the reserved keywords? ([`7456786`](https://github.com/fonttools/fontspector/commit/74567865f188d27a10dd9fae239b112266d68437))
+ * **[#952](https://github.com/fonttools/fontspector/issues/952)**
+    - Measure outlines across the designnspace ([`25b43cc`](https://github.com/fonttools/fontspector/commit/25b43ccc5bac758a2d74d0797bd79b3607614961))
+ * **[#965](https://github.com/fonttools/fontspector/issues/965)**
+    - Add overlaps bit test/fix ([`c4d85c8`](https://github.com/fonttools/fontspector/commit/c4d85c8714b339c96482b30e677a0c711d71a681))
+ * **[#998](https://github.com/fonttools/fontspector/issues/998)**
+    - Skip unsupported name encodings in family uniqueness check ([`6dfa585`](https://github.com/fonttools/fontspector/commit/6dfa585dfc04078f8bd96a5be6d6c43d8bf32a25))
+</details>
+
 ## v1.9.0 (2026-10-09)
+
+### Other
+
+ - <csr-id-042342c79470d8859f6845c079e43cb23ba75aa5/> Release fontspector-checkapi v1.9.0, safety bump fontspector-hotfix v0.6.0
 
 ### New Features
 
@@ -91,9 +184,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 2 commits contributed to the release over the course of 2 calendar days.
+ - 3 commits contributed to the release over the course of 2 calendar days.
  - 21 days passed between releases.
- - 2 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 3 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 2 unique issues were worked on: [#315](https://github.com/fonttools/fontspector/issues/315), [#947](https://github.com/fonttools/fontspector/issues/947)
 
 ### Commit Details
@@ -106,6 +199,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Source fixing ([`5ac424d`](https://github.com/fonttools/fontspector/commit/5ac424de337de94d8f09835b3dc2cf41223a7a5b))
  * **[#947](https://github.com/fonttools/fontspector/issues/947)**
     - 'Extrabold' was incorrectly recognized as 'Bold' ([`76b618a`](https://github.com/fonttools/fontspector/commit/76b618a8fcfab7f87877fb1ab58da3d49ec36d3c))
+ * **Uncategorized**
+    - Release fontspector-checkapi v1.9.0, safety bump fontspector-hotfix v0.6.0 ([`042342c`](https://github.com/fonttools/fontspector/commit/042342c79470d8859f6845c079e43cb23ba75aa5))
 </details>
 
 ## v1.8.0 (2026-09-18)
