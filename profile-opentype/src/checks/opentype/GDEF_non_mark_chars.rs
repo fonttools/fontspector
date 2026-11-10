@@ -78,12 +78,18 @@ fn GDEF_non_mark_chars(t: &Testable, context: &Context) -> CheckFnResult {
 
 #[cfg(test)]
 mod tests {
-    use fontspector_checkapi::codetesting::{assert_pass, assert_skip, run_check, test_able};
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
+    use fontspector_checkapi::codetesting::{
+        assert_messages_contain, assert_pass, assert_results_contain, assert_skip, remove_table,
+        run_check, set_gdef_glyph_classes, test_able,
+    };
+    use fontspector_checkapi::StatusCode;
 
     #[test]
     fn test_gdef_non_mark_chars_skip_no_gdef() {
         let mut testable = test_able("nunito/Nunito-Regular.ttf");
-        fontspector_checkapi::codetesting::remove_table(&mut testable, b"GDEF");
+        remove_table(&mut testable, b"GDEF");
         let result = run_check(super::GDEF_non_mark_chars, testable);
         assert_skip(&result);
     }
@@ -93,5 +99,36 @@ mod tests {
         let testable = test_able("nunito/Nunito-Regular.ttf");
         let result = run_check(super::GDEF_non_mark_chars, testable);
         assert_pass(&result);
+    }
+
+    #[test]
+    fn test_gdef_non_mark_chars_empty_gdef_pass() {
+        let mut testable = test_able("nunito/Nunito-Regular.ttf");
+        set_gdef_glyph_classes(&mut testable, &[]).unwrap();
+        let result = run_check(super::GDEF_non_mark_chars, testable);
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_gdef_non_mark_chars_only_marks_pass() {
+        let mut testable = test_able("nunito/Nunito-Regular.ttf");
+        set_gdef_glyph_classes(&mut testable, &[("acutecomb", 3)]).unwrap();
+        let result = run_check(super::GDEF_non_mark_chars, testable);
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_gdef_non_mark_chars_misdeclared_warn() {
+        // 'acute' (U+00B4) is a spacing non-mark character, so declaring it
+        // in the GDEF mark glyph class should warn.
+        let mut testable = test_able("nunito/Nunito-Regular.ttf");
+        set_gdef_glyph_classes(&mut testable, &[("acute", 3), ("acutecomb", 3)]).unwrap();
+        let result = run_check(super::GDEF_non_mark_chars, testable);
+        assert_results_contain(
+            &result,
+            StatusCode::Warn,
+            Some("non-mark-chars".to_string()),
+        );
+        assert_messages_contain(&result, "U+00B4");
     }
 }

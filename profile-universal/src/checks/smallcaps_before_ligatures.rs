@@ -48,10 +48,38 @@ fn smallcaps_before_ligatures(t: &Testable, _context: &Context) -> CheckFnResult
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
     use fontspector_checkapi::{
-        codetesting::{assert_results_contain, run_check, test_able},
-        StatusCode,
+        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
+        FileTypeConvert, StatusCode, Testable, TTF,
     };
+    use skrifa::raw::TableProvider;
+    use write_fonts::{
+        from_obj::ToOwnedTable,
+        tables::{
+            gsub::Gsub,
+            layout::{Feature, FeatureList, FeatureRecord},
+        },
+        types::Tag,
+    };
+
+    /// Replace the GSUB FeatureList with a pair of `smcp` and `liga` records
+    /// pointing at the given lookup list indices.
+    ///
+    /// Records are emitted in alphabetical tag order so the table stays valid;
+    /// the check only inspects lookup indices, not record order.
+    fn set_smcp_liga_lookups(t: &mut Testable, smcp_lookup: u16, liga_lookup: u16) {
+        let f = TTF.from_testable(t).unwrap();
+        let mut gsub: Gsub = f.font().gsub().unwrap().to_owned_table();
+        let feature_list = FeatureList::new(vec![
+            FeatureRecord::new(Tag::new(b"liga"), Feature::new(None, vec![liga_lookup])),
+            FeatureRecord::new(Tag::new(b"smcp"), Feature::new(None, vec![smcp_lookup])),
+        ]);
+        gsub.feature_list = feature_list.into();
+        let new_bytes = f.rebuild_with_new_table(&gsub).unwrap();
+        t.set(new_bytes);
+    }
 
     #[test]
     fn test_smallcaps_before_ligatures_skip_no_smcp() {
@@ -61,9 +89,25 @@ mod tests {
         assert_results_contain(&results, StatusCode::Skip, Some("no-smcp".to_string()));
     }
 
-    // Note: The Python test constructs GSUB FeatureRecords from scratch using fontTools,
-    // setting up smcp with LookupListIndex=[0] and liga with LookupListIndex=[1] (PASS),
-    // then swapping them (FAIL). This requires GSUB table manipulation which is not
-    // available in the current Rust test utilities. A dedicated test font with both
-    // smcp and liga features would be needed to test the PASS and FAIL paths.
+    #[test]
+    fn test_smallcaps_before_ligatures_pass() {
+        // smcp uses an earlier lookup than liga
+        let mut testable = test_able("mada/Mada-Regular.ttf");
+        set_smcp_liga_lookups(&mut testable, 0, 1);
+        let results = run_check(super::smallcaps_before_ligatures, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_smallcaps_before_ligatures_fail_feature_ordering() {
+        // liga uses an earlier lookup than smcp
+        let mut testable = test_able("mada/Mada-Regular.ttf");
+        set_smcp_liga_lookups(&mut testable, 1, 0);
+        let results = run_check(super::smallcaps_before_ligatures, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("feature-ordering".to_string()),
+        );
+    }
 }

@@ -150,10 +150,11 @@ mod tests {
     use fontspector_checkapi::{
         codetesting::{
             assert_messages_contain, assert_pass, assert_results_contain, run_check_with_config,
-            test_able,
+            set_name_entry, test_able,
         },
-        StatusCode, TestableType,
+        FileTypeConvert, StatusCode, TestableType, TTF,
     };
+    use skrifa::raw::{types::NameId, TableProvider};
     use std::collections::HashMap;
 
     #[test]
@@ -209,6 +210,105 @@ mod tests {
             conf,
         );
         assert_messages_contain(&results, "(6 characters too long)");
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("instance-too-long".to_string()),
+        );
+    }
+
+    /// Cabin VF is known to fit within the default limits.
+    #[test]
+    fn test_family_and_style_max_length_pass_cabin() {
+        let testable = test_able("cabinvf/Cabin[wdth,wght].ttf");
+        let results = run_check_with_config(
+            super::family_and_style_max_length,
+            TestableType::Single(&testable),
+            HashMap::new(),
+        );
+        assert_pass(&results);
+    }
+
+    /// A 33-character full font name exceeds the default limit of 32.
+    #[test]
+    fn test_family_and_style_max_length_fail_long_full_name() {
+        let mut testable = test_able("cabinvf/Cabin[wdth,wght].ttf");
+        // "An Absurdly Long Family Name Font" has 33 characters
+        set_name_entry(
+            &mut testable,
+            3,
+            1,
+            0x0409,
+            NameId::FULL_NAME,
+            "An Absurdly Long Family Name Font".to_string(),
+        );
+        let results = run_check_with_config(
+            super::family_and_style_max_length,
+            TestableType::Single(&testable),
+            HashMap::new(),
+        );
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("nameid4-too-long".to_string()),
+        );
+    }
+
+    /// A 28-character PostScript name exceeds the default limit of 27.
+    #[test]
+    fn test_family_and_style_max_length_warn_long_postscript_name() {
+        let mut testable = test_able("cabinvf/Cabin[wdth,wght].ttf");
+        // "AbsurdlyLongFontName-Regular" has 28 characters
+        set_name_entry(
+            &mut testable,
+            3,
+            1,
+            0x0409,
+            NameId::POSTSCRIPT_NAME,
+            "AbsurdlyLongFontName-Regular".to_string(),
+        );
+        let results = run_check_with_config(
+            super::family_and_style_max_length,
+            TestableType::Single(&testable),
+            HashMap::new(),
+        );
+        assert_results_contain(
+            &results,
+            StatusCode::Warn,
+            Some("nameid6-too-long".to_string()),
+        );
+    }
+
+    /// A long fvar instance name combined with the family name exceeds 32
+    /// characters ("Cabin" + " " + 28 characters).
+    #[test]
+    fn test_family_and_style_max_length_fail_long_instance_name() {
+        let mut testable = test_able("cabinvf/Cabin[wdth,wght].ttf");
+        let f = TTF.from_testable(&testable).unwrap();
+        let instance_name_id = f
+            .font()
+            .fvar()
+            .unwrap()
+            .instances()
+            .unwrap()
+            .get(0)
+            .unwrap()
+            .subfamily_name_id;
+        drop(f);
+        // "WithAVeryLongAndBadStyleName" has 28 characters
+        set_name_entry(
+            &mut testable,
+            3,
+            1,
+            0x0409,
+            instance_name_id,
+            "WithAVeryLongAndBadStyleName".to_string(),
+        );
+        let results = run_check_with_config(
+            super::family_and_style_max_length,
+            TestableType::Single(&testable),
+            HashMap::new(),
+        );
         assert_results_contain(
             &results,
             StatusCode::Fail,

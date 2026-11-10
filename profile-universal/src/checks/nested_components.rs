@@ -108,7 +108,11 @@ fn decompose_nested_components(
 
 #[cfg(test)]
 mod tests {
-    use fontspector_checkapi::codetesting::{assert_pass, run_check, test_able};
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
+    use fontspector_checkapi::codetesting::{
+        assert_pass, assert_results_contain, glyph_by_name, run_check, set_glyph, test_able,
+    };
 
     #[test]
     fn test_nested_components_pass() {
@@ -118,9 +122,36 @@ mod tests {
         assert_pass(&results);
     }
 
-    // Note: The Python test modifies glyf table in-memory to create nested components
-    // by setting quotedbl's first component to "second" (which itself has components).
-    // This requires glyf table manipulation which is not available in the current
-    // Rust test utilities. A dedicated test font with pre-existing nested components
-    // would be needed for a FAIL test.
+    #[test]
+    fn test_nested_components_fail() {
+        // "second" has components, so pointing one of "quotedbl"'s components
+        // at it creates a nested component.
+        use fontspector_checkapi::codetesting::glyph_id_for_name;
+        use fontspector_checkapi::{FileTypeConvert, TTF};
+        use write_fonts::tables::glyf::Glyph;
+
+        let mut testable = test_able("nunito/Nunito-Regular.ttf");
+        let f = TTF.from_testable(&testable).unwrap();
+        let second = glyph_id_for_name(&f, "second").unwrap();
+        drop(f);
+
+        let quotedbl = glyph_by_name(&testable, "quotedbl").unwrap();
+        let Glyph::Composite(mut composite) = quotedbl else {
+            panic!("expected quotedbl to be a composite glyph");
+        };
+        // We know quotedbl has two components
+        let first = composite
+            .components_mut()
+            .first_mut()
+            .expect("quotedbl should have a component");
+        first.glyph = skrifa::GlyphId16::try_from(second).unwrap();
+        set_glyph(&mut testable, "quotedbl", &Glyph::Composite(composite)).unwrap();
+
+        let results = run_check(super::nested_components, testable);
+        assert_results_contain(
+            &results,
+            fontspector_checkapi::StatusCode::Fail,
+            Some("found-nested-components".to_string()),
+        );
+    }
 }

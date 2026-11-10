@@ -45,3 +45,42 @@ fn name_length_req(t: &Testable, _context: &Context) -> CheckFnResult {
         },
     )
 }
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
+    use super::name_length_req;
+    use fontspector_checkapi::{
+        codetesting::{assert_pass, assert_results_contain, run_check, set_name_entry, test_able},
+        StatusCode,
+    };
+    use skrifa::raw::types::NameId;
+
+    #[test]
+    fn test_name_length_req_pass() {
+        // "Selawik-fvar-test" + "Regular" is within the 31 character limit
+        let testable = test_able("selawik/Selawik-fvar-test-VTT.ttf");
+        let results = run_check(name_length_req, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_name_length_req_fail_too_long() {
+        // A 33-character family name plus the "Regular" subfamily name
+        // overflows a LOGFONT's 31 characters.
+        let mut testable = test_able("selawik/Selawik-fvar-test-VTT.ttf");
+        let long_name = "An Absurdly Long Family Name Font".to_string();
+        set_name_entry(
+            &mut testable,
+            3,
+            1,
+            0x0409,
+            NameId::TYPOGRAPHIC_FAMILY_NAME,
+            long_name.clone(),
+        );
+        set_name_entry(&mut testable, 3, 1, 0x0409, NameId::FAMILY_NAME, long_name);
+        let results = run_check(name_length_req, testable);
+        assert_results_contain(&results, StatusCode::Fail, Some("name-length".to_string()));
+    }
+}

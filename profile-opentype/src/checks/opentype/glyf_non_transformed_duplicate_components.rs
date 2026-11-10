@@ -67,12 +67,41 @@ fn glyf_non_transformed_duplicate_components(t: &Testable, _context: &Context) -
 
 #[cfg(test)]
 mod tests {
-    use fontspector_checkapi::codetesting::{assert_pass, run_check, test_able};
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
+    use fontspector_checkapi::codetesting::{
+        assert_pass, assert_results_contain, glyph_by_name, run_check, set_glyph, test_able,
+    };
+    use fontspector_checkapi::StatusCode;
+    use skrifa::raw::tables::glyf::Anchor;
+    use write_fonts::tables::glyf::Glyph;
 
     #[test]
     fn test_glyf_non_transformed_duplicate_components_pass() {
         let testable = test_able("nunito/Nunito-Regular.ttf");
         let result = run_check(super::glyf_non_transformed_duplicate_components, testable);
         assert_pass(&result);
+    }
+
+    #[test]
+    fn test_glyf_non_transformed_duplicate_components_fail() {
+        // Give quotedbl's two components the same x,y coordinates; both are
+        // 'quotesingle', so they become duplicates.
+        let mut testable = test_able("nunito/Nunito-Regular.ttf");
+        let quotedbl = glyph_by_name(&testable, "quotedbl").unwrap();
+        let Glyph::Composite(mut composite) = quotedbl else {
+            panic!("expected quotedbl to be a composite glyph");
+        };
+        for component in composite.components_mut() {
+            component.anchor = Anchor::Offset { x: 0, y: 0 };
+        }
+        set_glyph(&mut testable, "quotedbl", &Glyph::Composite(composite)).unwrap();
+
+        let result = run_check(super::glyf_non_transformed_duplicate_components, testable);
+        assert_results_contain(
+            &result,
+            StatusCode::Fail,
+            Some("found-duplicates".to_string()),
+        );
     }
 }
