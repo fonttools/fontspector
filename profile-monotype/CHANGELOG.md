@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## v1.1.0 (2026-11-10)
 
+### Other
+
+ - <csr-id-69e30ff7dab640c64c3708df6550dd4460d948a5/> Release fontspector-profile-microsoft v0.1.0, fontspector-profile-monotype v1.1.0
+
 ### Chore
 
  - <csr-id-72c96f7ba104074edfb9f5e52a682faaa13cd1bd/> Hide sourcefixes behind feature to slim deps
@@ -187,9 +191,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 11 commits contributed to the release over the course of 21 calendar days.
+ - 12 commits contributed to the release over the course of 22 calendar days.
  - 53 days passed between releases.
- - 11 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 12 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 11 unique issues were worked on: [#1000](https://github.com/fonttools/fontspector/issues/1000), [#904](https://github.com/fonttools/fontspector/issues/904), [#921](https://github.com/fonttools/fontspector/issues/921), [#923](https://github.com/fonttools/fontspector/issues/923), [#934](https://github.com/fonttools/fontspector/issues/934), [#948](https://github.com/fonttools/fontspector/issues/948), [#951](https://github.com/fonttools/fontspector/issues/951), [#961](https://github.com/fonttools/fontspector/issues/961), [#962](https://github.com/fonttools/fontspector/issues/962), [#975](https://github.com/fonttools/fontspector/issues/975), [#986](https://github.com/fonttools/fontspector/issues/986)
 
 ### Commit Details
@@ -220,6 +224,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Add microsoft/office_ribz_req ([`811b49e`](https://github.com/fonttools/fontspector/commit/811b49ea88e5c972f64ed46dd9f78b5c970c5d44))
  * **[#986](https://github.com/fonttools/fontspector/issues/986)**
     - Check if all fvar axes are present in STAT ([`643f0ac`](https://github.com/fonttools/fontspector/commit/643f0ac04d2cd63f0078963d87b84b46723946a7))
+ * **Uncategorized**
+    - Release fontspector-profile-microsoft v0.1.0, fontspector-profile-monotype v1.1.0 ([`69e30ff`](https://github.com/fonttools/fontspector/commit/69e30ff7dab640c64c3708df6550dd4460d948a5))
 </details>
 
 ## v1.0.0 (2026-09-18)
