@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## v0.1.0 (2026-11-10)
 
+### Other
+
+ - <csr-id-2cf0d1324efc6b7c1da7d01d221d2d5a2449c188/> Add package metadata
+ - <csr-id-48e29ee72c0d32e4278e235056cbb24d8db9a207/> Various build improvements
+   * build: Remove old silfonts plugin binary
+   
+   * build: Monotype plugin requires Microsoft plugin so it must be published
+   
+   * feat: Expose Microsoft profile
+   
+   * chore: Oops dependency
+ - <csr-id-69e30ff7dab640c64c3708df6550dd4460d948a5/> Release fontspector-profile-microsoft v0.1.0, fontspector-profile-monotype v1.1.0
+
 ### Chore
 
  - <csr-id-72c96f7ba104074edfb9f5e52a682faaa13cd1bd/> Hide sourcefixes behind feature to slim deps
@@ -146,9 +159,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 24 commits contributed to the release.
- - 16 commits were understood as [conventional](https://www.conventionalcommits.org).
- - 19 unique issues were worked on: [#1000](https://github.com/fonttools/fontspector/issues/1000), [#1013](https://github.com/fonttools/fontspector/issues/1013), [#107](https://github.com/fonttools/fontspector/issues/107), [#109](https://github.com/fonttools/fontspector/issues/109), [#111](https://github.com/fonttools/fontspector/issues/111), [#127](https://github.com/fonttools/fontspector/issues/127), [#275](https://github.com/fonttools/fontspector/issues/275), [#287](https://github.com/fonttools/fontspector/issues/287), [#299](https://github.com/fonttools/fontspector/issues/299), [#315](https://github.com/fonttools/fontspector/issues/315), [#336](https://github.com/fonttools/fontspector/issues/336), [#581](https://github.com/fonttools/fontspector/issues/581), [#782](https://github.com/fonttools/fontspector/issues/782), [#851](https://github.com/fonttools/fontspector/issues/851), [#875](https://github.com/fonttools/fontspector/issues/875), [#898](https://github.com/fonttools/fontspector/issues/898), [#905](https://github.com/fonttools/fontspector/issues/905), [#975](https://github.com/fonttools/fontspector/issues/975), [#997](https://github.com/fonttools/fontspector/issues/997)
+ - 27 commits contributed to the release.
+ - 19 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 21 unique issues were worked on: [#1000](https://github.com/fonttools/fontspector/issues/1000), [#1013](https://github.com/fonttools/fontspector/issues/1013), [#1019](https://github.com/fonttools/fontspector/issues/1019), [#1022](https://github.com/fonttools/fontspector/issues/1022), [#107](https://github.com/fonttools/fontspector/issues/107), [#109](https://github.com/fonttools/fontspector/issues/109), [#111](https://github.com/fonttools/fontspector/issues/111), [#127](https://github.com/fonttools/fontspector/issues/127), [#275](https://github.com/fonttools/fontspector/issues/275), [#287](https://github.com/fonttools/fontspector/issues/287), [#299](https://github.com/fonttools/fontspector/issues/299), [#315](https://github.com/fonttools/fontspector/issues/315), [#336](https://github.com/fonttools/fontspector/issues/336), [#581](https://github.com/fonttools/fontspector/issues/581), [#782](https://github.com/fonttools/fontspector/issues/782), [#851](https://github.com/fonttools/fontspector/issues/851), [#875](https://github.com/fonttools/fontspector/issues/875), [#898](https://github.com/fonttools/fontspector/issues/898), [#905](https://github.com/fonttools/fontspector/issues/905), [#975](https://github.com/fonttools/fontspector/issues/975), [#997](https://github.com/fonttools/fontspector/issues/997)
 
 ### Thanks Clippy
 
@@ -166,6 +179,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Hide sourcefixes behind feature to slim deps ([`72c96f7`](https://github.com/fonttools/fontspector/commit/72c96f7ba104074edfb9f5e52a682faaa13cd1bd))
  * **[#1013](https://github.com/fonttools/fontspector/issues/1013)**
     - Port more tests to Rust ([`99aa644`](https://github.com/fonttools/fontspector/commit/99aa644d87c1e6c8528f3faa66c9baf7beab6aa2))
+ * **[#1019](https://github.com/fonttools/fontspector/issues/1019)**
+    - Various build improvements ([`48e29ee`](https://github.com/fonttools/fontspector/commit/48e29ee72c0d32e4278e235056cbb24d8db9a207))
+ * **[#1022](https://github.com/fonttools/fontspector/issues/1022)**
+    - Add package metadata ([`2cf0d13`](https://github.com/fonttools/fontspector/commit/2cf0d1324efc6b7c1da7d01d221d2d5a2449c188))
  * **[#107](https://github.com/fonttools/fontspector/issues/107)**
     - Move to fontations crate ([`da2830b`](https://github.com/fonttools/fontspector/commit/da2830ba694bf3379142a81dad043031e1c39f35))
  * **[#109](https://github.com/fonttools/fontspector/issues/109)**
@@ -201,6 +218,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  * **[#997](https://github.com/fonttools/fontspector/issues/997)**
     - Only validate name ID 2 for RBIZ ([`ba8ff42`](https://github.com/fonttools/fontspector/commit/ba8ff42d7ebb12aed7ec90a608f7cc61da073394))
  * **Uncategorized**
+    - Release fontspector-profile-microsoft v0.1.0, fontspector-profile-monotype v1.1.0 ([`69e30ff`](https://github.com/fonttools/fontspector/commit/69e30ff7dab640c64c3708df6550dd4460d948a5))
     - Merge branch 'main' into python-optional-feature ([`9bfbc25`](https://github.com/fonttools/fontspector/commit/9bfbc25c6c78417ce261fa5b4850c8eaba3ad37c))
     - Merge pull request #81 from fonttools/microsoft ([`7b7f817`](https://github.com/fonttools/fontspector/commit/7b7f817461c31ca0e4c44a4bbac5cee631db1e6c))
     - Finish the MS profile ([`37bbd7d`](https://github.com/fonttools/fontspector/commit/37bbd7dc56b13a12cf258639d131dec210ee9fe4))
