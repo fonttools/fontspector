@@ -154,11 +154,7 @@ mod tests {
         testable.set(f.rebuild_with_new_table(&cmap).unwrap());
 
         let results = run_check(bmp_has_cmap_format4_subtable, testable);
-        assert_results_contain(
-            &results,
-            StatusCode::Skip,
-            Some("not-bmp-only".to_string()),
-        );
+        assert_results_contain(&results, StatusCode::Skip, Some("not-bmp-only".to_string()));
     }
 
     #[test]
