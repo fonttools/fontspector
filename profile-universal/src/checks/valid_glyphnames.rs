@@ -102,14 +102,18 @@ fn valid_glyphnames(f: &Testable, context: &Context) -> CheckFnResult {
         problems.push(Status::fail(
             "found-invalid-names",
             &format!(
-                "The following glyph names do not comply with naming conventions: {:}\n\n
+                "The following glyph names do not comply with naming conventions: {}\n\n
                 A glyph name must be entirely comprised of characters
                 from the following set: A-Z a-z 0-9 .(period) _(underscore).
                 A glyph name must not start with a digit or period.
                 There are a few exceptions such as the special glyph '.notdef'.
                 The glyph names \"twocents\", \"a1\", and \"_\" are all valid,
                 while \"2cents\" and \".twocents\" are not.'",
-                Itertools::intersperse(badnames.into_iter(), ", ".to_string()).collect::<String>()
+                Itertools::intersperse(
+                    badnames.into_iter().map(|n| format!("{:?}", n)),
+                    ", ".to_string(),
+                )
+                .collect::<String>()
             ),
         ));
     }
