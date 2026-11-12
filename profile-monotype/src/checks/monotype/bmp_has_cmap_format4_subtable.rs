@@ -31,7 +31,7 @@ fn is_unicode_bmp_encoding(platform_id: PlatformId, encoding_id: u16) -> bool {
         0xFFFF. If such a codepoint exists, the check is skipped. Otherwise it
         requires a format-4 subtable on platform 0/3 or 3/1.
     ",
-    proposal = "https://github.com/Monotype/fontspector/issues/9",
+    proposal = "https://github.com/Monotype/fontspector/issues/31",
     title = "For BMP-only fonts, is a format-4 cmap subtable present?"
 )]
 fn bmp_has_cmap_format4_subtable(t: &Testable, _context: &Context) -> CheckFnResult {
