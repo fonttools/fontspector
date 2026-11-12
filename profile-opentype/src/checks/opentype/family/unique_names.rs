@@ -1,7 +1,78 @@
 use std::collections::HashMap;
 
 use fontspector_checkapi::{prelude::*, FileTypeConvert};
+use serde_json::Value;
 use skrifa::{raw::types::NameId, MetadataProvider};
+
+fn parse_unique_name_ids(config: &Value, key: &str) -> Result<Vec<u16>, Status> {
+    let Some(arr) = config.get(key).and_then(|v| v.as_array()) else {
+        return Err(Status::fail(
+            "invalid-config",
+            &format!("Missing or non-array config key '{key}' for opentype/family/unique_names."),
+        ));
+    };
+    let mut ids = Vec::with_capacity(arr.len());
+    for entry in arr {
+        let Some(n) = entry.as_u64() else {
+            return Err(Status::fail(
+                "invalid-config",
+                &format!("Config key '{key}' must contain only non-negative integers."),
+            ));
+        };
+        if n > u64::from(u16::MAX) {
+            return Err(Status::fail(
+                "invalid-config",
+                &format!("Name ID {n} in '{key}' exceeds u16::MAX."),
+            ));
+        }
+        ids.push(n as u16);
+    }
+    Ok(ids)
+}
+
+fn parse_unique_name_id_pairs(config: &Value, key: &str) -> Result<Vec<(NameId, NameId)>, Status> {
+    let Some(arr) = config.get(key).and_then(|v| v.as_array()) else {
+        return Err(Status::fail(
+            "invalid-config",
+            &format!("Missing or non-array config key '{key}' for opentype/family/unique_names."),
+        ));
+    };
+    let mut pairs = Vec::with_capacity(arr.len());
+    for entry in arr {
+        let Some(pair) = entry.as_array() else {
+            return Err(Status::fail(
+                "invalid-config",
+                &format!("Config key '{key}' must contain only arrays of two integers."),
+            ));
+        };
+        if pair.len() != 2 {
+            return Err(Status::fail(
+                "invalid-config",
+                &format!("Config key '{key}' pairs must each contain exactly two integers."),
+            ));
+        }
+        let Some(a) = pair.first().and_then(|v| v.as_u64()) else {
+            return Err(Status::fail(
+                "invalid-config",
+                &format!("Config key '{key}' pairs must contain only non-negative integers."),
+            ));
+        };
+        let Some(b) = pair.get(1).and_then(|v| v.as_u64()) else {
+            return Err(Status::fail(
+                "invalid-config",
+                &format!("Config key '{key}' pairs must contain only non-negative integers."),
+            ));
+        };
+        if a > u64::from(u16::MAX) || b > u64::from(u16::MAX) {
+            return Err(Status::fail(
+                "invalid-config",
+                &format!("Name ID in '{key}' exceeds u16::MAX."),
+            ));
+        }
+        pairs.push((NameId::new(a as u16), NameId::new(b as u16)));
+    }
+    Ok(pairs)
+}
 
 #[check(
     id = "opentype/family/unique_names",
@@ -27,6 +98,15 @@ use skrifa::{raw::types::NameId, MetadataProvider};
             * 21+22 WWS Family name + WWS Subfamily name.
 
         These name table entries must be unique within a font family.
+
+        This check loads name ID lists from configuration. Profile defaults
+        apply when keys are omitted. Example:
+
+        ```
+        [opentype/family/unique_names]
+        unique_name_ids = [3, 4, 6, 25]
+        unique_name_id_pairs = [[1, 2], [16, 17], [21, 22]]
+        ```
     "#,
     proposal = "https://github.com/Monotype/fontspector/issues/8",
     title = "Verify that specific names and specific combined names are unique within the family.",
@@ -36,26 +116,16 @@ fn unique_names(c: &TestableCollection, context: &Context) -> CheckFnResult {
     let fonts = TTF.from_collection(c);
     let mut problems = vec![];
 
-    let local_config = context.local_config("opentype/family/unique_names");
-    let config = local_config.as_object();
+    let config = context.local_config("opentype/family/unique_names");
 
-    let unique_ids: Vec<u16> = if let Some(config) = config {
-        config
-            .get("unique_name_ids")
-            .ok_or(FontspectorError::skip(
-                "no-unique-name-ids",
-                "Add the `unique_name_ids` key to a `fontspector.toml` file.",
-            ))?
-            .as_array()
-            .ok_or(FontspectorError::skip(
-                "invalid-unique-name-ids",
-                "The `unique_name_ids` key in the configuration file must be an array.",
-            ))?
-            .iter()
-            .filter_map(|v| v.as_u64().map(|n| n as u16))
-            .collect()
-    } else {
-        vec![3, 4, 6]
+    let unique_ids = match parse_unique_name_ids(&config, "unique_name_ids") {
+        Ok(v) => v,
+        Err(status) => return return_result(vec![status]),
+    };
+    let name_ids_to_check_combo = match parse_unique_name_id_pairs(&config, "unique_name_id_pairs")
+    {
+        Ok(v) => v,
+        Err(status) => return return_result(vec![status]),
     };
 
     let name_ids_to_check: Vec<NameId> = unique_ids.iter().map(|id| NameId::new(*id)).collect();
@@ -99,24 +169,6 @@ fn unique_names(c: &TestableCollection, context: &Context) -> CheckFnResult {
             }
         }
     }
-
-    let name_ids_to_check_combo = vec![
-        (
-            // Name ID 1+2
-            NameId::FAMILY_NAME,
-            NameId::SUBFAMILY_NAME,
-        ),
-        (
-            // Name ID 16+17
-            NameId::TYPOGRAPHIC_FAMILY_NAME,
-            NameId::TYPOGRAPHIC_SUBFAMILY_NAME,
-        ),
-        (
-            // Name ID 21+22
-            NameId::WWS_FAMILY_NAME,
-            NameId::WWS_SUBFAMILY_NAME,
-        ),
-    ];
 
     for (name_id_family, name_id_subfamily) in &name_ids_to_check_combo {
         let mut name_entries_combo = HashMap::new();
@@ -214,6 +266,67 @@ mod tests {
         FontBuilder,
     };
 
+    fn default_unique_names_config() -> HashMap<String, serde_json::Value> {
+        HashMap::from([(
+            "opentype/family/unique_names".to_string(),
+            serde_json::json!({
+                "unique_name_ids": [3, 4, 6, 25],
+                "unique_name_id_pairs": [[1, 2], [16, 17], [21, 22]],
+            }),
+        )])
+    }
+
+    #[test]
+    fn test_missing_unique_name_ids_fails_config() {
+        let testables: Vec<_> = ["source-sans-pro/OTF/SourceSansPro-Regular.otf"]
+            .iter()
+            .map(test_able)
+            .collect();
+        let collection = TestableCollection {
+            testables,
+            directory: "".to_string(),
+        };
+        let config = HashMap::from([(
+            "opentype/family/unique_names".to_string(),
+            serde_json::json!({
+                "unique_name_id_pairs": [[1, 2]],
+            }),
+        )]);
+        let result =
+            run_check_with_config(unique_names, TestableType::Collection(&collection), config);
+        assert_results_contain(
+            &result,
+            StatusCode::Fail,
+            Some("invalid-config".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_malformed_unique_name_id_pairs_fails_config() {
+        let testables: Vec<_> = ["source-sans-pro/OTF/SourceSansPro-Regular.otf"]
+            .iter()
+            .map(test_able)
+            .collect();
+        let collection = TestableCollection {
+            testables,
+            directory: "".to_string(),
+        };
+        let config = HashMap::from([(
+            "opentype/family/unique_names".to_string(),
+            serde_json::json!({
+                "unique_name_ids": [3, 4, 6],
+                "unique_name_id_pairs": [[1]],
+            }),
+        )]);
+        let result =
+            run_check_with_config(unique_names, TestableType::Collection(&collection), config);
+        assert_results_contain(
+            &result,
+            StatusCode::Fail,
+            Some("invalid-config".to_string()),
+        );
+    }
+
     #[test]
     fn test_unique_names_fail() {
         // fail, because the same font is included twice
@@ -231,7 +344,7 @@ mod tests {
         let result = run_check_with_config(
             unique_names,
             TestableType::Collection(&collection),
-            HashMap::new(),
+            default_unique_names_config(),
         );
         assert_results_contain(
             &result,
@@ -262,7 +375,7 @@ mod tests {
         let result = run_check_with_config(
             unique_names,
             TestableType::Collection(&collection),
-            HashMap::new(),
+            default_unique_names_config(),
         );
         assert_pass(&result);
     }
@@ -284,7 +397,7 @@ mod tests {
         let result = run_check_with_config(
             unique_names,
             TestableType::Collection(&collection),
-            HashMap::new(),
+            default_unique_names_config(),
         );
         assert_pass(&result);
     }
@@ -306,7 +419,7 @@ mod tests {
         let result = run_check_with_config(
             unique_names,
             TestableType::Collection(&collection),
-            HashMap::new(),
+            default_unique_names_config(),
         );
         assert_results_contain(
             &result,
@@ -497,7 +610,7 @@ mod tests {
             let result = run_check_with_config(
                 unique_names,
                 TestableType::Collection(&collection),
-                HashMap::new(),
+                default_unique_names_config(),
             );
 
             assert_results_contain(&result, expected_severity, expected_code);
@@ -530,7 +643,10 @@ mod tests {
                 None,
                 HashMap::from([(
                     "opentype/family/unique_names".to_string(),
-                    serde_json::json!({ "unique_name_ids": [3, 4, 6] }),
+                    serde_json::json!({
+                        "unique_name_ids": [3, 4, 6],
+                        "unique_name_id_pairs": [[1, 2], [16, 17], [21, 22]],
+                    }),
                 )]),
             ),
             (
@@ -559,7 +675,10 @@ mod tests {
                 Some("duplicate-name-id-VARIATIONS_POSTSCRIPT_NAME_PREFIX".to_string()),
                 HashMap::from([(
                     "opentype/family/unique_names".to_string(),
-                    serde_json::json!({ "unique_name_ids": [3, 4, 6, 25] }),
+                    serde_json::json!({
+                        "unique_name_ids": [3, 4, 6, 25],
+                        "unique_name_id_pairs": [[1, 2], [16, 17], [21, 22]],
+                    }),
                 )]),
             ),
             (
@@ -585,7 +704,10 @@ mod tests {
                 Some("missing-name-id-VARIATIONS_POSTSCRIPT_NAME_PREFIX".to_string()),
                 HashMap::from([(
                     "opentype/family/unique_names".to_string(),
-                    serde_json::json!({ "unique_name_ids": [3, 4, 6, 25] }),
+                    serde_json::json!({
+                        "unique_name_ids": [3, 4, 6, 25],
+                        "unique_name_id_pairs": [[1, 2], [16, 17], [21, 22]],
+                    }),
                 )]),
             ),
         ];

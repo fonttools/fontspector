@@ -32,6 +32,10 @@ impl fontspector_checkapi::ProfileProvider for Monotype {
                 "opentype/family/unique_names",
                 HashMap::from([
                     ("unique_name_ids".to_string(), json!([3, 4, 6, 25])),
+                    (
+                        "unique_name_id_pairs".to_string(),
+                        json!([[1, 2], [16, 17], [21, 22]]),
+                    ),
                 ]),
             )
             .add_section("Monotype Checks")
