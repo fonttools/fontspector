@@ -165,10 +165,7 @@ impl TestFont<'_> {
             return Ok(true);
         }
         let post = font.post()?;
-        if post.italic_angle().to_f32() != 0.0 {
-            return Ok(true);
-        }
-        Ok(false)
+        Ok(post.italic_angle().to_f32() != 0.0)
     }
 
     /// Is this font bold?

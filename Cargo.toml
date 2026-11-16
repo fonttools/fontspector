@@ -23,8 +23,6 @@ members = [
 default-members = ["fontspector-cli"]
 
 [workspace.dependencies]
-pluginator = "1.0.1"
-
 # Font-related deps
 skrifa = "0.46.2"
 write-fonts = "0.52.0"

@@ -79,7 +79,7 @@ fn bmp_has_cmap_format4_subtable(t: &Testable, _context: &Context) -> CheckFnRes
     }
 }
 
-#[allow(clippy::unwrap_used)]
+#[allow(clippy::unwrap_used, clippy::indexing_slicing)]
 #[cfg(test)]
 mod tests {
     use super::bmp_has_cmap_format4_subtable;
