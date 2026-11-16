@@ -13,10 +13,6 @@ norad = "0.18.0"
 serde_json = { workspace = true }
 quick-xml = { version = "0.42.0", features = ["serialize"] }
 
-[target.'cfg(not(target_family = "wasm"))'.dependencies]
-# Plugin architecture
-pluginator = { workspace = true }
-
 [features]
 # The "check" feature enables dependencies only needed for checks, not fixes.
 # We are acting on sources in this profile, so we include the sourcefix feature by default.

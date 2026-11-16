@@ -57,7 +57,7 @@ fn unreachable_subsetting(c: &TestableCollection, context: &Context) -> CheckFnR
         };
         let mut unreachable = font_codepoints.clone();
         for (subset_name, subset_cps) in SUBSETS {
-            if font_subsets.contains(&subset_name.to_string()) {
+            if font_subsets.iter().any(|i: &String| i == subset_name) {
                 unreachable.retain(|cp| !subset_cps.contains(cp));
             }
         }

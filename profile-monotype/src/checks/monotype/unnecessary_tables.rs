@@ -23,6 +23,7 @@ fn parse_table_tags(config: &Value, key: &str) -> Result<Vec<[u8; 4]>, Status> {
             ));
         }
         let bytes = s.as_bytes();
+        #[allow(clippy::indexing_slicing)] // Definition of a Tag...
         tags.push([bytes[0], bytes[1], bytes[2], bytes[3]]);
     }
     Ok(tags)
@@ -157,7 +158,7 @@ fn unnecessary_tables(t: &Testable, context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
-#[allow(clippy::unwrap_used, clippy::expect_used)]
+#[allow(clippy::unwrap_used, clippy::expect_used, clippy::indexing_slicing)]
 #[cfg(test)]
 mod tests {
     use std::collections::HashMap;

@@ -159,7 +159,7 @@ fn validate(c: &Testable, _context: &Context) -> CheckFnResult {
 
     // Check category hints (googlefonts/metadata/category_hints)
     if let Some(inferred_category) = category_hints(msg.name()) {
-        if !msg.category.contains(&inferred_category.to_string()) {
+        if !msg.category.iter().any(|i| i == inferred_category) {
             problems.push(Status::warn(
                 "inferred-category",
                 &format!(
