@@ -1,11 +1,15 @@
 use std::collections::HashSet;
 
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata, TestFont};
 use itertools::Itertools;
 use serde_json::json;
 use skrifa::{
-    raw::{types::Version16Dot16, TableProvider},
-    GlyphId as SkrifaGlyphId, MetadataProvider,
+    raw::{
+        ps::cff::CffFontRef,
+        types::{Version16Dot16, TT_SFNT_VERSION},
+        TableProvider,
+    },
+    GlyphId as SkrifaGlyphId, MetadataProvider, Tag,
 };
 
 #[derive(Debug, PartialEq)]
@@ -30,6 +34,18 @@ fn test_glyph_name(s: &str, allowed_special_chars: Vec<char>) -> NameValidity {
         return NameValidity::Long;
     }
     NameValidity::OK
+}
+
+/// True when the font is OpenType-CFF (not CFF2) and the top DICT includes ROS
+/// (CID-keyed). PostScript glyph names live in the CFF charset for non-CID CFF
+/// only; see the CFF spec and OpenType `post` table overview.
+fn is_cid_keyed_cff(font: &TestFont<'_>) -> bool {
+    let Some(data) = font.font().table_data(Tag::new(b"CFF ")) else {
+        return false;
+    };
+    CffFontRef::new_cff(data.as_bytes(), 0, None)
+        .map(|cff| cff.is_cid())
+        .unwrap_or(false)
 }
 
 #[check(
@@ -67,12 +83,27 @@ fn valid_glyphnames(f: &Testable, context: &Context) -> CheckFnResult {
 
     let font = testfont!(f);
     let mut problems: Vec<Status> = vec![];
-    let post = font.font().post()?;
+    let font_ref = font.font();
+    let post = font_ref.post()?;
     skip!(
-        post.version() == Version16Dot16::new(3, 0),
-        "post-3",
-        "TrueType fonts with a format 3 post table contain no glyph names."
+        font.has_table(b"CFF2"),
+        "cff2",
+        "OpenType-CFF2 fonts do not provide PostScript glyph names for this check."
     );
+    skip!(
+        font.has_table(b"CFF ") && is_cid_keyed_cff(&font),
+        "cid-cff",
+        "CID-keyed OpenType-CFF fonts do not provide PostScript glyph names in the CFF charset."
+    );
+    // post 3.0: no glyph names in the post table; TrueType has no CFF name store.
+    // https://learn.microsoft.com/en-us/typography/opentype/spec/post
+    if post.version() == Version16Dot16::new(3, 0) {
+        skip!(
+            font_ref.table_directory.sfnt_version() == TT_SFNT_VERSION,
+            "tt-post3",
+            "TrueType fonts with a format 3 post table contain no glyph names."
+        );
+    }
     let mut badnames = HashSet::new();
     let mut warnnames = HashSet::new();
     let mut allnames = HashSet::new();
@@ -333,11 +364,11 @@ mod tests {
     }
 
     #[test]
-    fn test_valid_glyphnames_cff_skip() {
-        // CFF fonts typically have post table version 3.0 which has no glyph names
+    fn test_valid_glyphnames_cff_pass() {
+        // CFF v1 uses post 3.0; glyph names are read from the CFF table (see OpenType spec).
         let testable = test_able("source-sans-pro/OTF/SourceSansPro-Regular.otf");
         let results = run_check(valid_glyphnames, testable);
-        assert_skip(&results);
+        assert_pass(&results);
     }
 
     #[test]
