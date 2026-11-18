@@ -247,11 +247,7 @@ impl TestFont<'_> {
         let font_ref = self.font();
         let glyph_names = GlyphNames::new(&font_ref);
         Ok(match glyph_names.source() {
-            GlyphNameSource::Post => font_ref
-                .post()?
-                .glyph_names()
-                .map(|(gid, _)| gid)
-                .collect(),
+            GlyphNameSource::Post => font_ref.post()?.glyph_names().map(|(gid, _)| gid).collect(),
             GlyphNameSource::Cff => glyph_names
                 .iter()
                 .filter(|(_, name)| !name.is_synthesized())
