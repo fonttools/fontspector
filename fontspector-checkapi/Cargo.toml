@@ -24,7 +24,7 @@ clap = ["dep:clap"]
 
 [build-dependencies]
 minreq = { version = "2.6.0", features = ["https"] }
-scraper = "0.27.0"
+scraper = "0.29.0"
 regex = { workspace = true }
 
 [dependencies]
