@@ -13,6 +13,7 @@ use skrifa::{
     outline::{DrawSettings, OutlinePen},
     prelude::Size,
     raw::{
+        ps::cff::CffFontRef,
         tables::{
             gdef::GlyphClassDef,
             glyf::Glyph,
@@ -26,7 +27,7 @@ use skrifa::{
     },
     setting::VariationSetting,
     string::StringId,
-    GlyphId, GlyphId16, GlyphNames, MetadataProvider, Tag,
+    GlyphId, GlyphId16, GlyphNameSource, GlyphNames, MetadataProvider, Tag,
 };
 use std::{
     collections::{BTreeMap, HashMap, HashSet},
@@ -202,6 +203,16 @@ impl TestFont<'_> {
         self.font().table_data(Tag::new(table)).is_some()
     }
 
+    /// True when the font has a `CFF ` table and the top DICT is CID-keyed (ROS operator).
+    pub fn is_cid_keyed_cff(&self) -> bool {
+        let Some(data) = self.font().table_data(Tag::new(b"CFF ")) else {
+            return false;
+        };
+        CffFontRef::new_cff(data.as_bytes(), 0, None)
+            .map(|cff| cff.is_cid())
+            .unwrap_or(false)
+    }
+
     /// Return the GDEF class for a glyph
     pub fn gdef_class(&self, glyph_id: impl Into<GlyphId>) -> GlyphClassDef {
         if let Some(Ok(class_def)) = self
@@ -231,17 +242,43 @@ impl TestFont<'_> {
             .map(|s| s.to_string())
     }
 
+    /// Glyph IDs that have a name in the `post` or `CFF` name store (not synthesized).
+    pub fn get_glyph_ids_with_name(&self) -> Result<Vec<GlyphId>, FontspectorError> {
+        let font_ref = self.font();
+        let glyph_names = GlyphNames::new(&font_ref);
+        Ok(match glyph_names.source() {
+            GlyphNameSource::Post => font_ref
+                .post()?
+                .glyph_names()
+                .map(|(gid, _)| gid)
+                .collect(),
+            GlyphNameSource::Cff => glyph_names
+                .iter()
+                .filter(|(_, name)| !name.is_synthesized())
+                .map(|(gid, _)| gid)
+                .collect(),
+            GlyphNameSource::Synthesized => Vec::new(),
+        })
+    }
+
     /// Internal implementation for getting a glyph name
     fn glyph_name_for_id_impl(&self, gid: impl Into<GlyphId>, synthesize: bool) -> Option<String> {
-        let names = GlyphNames::new(&self.font());
-        let proposed_name = names.get(gid.into());
-        proposed_name.and_then(|name| {
-            if name.is_synthesized() && !synthesize {
-                None
-            } else {
-                Some(name.as_str().to_string())
+        let gid = gid.into();
+        let font_ref = self.font();
+        let names = GlyphNames::new(&font_ref);
+        let proposed_name = names.get(gid)?;
+        if proposed_name.is_synthesized() && !synthesize {
+            // Empty names in `post` are reported as synthesized by skrifa; return the stored string.
+            if names.source() == GlyphNameSource::Post {
+                if let Ok(id16) = GlyphId16::try_from(gid) {
+                    if let Some(s) = font_ref.post().ok().and_then(|post| post.glyph_name(id16)) {
+                        return Some(s.to_string());
+                    }
+                }
             }
-        })
+            return None;
+        }
+        Some(proposed_name.as_str().to_string())
     }
 
     /// Get a glyph's name by Glyph ID, if present in the font

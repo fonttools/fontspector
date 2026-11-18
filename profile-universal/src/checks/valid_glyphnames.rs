@@ -1,15 +1,14 @@
 use std::collections::HashSet;
 
-use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata, TestFont};
+use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata};
 use itertools::Itertools;
 use serde_json::json;
 use skrifa::{
     raw::{
-        ps::cff::CffFontRef,
         types::{Version16Dot16, TT_SFNT_VERSION},
         TableProvider,
     },
-    GlyphId as SkrifaGlyphId, MetadataProvider, Tag,
+    GlyphId as SkrifaGlyphId, MetadataProvider,
 };
 
 #[derive(Debug, PartialEq)]
@@ -34,18 +33,6 @@ fn test_glyph_name(s: &str, allowed_special_chars: Vec<char>) -> NameValidity {
         return NameValidity::Long;
     }
     NameValidity::OK
-}
-
-/// True when the font is OpenType-CFF (not CFF2) and the top DICT includes ROS
-/// (CID-keyed). PostScript glyph names live in the CFF charset for non-CID CFF
-/// only; see the CFF spec and OpenType `post` table overview.
-fn is_cid_keyed_cff(font: &TestFont<'_>) -> bool {
-    let Some(data) = font.font().table_data(Tag::new(b"CFF ")) else {
-        return false;
-    };
-    CffFontRef::new_cff(data.as_bytes(), 0, None)
-        .map(|cff| cff.is_cid())
-        .unwrap_or(false)
 }
 
 #[check(
@@ -91,7 +78,7 @@ fn valid_glyphnames(f: &Testable, context: &Context) -> CheckFnResult {
         "OpenType-CFF2 fonts do not provide PostScript glyph names for this check."
     );
     skip!(
-        font.has_table(b"CFF ") && is_cid_keyed_cff(&font),
+        font.is_cid_keyed_cff(),
         "cid-cff",
         "CID-keyed OpenType-CFF fonts do not provide PostScript glyph names in the CFF charset."
     );
@@ -109,25 +96,23 @@ fn valid_glyphnames(f: &Testable, context: &Context) -> CheckFnResult {
     let mut allnames = HashSet::new();
     let mut duplicates = HashSet::new();
 
-    for name in font.all_glyphs().map(|x| font.glyph_name_for_id(x)) {
-        if let Some(name) = name {
-            if allnames.contains(&name) {
-                duplicates.insert(name.clone());
-            }
-            match test_glyph_name(&name, allowed_special_chars.clone()) {
-                NameValidity::OK => {}
-                NameValidity::Naughty => {
-                    badnames.insert(name.clone());
-                }
-                NameValidity::Long => {
-                    warnnames.insert(name.clone());
-                }
-            }
-            allnames.insert(name);
-        } else {
-            // We have run out of names and are synthesising, stop here.
-            break;
+    for gid in font.get_glyph_ids_with_name()? {
+        let Some(name) = font.glyph_name_for_id(gid) else {
+            continue;
+        };
+        if allnames.contains(&name) {
+            duplicates.insert(name.clone());
         }
+        match test_glyph_name(&name, allowed_special_chars.clone()) {
+            NameValidity::OK => {}
+            NameValidity::Naughty => {
+                badnames.insert(name.clone());
+            }
+            NameValidity::Long => {
+                warnnames.insert(name.clone());
+            }
+        }
+        allnames.insert(name);
     }
     if !badnames.is_empty() {
         problems.push(Status::fail(
