@@ -259,22 +259,15 @@ impl TestFont<'_> {
 
     /// Internal implementation for getting a glyph name
     fn glyph_name_for_id_impl(&self, gid: impl Into<GlyphId>, synthesize: bool) -> Option<String> {
-        let gid = gid.into();
-        let font_ref = self.font();
-        let names = GlyphNames::new(&font_ref);
-        let proposed_name = names.get(gid)?;
-        if proposed_name.is_synthesized() && !synthesize {
-            // Empty names in `post` are reported as synthesized by skrifa; return the stored string.
-            if names.source() == GlyphNameSource::Post {
-                if let Ok(id16) = GlyphId16::try_from(gid) {
-                    if let Some(s) = font_ref.post().ok().and_then(|post| post.glyph_name(id16)) {
-                        return Some(s.to_string());
-                    }
-                }
+        let names = GlyphNames::new(&self.font());
+        let proposed_name = names.get(gid.into());
+        proposed_name.and_then(|name| {
+            if name.is_synthesized() && !synthesize {
+                None
+            } else {
+                Some(name.as_str().to_string())
             }
-            return None;
-        }
-        Some(proposed_name.as_str().to_string())
+        })
     }
 
     /// Get a glyph's name by Glyph ID, if present in the font

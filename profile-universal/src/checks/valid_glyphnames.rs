@@ -97,9 +97,9 @@ fn valid_glyphnames(f: &Testable, context: &Context) -> CheckFnResult {
     let mut duplicates = HashSet::new();
 
     for gid in font.get_glyph_ids_with_name()? {
-        let Some(name) = font.glyph_name_for_id(gid) else {
-            continue;
-        };
+        // GIDs come only from the post/CFF name store (`get_glyph_ids_with_name`). Empty post strings
+        // are the only expected `None` (skrifa treats them as synthesized); CFF entries have real names.
+        let name = font.glyph_name_for_id(gid).unwrap_or_default();
         if allnames.contains(&name) {
             duplicates.insert(name.clone());
         }
