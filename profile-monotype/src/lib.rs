@@ -26,6 +26,7 @@ impl fontspector_checkapi::ProfileProvider for Monotype {
             .add_section("Selected Other Checks")
             .add_and_register_check(ms_checks::microsoft::office_ribz_req)
             .add_and_register_check(ms_checks::microsoft::STAT_table_eliding_bit)
+            .add_and_register_check(ms_checks::microsoft::fvar_STAT_axis_ranges)
             .add_and_register_check(ms_checks::microsoft::vertical_metrics)
             .include_profile("opentype")
             .with_configuration_defaults(
@@ -48,6 +49,7 @@ impl fontspector_checkapi::ProfileProvider for Monotype {
             )
             .add_and_register_check(checks::monotype::style_in_family_name)
             .add_and_register_check(checks::monotype::cmap_recordings_and_subtables)
+            .add_and_register_check(checks::monotype::bmp_has_cmap_format4_subtable)
             .add_and_register_check(checks::monotype::unnecessary_tables)
             .with_configuration_defaults(
                 "monotype/unnecessary_tables",

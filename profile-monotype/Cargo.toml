@@ -34,3 +34,6 @@ sourcefix = [
     "profile-fontwerk/sourcefix",
 ]
 check = []
+
+[lints]
+workspace = true

@@ -27,7 +27,7 @@ fn broken_links(c: &Testable, context: &Context) -> CheckFnResult {
     for font_metadata in msg.fonts {
         let copyright = font_metadata.copyright();
         if copyright.contains("mailto:") {
-            if unique_links.contains(&copyright.to_string()) {
+            if unique_links.iter().any(|i| i == copyright) {
                 continue;
             }
             unique_links.push(copyright.to_string());
@@ -66,7 +66,7 @@ fn broken_links(c: &Testable, context: &Context) -> CheckFnResult {
 
     // Additional (non-fontbakery) check: let's make sure the sources.repository_url is valid:
     let repo_url = msg.source.repository_url();
-    if !repo_url.is_empty() && !unique_links.contains(&repo_url.to_string()) {
+    if !repo_url.is_empty() && !unique_links.iter().any(|i| i == repo_url) {
         if let Err(error) = get_url(context, repo_url) {
             if error.is_timeout() {
                 problems.push(Status::warn("timeout", &format!("Timedout while attempting to access: '{repo_url}'. Please verify if that's a broken link.")));

@@ -154,6 +154,7 @@ fn name_consistency(t: &Testable, context: &Context) -> CheckFnResult {
         }
 
         // We only check for consistency if we have more than one name string
+        #[allow(clippy::indexing_slicing)] // We check
         if name_strings.len() > 1 {
             let first = &name_strings[0];
             for name in name_strings[1..].iter() {
@@ -224,7 +225,7 @@ fn get_string_id_from_string(name_id_string: &str) -> Option<StringId> {
 
 #[cfg(test)]
 mod tests {
-    #![allow(clippy::unwrap_used, clippy::expect_used)]
+    #![allow(clippy::unwrap_used, clippy::expect_used, clippy::indexing_slicing)]
 
     use super::*;
     use fontspector_checkapi::{Context, StatusCode, Testable};

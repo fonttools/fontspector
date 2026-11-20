@@ -8,6 +8,8 @@ mod widthclass;
 pub use widthclass::widthclass;
 mod cmap_recordings_and_subtables;
 pub use cmap_recordings_and_subtables::cmap_recordings_and_subtables;
+mod bmp_has_cmap_format4_subtable;
+pub use bmp_has_cmap_format4_subtable::bmp_has_cmap_format4_subtable;
 mod weightclass;
 pub use weightclass::weightclass;
 mod vertical_metrics;
