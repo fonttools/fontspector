@@ -21,7 +21,7 @@ reqwest = { version = "0.12", features = ["blocking"] } # For fontdata namecheck
 [dependencies]
 interpolatable = { version = "1.2", features = [
     "fontations",
-], git = "https://github.com/simoncozens/interpolatable", optional = true } # For interpolation_issues
+], optional = true } # For interpolation_issues
 fontspector-checkapi = { path = "../fontspector-checkapi", version = "1.0.0", features = [
     "kurbo",
 ] }
