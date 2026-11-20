@@ -1640,7 +1640,7 @@ dependencies = [
  "google-fonts-glyphsets",
  "google-fonts-languages",
  "google-fonts-subsets",
- "harfrust",
+ "harfrust 0.16.1",
  "hashbrown 0.17.1",
  "image",
  "indexmap 2.14.2",
@@ -1673,7 +1673,7 @@ name = "fontspector-profile-iso15008"
 version = "1.0.9"
 dependencies = [
  "fontspector-checkapi",
- "harfrust",
+ "harfrust 0.16.1",
  "itertools 0.15.0",
  "kurbo 0.13.1",
  "skrifa",
@@ -1685,7 +1685,7 @@ name = "fontspector-profile-microsoft"
 version = "0.1.0"
 dependencies = [
  "fontspector-checkapi",
- "harfrust",
+ "harfrust 0.16.1",
  "regex",
  "skrifa",
  "write-fonts",
@@ -2193,6 +2193,19 @@ dependencies = [
  "once_cell",
  "read-fonts 0.43.3",
  "smallvec",
+]
+
+[[package]]
+name = "harfrust"
+version = "0.16.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0690f8c81dfeca8987d8518cf1c861d7b58d43ad0cedae9184d41af236effb9c"
+dependencies = [
+ "bitflags",
+ "bytemuck",
+ "read-fonts 0.47.0",
+ "smallvec",
+ "yoke",
 ]
 
 [[package]]
@@ -4078,6 +4091,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "read-fonts"
+version = "0.47.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a39d2f8f681030a7bcbbcf3e8568775ac2393afd51401a2e2133ee89e3953897"
+dependencies = [
+ "bytemuck",
+ "foldhash 0.2.0",
+ "font-types 0.12.7",
+ "once_cell",
+ "smallvec",
+ "yoke",
+]
+
+[[package]]
 name = "redox_syscall"
 version = "0.5.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4667,7 +4694,7 @@ source = "git+https://github.com/googlefonts/shaperglot#357b5d978d9b112d6c460b51
 dependencies = [
  "ambassador",
  "google-fonts-languages",
- "harfrust",
+ "harfrust 0.13.3",
  "indexmap 2.14.2",
  "itertools 0.15.0",
  "log",
