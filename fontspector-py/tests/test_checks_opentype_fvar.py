@@ -330,6 +330,9 @@ def test_check_varfont_valid_axis_nameid(check):
     # Change the axes' axisNameID to the maximum and minimum allowed values
     wght_axis.axisNameID = 32767
     wdth_axis.axisNameID = 256
+    name_table = ttFont["name"]
+    for nid in [256, 32767]:
+        name_table.setName(f"fvar axis name {nid}", nid, 3, 1, 0x409)
     assert_PASS(check(ttFont), "with a good varfont...")
 
     # Change the axes' axisNameID to invalid values

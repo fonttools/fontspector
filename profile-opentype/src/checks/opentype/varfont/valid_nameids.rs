@@ -25,7 +25,8 @@ use skrifa::{raw::types::NameId, raw::TableProvider, MetadataProvider};
         than 32768.
     "#,
     proposal = "https://github.com/fonttools/fontbakery/issues/3703",
-    proposal = "https://github.com/Monotype/fontspector/issues/19"
+    proposal = "https://github.com/Monotype/fontspector/issues/19",
+    proposal = "https://github.com/Monotype/fontspector/issues/33"
 )]
 fn valid_nameids(t: &Testable, _context: &Context) -> CheckFnResult {
     let f = testfont!(t);
@@ -45,6 +46,15 @@ fn valid_nameids(t: &Testable, _context: &Context) -> CheckFnResult {
     // Do the axes first
     for axis in f.font().axes().iter() {
         let axis_name_id = axis.name_id();
+        if !nameids_in_font.contains(&axis_name_id) {
+            problems.push(Status::fail(
+                "axis-nameid-missing-in-name-table",
+                &format!(
+                    "Axis name ID {} is missing in the name table.",
+                    axis_name_id.to_u16()
+                ),
+            ));
+        }
         if !valid_nameid(axis_name_id) {
             problems.push(Status::fail(
                 &format!("invalid-axis-nameid:{}", axis_name_id.to_u16()),
@@ -128,6 +138,11 @@ mod tests {
         testable.set(f.rebuild_with_new_table(&name).unwrap());
 
         let result = run_check(valid_nameids, testable);
+        assert_results_contain(
+            &result,
+            StatusCode::Fail,
+            Some("axis-nameid-missing-in-name-table".to_string()),
+        );
         assert_results_contain(
             &result,
             StatusCode::Fail,
