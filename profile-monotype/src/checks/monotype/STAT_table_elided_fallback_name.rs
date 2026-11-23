@@ -2,7 +2,7 @@ use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
 use skrifa::raw::{types::NameId, TableProvider};
 
 #[check(
-    id = "monotype/elided_fallback_name",
+    id = "monotype/STAT_table_elided_fallback_name",
     rationale = "
         STAT elidedFallbackNameID is the name applications use when no axis
         labels apply. It must resolve to a real, non-empty name table entry,
@@ -12,7 +12,7 @@ use skrifa::raw::{types::NameId, TableProvider};
     proposal = "https://github.com/Monotype/fontspector/issues/35",
     title = "Does STAT elidedFallbackNameID resolve to a real name and equal name ID 2?"
 )]
-fn elided_fallback_name(t: &Testable, _context: &Context) -> CheckFnResult {
+fn STAT_table_elided_fallback_name(t: &Testable, _context: &Context) -> CheckFnResult {
     let f = testfont!(t);
     let Ok(stat) = f.font().stat() else {
         skip!("no-stat", "STAT table not found");
@@ -53,10 +53,10 @@ fn elided_fallback_name(t: &Testable, _context: &Context) -> CheckFnResult {
     Ok(Status::just_one_pass())
 }
 
-#[allow(clippy::unwrap_used, clippy::expect_used)]
+#[allow(clippy::unwrap_used, clippy::expect_used, non_snake_case)]
 #[cfg(test)]
 mod tests {
-    use super::elided_fallback_name;
+    use super::STAT_table_elided_fallback_name;
     use fontspector_checkapi::{
         codetesting::{assert_pass, assert_results_contain, assert_skip, run_check, test_able},
         FileTypeConvert, StatusCode, TTF,
@@ -66,21 +66,21 @@ mod tests {
     use write_fonts::tables::stat::Stat;
 
     #[test]
-    fn test_elided_fallback_name_pass() {
+    fn test_STAT_table_elided_fallback_name_pass() {
         let testable = test_able("cabinvf/Cabin[wdth,wght].ttf");
-        let results = run_check(elided_fallback_name, testable);
+        let results = run_check(STAT_table_elided_fallback_name, testable);
         assert_pass(&results);
     }
 
     #[test]
-    fn test_elided_fallback_name_fatal_missing() {
+    fn test_STAT_table_elided_fallback_name_fatal_missing() {
         let mut testable = test_able("cabinvf/Cabin[wdth,wght].ttf");
         let f = TTF.from_testable(&testable).unwrap();
         let mut stat: Stat = f.font().stat().unwrap().to_owned_table();
         stat.elided_fallback_name_id = Some(NameId::new(9999));
         testable.set(f.rebuild_with_new_table(&stat).unwrap());
 
-        let results = run_check(elided_fallback_name, testable);
+        let results = run_check(STAT_table_elided_fallback_name, testable);
         assert_results_contain(
             &results,
             StatusCode::Fatal,
@@ -89,7 +89,7 @@ mod tests {
     }
 
     #[test]
-    fn test_elided_fallback_name_fail_not_name_id_2() {
+    fn test_STAT_table_elided_fallback_name_fail_not_name_id_2() {
         let mut testable = test_able("cabinvf/Cabin[wdth,wght].ttf");
         let f = TTF.from_testable(&testable).unwrap();
         let mut stat: Stat = f.font().stat().unwrap().to_owned_table();
@@ -97,7 +97,7 @@ mod tests {
         stat.elided_fallback_name_id = Some(NameId::FAMILY_NAME);
         testable.set(f.rebuild_with_new_table(&stat).unwrap());
 
-        let results = run_check(elided_fallback_name, testable);
+        let results = run_check(STAT_table_elided_fallback_name, testable);
         assert_results_contain(
             &results,
             StatusCode::Fail,
@@ -106,9 +106,9 @@ mod tests {
     }
 
     #[test]
-    fn test_elided_fallback_name_skip_no_stat() {
+    fn test_STAT_table_elided_fallback_name_skip_no_stat() {
         let testable = test_able("mada/Mada-Regular.ttf");
-        let results = run_check(elided_fallback_name, testable);
+        let results = run_check(STAT_table_elided_fallback_name, testable);
         assert_skip(&results);
         assert_results_contain(&results, StatusCode::Skip, Some("no-stat".to_string()));
     }

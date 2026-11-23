@@ -1,4 +1,4 @@
-#[allow(non_snake_case)]
+#![allow(non_snake_case)]
 // TODO: add Monotype-specific checks
 mod fstype;
 pub use fstype::fstype;
@@ -16,5 +16,5 @@ mod vertical_metrics;
 pub use vertical_metrics::vertical_metrics_sane;
 mod unnecessary_tables;
 pub use unnecessary_tables::unnecessary_tables;
-mod elided_fallback_name;
-pub use elided_fallback_name::elided_fallback_name;
+mod STAT_table_elided_fallback_name;
+pub use STAT_table_elided_fallback_name::STAT_table_elided_fallback_name;
