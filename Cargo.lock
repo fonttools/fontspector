@@ -361,7 +361,7 @@ dependencies = [
  "fea-rs-ast",
  "fontbe",
  "fontc",
- "fontdrasil",
+ "fontdrasil 1.0.0",
  "fontir",
  "glyphslib",
  "icu_properties",
@@ -377,14 +377,14 @@ dependencies = [
  "roxmltree",
  "serde",
  "serde_json",
- "skrifa",
+ "skrifa 0.46.2",
  "smol_str",
  "sr-aef",
  "thiserror 2.0.21",
  "typeshare",
  "unicode-normalization",
  "uuid",
- "write-fonts",
+ "write-fonts 0.52.0",
 ]
 
 [[package]]
@@ -1291,14 +1291,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5709503cad4c8bd7092135f9c2e2ac077c3649f0fd128c924bf3bd666ff24f32"
 dependencies = [
  "ansi_term",
- "fontdrasil",
+ "fontdrasil 1.0.0",
  "indexmap 2.14.2",
  "log",
  "ordered-float",
  "smol_str",
  "thiserror 2.0.21",
  "tracing-subscriber",
- "write-fonts",
+ "write-fonts 0.52.0",
 ]
 
 [[package]]
@@ -1401,7 +1401,7 @@ checksum = "03171a4406bc135c3bb621baf18377dbc6bc9cef227cf52579969848841ec50d"
 dependencies = [
  "chrono",
  "fea-rs",
- "fontdrasil",
+ "fontdrasil 1.0.0",
  "fontir",
  "icu_properties",
  "indexmap 2.14.2",
@@ -1413,7 +1413,7 @@ dependencies = [
  "thiserror 2.0.21",
  "tinystr",
  "tracing",
- "write-fonts",
+ "write-fonts 0.52.0",
 ]
 
 [[package]]
@@ -1427,7 +1427,7 @@ dependencies = [
  "clap",
  "crossbeam-channel",
  "fontbe",
- "fontdrasil",
+ "fontdrasil 1.0.0",
  "fontir",
  "fontra2fontir",
  "glyphs2fontir",
@@ -1443,7 +1443,7 @@ dependencies = [
  "tracing-subscriber",
  "ufo2fontir",
  "vergen-gitcl",
- "write-fonts",
+ "write-fonts 0.52.0",
 ]
 
 [[package]]
@@ -1458,7 +1458,25 @@ dependencies = [
  "serde",
  "smol_str",
  "thiserror 2.0.21",
- "write-fonts",
+ "write-fonts 0.52.0",
+]
+
+[[package]]
+name = "fontdrasil"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "21f005d4dc0dd61cb00b8ab8d9c20ca43cd9cde58dbf7ce18fb947988ec4b955"
+dependencies = [
+ "icu_properties",
+ "kurbo 0.13.1",
+ "log",
+ "ordered-float",
+ "serde",
+ "smallvec",
+ "smol_str",
+ "thiserror 2.0.21",
+ "tinystr",
+ "write-fonts 0.55.0",
 ]
 
 [[package]]
@@ -1469,7 +1487,7 @@ checksum = "0c5acafe4b0e9d4387e32d897e71b381f467a79d6dd2d11e6cc08b9eb58b7146"
 dependencies = [
  "bitflags",
  "chrono",
- "fontdrasil",
+ "fontdrasil 1.0.0",
  "indexmap 2.14.2",
  "kurbo 0.13.1",
  "log",
@@ -1480,7 +1498,7 @@ dependencies = [
  "smol_str",
  "thiserror 2.0.21",
  "tracing",
- "write-fonts",
+ "write-fonts 0.52.0",
 ]
 
 [[package]]
@@ -1489,7 +1507,7 @@ version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8700197ae0afc758f772596688476f073b8665d741bf8055a52d4692a7ce6bcd"
 dependencies = [
- "fontdrasil",
+ "fontdrasil 1.0.0",
  "fontir",
  "indexmap 2.14.2",
  "kurbo 0.13.1",
@@ -1500,7 +1518,7 @@ dependencies = [
  "smol_str",
  "thiserror 2.0.21",
  "tracing",
- "write-fonts",
+ "write-fonts 0.52.0",
 ]
 
 [[package]]
@@ -1550,7 +1568,7 @@ version = "1.10.0"
 dependencies = [
  "babelfont",
  "clap",
- "fontdrasil",
+ "fontdrasil 2.0.0",
  "fontspector-checkhelper",
  "glob-match",
  "indexmap 2.14.2",
@@ -1563,10 +1581,10 @@ dependencies = [
  "scraper",
  "serde",
  "serde_json",
- "skrifa",
+ "skrifa 0.49.0",
  "thiserror 2.0.21",
  "toml",
- "write-fonts",
+ "write-fonts 0.55.0",
 ]
 
 [[package]]
@@ -1601,8 +1619,8 @@ version = "1.0.0"
 dependencies = [
  "fontspector-checkapi",
  "itertools 0.15.0",
- "skrifa",
- "write-fonts",
+ "skrifa 0.49.0",
+ "write-fonts 0.55.0",
 ]
 
 [[package]]
@@ -1623,8 +1641,8 @@ dependencies = [
  "itertools 0.15.0",
  "regex",
  "serde_json",
- "skrifa",
- "write-fonts",
+ "skrifa 0.49.0",
+ "write-fonts 0.55.0",
 ]
 
 [[package]]
@@ -1657,14 +1675,14 @@ dependencies = [
  "serde_json",
  "shaperglot",
  "similar",
- "skrifa",
+ "skrifa 0.49.0",
  "tabled",
  "unicode-canonical-combining-class",
  "unicode-normalization",
  "unicode-properties",
  "unicode-script",
  "unicode_names2",
- "write-fonts",
+ "write-fonts 0.55.0",
  "yeslogic-unicode-blocks",
 ]
 
@@ -1676,8 +1694,8 @@ dependencies = [
  "harfrust",
  "itertools 0.15.0",
  "kurbo 0.13.1",
- "skrifa",
- "write-fonts",
+ "skrifa 0.49.0",
+ "write-fonts 0.55.0",
 ]
 
 [[package]]
@@ -1687,8 +1705,8 @@ dependencies = [
  "fontspector-checkapi",
  "harfrust",
  "regex",
- "skrifa",
- "write-fonts",
+ "skrifa 0.49.0",
+ "write-fonts 0.55.0",
 ]
 
 [[package]]
@@ -1702,8 +1720,8 @@ dependencies = [
  "itertools 0.15.0",
  "regex",
  "serde_json",
- "skrifa",
- "write-fonts",
+ "skrifa 0.49.0",
+ "write-fonts 0.55.0",
 ]
 
 [[package]]
@@ -1715,9 +1733,9 @@ dependencies = [
  "itertools 0.15.0",
  "kurbo 0.13.1",
  "serde_json",
- "skrifa",
+ "skrifa 0.49.0",
  "unicode-properties",
- "write-fonts",
+ "write-fonts 0.55.0",
 ]
 
 [[package]]
@@ -1726,7 +1744,7 @@ version = "1.0.0"
 dependencies = [
  "fontspector-checkapi",
  "regex",
- "skrifa",
+ "skrifa 0.49.0",
 ]
 
 [[package]]
@@ -1744,7 +1762,7 @@ name = "fontspector-profile-universal"
 version = "1.10.0"
 dependencies = [
  "babelfont",
- "fontdrasil",
+ "fontdrasil 2.0.0",
  "fontspector-checkapi",
  "fontspector-checkhelper",
  "freetype-rs",
@@ -1758,12 +1776,12 @@ dependencies = [
  "ordered-float",
  "reqwest",
  "serde_json",
- "skrifa",
+ "skrifa 0.49.0",
  "stringcase",
  "tabled",
  "unicode-properties",
  "unicode_names2",
- "write-fonts",
+ "write-fonts 0.55.0",
 ]
 
 [[package]]
@@ -2023,7 +2041,7 @@ checksum = "fc761eae19b2c55df85b6632af7464076431f180b80758fc53359169180adc58"
 dependencies = [
  "ascii_plist_derive",
  "chrono",
- "fontdrasil",
+ "fontdrasil 1.0.0",
  "icu_properties",
  "indexmap 2.14.2",
  "kurbo 0.13.1",
@@ -2034,7 +2052,7 @@ dependencies = [
  "serde",
  "smol_str",
  "thiserror 2.0.21",
- "write-fonts",
+ "write-fonts 0.52.0",
 ]
 
 [[package]]
@@ -2044,7 +2062,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c56b44891d7b9d29d876687b0ebd0f897b4b1b20087971bc66eae611fe4b9c49"
 dependencies = [
  "chrono",
- "fontdrasil",
+ "fontdrasil 1.0.0",
  "fontir",
  "glyphs-reader",
  "indexmap 2.14.2",
@@ -2054,7 +2072,7 @@ dependencies = [
  "smol_str",
  "thiserror 2.0.21",
  "tracing",
- "write-fonts",
+ "write-fonts 0.52.0",
 ]
 
 [[package]]
@@ -2075,7 +2093,8 @@ dependencies = [
 [[package]]
 name = "google-fonts-axisregistry"
 version = "0.5.0"
-source = "git+https://github.com/googlefonts/axisregistry#c02c971fd17858383271eb539fb32dd65d011817"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b8c2667c477af5fd4c531ff14a8f8a64a552519014b2406d9bf661a8063e49b7"
 dependencies = [
  "bytes",
  "gf-metadata",
@@ -2087,15 +2106,16 @@ dependencies = [
  "quote",
  "serde",
  "serde_json",
- "skrifa",
+ "skrifa 0.46.2",
  "syn 2.0.119",
- "write-fonts",
+ "write-fonts 0.52.0",
 ]
 
 [[package]]
 name = "google-fonts-glyphsets"
 version = "1.1.3"
-source = "git+https://github.com/googlefonts/glyphsets#0ac0e515473e39247683ed473fd74728671e2364"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8f217171a0d017ab0bcbd8177bc229e21b77310391210e99d10a477bd7f67998"
 dependencies = [
  "glob",
  "google-fonts-languages",
@@ -2619,15 +2639,16 @@ dependencies = [
 [[package]]
 name = "interpolatable"
 version = "1.2.0"
-source = "git+https://github.com/simoncozens/interpolatable#ad22fffde7407ed3136a8ee3723a99b9786ead01"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c3880f386ddda41cb1a9d535c233ac382b19a1cbc31782188619e79e714d5f4e"
 dependencies = [
- "fontdrasil",
+ "fontdrasil 1.0.0",
  "greencurves",
  "itertools 0.13.0",
  "kurbo 0.11.3",
  "munkres",
  "serde",
- "skrifa",
+ "skrifa 0.46.2",
 ]
 
 [[package]]
@@ -4078,6 +4099,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "read-fonts"
+version = "0.46.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bdaa4fffe9ff3ca2c353fa9729792805b9b3e324695ff5a081f860612e81b330"
+dependencies = [
+ "bytemuck",
+ "foldhash 0.2.0",
+ "font-types 0.12.7",
+ "once_cell",
+ "serde",
+ "smallvec",
+ "yoke",
+]
+
+[[package]]
 name = "redox_syscall"
 version = "0.5.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4663,7 +4699,8 @@ dependencies = [
 [[package]]
 name = "shaperglot"
 version = "1.2.2"
-source = "git+https://github.com/googlefonts/shaperglot#357b5d978d9b112d6c460b51becd9bfa4b605a63"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "afcf2841116ea6c3c6caadb1fbf245e689e52e5c7947c9d643797360fa743720"
 dependencies = [
  "ambassador",
  "google-fonts-languages",
@@ -4673,7 +4710,7 @@ dependencies = [
  "log",
  "serde",
  "serde_json",
- "skrifa",
+ "skrifa 0.46.2",
  "toml",
  "unicode-joining-type",
  "unicode-normalization",
@@ -4770,6 +4807,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "skrifa"
+version = "0.49.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a7459fb60888ad9a5f367dd293fa2fb9df142cb451aa6bfd6cd66a7d6a9b739d"
+dependencies = [
+ "bytemuck",
+ "once_cell",
+ "read-fonts 0.46.0",
+ "smallvec",
+ "yoke",
+]
+
+[[package]]
 name = "slab"
 version = "0.4.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4811,9 +4861,9 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6af013d5b72a6a2e9e4a091bfa9c6b89fea679dccd235d81b4156ac814ae8590"
 dependencies = [
  "fea-rs-ast",
- "fontdrasil",
+ "fontdrasil 1.0.0",
  "indexmap 2.14.2",
- "skrifa",
+ "skrifa 0.46.2",
  "smol_str",
 ]
 
@@ -5437,7 +5487,7 @@ checksum = "b3d21e91fd555e837143615deeb782c64a52b678f236a1a1ced65bd10c250949"
 dependencies = [
  "chrono",
  "fea-rs",
- "fontdrasil",
+ "fontdrasil 1.0.0",
  "fontir",
  "glyphs-reader",
  "indexmap 2.14.2",
@@ -5451,7 +5501,7 @@ dependencies = [
  "smol_str",
  "thiserror 2.0.21",
  "tracing",
- "write-fonts",
+ "write-fonts 0.52.0",
 ]
 
 [[package]]
@@ -6163,6 +6213,20 @@ dependencies = [
  "kurbo 0.13.1",
  "log",
  "read-fonts 0.43.3",
+ "serde",
+]
+
+[[package]]
+name = "write-fonts"
+version = "0.55.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3e91ad74b39f48f456560ed1ccc75959efa19bf6f0817d1560751bb49db84f6c"
+dependencies = [
+ "font-types 0.12.7",
+ "indexmap 2.14.2",
+ "kurbo 0.13.1",
+ "log",
+ "read-fonts 0.46.0",
  "serde",
 ]
 

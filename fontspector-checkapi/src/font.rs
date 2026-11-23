@@ -17,7 +17,10 @@ use skrifa::{
         tables::{
             gdef::GlyphClassDef,
             glyf::Glyph,
-            gpos::{PairPos, PairPosFormat1, PairPosFormat2, PositionSubtables},
+            gpos::{
+                PairPos, PairPosFormat1, PairPosFormat2, PairPosFormat3, PairPosFormat4,
+                PositionSubtables,
+            },
             head::MacStyle,
             layout::{Feature, FeatureRecord},
             name::{Encoding, NameString},
@@ -27,7 +30,7 @@ use skrifa::{
     },
     setting::VariationSetting,
     string::StringId,
-    GlyphId, GlyphId16, GlyphNameSource, GlyphNames, MetadataProvider, Tag,
+    GlyphId, GlyphNameSource, GlyphNames, MetadataProvider, Tag,
 };
 use std::{
     collections::{BTreeMap, HashMap, HashSet},
@@ -221,8 +224,7 @@ impl TestFont<'_> {
             .ok()
             .and_then(|gdef| gdef.glyph_class_def())
         {
-            GlyphId16::try_from(glyph_id.into())
-                .map(|gid| class_def.get(gid))
+            u16::try_from(class_def.get(glyph_id.into()))
                 .map_or(GlyphClassDef::Unknown, GlyphClassDef::new)
         } else {
             GlyphClassDef::Unknown
@@ -493,13 +495,15 @@ impl TestFont<'_> {
     /// Walk a font's kern pairs
     ///
     /// This function looks at all  the pair positioning rules in a font's GPOS table
-    /// gathering information about the kerning pairs. It needs two functions to process
-    /// the two different PairPos format tables. See the [tabular_kerning](../../profile-universal/checks/tabular_kerning.html) check for
+    /// gathering information about the kerning pairs. It needs four functions to process
+    /// the four different PairPos format tables. See the [tabular_kerning](../../profile-universal/checks/tabular_kerning.html) check for
     /// an example of how to use it.
     pub fn process_kerning<T>(
         &self,
         format1_func: &dyn Fn(PairPosFormat1) -> Result<Vec<T>, ReadError>,
         format2_func: &dyn Fn(PairPosFormat2) -> Result<Vec<T>, ReadError>,
+        format3_func: &dyn Fn(PairPosFormat3) -> Result<Vec<T>, ReadError>,
+        format4_func: &dyn Fn(PairPosFormat4) -> Result<Vec<T>, ReadError>,
     ) -> Result<Vec<T>, ReadError> {
         let gpos = self.font().gpos()?;
         Ok(
@@ -517,6 +521,8 @@ impl TestFont<'_> {
                 .map(|pp| match pp {
                     PairPos::Format1(pp1) => format1_func(pp1),
                     PairPos::Format2(pp2) => format2_func(pp2),
+                    PairPos::Format3(pp3) => format3_func(pp3),
+                    PairPos::Format4(pp4) => format4_func(pp4),
                 })
                 .flat_map(|v| v.into_iter())
                 .flatten()
