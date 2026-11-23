@@ -37,11 +37,7 @@ pub fn ligature_carets(t: &Testable, context: &Context) -> CheckFnResult {
         if let Some(ligcaretlist) = f.font().gdef()?.lig_caret_list() {
             let ligcaretlist = ligcaretlist?;
             let has_carets = ligcaretlist.lig_glyph_count() > 0;
-            let collect = ligcaretlist
-                .coverage()?
-                .iter()
-                .map(|x| x.into())
-                .collect::<HashSet<_>>();
+            let collect = ligcaretlist.coverage()?.iter().collect::<HashSet<_>>();
             (
                 ligature_glyphs.difference(&collect).copied().collect(),
                 has_carets,

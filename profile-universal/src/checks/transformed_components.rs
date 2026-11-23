@@ -229,14 +229,14 @@ fn flatten_component(
     component: &Component,
 ) -> Result<Vec<(GlyphId, kurbo::Affine)>, FontspectorError> {
     let glyph = glyphs
-        .get(&GlyphId::from(component.glyph))
+        .get(&component.glyph)
         .ok_or(FontspectorError::Fix("glyph not found".to_string()))?;
     let my_transform = to_kurbo_transform(&component.transform, &component.anchor);
 
     Ok(match glyph {
         WriteGlyph::Empty => vec![],
         WriteGlyph::Simple(_) => {
-            vec![(component.glyph.into(), my_transform)]
+            vec![(component.glyph, my_transform)]
         }
         WriteGlyph::Composite(composite_glyph) => {
             let mut all_flattened_components = vec![];
