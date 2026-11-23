@@ -78,7 +78,7 @@ impl fontspector_checkapi::ProfileProvider for Monotype {
             .add_and_register_check(checks::monotype::widthclass)
             .add_and_register_check(checks::monotype::weightclass)
             .add_and_register_check(checks::monotype::vertical_metrics_sane)
-            .add_and_register_check(checks::monotype::elided_fallback_name)
+            .add_and_register_check(checks::monotype::STAT_table_elided_fallback_name)
             .include_profile("universal")
             .with_configuration_defaults(
                 "universal/required_name_ids",
