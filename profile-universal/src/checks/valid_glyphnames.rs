@@ -4,7 +4,10 @@ use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, Metadata
 use itertools::Itertools;
 use serde_json::json;
 use skrifa::{
-    raw::{types::Version16Dot16, TableProvider},
+    raw::{
+        types::{Version16Dot16, TT_SFNT_VERSION},
+        TableProvider,
+    },
     GlyphId as SkrifaGlyphId, MetadataProvider,
 };
 
@@ -67,36 +70,49 @@ fn valid_glyphnames(f: &Testable, context: &Context) -> CheckFnResult {
 
     let font = testfont!(f);
     let mut problems: Vec<Status> = vec![];
-    let post = font.font().post()?;
+    let font_ref = font.font();
+    let post = font_ref.post()?;
     skip!(
-        post.version() == Version16Dot16::new(3, 0),
-        "post-3",
-        "TrueType fonts with a format 3 post table contain no glyph names."
+        font.has_table(b"CFF2"),
+        "cff2",
+        "OpenType-CFF2 fonts do not provide PostScript glyph names for this check."
     );
+    skip!(
+        font.is_cid_keyed_cff(),
+        "cid-cff",
+        "CID-keyed OpenType-CFF fonts do not provide PostScript glyph names in the CFF charset."
+    );
+    // post 3.0: no glyph names in the post table; TrueType has no CFF name store.
+    // https://learn.microsoft.com/en-us/typography/opentype/spec/post
+    if post.version() == Version16Dot16::new(3, 0) {
+        skip!(
+            font_ref.table_directory.sfnt_version() == TT_SFNT_VERSION,
+            "tt-post3",
+            "TrueType fonts with a format 3 post table contain no glyph names."
+        );
+    }
     let mut badnames = HashSet::new();
     let mut warnnames = HashSet::new();
     let mut allnames = HashSet::new();
     let mut duplicates = HashSet::new();
 
-    for name in font.all_glyphs().map(|x| font.glyph_name_for_id(x)) {
-        if let Some(name) = name {
-            if allnames.contains(&name) {
-                duplicates.insert(name.clone());
-            }
-            match test_glyph_name(&name, allowed_special_chars.clone()) {
-                NameValidity::OK => {}
-                NameValidity::Naughty => {
-                    badnames.insert(name.clone());
-                }
-                NameValidity::Long => {
-                    warnnames.insert(name.clone());
-                }
-            }
-            allnames.insert(name);
-        } else {
-            // We have run out of names and are synthesising, stop here.
-            break;
+    for gid in font.get_glyph_ids_with_name()? {
+        // GIDs come only from the post/CFF name store (`get_glyph_ids_with_name`). Empty post strings
+        // are the only expected `None` (skrifa treats them as synthesized); CFF entries have real names.
+        let name = font.glyph_name_for_id(gid).unwrap_or_default();
+        if allnames.contains(&name) {
+            duplicates.insert(name.clone());
         }
+        match test_glyph_name(&name, allowed_special_chars.clone()) {
+            NameValidity::OK => {}
+            NameValidity::Naughty => {
+                badnames.insert(name.clone());
+            }
+            NameValidity::Long => {
+                warnnames.insert(name.clone());
+            }
+        }
+        allnames.insert(name);
     }
     if !badnames.is_empty() {
         problems.push(Status::fail(
@@ -333,11 +349,11 @@ mod tests {
     }
 
     #[test]
-    fn test_valid_glyphnames_cff_skip() {
-        // CFF fonts typically have post table version 3.0 which has no glyph names
+    fn test_valid_glyphnames_cff_pass() {
+        // CFF v1 uses post 3.0; glyph names are read from the CFF table (see OpenType spec).
         let testable = test_able("source-sans-pro/OTF/SourceSansPro-Regular.otf");
         let results = run_check(valid_glyphnames, testable);
-        assert_skip(&results);
+        assert_pass(&results);
     }
 
     #[test]
