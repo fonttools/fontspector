@@ -45,7 +45,7 @@ fn STAT_elided_fallback_nameid(t: &Testable, _context: &Context) -> CheckFnResul
 
     if fallback_name != name_id_2 {
         return Ok(Status::just_one_fail(
-            "elided-name-id-is-not-name-id-2",
+            "elided-fallback-name-ne-nameid-2",
             &format!(
                 "STAT elidedFallbackNameID resolves to '{fallback_name}' but name ID 2 \
                  (Subfamily Name) is '{name_id_2}'. They should always tell the same story."
@@ -106,7 +106,7 @@ mod tests {
         assert_results_contain(
             &results,
             StatusCode::Fail,
-            Some("elided-name-id-is-not-name-id-2".to_string()),
+            Some("elided-fallback-name-ne-nameid-2".to_string()),
         );
     }
 
