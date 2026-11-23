@@ -16,3 +16,6 @@ mod vertical_metrics;
 pub use vertical_metrics::vertical_metrics_sane;
 mod unnecessary_tables;
 pub use unnecessary_tables::unnecessary_tables;
+#[allow(non_snake_case)]
+mod STAT_elided_fallback_nameid;
+pub use STAT_elided_fallback_nameid::STAT_elided_fallback_nameid;
