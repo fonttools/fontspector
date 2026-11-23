@@ -16,3 +16,5 @@ mod vertical_metrics;
 pub use vertical_metrics::vertical_metrics_sane;
 mod unnecessary_tables;
 pub use unnecessary_tables::unnecessary_tables;
+mod fvar_STAT_axis_names;
+pub use fvar_STAT_axis_names::fvar_STAT_axis_names;
