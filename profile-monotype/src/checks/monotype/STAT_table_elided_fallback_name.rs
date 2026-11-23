@@ -26,7 +26,7 @@ fn STAT_table_elided_fallback_name(t: &Testable, _context: &Context) -> CheckFnR
 
     let Some(fallback_name) = f.get_best_name(&[fallback_id]).filter(|s| !s.is_empty()) else {
         return Ok(Status::just_one_fatal(
-            "elided-name-not-in-name-table",
+            "elided-fallback-name-not-in-name-table",
             &format!(
                 "STAT elidedFallbackNameID {} does not resolve to a non-empty name table entry. \
                  This is the name applications use when no axis labels apply.",
@@ -42,7 +42,7 @@ fn STAT_table_elided_fallback_name(t: &Testable, _context: &Context) -> CheckFnR
 
     if fallback_name != name_id_2 {
         return Ok(Status::just_one_fail(
-            "elided-fallback-name-ne-nameid-2",
+            "elided-name-mismatch-nameid-2",
             &format!(
                 "STAT elidedFallbackNameID resolves to '{fallback_name}' but name ID 2 \
                  (Subfamily Name) is '{name_id_2}'. They should always tell the same story."
@@ -84,7 +84,7 @@ mod tests {
         assert_results_contain(
             &results,
             StatusCode::Fatal,
-            Some("elided-name-not-in-name-table".to_string()),
+            Some("elided-fallback-name-not-in-name-table".to_string()),
         );
     }
 
@@ -101,7 +101,7 @@ mod tests {
         assert_results_contain(
             &results,
             StatusCode::Fail,
-            Some("elided-fallback-name-ne-nameid-2".to_string()),
+            Some("elided-name-mismatch-nameid-2".to_string()),
         );
     }
 
