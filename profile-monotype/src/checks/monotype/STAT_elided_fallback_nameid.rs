@@ -24,10 +24,7 @@ fn STAT_elided_fallback_nameid(t: &Testable, _context: &Context) -> CheckFnResul
         );
     };
 
-    let Some(fallback_name) = f
-        .get_best_name(&[fallback_id])
-        .filter(|s| !s.is_empty())
-    else {
+    let Some(fallback_name) = f.get_best_name(&[fallback_id]).filter(|s| !s.is_empty()) else {
         return Ok(Status::just_one_fatal(
             "elided-name-not-in-name-table",
             &format!(
@@ -61,9 +58,7 @@ fn STAT_elided_fallback_nameid(t: &Testable, _context: &Context) -> CheckFnResul
 mod tests {
     use super::STAT_elided_fallback_nameid;
     use fontspector_checkapi::{
-        codetesting::{
-            assert_pass, assert_results_contain, assert_skip, run_check, test_able,
-        },
+        codetesting::{assert_pass, assert_results_contain, assert_skip, run_check, test_able},
         FileTypeConvert, StatusCode, TTF,
     };
     use skrifa::raw::{types::NameId, TableProvider};
