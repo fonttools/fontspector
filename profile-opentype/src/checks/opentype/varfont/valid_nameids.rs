@@ -110,7 +110,7 @@ fn valid_nameids(t: &Testable, _context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
-#[allow(clippy::unwrap_used, clippy::expect_used)]
+#[allow(clippy::unwrap_used, clippy::expect_used, clippy::indexing_slicing)]
 #[cfg(test)]
 mod tests {
     use super::*;
