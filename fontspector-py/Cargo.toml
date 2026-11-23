@@ -14,7 +14,7 @@ fontspector-checkapi = { path = "../fontspector-checkapi" }
 profile-opentype = { path = "../profile-opentype", package = "fontspector-profile-opentype" }
 profile-universal = { path = "../profile-universal", package = "fontspector-profile-universal" }
 profile-googlefonts = { path = "../profile-googlefonts", package = "fontspector-profile-googlefonts" }
-profile-iso15008 = { path = "../profile-iso15008", package = "fontspector-profile-iso15008" }
+# profile-iso15008 = { path = "../profile-iso15008", package = "fontspector-profile-iso15008" }
 profile-fontwerk = { path = "../profile-fontwerk", package = "fontspector-profile-fontwerk" }
 profile-monotype = { path = "../profile-monotype", package = "fontspector-profile-monotype" }
 
