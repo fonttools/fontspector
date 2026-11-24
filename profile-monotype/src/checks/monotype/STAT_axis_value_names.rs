@@ -105,7 +105,12 @@ mod tests {
         let f = TTF.from_testable(&testable).unwrap();
         let mut stat: Stat = f.font().stat().unwrap().to_owned_table();
         // Force every axis value to share one existing nameID so names collide.
-        let shared_name_id = match &**stat.offset_to_axis_values.as_ref().unwrap().first().unwrap()
+        let shared_name_id = match &**stat
+            .offset_to_axis_values
+            .as_ref()
+            .unwrap()
+            .first()
+            .unwrap()
         {
             WriteAxisValue::Format1(v) => v.value_name_id,
             WriteAxisValue::Format2(v) => v.value_name_id,
