@@ -56,10 +56,10 @@ fn wrong_table_tags(t: &Testable, _context: &Context) -> CheckFnResult {
 
         if let Some((_, correct)) = BAD_ALIASES.iter().find(|(bad, _)| **bad == bytes) {
             problems.push(Status::fail(
-                "incorrect-table-tags",
+                "incorrect-table-tag",
                 &format!(
                     "Table tag '{}' looks like a misspelling of standard tag '{}'. \
-                     These corrupted entries cannot be used by rendering engines.",
+                     This corrupted entry cannot be used by rendering engines.",
                     tag_string(&bytes),
                     tag_string(correct)
                 ),
@@ -70,10 +70,10 @@ fn wrong_table_tags(t: &Testable, _context: &Context) -> CheckFnResult {
         let lower = ascii_lower(&bytes);
         if let Some(canonical) = STANDARD_TAGS.iter().find(|t| ascii_lower(t) == lower) {
             problems.push(Status::fail(
-                "incorrect-table-tags",
+                "incorrect-table-tag",
                 &format!(
                     "Table tag '{}' is a case mismatch of standard tag '{}'. \
-                     These corrupted entries cannot be used by rendering engines.",
+                     This corrupted entry cannot be used by rendering engines.",
                     tag_string(&bytes),
                     tag_string(canonical)
                 ),
@@ -109,7 +109,7 @@ mod tests {
         assert_results_contain(
             &results,
             StatusCode::Fail,
-            Some("incorrect-table-tags".to_string()),
+            Some("incorrect-table-tag".to_string()),
         );
     }
 
@@ -121,7 +121,7 @@ mod tests {
         assert_results_contain(
             &results,
             StatusCode::Fail,
-            Some("incorrect-table-tags".to_string()),
+            Some("incorrect-table-tag".to_string()),
         );
     }
 
