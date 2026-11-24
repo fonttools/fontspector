@@ -1,4 +1,4 @@
-#[allow(non_snake_case)]
+#![allow(non_snake_case)]
 // TODO: add Monotype-specific checks
 mod fstype;
 pub use fstype::fstype;
@@ -16,3 +16,5 @@ mod vertical_metrics;
 pub use vertical_metrics::vertical_metrics_sane;
 mod unnecessary_tables;
 pub use unnecessary_tables::unnecessary_tables;
+mod STAT_axis_value_names;
+pub use STAT_axis_value_names::STAT_axis_value_names;
