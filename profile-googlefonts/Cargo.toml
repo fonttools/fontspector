@@ -51,6 +51,7 @@ hashbrown = { workspace = true }
 scraper = { version = "0.27.0", default-features = false, features = [
     "errors",
 ], optional = true }
+url = { version = "2", optional = true }
 semver = { version = "1.0.25", optional = true }
 image = { version = "0.25.5", default-features = false, features = [
     "png",
@@ -81,6 +82,7 @@ check = [
     "dep:unicode-script",
     "dep:yeslogic-unicode-blocks",
     "dep:scraper",
+    "dep:url",
     "dep:semver",
     "dep:image",
     "dep:harfrust",

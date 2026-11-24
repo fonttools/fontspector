@@ -1,4 +1,6 @@
 use fontspector_checkapi::prelude::*;
+use scraper::{Html, Selector};
+use url::Url;
 
 use crate::checks::googlefonts::metadata::family_proto;
 
@@ -14,6 +16,23 @@ fn clean_url(url: &str) -> String {
         let _ = cleaned.split_off(cleaned.len() - 4);
     }
     cleaned
+}
+
+// GitHub account links may credit a designer. Only links with both an
+// owner and a repository identify projects that can be compared.
+fn github_repository(href: &str) -> Option<String> {
+    let url = Url::parse(href).ok()?;
+    if !matches!(url.scheme(), "http" | "https") || url.host_str()? != "github.com" {
+        return None;
+    }
+    let mut path = url.path_segments()?;
+    let owner = path.next()?;
+    let repo = path.next()?;
+    let repo = repo.strip_suffix(".git").unwrap_or(repo);
+    if owner.is_empty() || repo.is_empty() {
+        return None;
+    }
+    Some(format!("{owner}/{repo}").to_ascii_lowercase())
 }
 
 #[check(
@@ -67,15 +86,16 @@ fn consistent_repo_urls(c: &TestableCollection, context: &Context) -> CheckFnRes
     }
 
     if let Some(description) = c.get_file("DESCRIPTION.en_us.html") {
-        let description_contents = String::from_utf8(description.contents.clone())?;
-        let headless = repo_url
-            .trim_start_matches("https://")
-            .trim_start_matches("http://");
-        for match_ in description_contents.split_whitespace() {
-            if match_.contains("github.com/") {
-                let link = clean_url(match_);
-                if link != headless {
-                    bad_urls.push(("HTML description", link));
+        let fragment = Html::parse_fragment(std::str::from_utf8(&description.contents)?);
+        #[allow(clippy::unwrap_used)] // The selector is a constant.
+        let anchors = Selector::parse("a[href]").unwrap();
+        let expected = github_repository(&repo_url);
+        for anchor in fragment.select(&anchors) {
+            if let Some(href) = anchor.value().attr("href") {
+                if let Some(repo) = github_repository(href) {
+                    if expected.as_ref() != Some(&repo) {
+                        bad_urls.push(("HTML description", href.to_owned()));
+                    }
                 }
             }
         }
@@ -137,8 +157,29 @@ mod tests {
         );
         assert_pass(&run(vec![Testable::new_with_contents(
             "METADATA.pb",
-            fixed.into_bytes(),
+            fixed.as_bytes().to_vec(),
         )]));
+
+        // Profile and studio credits may accompany the canonical repository.
+        let with_description = |html: &str| {
+            run(vec![
+                Testable::new_with_contents("METADATA.pb", fixed.as_bytes().to_vec()),
+                Testable::new_with_contents("DESCRIPTION.en_us.html", html.as_bytes().to_vec()),
+            ])
+        };
+        assert_pass(&with_description(
+            r#"<a href="https://github.com/Designer">Designer</a>
+            <a href="https://example.com/studio">Studio</a>
+            <a href="https://github.com/alphArtype/Delicious-Handrawn.git/">Project</a>"#,
+        ));
+        // A canonical-looking link label cannot disguise a different target.
+        assert_results_contain(
+            &with_description(
+                r#"<a href="https://github.com/other/family">github.com/alphArtype/Delicious-Handrawn</a>"#,
+            ),
+            StatusCode::Fail,
+            Some("mismatch".to_string()),
+        );
 
         // Empty repository URL should fail.
         let original = test_able("delicioushandrawn/METADATA.pb");
