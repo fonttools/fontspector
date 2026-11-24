@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New Features
 
- - ensure STAT axis value names are unique (`monotype/STAT_axis_value_names`)
+ - ensure STAT axis value names are unique (`monotype/STAT_axis_value_names`);
+   FAIL on non-elidable duplicates, WARN when any duplicate is elidable
 
 ## v1.1.0 (2026-11-11)
 
