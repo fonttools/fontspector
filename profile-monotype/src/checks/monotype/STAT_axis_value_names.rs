@@ -45,7 +45,7 @@ fn STAT_axis_value_names(t: &Testable, _context: &Context) -> CheckFnResult {
     for (name, count) in name_counts {
         if count > 1 {
             problems.push(Status::fail(
-                "stat-axis-value-names-not-unique",
+                "duplicate-stat-axis-value-name",
                 &format!(
                     "STAT axis value name '{name}' is used {count} times. \
                      Duplicate names create ambiguous labels in font menus."
@@ -119,7 +119,7 @@ mod tests {
         assert_results_contain(
             &results,
             StatusCode::Fail,
-            Some("stat-axis-value-names-not-unique".to_string()),
+            Some("duplicate-stat-axis-value-name".to_string()),
         );
     }
 
