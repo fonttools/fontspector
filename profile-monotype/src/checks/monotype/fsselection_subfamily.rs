@@ -2,14 +2,11 @@ use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, TestFont};
 use skrifa::raw::{tables::os2::SelectionFlags, TableProvider};
 use skrifa::string::StringId;
 
-/// Prefer typographic subfamily (name ID 17) when present and non-empty; else name ID 2.
+/// Style-link subfamily is name ID 2 (matches FontSniffer check_style_linking).
+/// Name ID 17 is typographic and is not used for fsSelection italic/bold.
 fn subfamily_name(f: &TestFont<'_>) -> Option<String> {
-    f.get_best_name(&[StringId::TYPOGRAPHIC_SUBFAMILY_NAME])
+    f.get_best_name(&[StringId::SUBFAMILY_NAME])
         .filter(|s| !s.trim().is_empty())
-        .or_else(|| {
-            f.get_best_name(&[StringId::SUBFAMILY_NAME])
-                .filter(|s| !s.trim().is_empty())
-        })
 }
 
 /// Italic-like: style token Italic or Oblique (excel ID 147 vocabulary).
@@ -36,7 +33,8 @@ fn name_implies_bold(subfamily: &str) -> bool {
     id = "monotype/fsselection_subfamily",
     rationale = "
         Clearance asks whether OS/2.fsSelection italic and bold bits are consistent
-        with the name-table subfamily (prefer name ID 17 when present, else name ID 2).
+        with the name-table subfamily (name ID 2). Name ID 17 is not used: RIBBI
+        style-link values live in ID 2; ID 17 is the typographic subfamily.
 
         Unlike opentype/fsselection, this check does not use filename-driven
         TestFont::style(). macStyle cross-checks remain in opentype/fsselection.
@@ -51,7 +49,7 @@ fn fsselection_subfamily(t: &Testable, _context: &Context) -> CheckFnResult {
     let Some(subfamily) = subfamily_name(&f) else {
         return Ok(Status::just_one_fail(
             "missing-subfamily-name",
-            "Could not determine the subfamily name (name ID 17 or 2).",
+            "Could not determine the subfamily name (name ID 2).",
         ));
     };
 
@@ -188,8 +186,8 @@ mod tests {
     }
 
     #[test]
-    fn test_name_id_17_preferred_over_2() {
-        // Name ID 2 = Regular (no italic), name ID 17 = Italic → expect ITALIC bit.
+    fn test_name_id_17_ignored() {
+        // ID 2 = Regular, ID 17 = Italic, REGULAR bit set → still PASS (ID 17 ignored).
         let mut t = test_able("cabin/Cabin-Regular.ttf");
         set_name_entry(
             &mut t,
@@ -208,30 +206,6 @@ mod tests {
             "Italic".into(),
         );
         set_fs_selection(&mut t, SelectionFlags::REGULAR);
-        assert_results_contain(
-            &run_check(fsselection_subfamily, t),
-            StatusCode::Fail,
-            Some("fsselection-italic-mismatch".into()),
-        );
-
-        let mut t = test_able("cabin/Cabin-Regular.ttf");
-        set_name_entry(
-            &mut t,
-            3,
-            1,
-            0x0409,
-            NameId::SUBFAMILY_NAME,
-            "Regular".into(),
-        );
-        set_name_entry(
-            &mut t,
-            3,
-            1,
-            0x0409,
-            NameId::TYPOGRAPHIC_SUBFAMILY_NAME,
-            "Italic".into(),
-        );
-        set_fs_selection(&mut t, SelectionFlags::ITALIC);
         assert_pass(&run_check(fsselection_subfamily, t));
     }
 }
