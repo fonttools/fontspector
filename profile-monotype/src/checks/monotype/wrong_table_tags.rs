@@ -68,10 +68,7 @@ fn wrong_table_tags(t: &Testable, _context: &Context) -> CheckFnResult {
         }
 
         let lower = ascii_lower(&bytes);
-        if let Some(canonical) = STANDARD_TAGS
-            .iter()
-            .find(|t| ascii_lower(t) == lower)
-        {
+        if let Some(canonical) = STANDARD_TAGS.iter().find(|t| ascii_lower(t) == lower) {
             problems.push(Status::fail(
                 "incorrect-table-tags",
                 &format!(
