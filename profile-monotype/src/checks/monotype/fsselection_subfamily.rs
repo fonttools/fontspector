@@ -2,7 +2,7 @@ use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, TestFont};
 use skrifa::raw::{tables::os2::SelectionFlags, TableProvider};
 use skrifa::string::StringId;
 
-/// Style-link subfamily is name ID 2 (matches FontSniffer check_style_linking).
+/// Style-link subfamily is name ID 2.
 /// Name ID 17 is typographic and is not used for fsSelection italic/bold.
 fn subfamily_name(f: &TestFont<'_>) -> Option<String> {
     f.get_best_name(&[StringId::SUBFAMILY_NAME])
@@ -38,8 +38,6 @@ fn name_implies_bold(subfamily: &str) -> bool {
 
         Unlike opentype/fsselection, this check does not use filename-driven
         TestFont::style(). macStyle cross-checks remain in opentype/fsselection.
-
-        Reference behaviour: FontSniffer check_style_linking (italic/bold vs name ID 2).
     ",
     proposal = "https://github.com/Monotype/fontspector/issues/41",
     title = "Is OS/2.fsSelection italic/bold consistent with the subfamily name?"
