@@ -573,7 +573,7 @@ fn vertical_glyphs(f: &TestFont) -> Result<HashSet<GlyphId>, ReadError> {
     let mut vert_glyphs = HashSet::new();
     for lookup in vert_lookups {
         for (_lefts, rights) in lookup.subtables()?.substitutions()?.iter() {
-            vert_glyphs.extend(rights.iter().map(|g| GlyphId::from(*g)));
+            vert_glyphs.extend(rights);
         }
     }
 

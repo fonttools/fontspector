@@ -1,6 +1,12 @@
 use fontdrasil::coords::{NormalizedCoord, NormalizedLocation, UserSpace};
 use fontdrasil::types::Axes;
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
+use serde_json::{json, Map, Value};
+use skrifa::raw::tables::{
+    head::Head, hhea::Hhea, maxp::Maxp, os2::Os2, post::Post, stat::AxisValue, stat::Stat,
+    vhea::Vhea,
+};
+use skrifa::raw::types::Fixed;
 use skrifa::raw::FontRef;
 use skrifa::{raw::TableProvider, MetadataProvider};
 use tabled::{Table, Tabled};
@@ -231,20 +237,19 @@ fn flatten_map(
 pub fn font_to_json(font: &FontRef, axes: Option<&Axes>) -> Value {
     let mut map = Map::new();
 
-    // Some tables are serialized by using read_font's traversal feature; typically those which
-    // are just a set of fields and values (or are so complicated we haven't yet been bothered
-    // to write our own serializers for them...)
+    // Some tables are serialized by hand below; typically those which are just a set of
+    // fields and values (or are so complicated we haven't yet been bothered to write our
+    // own serializers for them...)
     for table in font.table_directory.table_records().iter() {
         let key = table.tag().to_string();
         let value = match table.tag().into_bytes().as_ref() {
-            b"head" => font.head().map(|t| <dyn SomeTable>::serialize(&t)),
-            b"hhea" => font.hhea().map(|t| <dyn SomeTable>::serialize(&t)),
-            b"vhea" => font.vhea().map(|t| <dyn SomeTable>::serialize(&t)),
-            // b"avar" => font.avar().map(|t| <dyn SomeTable>::serialize(&t)),
-            b"maxp" => font.maxp().map(|t| <dyn SomeTable>::serialize(&t)),
-            b"OS/2" => font.os2().map(|t| <dyn SomeTable>::serialize(&t)),
-            b"post" => font.post().map(|t| <dyn SomeTable>::serialize(&t)),
-            b"STAT" => font.stat().map(|t| <dyn SomeTable>::serialize(&t)),
+            b"head" => font.head().map(|t| serialize_head(&t)),
+            b"hhea" => font.hhea().map(|t| serialize_hhea(&t)),
+            b"vhea" => font.vhea().map(|t| serialize_vhea(&t)),
+            b"maxp" => font.maxp().map(|t| serialize_maxp(&t)),
+            b"OS/2" => font.os2().map(|t| serialize_os2(&t)),
+            b"post" => font.post().map(|t| serialize_post(&t)),
+            b"STAT" => font.stat().map(|t| serialize_stat(&t)),
             _ => continue,
         };
         map.insert(
@@ -259,8 +264,349 @@ pub fn font_to_json(font: &FontRef, axes: Option<&Axes>) -> Value {
     Value::Object(flatten_map(&map))
 }
 
-use serde_json::{json, Map, Number, Value};
-use skrifa::raw::traversal::{FieldType, SomeArray, SomeTable};
+// The field names of the serialized tables are the camelCase forms of the names given in
+// the OpenType specification, which are also the names this check has always used.
+fn json_object(fields: impl IntoIterator<Item = (&'static str, Value)>) -> Value {
+    Value::Object(
+        fields
+            .into_iter()
+            .map(|(field, value)| (field.to_string(), value))
+            .collect(),
+    )
+}
+
+fn bare_offset(offset: u32) -> Value {
+    Value::String(format!("0x{:04X}", offset))
+}
+
+// 16.16 fixed point numbers have at most five decimal places; rounding off anything
+// beyond that avoids exposing the floating point representation to the user
+// (1.008 rather than 1.0080032348632812).
+fn fixed_to_json(value: Fixed) -> Value {
+    let value = (value.to_f64() * 100_000.0).round() / 100_000.0;
+    json!(value)
+}
+
+fn serialize_head(head: &Head) -> Value {
+    json_object([
+        ("version", json!(head.version().to_string())),
+        ("fontRevision", fixed_to_json(head.font_revision())),
+        ("checksumAdjustment", json!(head.checksum_adjustment())),
+        ("magicNumber", json!(head.magic_number())),
+        ("flags", json!(head.flags().bits())),
+        ("unitsPerEm", json!(head.units_per_em())),
+        ("created", json!(head.created().as_secs())),
+        ("modified", json!(head.modified().as_secs())),
+        ("xMin", json!(head.x_min())),
+        ("yMin", json!(head.y_min())),
+        ("xMax", json!(head.x_max())),
+        ("yMax", json!(head.y_max())),
+        ("macStyle", json!(head.mac_style().bits())),
+        ("lowestRecPpem", json!(head.lowest_rec_ppem())),
+        ("fontDirectionHint", json!(head.font_direction_hint())),
+        ("indexToLocFormat", json!(head.index_to_loc_format())),
+        ("glyphDataFormat", json!(head.glyph_data_format())),
+    ])
+}
+
+fn serialize_hhea(hhea: &Hhea) -> Value {
+    json_object([
+        ("version", json!(hhea.version().to_string())),
+        ("ascender", json!(hhea.ascender().to_i16())),
+        ("descender", json!(hhea.descender().to_i16())),
+        ("lineGap", json!(hhea.line_gap().to_i16())),
+        ("advanceWidthMax", json!(hhea.advance_width_max().to_u16())),
+        (
+            "minLeftSideBearing",
+            json!(hhea.min_left_side_bearing().to_i16()),
+        ),
+        (
+            "minRightSideBearing",
+            json!(hhea.min_right_side_bearing().to_i16()),
+        ),
+        ("xMaxExtent", json!(hhea.x_max_extent().to_i16())),
+        ("caretSlopeRise", json!(hhea.caret_slope_rise())),
+        ("caretSlopeRun", json!(hhea.caret_slope_run())),
+        ("caretOffset", json!(hhea.caret_offset())),
+        ("metricDataFormat", json!(hhea.metric_data_format())),
+        ("numberOfHMetrics", json!(hhea.number_of_h_metrics())),
+    ])
+}
+
+fn serialize_vhea(vhea: &Vhea) -> Value {
+    json_object([
+        ("version", json!(vhea.version().to_string())),
+        ("ascender", json!(vhea.ascender().to_i16())),
+        ("descender", json!(vhea.descender().to_i16())),
+        ("lineGap", json!(vhea.line_gap().to_i16())),
+        (
+            "advanceHeightMax",
+            json!(vhea.advance_height_max().to_u16()),
+        ),
+        (
+            "minTopSideBearing",
+            json!(vhea.min_top_side_bearing().to_i16()),
+        ),
+        (
+            "minBottomSideBearing",
+            json!(vhea.min_bottom_side_bearing().to_i16()),
+        ),
+        ("yMaxExtent", json!(vhea.y_max_extent().to_i16())),
+        ("caretSlopeRise", json!(vhea.caret_slope_rise())),
+        ("caretSlopeRun", json!(vhea.caret_slope_run())),
+        ("caretOffset", json!(vhea.caret_offset())),
+        ("metricDataFormat", json!(vhea.metric_data_format())),
+        (
+            "numberOfLongVerMetrics",
+            json!(vhea.number_of_long_ver_metrics()),
+        ),
+    ])
+}
+
+fn serialize_maxp(maxp: &Maxp) -> Value {
+    let mut fields = vec![
+        ("version", json!(maxp.version().to_string())),
+        ("numGlyphs", json!(maxp.num_glyphs())),
+    ];
+    for (field, value) in [
+        ("maxPoints", maxp.max_points()),
+        ("maxContours", maxp.max_contours()),
+        ("maxCompositePoints", maxp.max_composite_points()),
+        ("maxCompositeContours", maxp.max_composite_contours()),
+        ("maxZones", maxp.max_zones()),
+        ("maxTwilightPoints", maxp.max_twilight_points()),
+        ("maxStorage", maxp.max_storage()),
+        ("maxFunctionDefs", maxp.max_function_defs()),
+        ("maxInstructionDefs", maxp.max_instruction_defs()),
+        ("maxStackElements", maxp.max_stack_elements()),
+        ("maxSizeOfInstructions", maxp.max_size_of_instructions()),
+        ("maxComponentElements", maxp.max_component_elements()),
+        ("maxComponentDepth", maxp.max_component_depth()),
+    ] {
+        if let Some(value) = value {
+            fields.push((field, json!(value)));
+        }
+    }
+    json_object(fields)
+}
+
+fn serialize_os2(os2: &Os2) -> Value {
+    let mut fields = vec![
+        ("version", json!(os2.version())),
+        ("xAvgCharWidth", json!(os2.x_avg_char_width())),
+        ("usWeightClass", json!(os2.us_weight_class())),
+        ("usWidthClass", json!(os2.us_width_class())),
+        ("fsType", json!(os2.fs_type())),
+        ("ySubscriptXSize", json!(os2.y_subscript_x_size())),
+        ("ySubscriptYSize", json!(os2.y_subscript_y_size())),
+        ("ySubscriptXOffset", json!(os2.y_subscript_x_offset())),
+        ("ySubscriptYOffset", json!(os2.y_subscript_y_offset())),
+        ("ySuperscriptXSize", json!(os2.y_superscript_x_size())),
+        ("ySuperscriptYSize", json!(os2.y_superscript_y_size())),
+        ("ySuperscriptXOffset", json!(os2.y_superscript_x_offset())),
+        ("ySuperscriptYOffset", json!(os2.y_superscript_y_offset())),
+        ("yStrikeoutSize", json!(os2.y_strikeout_size())),
+        ("yStrikeoutPosition", json!(os2.y_strikeout_position())),
+        ("sFamilyClass", json!(os2.s_family_class())),
+        (
+            "panose10",
+            Value::Array(os2.panose_10().iter().map(|byte| json!(byte)).collect()),
+        ),
+        ("ulUnicodeRange1", json!(os2.ul_unicode_range_1())),
+        ("ulUnicodeRange2", json!(os2.ul_unicode_range_2())),
+        ("ulUnicodeRange3", json!(os2.ul_unicode_range_3())),
+        ("ulUnicodeRange4", json!(os2.ul_unicode_range_4())),
+        ("achVendId", json!(os2.ach_vend_id().to_string())),
+        ("fsSelection", json!(os2.fs_selection().bits())),
+        ("usFirstCharIndex", json!(os2.us_first_char_index())),
+        ("usLastCharIndex", json!(os2.us_last_char_index())),
+        ("sTypoAscender", json!(os2.s_typo_ascender())),
+        ("sTypoDescender", json!(os2.s_typo_descender())),
+        ("sTypoLineGap", json!(os2.s_typo_line_gap())),
+        ("usWinAscent", json!(os2.us_win_ascent())),
+        ("usWinDescent", json!(os2.us_win_descent())),
+    ];
+    for (field, value) in [
+        (
+            "ulCodePageRange1",
+            os2.ul_code_page_range_1().map(|value| json!(value)),
+        ),
+        (
+            "ulCodePageRange2",
+            os2.ul_code_page_range_2().map(|value| json!(value)),
+        ),
+        ("sxHeight", os2.sx_height().map(|value| json!(value))),
+        ("sCapHeight", os2.s_cap_height().map(|value| json!(value))),
+        (
+            "usDefaultChar",
+            os2.us_default_char().map(|value| json!(value)),
+        ),
+        ("usBreakChar", os2.us_break_char().map(|value| json!(value))),
+        (
+            "usMaxContext",
+            os2.us_max_context().map(|value| json!(value)),
+        ),
+        (
+            "usLowerOpticalPointSize",
+            os2.us_lower_optical_point_size().map(|value| json!(value)),
+        ),
+        (
+            "usUpperOpticalPointSize",
+            os2.us_upper_optical_point_size().map(|value| json!(value)),
+        ),
+    ] {
+        if let Some(value) = value {
+            fields.push((field, value));
+        }
+    }
+    json_object(fields)
+}
+
+fn serialize_post(post: &Post) -> Value {
+    // The glyph name strings are reachable through the (gappy) string data, and were
+    // never serialized meaningfully; only the name indices are reported.
+    let mut fields = vec![
+        ("version", json!(post.version().to_string())),
+        ("italicAngle", fixed_to_json(post.italic_angle())),
+        (
+            "underlinePosition",
+            json!(post.underline_position().to_i16()),
+        ),
+        (
+            "underlineThickness",
+            json!(post.underline_thickness().to_i16()),
+        ),
+        ("isFixedPitch", json!(post.is_fixed_pitch())),
+        ("minMemType42", json!(post.min_mem_type42())),
+        ("maxMemType42", json!(post.max_mem_type42())),
+        ("minMemType1", json!(post.min_mem_type1())),
+        ("maxMemType1", json!(post.max_mem_type1())),
+    ];
+    if let Some(num_glyphs) = post.num_glyphs() {
+        fields.push(("numGlyphs", json!(num_glyphs)));
+    }
+    if let Some(glyph_name_index) = post.glyph_name_index() {
+        fields.push((
+            "glyphNameIndex",
+            Value::Array(
+                glyph_name_index
+                    .iter()
+                    .map(|index| json!(index.get()))
+                    .collect(),
+            ),
+        ));
+    }
+    json_object(fields)
+}
+
+fn serialize_stat(stat: &Stat) -> Value {
+    let mut fields = vec![
+        ("version", json!(stat.version().to_string())),
+        ("designAxisSize", json!(stat.design_axis_size())),
+        ("designAxisCount", json!(stat.design_axis_count())),
+        ("designAxesOffset", serialize_design_axes(stat)),
+        ("axisValueCount", json!(stat.axis_value_count())),
+        (
+            "offsetToAxisValueOffsets",
+            serialize_axis_value_offsets(stat),
+        ),
+    ];
+    if let Some(name_id) = stat.elided_fallback_name_id() {
+        fields.push(("elidedFallbackNameId", json!(name_id.to_string())));
+    }
+    json_object(fields)
+}
+
+fn serialize_design_axes(stat: &Stat) -> Value {
+    if stat.design_axis_count() == 0 {
+        return bare_offset(stat.design_axes_offset().to_u32());
+    }
+    match stat.design_axes() {
+        Ok(axes) => Value::Array(
+            axes.iter()
+                .map(|axis| {
+                    json_object([
+                        ("axisTag", json!(axis.axis_tag().to_string())),
+                        ("axisNameId", json!(axis.axis_name_id().to_string())),
+                        ("axisOrdering", json!(axis.axis_ordering())),
+                    ])
+                })
+                .collect(),
+        ),
+        Err(_) => Value::Null,
+    }
+}
+
+fn serialize_axis_value_offsets(stat: &Stat) -> Value {
+    match stat.offset_to_axis_values() {
+        Some(Ok(axis_values)) => json_object([(
+            "axisValueOffsets",
+            Value::Array(
+                axis_values
+                    .axis_values()
+                    .iter()
+                    .map(|value| {
+                        value
+                            .as_ref()
+                            .map_or(Value::Null, |value| serialize_axis_value(value))
+                    })
+                    .collect(),
+            ),
+        )]),
+        Some(Err(_)) => Value::Null,
+        None => bare_offset(stat.offset_to_axis_value_offsets().offset().to_u32()),
+    }
+}
+
+fn serialize_axis_value(value: &AxisValue) -> Value {
+    match value {
+        AxisValue::Format1(value) => json_object([
+            ("format", json!(value.format())),
+            ("axisIndex", json!(value.axis_index())),
+            ("flags", json!(value.flags().bits())),
+            ("valueNameId", json!(value.value_name_id().to_string())),
+            ("value", fixed_to_json(value.value())),
+        ]),
+        AxisValue::Format2(value) => json_object([
+            ("format", json!(value.format())),
+            ("axisIndex", json!(value.axis_index())),
+            ("flags", json!(value.flags().bits())),
+            ("valueNameId", json!(value.value_name_id().to_string())),
+            ("nominalValue", fixed_to_json(value.nominal_value())),
+            ("rangeMinValue", fixed_to_json(value.range_min_value())),
+            ("rangeMaxValue", fixed_to_json(value.range_max_value())),
+        ]),
+        AxisValue::Format3(value) => json_object([
+            ("format", json!(value.format())),
+            ("axisIndex", json!(value.axis_index())),
+            ("flags", json!(value.flags().bits())),
+            ("valueNameId", json!(value.value_name_id().to_string())),
+            ("value", fixed_to_json(value.value())),
+            ("linkedValue", fixed_to_json(value.linked_value())),
+        ]),
+        AxisValue::Format4(value) => json_object([
+            ("format", json!(value.format())),
+            ("axisCount", json!(value.axis_count())),
+            ("flags", json!(value.flags().bits())),
+            ("valueNameId", json!(value.value_name_id().to_string())),
+            (
+                "axisValues",
+                Value::Array(
+                    value
+                        .axis_values()
+                        .iter()
+                        .map(|record| {
+                            json_object([
+                                ("axisIndex", json!(record.axis_index())),
+                                ("value", fixed_to_json(record.value())),
+                            ])
+                        })
+                        .collect(),
+                ),
+            ),
+        ]),
+    }
+}
 
 fn serialize_name_table<'a>(font: &(impl MetadataProvider<'a> + TableProvider<'a>)) -> Value {
     let mut map = Map::new();
@@ -363,80 +709,6 @@ fn equal_enough(v1: &Value, v2: &Value) -> bool {
         _ => v1 == v2,
     }
 }
-pub(crate) trait ToValue {
-    fn serialize(&self) -> Value;
-}
-
-impl<'a> ToValue for FieldType<'a> {
-    fn serialize(&self) -> Value {
-        match self {
-            Self::I8(arg0) => Value::Number((*arg0).into()),
-            Self::U8(arg0) => Value::Number((*arg0).into()),
-            Self::I16(arg0) => Value::Number((*arg0).into()),
-            Self::I24(arg0) => Value::Number((Into::<i32>::into(*arg0)).into()),
-            Self::U16(arg0) => Value::Number((*arg0).into()),
-            Self::I32(arg0) => Value::Number((*arg0).into()),
-            Self::U32(arg0) => Value::Number((*arg0).into()),
-            Self::U24(arg0) => {
-                let u: u32 = (*arg0).into();
-                Value::Number(u.into())
-            }
-            Self::Tag(arg0) => Value::String(arg0.to_string()),
-            Self::FWord(arg0) => Value::Number(arg0.to_i16().into()),
-            Self::UfWord(arg0) => Value::Number(arg0.to_u16().into()),
-            Self::MajorMinor(arg0) => Value::String(format!("{}.{}", arg0.major, arg0.minor)),
-            Self::Version16Dot16(arg0) => Value::String(format!("{}", *arg0)),
-            Self::F2Dot14(arg0) => {
-                Value::Number(Number::from_f64(arg0.to_f32() as f64).unwrap_or(0.into()))
-            }
-            Self::Fixed(arg0) => Value::Number(Number::from(arg0.to_i32())),
-            Self::LongDateTime(arg0) => Value::Number(arg0.as_secs().into()),
-            Self::GlyphId16(arg0) => Value::String(format!("g{}", arg0.to_u16())),
-            Self::GlyphId24(arg0) => Value::String(format!("g{}", arg0.to_u32())),
-            Self::NameId(arg0) => Value::String(arg0.to_string()),
-            Self::StringOffset(string) => match &string.target {
-                Ok(arg0) => Value::String(arg0.as_ref().iter_chars().collect()),
-                Err(_) => Value::Null,
-            },
-            Self::ArrayOffset(array) => match &array.target {
-                Ok(arg0) => arg0.as_ref().serialize(),
-                Err(_) => Value::Null,
-            },
-            Self::BareOffset(arg0) => Value::String(format!("0x{:04X}", arg0.to_u32())),
-            Self::ResolvedOffset(arg0) => {
-                arg0.target.as_ref().map_or(Value::Null, |t| t.serialize())
-            }
-            Self::Record(arg0) => (arg0 as &(dyn SomeTable<'a> + 'a)).serialize(),
-            Self::Array(arg0) => arg0.serialize(),
-            Self::Unknown => Value::String("no repr available".to_string()),
-        }
-    }
-}
-
-impl<'a> ToValue for dyn SomeArray<'a> + 'a {
-    fn serialize(&self) -> Value {
-        let mut out = vec![];
-        let mut idx = 0;
-        while let Some(val) = self.get(idx) {
-            out.push(val.serialize());
-            idx += 1;
-        }
-        Value::Array(out)
-    }
-}
-
-impl<'a> ToValue for dyn SomeTable<'a> + 'a {
-    fn serialize(&self) -> Value {
-        let mut field_num = 0;
-        let mut map = Map::new();
-        while let Some(field) = self.get_field(field_num) {
-            let camel_case_name = stringcase::camel_case(field.name);
-            map.insert(camel_case_name, field.value.serialize());
-            field_num += 1;
-        }
-        Value::Object(map)
-    }
-}
 
 #[cfg(test)]
 mod tests {
@@ -512,6 +784,27 @@ mod tests {
             HashMap::from_iter([("field_values".to_string(), config)]),
         );
         println!("Results: {:#?}", results);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_field_values_serialized_tables() {
+        let t1 = test_able("shantell/ShantellSans[BNCE,INFM,SPAC,wght].ttf");
+
+        let config = json!({
+                "head.fontRevision": 1.011,
+                "maxp.numGlyphs": 1728,
+                "post.version": "2.0",
+                "post.underlinePosition": -105,
+                "STAT.designAxisCount": 5,
+                "STAT.axisValueCount": 14,
+                "STAT.elidedFallbackNameId": "SUBFAMILY_NAME",
+        });
+        let results = run_check_with_config(
+            field_values,
+            TestableType::Single(&t1),
+            HashMap::from_iter([("field_values".to_string(), config)]),
+        );
         assert_pass(&results);
     }
 }

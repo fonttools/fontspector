@@ -4,7 +4,7 @@ use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert, GetSubst
 use itertools::Itertools;
 use skrifa::{
     raw::{
-        tables::gpos::{PairPosFormat1, PairPosFormat2},
+        tables::gpos::{PairPosFormat1, PairPosFormat2, PairPosFormat3, PairPosFormat4},
         ReadError, TableProvider,
     },
     GlyphId, MetadataProvider,
@@ -104,11 +104,11 @@ fn tabular_kerning(t: &Testable, _context: &Context) -> CheckFnResult {
             for (lhs, rhs) in substitutions.iter() {
                 for gid in rhs {
                     #[allow(clippy::indexing_slicing)] // We check the length before slicing
-                    if lhs.len() == 1 && numeral_glyphs.contains::<GlyphId>(&lhs[0].into()) {
-                        tabular_numerals.remove::<GlyphId>(&(lhs[0].into()));
-                        tabular_numerals.insert(GlyphId::from(*gid));
+                    if lhs.len() == 1 && numeral_glyphs.contains::<GlyphId>(&lhs[0]) {
+                        tabular_numerals.remove::<GlyphId>(&(lhs[0]));
+                        tabular_numerals.insert(*gid);
                     } else {
-                        tabular_glyphs.insert(GlyphId::from(*gid));
+                        tabular_glyphs.insert(*gid);
                     }
                 }
             }
@@ -150,8 +150,12 @@ fn tabular_kerning(t: &Testable, _context: &Context) -> CheckFnResult {
     // the nominal_glyph_func hack in Rust is a bit of a pain; instead we'll
     // just check for any GPOS PairPositioning rules between the involved glyphs.
     // Faster too.
-    let kerning: Vec<(HashSet<GlyphId>, HashSet<GlyphId>)> =
-        f.process_kerning(&involved_pairs_format1, &involved_pairs_format2)?;
+    let kerning: Vec<(HashSet<GlyphId>, HashSet<GlyphId>)> = f.process_kerning(
+        &involved_pairs_format1,
+        &involved_pairs_format2,
+        &involved_pairs_format3,
+        &involved_pairs_format4,
+    )?;
 
     let has_kerning = |a: &GlyphId, b: &GlyphId| {
         kerning
@@ -204,7 +208,7 @@ fn involved_pairs_format1(pp1: PairPosFormat1) -> Result<Vec<PairSlot>, ReadErro
             if let Some(x) = pairrecord.value_record1().x_advance() {
                 if x != 0 {
                     results.push((
-                        vec![GlyphId::from(left)].into_iter().collect(),
+                        vec![left].into_iter().collect(),
                         vec![GlyphId::from(pairrecord.second_glyph())]
                             .into_iter()
                             .collect(),
@@ -225,7 +229,7 @@ fn involved_pairs_format2(pp2: PairPosFormat2) -> Result<Vec<PairSlot>, ReadErro
             continue;
         } // Gibberish
         let glyphs = glyphs_per_class1.entry(class).or_insert_with(HashSet::new);
-        glyphs.insert(GlyphId::from(gid));
+        glyphs.insert(gid);
     }
 
     let mut glyphs_per_class2: HashMap<_, HashSet<GlyphId>> = HashMap::new();
@@ -234,18 +238,18 @@ fn involved_pairs_format2(pp2: PairPosFormat2) -> Result<Vec<PairSlot>, ReadErro
             continue;
         }
         let glyphs = glyphs_per_class2.entry(class).or_insert_with(HashSet::new);
-        glyphs.insert(GlyphId::from(gid));
+        glyphs.insert(gid);
     }
 
     // I'm rethinking my life choices here. Maybe shaping would have been easier.
     for (class1_id, record) in pp2.class1_records().iter().enumerate() {
         let record = record?;
-        let glyphs1 = glyphs_per_class1.get(&(class1_id as u16));
+        let glyphs1 = glyphs_per_class1.get(&(class1_id as u32));
 
         for (class2_id, class2_rec) in record.class2_records().iter().enumerate() {
             if let Some(x) = class2_rec?.value_record1().x_advance() {
                 if x != 0 {
-                    let glyphs2 = glyphs_per_class2.get(&(class2_id as u16));
+                    let glyphs2 = glyphs_per_class2.get(&(class2_id as u32));
                     results.push((
                         glyphs1.cloned().unwrap_or(HashSet::new()),
                         glyphs2.cloned().unwrap_or(HashSet::new()),
@@ -256,7 +260,69 @@ fn involved_pairs_format2(pp2: PairPosFormat2) -> Result<Vec<PairSlot>, ReadErro
     }
     Ok(results)
 }
+fn involved_pairs_format3(pp3: PairPosFormat3) -> Result<Vec<PairSlot>, ReadError> {
+    let mut results = vec![];
+    let coverage = pp3.coverage()?;
+    for (left, pairset) in coverage.iter().zip(pp3.pair_sets().iter()) {
+        let pairset = pairset?;
+        for pairrecord in pairset.pair_value_records().iter() {
+            let pairrecord = pairrecord?;
+            if let Some(x) = pairrecord.value_record1().x_advance() {
+                if x != 0 {
+                    results.push((
+                        vec![left].into_iter().collect(),
+                        vec![GlyphId::from(pairrecord.second_glyph())]
+                            .into_iter()
+                            .collect(),
+                    ));
+                }
+            }
+        }
+    }
+    Ok(results)
+}
 
+fn involved_pairs_format4(pp4: PairPosFormat4) -> Result<Vec<PairSlot>, ReadError> {
+    let class1 = pp4.class_def1()?;
+    let class2 = pp4.class_def2()?;
+    let mut results = vec![];
+    let mut glyphs_per_class1: HashMap<_, HashSet<GlyphId>> = HashMap::new();
+    for (gid, class) in class1.iter() {
+        if class == 0 {
+            continue;
+        } // Gibberish
+        let glyphs = glyphs_per_class1.entry(class).or_insert_with(HashSet::new);
+        glyphs.insert(gid);
+    }
+
+    let mut glyphs_per_class2: HashMap<_, HashSet<GlyphId>> = HashMap::new();
+    for (gid, class) in class2.iter() {
+        if class == 0 {
+            continue;
+        }
+        let glyphs = glyphs_per_class2.entry(class).or_insert_with(HashSet::new);
+        glyphs.insert(gid);
+    }
+
+    // I'm rethinking my life choices here. Maybe shaping would have been easier.
+    for (class1_id, record) in pp4.class1_records().iter().enumerate() {
+        let record = record?;
+        let glyphs1 = glyphs_per_class1.get(&(class1_id as u32));
+
+        for (class2_id, class2_rec) in record.class2_records().iter().enumerate() {
+            if let Some(x) = class2_rec?.value_record1().x_advance() {
+                if x != 0 {
+                    let glyphs2 = glyphs_per_class2.get(&(class2_id as u32));
+                    results.push((
+                        glyphs1.cloned().unwrap_or(HashSet::new()),
+                        glyphs2.cloned().unwrap_or(HashSet::new()),
+                    ));
+                }
+            }
+        }
+    }
+    Ok(results)
+}
 #[cfg(test)]
 mod tests {
     use fontspector_checkapi::{
