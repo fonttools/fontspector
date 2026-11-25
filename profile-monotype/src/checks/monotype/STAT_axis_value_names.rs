@@ -12,9 +12,10 @@ use skrifa::raw::{tables::stat::AxisValueTableFlags, TableProvider};
 
         Records are counted in two buckets by the ELIDABLE_AXIS_VALUE_NAME flag.
         When the same resolved name appears more than once:
-        - FAIL if every occurrence is non-elidable
-        - WARN if at least one occurrence is elidable (the elidable entry itself,
-          or a non-elidable entry that shares a name with an elidable one)
+        - FAIL if more than one occurrence is non-elidable (regardless of whether
+          any elidable duplicates also exist)
+        - WARN if the name is duplicated but at most one occurrence is non-elidable
+          (all elidable, or one non-elidable sharing a name with elidable ones)
 
         Format 3 linkedValue is a numeric style-link target only and does not
         contribute a second name; the format 3 record's own valueNameID is still
@@ -71,7 +72,7 @@ fn STAT_axis_value_names(t: &Testable, _context: &Context) -> CheckFnResult {
         if count <= 1 {
             continue;
         }
-        if elidable > 0 {
+        if non_elidable <= 1 {
             problems.push(Status::warn(
                 "duplicate-stat-axis-value-name-elidable",
                 &format!(
@@ -214,7 +215,9 @@ mod tests {
     }
 
     #[test]
-    fn test_stat_axis_value_names_duplicate_mixed_elidable_warn() {
+    fn test_stat_axis_value_names_duplicate_mixed_non_elidable_fail() {
+        // More than one non-elidable share the name (plus one elidable) → FAIL,
+        // regardless of the elidable duplicate.
         let mut testable = test_able("cabinvf/Cabin[wdth,wght].ttf");
         let f = TTF.from_testable(&testable).unwrap();
         let mut stat: Stat = f.font().stat().unwrap().to_owned_table();
@@ -227,8 +230,8 @@ mod tests {
         let results = run_check(STAT_axis_value_names, testable);
         assert_results_contain(
             &results,
-            StatusCode::Warn,
-            Some("duplicate-stat-axis-value-name-elidable".to_string()),
+            StatusCode::Fail,
+            Some("duplicate-stat-axis-value-name".to_string()),
         );
     }
 
