@@ -51,9 +51,7 @@ fn STAT_axis_value_names(t: &Testable, _context: &Context) -> CheckFnResult {
         .iter()
         .flatten()
         .filter_map(|axis_value| match axis_value {
-            AxisValue::Format2(v) => {
-                Some((v.axis_index(), v.nominal_value(), v.value_name_id()))
-            }
+            AxisValue::Format2(v) => Some((v.axis_index(), v.nominal_value(), v.value_name_id())),
             _ => None,
         })
         .collect();
@@ -137,9 +135,7 @@ mod tests {
         types::{Fixed, NameId},
     };
 
-    fn cabin_with_axis_values(
-        axis_values: Vec<WriteAxisValue>,
-    ) -> fontspector_checkapi::Testable {
+    fn cabin_with_axis_values(axis_values: Vec<WriteAxisValue>) -> fontspector_checkapi::Testable {
         let mut testable = test_able("cabinvf/Cabin[wdth,wght].ttf");
         let f = TTF.from_testable(&testable).unwrap();
         let mut stat: Stat = f.font().stat().unwrap().to_owned_table();
