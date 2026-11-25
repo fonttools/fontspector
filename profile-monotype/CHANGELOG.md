@@ -11,7 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
  - ensure STAT axis value names are unique (`monotype/STAT_axis_value_names`);
    FAIL when more than one non-elidable shares a name (regardless of elidable
-   duplicates), WARN when duplicates exist with at most one non-elidable
+   duplicates), WARN when duplicates exist with at most one non-elidable;
+   exclude format 3 when a matching format 2 shares axis/value/nameID
 
 ## v1.1.0 (2026-11-11)
 

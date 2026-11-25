@@ -1,7 +1,11 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use fontspector_checkapi::{prelude::*, skip, testfont, FileTypeConvert};
-use skrifa::raw::{tables::stat::AxisValueTableFlags, TableProvider};
+use skrifa::raw::{
+    tables::stat::{AxisValue, AxisValueTableFlags},
+    types::{Fixed, NameId},
+    TableProvider,
+};
 
 #[check(
     id = "monotype/STAT_axis_value_names",
@@ -18,8 +22,11 @@ use skrifa::raw::{tables::stat::AxisValueTableFlags, TableProvider};
           (all elidable, or one non-elidable sharing a name with elidable ones)
 
         Format 3 linkedValue is a numeric style-link target only and does not
-        contribute a second name; the format 3 record's own valueNameID is still
-        counted like any other axis value name.
+        contribute a second name. The format 3 record's own valueNameID is still
+        counted like any other axis value name, except when OpenType allows a
+        format 2 + format 3 pair for the same axisIndex/value with the same
+        valueNameID — in that case the format 3 record is excluded from the count
+        to avoid a false duplicate.
     ",
     proposal = "https://github.com/Monotype/fontspector/issues/37",
     title = "Are STAT axisValue names unique within STAT?"
@@ -37,9 +44,29 @@ fn STAT_axis_value_names(t: &Testable, _context: &Context) -> CheckFnResult {
         ));
     };
 
+    // OpenType allows format 2 + format 3 for the same axis value when they
+    // share flags/valueNameID. Exclude those format 3 records from uniqueness.
+    let format2_keys: HashSet<(u16, Fixed, NameId)> = subtable
+        .axis_values()
+        .iter()
+        .flatten()
+        .filter_map(|axis_value| match axis_value {
+            AxisValue::Format2(v) => {
+                Some((v.axis_index(), v.nominal_value(), v.value_name_id()))
+            }
+            _ => None,
+        })
+        .collect();
+
     let mut non_elidable_counts: HashMap<String, usize> = HashMap::new();
     let mut elidable_counts: HashMap<String, usize> = HashMap::new();
     for axis_value in subtable.axis_values().iter().flatten() {
+        if let AxisValue::Format3(v) = &axis_value {
+            let key = (v.axis_index(), v.value(), v.value_name_id());
+            if format2_keys.contains(&key) {
+                continue;
+            }
+        }
         let Some(name) = f.get_best_name(&[axis_value.value_name_id()]) else {
             continue;
         };
@@ -107,8 +134,22 @@ mod tests {
     use write_fonts::{
         from_obj::ToOwnedTable,
         tables::stat::{AxisValue as WriteAxisValue, Stat},
-        types::NameId,
+        types::{Fixed, NameId},
     };
+
+    fn cabin_with_axis_values(
+        axis_values: Vec<WriteAxisValue>,
+    ) -> fontspector_checkapi::Testable {
+        let mut testable = test_able("cabinvf/Cabin[wdth,wght].ttf");
+        let f = TTF.from_testable(&testable).unwrap();
+        let mut stat: Stat = f.font().stat().unwrap().to_owned_table();
+        if let Some(values) = stat.offset_to_axis_values.as_mut() {
+            values.clear();
+            values.extend(axis_values.into_iter().map(Into::into));
+        }
+        testable.set(f.rebuild_with_new_table(&stat).unwrap());
+        testable
+    }
 
     fn first_axis_value_name_id(stat: &Stat) -> NameId {
         match &**stat
@@ -249,6 +290,59 @@ mod tests {
             &results,
             StatusCode::Skip,
             Some("no-axis-values".to_string()),
+        );
+    }
+
+    #[test]
+    fn test_stat_axis_value_names_format2_format3_same_value_pass() {
+        // OpenType allows format 2 + format 3 for the same axis value with the
+        // same valueNameID; the format 3 record should not count as a duplicate.
+        let probe = test_able("cabinvf/Cabin[wdth,wght].ttf");
+        let f = TTF.from_testable(&probe).unwrap();
+        let stat: Stat = f.font().stat().unwrap().to_owned_table();
+        let name_id = first_axis_value_name_id(&stat);
+        let flags = AxisValueTableFlags::empty();
+        let value = Fixed::from_f64(400.0);
+
+        let testable = cabin_with_axis_values(vec![
+            WriteAxisValue::format_2(
+                0,
+                flags,
+                name_id,
+                value,
+                Fixed::from_f64(1.0),
+                Fixed::from_f64(500.0),
+            ),
+            WriteAxisValue::format_3(0, flags, name_id, value, Fixed::from_f64(700.0)),
+        ]);
+        let results = run_check(STAT_axis_value_names, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_stat_axis_value_names_format3_without_matching_format2_still_counted() {
+        // Format 3 with no matching format 2 still counts toward uniqueness.
+        let probe = test_able("cabinvf/Cabin[wdth,wght].ttf");
+        let f = TTF.from_testable(&probe).unwrap();
+        let stat: Stat = f.font().stat().unwrap().to_owned_table();
+        let name_id = first_axis_value_name_id(&stat);
+        let flags = AxisValueTableFlags::empty();
+
+        let testable = cabin_with_axis_values(vec![
+            WriteAxisValue::format_1(0, flags, name_id, Fixed::from_f64(400.0)),
+            WriteAxisValue::format_3(
+                0,
+                flags,
+                name_id,
+                Fixed::from_f64(300.0),
+                Fixed::from_f64(700.0),
+            ),
+        ]);
+        let results = run_check(STAT_axis_value_names, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("duplicate-stat-axis-value-name".to_string()),
         );
     }
 }
