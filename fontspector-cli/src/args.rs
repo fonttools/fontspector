@@ -99,11 +99,6 @@ pub struct Args {
     #[clap(long, help_heading = "Reports")]
     pub badges: Option<String>,
 
-    /// Fall back to Python implementations of unported checks
-    #[clap(long)]
-    #[cfg(feature = "python")]
-    pub use_python: bool,
-
     /// Hotfix found problems in the binaries
     #[clap(long, help_heading = "Fix problems")]
     pub hotfix: bool,

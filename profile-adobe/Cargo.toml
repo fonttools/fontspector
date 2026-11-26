@@ -7,21 +7,23 @@ publish = false
 [lib]
 crate-type = ["cdylib", "rlib"]
 
+[[bin]]
+name = "adobe-fontspectorplugin"
+path = "src/main.rs"
+
 [dependencies]
 fontspector-checkapi = { path = "../fontspector-checkapi", features = [
     "kurbo",
+    "plugin",
 ] }
 skrifa = { workspace = true }
 write-fonts = { workspace = true }
 itertools = { workspace = true }
 
-[target.'cfg(not(target_family = "wasm"))'.dependencies]
-# Plugin architecture
-pluginator = { workspace = true }
-
 [features]
 # The "check" feature enables dependencies only needed for checks, not fixes.
 default = ["check"]
+sourcefix = ["fontspector-checkapi/sourcefix"]
 check = []
 
 [lints]

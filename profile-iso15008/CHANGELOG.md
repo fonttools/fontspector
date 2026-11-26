@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.0.9 (2026-11-10)
+
+### Chore
+
+ - <csr-id-72c96f7ba104074edfb9f5e52a682faaa13cd1bd/> Hide sourcefixes behind feature to slim deps
+   * chore: Lint fixups
+   
+   * chore: Hide sourcefixes behind feature to slim deps
+   
+   * chore: Work under unification
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 1 commit contributed to the release.
+ - 53 days passed between releases.
+ - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
+ - 1 unique issue was worked on: [#1000](https://github.com/fonttools/fontspector/issues/1000)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#1000](https://github.com/fonttools/fontspector/issues/1000)**
+    - Hide sourcefixes behind feature to slim deps ([`72c96f7`](https://github.com/fonttools/fontspector/commit/72c96f7ba104074edfb9f5e52a682faaa13cd1bd))
+</details>
+
 ## v1.0.8 (2026-09-18)
 
 ### Chore
@@ -23,7 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 3 commits contributed to the release over the course of 9 calendar days.
+ - 4 commits contributed to the release over the course of 9 calendar days.
  - 84 days passed between releases.
  - 3 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 3 unique issues were worked on: [#851](https://github.com/fonttools/fontspector/issues/851), [#898](https://github.com/fonttools/fontspector/issues/898), [#905](https://github.com/fonttools/fontspector/issues/905)
@@ -40,6 +70,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Move from dead fontations to skrifa/write_fonts ([`a193d56`](https://github.com/fonttools/fontspector/commit/a193d56a4e4051b2f464bc59b9351a4439c023ce))
  * **[#905](https://github.com/fonttools/fontspector/issues/905)**
     - Minimize the crates required by the hotfix crate ([`178f989`](https://github.com/fonttools/fontspector/commit/178f989dea5ccb0a2853fe9e32f7f6b270196b67))
+ * **Uncategorized**
+    - Release fontspector-profile-iso15008 v1.0.8 ([`f1d0081`](https://github.com/fonttools/fontspector/commit/f1d008160a56b55d870ee1fb3cf3f7e5fb7414c6))
 </details>
 
 ## v1.0.7 (2026-06-26)

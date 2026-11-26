@@ -7,15 +7,19 @@ use std::{
 };
 
 // No bad thing if we panic in tests
-use crate::{prelude::*, testfont, Check, CheckResult, Context, FileTypeConvert, StatusCode};
+use crate::{
+    prelude::*, testfont, Check, CheckResult, Context, FileTypeConvert, StatusCode, TestFont,
+};
 use skrifa::{
     raw::{types::NameId, TableProvider},
-    GlyphNames, MetadataProvider,
+    GlyphId, GlyphId16, GlyphNames, MetadataProvider,
 };
 use write_fonts::{
-    from_obj::ToOwnedTable,
+    from_obj::{FromTableRef, ToOwnedTable},
     tables::{
         cmap::Cmap,
+        glyf::{GlyfLocaBuilder, Glyph},
+        head::Head,
         name::{Name, NameRecord},
         os2::Os2,
     },
@@ -260,11 +264,109 @@ pub fn remove_name_entry(font: &mut Testable, nameid: NameId) {
 
 /// Remove a codepoint from the cmap of a font
 pub fn deencode_glyph(t: &mut Testable, codepoint: u32) -> Result<(), FontspectorError> {
+    deencode_glyphs(t, &[codepoint])
+}
+
+/// Return the glyph ID for a glyph name, if the font has a 'post' or 'CFF' table
+/// providing glyph names.
+pub fn glyph_id_for_name(f: &TestFont<'_>, glyph_name: &str) -> Option<GlyphId> {
+    GlyphNames::new(&f.font())
+        .iter()
+        .find(|(_gid, name)| name.as_str() == glyph_name)
+        .map(|(gid, _name)| gid)
+}
+
+/// Read a glyph from the 'glyf' table by name, as an owned write-fonts glyph.
+///
+/// Returns `None` if the font is not a TrueType font, or the glyph name is not
+/// present. Empty glyphs are returned as [`Glyph::Empty`].
+pub fn glyph_by_name(font: &Testable, glyph_name: &str) -> Option<Glyph> {
+    let f = TTF.from_testable(font)?;
+    let gid = glyph_id_for_name(&f, glyph_name)?;
+    let loca = f.font().loca(None).ok()?;
+    let glyf = f.font().glyf().ok()?;
+    match loca.get_glyf(gid, &glyf).ok()? {
+        Some(glyph) => Some(Glyph::from_table_ref(&glyph)),
+        None => Some(Glyph::Empty),
+    }
+}
+
+/// Replace a glyph in the 'glyf' table by name (for testing purposes only).
+///
+/// This rebuilds the 'glyf', 'loca' and 'head' tables using write-fonts, so the
+/// glyph data and loca offsets stay consistent.
+pub fn set_glyph(
+    font: &mut Testable,
+    glyph_name: &str,
+    new_glyph: &Glyph,
+) -> Result<(), FontspectorError> {
+    let f = TTF
+        .from_testable(font)
+        .ok_or_else(|| FontspectorError::General("Not a TrueType font".to_string()))?;
+    let target = glyph_id_for_name(&f, glyph_name).ok_or_else(|| {
+        FontspectorError::General(format!("No glyph named '{glyph_name}' in font"))
+    })?;
+    let loca = f.font().loca(None)?;
+    let glyf = f.font().glyf()?;
+    let mut builder = GlyfLocaBuilder::new();
+    for gid in f.all_glyphs() {
+        if gid == target {
+            builder.add_glyph(new_glyph)?;
+        } else if let Some(glyph) = loca.get_glyf(gid, &glyf)? {
+            builder.add_glyph(&Glyph::from_table_ref(&glyph))?;
+        } else {
+            builder.add_glyph(&Glyph::Empty)?;
+        }
+    }
+    let (glyf, loca, loca_format) = builder.build();
+    let mut head: Head = f.font().head()?.to_owned_table();
+    head.index_to_loc_format = loca_format as i16;
+    let new_bytes = FontBuilder::new()
+        .add_table(&glyf)?
+        .add_table(&loca)?
+        .add_table(&head)?
+        .copy_missing_tables(f.font())
+        .build();
+    font.contents = new_bytes;
+    Ok(())
+}
+
+/// Replace the GDEF table's GlyphClassDef with the given (glyph name, class)
+/// pairs (for testing purposes only).
+///
+/// This discards any other GDEF subtables (attachment points, ligature carets,
+/// mark attachment classes and mark glyph sets).
+pub fn set_gdef_glyph_classes(
+    font: &mut Testable,
+    classes: &[(&str, u16)],
+) -> Result<(), FontspectorError> {
+    use write_fonts::tables::{gdef::Gdef, layout::ClassDef};
+
+    let f = TTF
+        .from_testable(font)
+        .ok_or_else(|| FontspectorError::General("Not a TrueType font".to_string()))?;
+    let mut pairs = Vec::with_capacity(classes.len());
+    for (glyph_name, class) in classes {
+        let gid = glyph_id_for_name(&f, glyph_name).ok_or_else(|| {
+            FontspectorError::General(format!("No glyph named '{glyph_name}' in font"))
+        })?;
+        let gid = GlyphId16::try_from(gid)
+            .map_err(|_| FontspectorError::General(format!("Glyph {gid} is out of range")))?;
+        pairs.push((gid, *class));
+    }
+    let class_def: ClassDef = pairs.into_iter().collect();
+    let gdef = Gdef::new(Some(class_def), None, None, None);
+    font.contents = f.rebuild_with_new_table(&gdef)?;
+    Ok(())
+}
+
+/// Remove a set of codepoints from a font's cmap (for testing purposes only).
+pub fn deencode_glyphs(t: &mut Testable, codepoints: &[u32]) -> Result<(), FontspectorError> {
     let f = testfont!(t);
     let charmap = f.font().charmap();
     let mappings: Vec<_> = charmap
         .mappings()
-        .filter(|(cp, _)| *cp != codepoint)
+        .filter(|(cp, _)| !codepoints.contains(cp))
         .collect();
     let new_cmap = Cmap::from_mappings(
         mappings
@@ -273,6 +375,39 @@ pub fn deencode_glyph(t: &mut Testable, codepoint: u32) -> Result<(), Fontspecto
     )
     .map_err(|e| FontspectorError::General(format!("Failed to create new cmap: {e}")))?;
     t.set(f.rebuild_with_new_table(&new_cmap)?);
+    Ok(())
+}
+
+/// Set the same advance width for every glyph in a font (for testing purposes only).
+///
+/// This rewrites both 'hmtx' and 'hhea', keeping `hhea.numberOfHMetrics` and
+/// `hhea.advanceWidthMax` consistent with the new metrics.
+pub fn set_all_advance_widths(t: &mut Testable, advance: u16) -> Result<(), FontspectorError> {
+    use write_fonts::tables::{
+        hhea::Hhea,
+        hmtx::{Hmtx, LongMetric},
+    };
+
+    let f = testfont!(t);
+    let num_glyphs = f.font().maxp()?.num_glyphs();
+    let hmtx = Hmtx {
+        h_metrics: (0..num_glyphs)
+            .map(|_| LongMetric {
+                advance,
+                side_bearing: 0,
+            })
+            .collect(),
+        left_side_bearings: vec![],
+    };
+    let mut hhea: Hhea = f.font().hhea()?.to_owned_table();
+    hhea.number_of_h_metrics = num_glyphs;
+    hhea.advance_width_max = advance.into();
+    let new_bytes = FontBuilder::new()
+        .add_table(&hhea)?
+        .add_table(&hmtx)?
+        .copy_missing_tables(f.font())
+        .build();
+    t.contents = new_bytes;
     Ok(())
 }
 

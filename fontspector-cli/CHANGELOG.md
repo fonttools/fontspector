@@ -5,7 +5,52 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.9.1 (2026-11-11)
+
+### Chore
+
+ - <csr-id-1614254ac809b94fc56987ae60f9ec0f728572fa/> Oops dependency
+
+### Other
+
+ - <csr-id-bf42b32d349e33d9f91ad87b78ab41614d5c344e/> Release fontspector-profile-microsoft v0.1.0
+ - <csr-id-48e29ee72c0d32e4278e235056cbb24d8db9a207/> Various build improvements
+   * build: Remove old silfonts plugin binary
+   
+   * build: Monotype plugin requires Microsoft plugin so it must be published
+   
+   * feat: Expose Microsoft profile
+   
+   * chore: Oops dependency
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 3 commits contributed to the release.
+ - 1 day passed between releases.
+ - 3 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 2 unique issues were worked on: [#1019](https://github.com/fonttools/fontspector/issues/1019), [#1023](https://github.com/fonttools/fontspector/issues/1023)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#1019](https://github.com/fonttools/fontspector/issues/1019)**
+    - Various build improvements ([`48e29ee`](https://github.com/fonttools/fontspector/commit/48e29ee72c0d32e4278e235056cbb24d8db9a207))
+ * **[#1023](https://github.com/fonttools/fontspector/issues/1023)**
+    - Oops dependency ([`1614254`](https://github.com/fonttools/fontspector/commit/1614254ac809b94fc56987ae60f9ec0f728572fa))
+ * **Uncategorized**
+    - Release fontspector-profile-microsoft v0.1.0 ([`bf42b32`](https://github.com/fonttools/fontspector/commit/bf42b32d349e33d9f91ad87b78ab41614d5c344e))
+</details>
+
 ## v1.9.0 (2026-10-09)
+
+### Other
+
+ - <csr-id-d9d0f7b0b2f158b6950df61be97d3ccff3e1f7e8/> Release fontspector v1.9.0
 
 ### New Features
 
@@ -70,9 +115,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 1 commit contributed to the release over the course of 2 calendar days.
+ - 2 commits contributed to the release over the course of 2 calendar days.
  - 21 days passed between releases.
- - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
+ - 2 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 1 unique issue was worked on: [#315](https://github.com/fonttools/fontspector/issues/315)
 
 ### Commit Details
@@ -83,6 +128,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
  * **[#315](https://github.com/fonttools/fontspector/issues/315)**
     - Source fixing ([`5ac424d`](https://github.com/fonttools/fontspector/commit/5ac424de337de94d8f09835b3dc2cf41223a7a5b))
+ * **Uncategorized**
+    - Release fontspector v1.9.0 ([`d9d0f7b`](https://github.com/fonttools/fontspector/commit/d9d0f7b0b2f158b6950df61be97d3ccff3e1f7e8))
 </details>
 
 ## v1.8.0 (2026-09-18)

@@ -6,7 +6,10 @@ use fontspector_checkapi::{
 use hashbrown::{HashMap, HashSet};
 use skrifa::{
     raw::{
-        tables::{gdef::GlyphClassDef, gpos::PositionSubtables},
+        tables::{
+            gdef::GlyphClassDef,
+            gpos::{MarkBasePos, PositionSubtables},
+        },
         TableProvider,
     },
     GlyphId, MetadataProvider,
@@ -58,21 +61,19 @@ fn find_all_attachments(
     let mut does_attach = HashSet::new();
     let mut attachments = HashMap::new();
     for attachment in attachment_rules {
-        let (base_coverage, mark_coverage) = match &attachment {
-            skrifa::raw::tables::gpos::MarkBasePos::Format1(t) => {
-                (t.base_coverage()?, t.mark_coverage()?)
-            }
-            skrifa::raw::tables::gpos::MarkBasePos::Format2(t) => {
-                (t.base_coverage()?, t.mark_coverage()?)
-            }
+        let base_coverage = match &attachment {
+            MarkBasePos::Format1(m1) => m1.base_coverage(),
+            MarkBasePos::Format2(m2) => m2.base_coverage(),
         };
-        for base in base_coverage.iter() {
-            for mark in mark_coverage.iter() {
-                attachments
-                    .entry(base.into())
-                    .or_insert_with(Vec::new)
-                    .push(mark.into());
-                does_attach.insert(mark.into());
+        for base in base_coverage?.iter() {
+            let mark_coverage = match &attachment {
+                MarkBasePos::Format1(m1) => m1.mark_coverage(),
+                MarkBasePos::Format2(m2) => m2.mark_coverage(),
+            };
+
+            for mark in mark_coverage?.iter() {
+                attachments.entry(base).or_insert_with(Vec::new).push(mark);
+                does_attach.insert(mark);
             }
         }
     }

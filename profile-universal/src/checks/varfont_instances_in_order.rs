@@ -64,13 +64,39 @@ fn varfont_instances_in_order(t: &Testable, context: &Context) -> CheckFnResult 
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
     use super::varfont_instances_in_order;
-    use fontspector_checkapi::codetesting::{assert_pass, run_check, test_able};
+    use fontspector_checkapi::codetesting::{
+        assert_pass, assert_results_contain, run_check, test_able,
+    };
+    use fontspector_checkapi::{FileTypeConvert, StatusCode, TTF};
+    use skrifa::raw::TableProvider;
+    use write_fonts::from_obj::ToOwnedTable;
+    use write_fonts::tables::fvar::Fvar;
 
     #[test]
     fn test_varfont_instances_in_order_pass() {
         let testable = test_able("ibmplexsans-vf/IBMPlexSansVar-Roman.ttf");
         let results = run_check(varfont_instances_in_order, testable);
         assert_pass(&results);
+    }
+
+    #[test]
+    fn test_varfont_instances_in_order_fail() {
+        let mut testable = test_able("cabinvfbeta/CabinVFBeta.ttf");
+        let f = TTF.from_testable(&testable).unwrap();
+        let mut fvar: Fvar = f.font().fvar().unwrap().to_owned_table();
+        // Move the second instance to the front
+        fvar.axis_instance_arrays.instances.swap(0, 1);
+        let new_bytes = f.rebuild_with_new_table(&fvar).unwrap();
+        testable.set(new_bytes);
+
+        let results = run_check(varfont_instances_in_order, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Fail,
+            Some("instances-not-in-order".to_string()),
+        );
     }
 }

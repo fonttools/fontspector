@@ -1,18 +1,24 @@
 // Code to make GSUB tables easier to work with
-use skrifa::raw::{
-    tables::{
-        gsub::{
-            AlternateSubst, ExtensionSubstFormat1, LigatureSubst, MultipleSubst,
-            ReverseChainSingleSubst, SingleSubst, SubstitutionSubtables,
+use skrifa::{
+    raw::{
+        tables::{
+            gsub::{
+                AlternateSubst, AlternateSubstFormat1, AlternateSubstFormat2,
+                ExtensionSubstFormat1, LigatureSubst, LigatureSubstFormat1, LigatureSubstFormat2,
+                MultipleSubst, MultipleSubstFormat1, MultipleSubstFormat2, ReverseChainSingleSubst,
+                ReverseChainSingleSubstFormat1, ReverseChainSingleSubstFormat2, SingleSubst,
+                SingleSubstFormat1, SingleSubstFormat2, SingleSubstFormat3, SingleSubstFormat4,
+                SubstitutionSubtables,
+            },
+            layout::Subtables,
         },
-        layout::Subtables,
+        ReadError,
     },
-    types::{GlyphId, GlyphId16, GlyphId24},
-    ReadError,
+    GlyphId,
 };
 
 /// A map of substitutions, input glyphs on the left, output glyphs on the right
-pub type SubstitutionMap = Vec<(Vec<GlyphId16>, Vec<GlyphId16>)>;
+pub type SubstitutionMap = Vec<(Vec<GlyphId>, Vec<GlyphId>)>;
 
 /// A trait to get a substitution map from a GSUB subtable
 pub trait GetSubstitutionMap {
@@ -23,46 +29,73 @@ pub trait GetSubstitutionMap {
 /// This type isn't public in `read-fonts` so copy it in
 type SubSubtables<'a, T> = Subtables<'a, T, ExtensionSubstFormat1<'a, T>>;
 
-fn gid16_from(gid: impl Into<GlyphId>) -> Option<GlyphId16> {
-    GlyphId16::try_from(gid.into()).ok()
+impl<'a> GetSubstitutionMap for SingleSubstFormat1<'a> {
+    fn substitutions(&self) -> Result<SubstitutionMap, ReadError> {
+        let delta = self.delta_glyph_id() as i32;
+        Ok(self
+            .coverage()?
+            .iter()
+            .map(|old_gid| {
+                let new_gid = GlyphId::from((old_gid.to_u32() as i32 + delta) as u16);
+                (vec![old_gid], vec![new_gid])
+            })
+            .collect())
+    }
 }
 
-fn gid16_from_24(gid: GlyphId24) -> Option<GlyphId16> {
-    GlyphId16::try_from(GlyphId::from(gid.to_u32())).ok()
+impl<'a> GetSubstitutionMap for SingleSubstFormat2<'a> {
+    fn substitutions(&self) -> Result<SubstitutionMap, ReadError> {
+        Ok(self
+            .coverage()?
+            .iter()
+            .zip(self.substitute_glyph_ids().iter().map(|gid| gid.get()))
+            .map(|(old_gid, new_gid)| (vec![old_gid], vec![GlyphId::from(new_gid)]))
+            .collect())
+    }
+}
+
+impl<'a> GetSubstitutionMap for SingleSubstFormat3<'a> {
+    fn substitutions(&self) -> Result<SubstitutionMap, ReadError> {
+        let delta = self.delta_glyph_id().to_i32();
+        Ok(self
+            .coverage()?
+            .iter()
+            .map(|old_gid| {
+                let new_gid = GlyphId::from((old_gid.to_u32() as i32 + delta) as u16);
+                (vec![old_gid], vec![new_gid])
+            })
+            .collect())
+    }
+}
+
+impl<'a> GetSubstitutionMap for SingleSubstFormat4<'a> {
+    fn substitutions(&self) -> Result<SubstitutionMap, ReadError> {
+        Ok(self
+            .coverage()?
+            .iter()
+            .zip(self.substitute_glyph_ids().iter().map(|gid| gid.get()))
+            .map(|(old_gid, new_gid)| (vec![old_gid], vec![GlyphId::from(new_gid)]))
+            .collect())
+    }
 }
 
 impl<'a> GetSubstitutionMap for SubSubtables<'a, SingleSubst<'a>> {
-    fn substitutions(&self) -> Result<Vec<(Vec<GlyphId16>, Vec<GlyphId16>)>, ReadError> {
+    fn substitutions(&self) -> Result<SubstitutionMap, ReadError> {
         let mut result = vec![];
         for subtable in self.iter() {
             match subtable? {
                 SingleSubst::Format1(table_ref) => {
-                    let delta = table_ref.delta_glyph_id() as i32;
-                    for old_gid in table_ref.coverage()?.iter() {
-                        let Some(old) = gid16_from(old_gid) else {
-                            continue;
-                        };
-                        let new_gid = GlyphId16::from((old.to_u32() as i32 + delta) as u16);
-                        result.push((vec![old], vec![new_gid]));
-                    }
+                    result.extend(table_ref.substitutions()?);
                 }
                 SingleSubst::Format2(table_ref) => {
-                    for (old_gid, new_gid) in table_ref
-                        .coverage()?
-                        .iter()
-                        .zip(table_ref.substitute_glyph_ids().iter().map(|gid| gid.get()))
-                    {
-                        let Some(old) = gid16_from(old_gid) else {
-                            continue;
-                        };
-                        let Some(new) = gid16_from(new_gid) else {
-                            continue;
-                        };
-                        result.push((vec![old], vec![new]));
-                    }
+                    result.extend(table_ref.substitutions()?);
                 }
-                // Format3/4 use 24-bit glyph IDs; unused by checks today.
-                _ => {}
+                SingleSubst::Format3(single_subst_format3) => {
+                    result.extend(single_subst_format3.substitutions()?);
+                }
+                SingleSubst::Format4(single_subst_format4) => {
+                    result.extend(single_subst_format4.substitutions()?);
+                }
             }
         }
         Ok(result)
@@ -70,88 +103,68 @@ impl<'a> GetSubstitutionMap for SubSubtables<'a, SingleSubst<'a>> {
 }
 
 impl<'a> GetSubstitutionMap for SubSubtables<'a, MultipleSubst<'a>> {
-    fn substitutions(&self) -> Result<Vec<(Vec<GlyphId16>, Vec<GlyphId16>)>, ReadError> {
+    fn substitutions(&self) -> Result<SubstitutionMap, ReadError> {
         let mut result = vec![];
         for subtable in self.iter() {
             match subtable? {
-                MultipleSubst::Format1(subtable) => {
-                    for (old_gid, sequence) in subtable
-                        .coverage()?
-                        .iter()
-                        .zip(subtable.sequences().iter().flatten())
-                    {
-                        let Some(old) = gid16_from(old_gid) else {
-                            continue;
-                        };
-                        let new_gids = sequence
-                            .substitute_glyph_ids()
-                            .iter()
-                            .filter_map(|gid| gid16_from(gid.get()))
-                            .collect();
-                        result.push((vec![old], new_gids));
-                    }
+                MultipleSubst::Format1(table_ref) => {
+                    result.extend(table_ref.substitutions()?);
                 }
-                MultipleSubst::Format2(subtable) => {
-                    for (old_gid, sequence) in subtable
-                        .coverage()?
-                        .iter()
-                        .zip(subtable.sequences().iter().flatten())
-                    {
-                        let Some(old) = gid16_from(old_gid) else {
-                            continue;
-                        };
-                        let new_gids = sequence
-                            .substitute_glyph_ids()
-                            .iter()
-                            .filter_map(|gid| gid16_from_24(gid.get()))
-                            .collect();
-                        result.push((vec![old], new_gids));
-                    }
+                MultipleSubst::Format2(table_ref) => {
+                    result.extend(table_ref.substitutions()?);
                 }
             }
         }
         Ok(result)
+    }
+}
+
+impl<'a> GetSubstitutionMap for MultipleSubstFormat1<'a> {
+    fn substitutions(&self) -> Result<SubstitutionMap, ReadError> {
+        Ok(self
+            .coverage()?
+            .iter()
+            .zip(self.sequences().iter().flatten())
+            .map(|(old_gid, sequence)| {
+                let new_gids = sequence
+                    .substitute_glyph_ids()
+                    .iter()
+                    .map(|gid| GlyphId::from(gid.get()))
+                    .collect();
+                (vec![old_gid], new_gids)
+            })
+            .collect())
+    }
+}
+
+impl<'a> GetSubstitutionMap for MultipleSubstFormat2<'a> {
+    fn substitutions(&self) -> Result<SubstitutionMap, ReadError> {
+        Ok(self
+            .coverage()?
+            .iter()
+            .zip(self.sequences().iter().flatten())
+            .map(|(old_gid, sequence)| {
+                let new_gids = sequence
+                    .substitute_glyph_ids()
+                    .iter()
+                    .map(|gid| GlyphId::from(gid.get()))
+                    .collect();
+                (vec![old_gid], new_gids)
+            })
+            .collect())
     }
 }
 
 impl<'a> GetSubstitutionMap for SubSubtables<'a, AlternateSubst<'a>> {
-    fn substitutions(&self) -> Result<Vec<(Vec<GlyphId16>, Vec<GlyphId16>)>, ReadError> {
+    fn substitutions(&self) -> Result<SubstitutionMap, ReadError> {
         let mut result = vec![];
         for subtable in self.iter() {
             match subtable? {
-                AlternateSubst::Format1(subtable) => {
-                    for (old_gid, sequence) in subtable
-                        .coverage()?
-                        .iter()
-                        .zip(subtable.alternate_sets().iter().flatten())
-                    {
-                        let Some(old) = gid16_from(old_gid) else {
-                            continue;
-                        };
-                        let new_gids = sequence
-                            .alternate_glyph_ids()
-                            .iter()
-                            .filter_map(|gid| gid16_from(gid.get()))
-                            .collect();
-                        result.push((vec![old], new_gids));
-                    }
+                AlternateSubst::Format1(table_ref) => {
+                    result.extend(table_ref.substitutions()?);
                 }
-                AlternateSubst::Format2(subtable) => {
-                    for (old_gid, sequence) in subtable
-                        .coverage()?
-                        .iter()
-                        .zip(subtable.alternate_sets().iter().flatten())
-                    {
-                        let Some(old) = gid16_from(old_gid) else {
-                            continue;
-                        };
-                        let new_gids = sequence
-                            .alternate_glyph_ids()
-                            .iter()
-                            .filter_map(|gid| gid16_from_24(gid.get()))
-                            .collect();
-                        result.push((vec![old], new_gids));
-                    }
+                AlternateSubst::Format2(table_ref) => {
+                    result.extend(table_ref.substitutions()?);
                 }
             }
         }
@@ -159,55 +172,99 @@ impl<'a> GetSubstitutionMap for SubSubtables<'a, AlternateSubst<'a>> {
     }
 }
 
+impl<'a> GetSubstitutionMap for AlternateSubstFormat1<'a> {
+    fn substitutions(&self) -> Result<SubstitutionMap, ReadError> {
+        Ok(self
+            .coverage()?
+            .iter()
+            .zip(self.alternate_sets().iter().flatten())
+            .map(|(old_gid, sequence)| {
+                let new_gids = sequence
+                    .alternate_glyph_ids()
+                    .iter()
+                    .map(|gid| GlyphId::from(gid.get()))
+                    .collect();
+                (vec![old_gid], new_gids)
+            })
+            .collect::<Vec<_>>())
+    }
+}
+
+impl<'a> GetSubstitutionMap for AlternateSubstFormat2<'a> {
+    fn substitutions(&self) -> Result<SubstitutionMap, ReadError> {
+        Ok(self
+            .coverage()?
+            .iter()
+            .zip(self.alternate_sets().iter().flatten())
+            .map(|(old_gid, sequence)| {
+                let new_gids = sequence
+                    .alternate_glyph_ids()
+                    .iter()
+                    .map(|gid| GlyphId::from(gid.get()))
+                    .collect();
+                (vec![old_gid], new_gids)
+            })
+            .collect::<Vec<_>>())
+    }
+}
+
 impl<'a> GetSubstitutionMap for SubSubtables<'a, LigatureSubst<'a>> {
-    fn substitutions(&self) -> Result<Vec<(Vec<GlyphId16>, Vec<GlyphId16>)>, ReadError> {
+    fn substitutions(&self) -> Result<SubstitutionMap, ReadError> {
         let mut result = vec![];
         for subtable in self.iter() {
             match subtable? {
-                LigatureSubst::Format1(subtable) => {
-                    for (first_gid, sequence) in subtable
-                        .coverage()?
-                        .iter()
-                        .zip(subtable.ligature_sets().iter().flatten())
-                    {
-                        let Some(first) = gid16_from(first_gid) else {
-                            continue;
-                        };
-                        for ligature in sequence.ligatures().iter().flatten() {
-                            let remaining_gids = ligature
-                                .component_glyph_ids()
-                                .iter()
-                                .filter_map(|gid| gid16_from(gid.get()));
-                            let new_gid = ligature.ligature_glyph();
-                            let mut lhs = vec![first];
-                            lhs.extend(remaining_gids);
-                            result.push((lhs, vec![new_gid]));
-                        }
-                    }
+                LigatureSubst::Format1(table_ref) => {
+                    result.extend(table_ref.substitutions()?);
                 }
-                LigatureSubst::Format2(subtable) => {
-                    for (first_gid, sequence) in subtable
-                        .coverage()?
-                        .iter()
-                        .zip(subtable.ligature_sets().iter().flatten())
-                    {
-                        let Some(first) = gid16_from(first_gid) else {
-                            continue;
-                        };
-                        for ligature in sequence.ligatures().iter().flatten() {
-                            let remaining_gids = ligature
-                                .component_glyph_ids()
-                                .iter()
-                                .filter_map(|gid| gid16_from_24(gid.get()));
-                            let Some(new_gid) = gid16_from_24(ligature.ligature_glyph()) else {
-                                continue;
-                            };
-                            let mut lhs = vec![first];
-                            lhs.extend(remaining_gids);
-                            result.push((lhs, vec![new_gid]));
-                        }
-                    }
+                LigatureSubst::Format2(table_ref) => {
+                    result.extend(table_ref.substitutions()?);
                 }
+            }
+        }
+        Ok(result)
+    }
+}
+
+impl<'a> GetSubstitutionMap for LigatureSubstFormat1<'a> {
+    fn substitutions(&self) -> Result<SubstitutionMap, ReadError> {
+        let mut result = vec![];
+        for (first_gid, sequence) in self
+            .coverage()?
+            .iter()
+            .zip(self.ligature_sets().iter().flatten())
+        {
+            for ligature in sequence.ligatures().iter().flatten() {
+                let remaining_gids = ligature
+                    .component_glyph_ids()
+                    .iter()
+                    .map(|gid| GlyphId::from(gid.get()));
+                let new_gid = GlyphId::from(ligature.ligature_glyph());
+                let mut lhs = vec![first_gid];
+                lhs.extend(remaining_gids);
+                result.push((lhs, vec![new_gid]));
+            }
+        }
+        Ok(result)
+    }
+}
+
+impl<'a> GetSubstitutionMap for LigatureSubstFormat2<'a> {
+    fn substitutions(&self) -> Result<SubstitutionMap, ReadError> {
+        let mut result = vec![];
+        for (first_gid, sequence) in self
+            .coverage()?
+            .iter()
+            .zip(self.ligature_sets().iter().flatten())
+        {
+            for ligature in sequence.ligatures().iter().flatten() {
+                let remaining_gids = ligature
+                    .component_glyph_ids()
+                    .iter()
+                    .map(|gid| GlyphId::from(gid.get()));
+                let new_gid = GlyphId::from(ligature.ligature_glyph());
+                let mut lhs = vec![first_gid];
+                lhs.extend(remaining_gids);
+                result.push((lhs, vec![new_gid]));
             }
         }
         Ok(result)
@@ -215,54 +272,53 @@ impl<'a> GetSubstitutionMap for SubSubtables<'a, LigatureSubst<'a>> {
 }
 
 impl<'a> GetSubstitutionMap for SubSubtables<'a, ReverseChainSingleSubst<'a>> {
-    fn substitutions(&self) -> Result<Vec<(Vec<GlyphId16>, Vec<GlyphId16>)>, ReadError> {
+    fn substitutions(&self) -> Result<SubstitutionMap, ReadError> {
         let mut result = vec![];
         for subtable in self.iter() {
             match subtable? {
-                ReverseChainSingleSubst::Format1(subtable) => {
-                    for (lgid, rgid) in subtable
-                        .coverage()?
-                        .iter()
-                        .zip(subtable.substitute_glyph_ids().iter())
-                    {
-                        let Some(left) = gid16_from(lgid) else {
-                            continue;
-                        };
-                        let Some(right) = gid16_from(rgid.get()) else {
-                            continue;
-                        };
-                        result.push((vec![left], vec![right]));
-                    }
+                ReverseChainSingleSubst::Format1(table_ref) => {
+                    result.extend(table_ref.substitutions()?);
                 }
-                ReverseChainSingleSubst::Format2(subtable) => {
-                    for (lgid, rgid) in subtable
-                        .coverage()?
-                        .iter()
-                        .zip(subtable.substitute_glyph_ids().iter())
-                    {
-                        let Some(left) = gid16_from(lgid) else {
-                            continue;
-                        };
-                        let Some(right) = gid16_from_24(rgid.get()) else {
-                            continue;
-                        };
-                        result.push((vec![left], vec![right]));
-                    }
+                ReverseChainSingleSubst::Format2(table_ref) => {
+                    result.extend(table_ref.substitutions()?);
                 }
             }
         }
         Ok(result)
     }
 }
+impl<'a> GetSubstitutionMap for ReverseChainSingleSubstFormat1<'a> {
+    fn substitutions(&self) -> Result<SubstitutionMap, ReadError> {
+        Ok(self
+            .coverage()?
+            .iter()
+            .zip(self.substitute_glyph_ids().iter())
+            .map(|(lgid, rgid)| (vec![lgid], vec![GlyphId::from(rgid.get())]))
+            .collect::<Vec<_>>())
+    }
+}
+
+impl<'a> GetSubstitutionMap for ReverseChainSingleSubstFormat2<'a> {
+    fn substitutions(&self) -> Result<SubstitutionMap, ReadError> {
+        Ok(self
+            .coverage()?
+            .iter()
+            .zip(self.substitute_glyph_ids().iter())
+            .map(|(lgid, rgid)| (vec![lgid], vec![GlyphId::from(rgid.get())]))
+            .collect::<Vec<_>>())
+    }
+}
 impl GetSubstitutionMap for SubstitutionSubtables<'_> {
-    fn substitutions(&self) -> Result<Vec<(Vec<GlyphId16>, Vec<GlyphId16>)>, ReadError> {
+    fn substitutions(&self) -> Result<SubstitutionMap, ReadError> {
         match self {
             SubstitutionSubtables::Single(st) => st.substitutions(),
             SubstitutionSubtables::Multiple(st) => st.substitutions(),
             SubstitutionSubtables::Alternate(st) => st.substitutions(),
             SubstitutionSubtables::Ligature(st) => st.substitutions(),
             SubstitutionSubtables::Reverse(st) => st.substitutions(),
-            _ => Ok(vec![]),
+            SubstitutionSubtables::Contextual(_)
+            | SubstitutionSubtables::ChainContextual(_)
+            | SubstitutionSubtables::EmptyExtension => Ok(vec![]),
         }
     }
 }

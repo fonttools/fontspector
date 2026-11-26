@@ -167,6 +167,7 @@ fn repeating_characters_in_a_row(s: &str) -> Vec<char> {
     repeated
 }
 
+#[allow(clippy::unwrap_used)]
 #[cfg(test)]
 mod tests {
     use super::repeating_characters;

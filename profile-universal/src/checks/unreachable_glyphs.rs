@@ -1,8 +1,6 @@
 use std::collections::HashSet;
 
-use fontspector_checkapi::{
-    prelude::*, testfont, FileTypeConvert, GetSubstitutionMap, Metadata, SourceFile,
-};
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, GetSubstitutionMap, Metadata};
 use itertools::Itertools;
 use serde_json::json;
 use skrifa::{
@@ -102,7 +100,7 @@ fn unreachable_glyphs(t: &Testable, context: &Context) -> CheckFnResult {
             let substitutions = lookup.subtables()?.substitutions()?;
             for (_lhs, rhs) in substitutions {
                 for gid in rhs.iter() {
-                    glyphs.remove(&GlyphId::from(*gid));
+                    glyphs.remove(gid);
                 }
             }
         }
@@ -117,7 +115,7 @@ fn unreachable_glyphs(t: &Testable, context: &Context) -> CheckFnResult {
             Simple(_) => {}
             Composite(composite) => {
                 for component in composite.components() {
-                    glyphs.remove(&component.glyph.into());
+                    glyphs.remove(&component.glyph);
                 }
             }
         }
@@ -149,8 +147,9 @@ fn unreachable_glyphs(t: &Testable, context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
+#[cfg(feature = "sourcefix")]
 fn sourcefix_unreachable_glyphs(
-    source: &mut SourceFile,
+    source: &mut fontspector_checkapi::source::SourceFile,
     problems: &[Status],
     _replies: Option<MoreInfoReplies>,
 ) -> Result<FixResult, FontspectorError> {

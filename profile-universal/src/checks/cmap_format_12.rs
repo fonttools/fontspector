@@ -84,6 +84,7 @@ fn cmap_format_12(t: &Testable, context: &Context) -> CheckFnResult {
     }
 }
 
+#[allow(clippy::unwrap_used, clippy::indexing_slicing)]
 #[cfg(test)]
 mod tests {
     use super::*;

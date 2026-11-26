@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.3.4 (2026-11-10)
+
+### Chore
+
+ - <csr-id-72c96f7ba104074edfb9f5e52a682faaa13cd1bd/> Hide sourcefixes behind feature to slim deps
+   * chore: Lint fixups
+   
+   * chore: Hide sourcefixes behind feature to slim deps
+   
+   * chore: Work under unification
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 1 commit contributed to the release.
+ - 53 days passed between releases.
+ - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
+ - 1 unique issue was worked on: [#1000](https://github.com/fonttools/fontspector/issues/1000)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#1000](https://github.com/fonttools/fontspector/issues/1000)**
+    - Hide sourcefixes behind feature to slim deps ([`72c96f7`](https://github.com/fonttools/fontspector/commit/72c96f7ba104074edfb9f5e52a682faaa13cd1bd))
+</details>
+
 ## v1.3.3 (2026-09-18)
 
 ### Chore
@@ -33,7 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 3 commits contributed to the release over the course of 9 calendar days.
+ - 4 commits contributed to the release over the course of 9 calendar days.
  - 84 days passed between releases.
  - 3 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 3 unique issues were worked on: [#898](https://github.com/fonttools/fontspector/issues/898), [#905](https://github.com/fonttools/fontspector/issues/905), [#916](https://github.com/fonttools/fontspector/issues/916)
@@ -50,6 +80,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Minimize the crates required by the hotfix crate ([`178f989`](https://github.com/fonttools/fontspector/commit/178f989dea5ccb0a2853fe9e32f7f6b270196b67))
  * **[#916](https://github.com/fonttools/fontspector/issues/916)**
     - Extend excludes ([`9f223e7`](https://github.com/fonttools/fontspector/commit/9f223e7b4504844293c9a16ef2fa613bbc255598))
+ * **Uncategorized**
+    - Release fontspector-profile-fontwerk v1.3.3 ([`c920adf`](https://github.com/fonttools/fontspector/commit/c920adfa725459b54443c09cda20eaaf3405da0f))
 </details>
 
 ## v1.3.2 (2026-06-26)
@@ -307,7 +339,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <csr-unknown>
 <csr-unknown>
 <csr-unknown>
+<csr-unknown>
 Don’t bump the version number manually, this will happen automatically on release<csr-unknown/>
+<csr-unknown/>
 <csr-unknown/>
 <csr-unknown/>
 <csr-unknown/>

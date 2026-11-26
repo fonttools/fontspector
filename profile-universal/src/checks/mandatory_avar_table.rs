@@ -38,7 +38,9 @@ mod tests {
 
     use super::mandatory_avar_table;
     use fontspector_checkapi::{
-        codetesting::{assert_pass, assert_results_contain, remove_table, run_check, test_able},
+        codetesting::{
+            assert_pass, assert_results_contain, assert_skip, remove_table, run_check, test_able,
+        },
         StatusCode,
     };
 
@@ -47,6 +49,13 @@ mod tests {
         let testable = test_able("ibmplexsans-vf/IBMPlexSansVar-Roman.ttf");
         let results = run_check(mandatory_avar_table, testable);
         assert_pass(&results);
+    }
+
+    #[test]
+    fn test_mandatory_avar_skip_not_variable() {
+        let testable = test_able("mada/Mada-Regular.ttf");
+        let results = run_check(mandatory_avar_table, testable);
+        assert_skip(&results);
     }
 
     #[test]

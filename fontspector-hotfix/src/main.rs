@@ -89,7 +89,11 @@ fn main() {
     });
 
     // Apply hotfixes
-    match fontspector_hotfix::apply_hotfixes(&mut testable, &check_ids, interactive) {
+    match if interactive {
+        fontspector_hotfix::apply_hotfixes_interactive(&mut testable, &check_ids)
+    } else {
+        fontspector_hotfix::apply_hotfixes(&mut testable, &check_ids)
+    } {
         Ok(modified) => {
             if modified {
                 // Save the file

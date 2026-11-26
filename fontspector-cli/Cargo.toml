@@ -1,6 +1,6 @@
 [package]
 name = "fontspector"
-version = "1.9.0"
+version = "1.9.1"
 authors = ["Simon Cozens <simon@simon-cozens.org>"]
 edition = "2021"
 description = "Quality control for OpenType fonts"
@@ -13,7 +13,6 @@ readme = "../README.md"
 pkg-url = "{ repo }/releases/download/fontspector-v{ version }/{ name }-v{ version }-{target}{ archive-suffix }"
 
 [features]
-python = ["fontspector-checkapi/python"]
 fontc = ["dep:fontc", "dep:glyphs2fontir", "dep:fontir"]
 
 [build-dependencies]
@@ -25,14 +24,33 @@ shadow-rs = "2.0.0"
 [dependencies]
 fontspector-checkapi = { path = "../fontspector-checkapi", version = "1.0.0", features = [
     "clap",
+    "sourcefix",
 ] }
 # These profiles are baked-in
-profile-universal = { path = "../profile-universal", version = "1.0.0", package = "fontspector-profile-universal" }
-profile-fontwerk = { path = "../profile-fontwerk", version = "1.0.0", package = "fontspector-profile-fontwerk" }
-profile-opentype = { path = "../profile-opentype", version = "1.0.0", package = "fontspector-profile-opentype" }
-profile-iso15008 = { path = "../profile-iso15008", version = "1.0.0", package = "fontspector-profile-iso15008" }
-profile-googlefonts = { path = "../profile-googlefonts", version = "1.0.0", package = "fontspector-profile-googlefonts" }
+profile-universal = { path = "../profile-universal", version = "1.0.0", package = "fontspector-profile-universal", features = [
+    "sourcefix",
+] }
+profile-fontwerk = { path = "../profile-fontwerk", version = "1.0.0", package = "fontspector-profile-fontwerk", features = [
+    "sourcefix",
+] }
+profile-opentype = { path = "../profile-opentype", version = "1.0.0", package = "fontspector-profile-opentype", features = [
+    "sourcefix",
+] }
+profile-iso15008 = { path = "../profile-iso15008", version = "1.0.0", package = "fontspector-profile-iso15008", features = [
+    "sourcefix",
+] }
+profile-googlefonts = { path = "../profile-googlefonts", version = "1.0.0", package = "fontspector-profile-googlefonts", features = [
+    "sourcefix",
+] }
+profile-microsoft = { path = "../profile-microsoft", version = "^0.1.0", package = "fontspector-profile-microsoft", features = [
+    "sourcefix",
+] }
+# Monotype doesn't have any source fixes yet. I mean, neither do many
+# others, but it doesn't even declare the feature.
 profile-monotype = { path = "../profile-monotype", version = "1.0.0", package = "fontspector-profile-monotype" }
+profile-silfonts = { path = "../profile-silfonts", version = "1.0.0", package = "fontspector-profile-silfonts", features = [
+    "sourcefix",
+] }
 clap = { version = "4", features = ["derive", "string"] }
 itertools = { workspace = true }
 log = { workspace = true }
@@ -65,9 +83,9 @@ chrono = "0.4"
 markdown = "1.0.0-alpha.23"
 indexmap = { workspace = true }
 
-fontc = { version = "1.0.0", optional = true }
-glyphs2fontir = { version = "1.0.0", optional = true }
-fontir = { version = "1.0.0", optional = true }
+fontc = { version = "2.0.0", optional = true }
+glyphs2fontir = { version = "2.0.0", optional = true }
+fontir = { version = "2.0.0", optional = true }
 dialoguer = "0.12.0"
 
 [lints]

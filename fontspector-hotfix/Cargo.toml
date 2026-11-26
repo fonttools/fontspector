@@ -1,6 +1,6 @@
 [package]
 name = "fontspector-hotfix"
-version = "0.6.0"
+version = "0.7.0"
 edition = "2021"
 description = "Simple hotfix tool for applying font QA fixes"
 license = "MIT OR Apache-2.0"
@@ -19,8 +19,8 @@ path = "src/main.rs"
 fontspector-checkapi = { path = "../fontspector-checkapi", version = "1.4.0" }
 log = { workspace = true }
 serde_json = { workspace = true }
-dialoguer = "0.12.0"
-termimad = "0"
+dialoguer = { version = "0.12.0", optional = true }
+termimad = { version = "0", optional = true }
 
 # Binary dependencies
 clap = { version = "4", features = ["derive"], optional = true }
@@ -41,7 +41,7 @@ profile-googlefonts = { path = "../profile-googlefonts", version = "1.0.0", pack
 # profile-monotype = { path = "../profile-monotype", version = "1.0.0", package = "fontspector-profile-monotype", optional = true, default-features = false }
 
 [features]
-cli = ["clap", "env_logger"]
+cli = ["clap", "env_logger", "termimad", "dialoguer"]
 default = ["cli", "profiles"]
 profiles = [
     "profile-universal",
@@ -51,3 +51,6 @@ profiles = [
     # "profile-iso15008",
     # "profile-monotype",
 ]
+
+[lints]
+workspace = true

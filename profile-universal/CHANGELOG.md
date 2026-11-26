@@ -5,7 +5,177 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.10.0 (2026-11-10)
+
+### Chore
+
+ - <csr-id-72c96f7ba104074edfb9f5e52a682faaa13cd1bd/> Hide sourcefixes behind feature to slim deps
+   * chore: Lint fixups
+   
+   * chore: Hide sourcefixes behind feature to slim deps
+   
+   * chore: Work under unification
+
+### New Features
+
+ - <csr-id-ddf00d5a998eee7237c055482b0d99345e5bc33d/> adding a new test for checking repeating characters
+   * feature(name/repeating_characters): adding a new test for checking repeating characters
+   
+   * refactor(name/trailing_spaces): disable check for double spaces
+   
+   because covered by name/repeating_characters
+   
+   * refactor(name/repeating_characters): make lint happy, fix: error: redundant closure
+   
+   * refactor(name/trailing_spaces): remove commented out code
+   
+   * fix(name/repeating_characters): add_and_register_check in lib.rs
+   
+   * test(name/repeating_characters): add failing test for name IDs above 255
+   
+   * fix(name/repeating_characters): check all name IDs of a font + add name_ids_to_be_skipped
+   
+   ---------
+ - <csr-id-643f0ac04d2cd63f0078963d87b84b46723946a7/> check if all fvar axes are present in STAT
+   * feat(monotype): add microsoft::STAT_table_eliding_bit to monotype checks
+   
+   * feat(universal/fvar_stat_axes): new test to check if all var axes are present in STAT
+   
+   ---------
+ - <csr-id-0c0a9f28bed362f9aba5be45bb5d755837cabc4d/> a sanity check for the .notdef glyph
+   * feat(universal/notdef): a sanity check for the .notdef glyph
+   
+   * refactor(universal/mandatory_glyphs): improve .notdef check
+   
+   * refactor(test_check_mandatory_glyphs): replace Nunito-Regular.ttf with Montserrat-Black.ttf
+   
+   because Nunito-Regular.ttf has a notdef with GlyphsApp branding
+   
+   * refactor(mandatory_glyphs): improve message for notdef-too-many-contours
+   
+   ---------
+ - <csr-id-c4d85c8714b339c96482b30e677a0c711d71a681/> Add overlaps bit test/fix
+   * feat(universal): Add overlaps bit test/fix
+   
+   * fix: Also set on composites
+   
+   * chore: Ricky plays golf
+
+### Bug Fixes
+
+ - <csr-id-6dfa585dfc04078f8bd96a5be6d6c43d8bf32a25/> skip unsupported name encodings in family uniqueness check
+   * Skip unsupported name encodings in family uniqueness check.
+   
+   Add supported_name_entry_encoding via fontations Encoding::new so the check ignores platform/encoding pairs we cannot decode.
+ - <csr-id-fb504197ddda9f25966101519d7c21b357c0c4a4/> Count characters not bytes
+ - <csr-id-25b43ccc5bac758a2d74d0797bd79b3607614961/> measure outlines across the designnspace
+   * fix(family/win_ascent_and_descent): measure outlines across the designspace
+   
+   The check compared usWinAscent/usWinDescent against head.yMin/yMax,
+   which only describe the default master. Variable fonts can grow taller
+   or deeper at other locations and still pass, then clip on Windows.
+   
+   Draw every glyph at the default location and at the peak of each of
+   its gvar tuples, and use those outline extremes instead. Fail messages
+   now name the glyph and axis location that set the extreme.
+   
+   * refactor(checkapi): make denormalize_location a TestFont method
+   
+   Review feedback: the helper belongs on TestFont in fontspector-checkapi
+   rather than in its own module in profile-universal.
+ - <csr-id-fda2a42d5791b570cd4e21fa1dc605f3185275d7/> if TrueType outlines, loca is required
+   * test(required_tables): modify unittests so that loca is not optional, but required
+   
+   * fix(required_tables): if TrueType outlines, loca is required
+   
+   ---------
+
+### Test
+
+ - <csr-id-99aa644d87c1e6c8528f3faa66c9baf7beab6aa2/> Port more tests to Rust
+ - <csr-id-e63dd977862cac7b0b673f7e7ebbc04ab00ae272/> extend unittest
+   * test(universal/valid_glyphnames): extend unittest
+   
+   * test(test_various_glyphnames): add "zero.tnum" as valid name
+   
+   * test(test_various_glyphnames): glyph name which exceeds the limit of 63 chars
+   
+   * test(valid_glyphnames): add failing test
+   
+   * test(valid_glyphnames): extend test_various_glyphnames_adobe
+   
+   * test(valid_glyphnames): add failing test for names including hyphens
+   
+   * refactor(valid_glyphnames): allow special characters via config
+   
+   * fix(valid_glyphnames): formatting
+   
+   * test(valid_glyphnames): add unittest with config for ALLOWED_SPECIAL_CHARS
+   
+   * refactor(monotype): use config ALLOWED_SPECIAL_CHARS for valid_glyphnames
+   
+   * refactor(monotype): remove unused imports
+   
+   ---------
+ - <csr-id-6f2787314b319364655455accdb252814b56b139/> add unittests
+   * test(cmap/format_12): add first draft of unittests
+   
+   * test(cmap/format_12): add test_cmap_format_12_pass
+   
+   * test(cmap/format_12): add failing unittest with pointless cmap subtable format 12
+   
+   * fix(cmap/format_12): add missing return_result(problems)
+   
+   * test(cmap/format_12): add test_cmap_format_12_warn
+   
+   ---------
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 12 commits contributed to the release over the course of 29 calendar days.
+ - 32 days passed between releases.
+ - 12 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 12 unique issues were worked on: [#1000](https://github.com/fonttools/fontspector/issues/1000), [#1013](https://github.com/fonttools/fontspector/issues/1013), [#950](https://github.com/fonttools/fontspector/issues/950), [#952](https://github.com/fonttools/fontspector/issues/952), [#958](https://github.com/fonttools/fontspector/issues/958), [#959](https://github.com/fonttools/fontspector/issues/959), [#960](https://github.com/fonttools/fontspector/issues/960), [#961](https://github.com/fonttools/fontspector/issues/961), [#965](https://github.com/fonttools/fontspector/issues/965), [#983](https://github.com/fonttools/fontspector/issues/983), [#986](https://github.com/fonttools/fontspector/issues/986), [#998](https://github.com/fonttools/fontspector/issues/998)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#1000](https://github.com/fonttools/fontspector/issues/1000)**
+    - Hide sourcefixes behind feature to slim deps ([`72c96f7`](https://github.com/fonttools/fontspector/commit/72c96f7ba104074edfb9f5e52a682faaa13cd1bd))
+ * **[#1013](https://github.com/fonttools/fontspector/issues/1013)**
+    - Port more tests to Rust ([`99aa644`](https://github.com/fonttools/fontspector/commit/99aa644d87c1e6c8528f3faa66c9baf7beab6aa2))
+ * **[#950](https://github.com/fonttools/fontspector/issues/950)**
+    - Add unittests ([`6f27873`](https://github.com/fonttools/fontspector/commit/6f2787314b319364655455accdb252814b56b139))
+ * **[#952](https://github.com/fonttools/fontspector/issues/952)**
+    - Measure outlines across the designnspace ([`25b43cc`](https://github.com/fonttools/fontspector/commit/25b43ccc5bac758a2d74d0797bd79b3607614961))
+ * **[#958](https://github.com/fonttools/fontspector/issues/958)**
+    - If TrueType outlines, loca is required ([`fda2a42`](https://github.com/fonttools/fontspector/commit/fda2a42d5791b570cd4e21fa1dc605f3185275d7))
+ * **[#959](https://github.com/fonttools/fontspector/issues/959)**
+    - Adding a new test for checking repeating characters ([`ddf00d5`](https://github.com/fonttools/fontspector/commit/ddf00d5a998eee7237c055482b0d99345e5bc33d))
+ * **[#960](https://github.com/fonttools/fontspector/issues/960)**
+    - A sanity check for the .notdef glyph ([`0c0a9f2`](https://github.com/fonttools/fontspector/commit/0c0a9f28bed362f9aba5be45bb5d755837cabc4d))
+ * **[#961](https://github.com/fonttools/fontspector/issues/961)**
+    - Extend unittest ([`e63dd97`](https://github.com/fonttools/fontspector/commit/e63dd977862cac7b0b673f7e7ebbc04ab00ae272))
+ * **[#965](https://github.com/fonttools/fontspector/issues/965)**
+    - Add overlaps bit test/fix ([`c4d85c8`](https://github.com/fonttools/fontspector/commit/c4d85c8714b339c96482b30e677a0c711d71a681))
+ * **[#983](https://github.com/fonttools/fontspector/issues/983)**
+    - Count characters not bytes ([`fb50419`](https://github.com/fonttools/fontspector/commit/fb504197ddda9f25966101519d7c21b357c0c4a4))
+ * **[#986](https://github.com/fonttools/fontspector/issues/986)**
+    - Check if all fvar axes are present in STAT ([`643f0ac`](https://github.com/fonttools/fontspector/commit/643f0ac04d2cd63f0078963d87b84b46723946a7))
+ * **[#998](https://github.com/fonttools/fontspector/issues/998)**
+    - Skip unsupported name encodings in family uniqueness check ([`6dfa585`](https://github.com/fonttools/fontspector/commit/6dfa585dfc04078f8bd96a5be6d6c43d8bf32a25))
+</details>
+
 ## v1.9.0 (2026-10-09)
+
+### Other
+
+ - <csr-id-9fd6c041bb0acd9ddd95744f3cdbc898f8dff8ec/> Release fontspector-profile-universal v1.9.0
 
 ### New Features
 
@@ -70,9 +240,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 1 commit contributed to the release over the course of 2 calendar days.
+ - 2 commits contributed to the release over the course of 2 calendar days.
  - 9 days passed between releases.
- - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
+ - 2 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 1 unique issue was worked on: [#315](https://github.com/fonttools/fontspector/issues/315)
 
 ### Commit Details
@@ -83,6 +253,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
  * **[#315](https://github.com/fonttools/fontspector/issues/315)**
     - Source fixing ([`5ac424d`](https://github.com/fonttools/fontspector/commit/5ac424de337de94d8f09835b3dc2cf41223a7a5b))
+ * **Uncategorized**
+    - Release fontspector-profile-universal v1.9.0 ([`9fd6c04`](https://github.com/fonttools/fontspector/commit/9fd6c041bb0acd9ddd95744f3cdbc898f8dff8ec))
 </details>
 
 ## v1.8.7 (2026-09-30)

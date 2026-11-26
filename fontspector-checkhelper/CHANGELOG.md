@@ -5,7 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.1.1 (2026-11-10)
+
+### Chore
+
+ - <csr-id-72c96f7ba104074edfb9f5e52a682faaa13cd1bd/> Hide sourcefixes behind feature to slim deps
+   * chore: Lint fixups
+   
+   * chore: Hide sourcefixes behind feature to slim deps
+   
+   * chore: Work under unification
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 1 commit contributed to the release.
+ - 32 days passed between releases.
+ - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
+ - 1 unique issue was worked on: [#1000](https://github.com/fonttools/fontspector/issues/1000)
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **[#1000](https://github.com/fonttools/fontspector/issues/1000)**
+    - Hide sourcefixes behind feature to slim deps ([`72c96f7`](https://github.com/fonttools/fontspector/commit/72c96f7ba104074edfb9f5e52a682faaa13cd1bd))
+</details>
+
 ## v1.1.0 (2026-10-09)
+
+### Other
+
+ - <csr-id-d5856e9614c1a1fe6df117ef587f2b0d09b3b0e0/> Release fontspector-checkhelper v1.1.0
 
 ### New Features
 
@@ -70,9 +104,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 1 commit contributed to the release over the course of 2 calendar days.
+ - 2 commits contributed to the release over the course of 2 calendar days.
  - 94 days passed between releases.
- - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
+ - 2 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 1 unique issue was worked on: [#315](https://github.com/fonttools/fontspector/issues/315)
 
 ### Commit Details
@@ -83,6 +117,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
  * **[#315](https://github.com/fonttools/fontspector/issues/315)**
     - Source fixing ([`5ac424d`](https://github.com/fonttools/fontspector/commit/5ac424de337de94d8f09835b3dc2cf41223a7a5b))
+ * **Uncategorized**
+    - Release fontspector-checkhelper v1.1.0 ([`d5856e9`](https://github.com/fonttools/fontspector/commit/d5856e9614c1a1fe6df117ef587f2b0d09b3b0e0))
 </details>
 
 ## v1.0.2 (2026-07-07)

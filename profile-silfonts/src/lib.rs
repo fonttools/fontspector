@@ -2,8 +2,8 @@ mod checks;
 
 use fontspector_checkapi::{FontspectorError, ProfileBuilder, Registry};
 
-pub struct SIL;
-impl fontspector_checkapi::ProfileProvider for SIL {
+pub struct SILfonts;
+impl fontspector_checkapi::ProfileProvider for SILfonts {
     fn register(&self, cr: &mut Registry) -> Result<(), FontspectorError> {
         let builder = ProfileBuilder::new()
             .add_section("SIL Checks")

@@ -1,4 +1,4 @@
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata, SourceFile};
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, Metadata};
 use serde_json::json;
 use skrifa::raw::TableProvider;
 
@@ -86,8 +86,9 @@ fn fix_trailing_spaces(
     Ok(FixResult::Unfixable)
 }
 
+#[cfg(feature = "sourcefix")]
 fn sourcefix_trailing_spaces(
-    source: &mut SourceFile,
+    source: &mut fontspector_checkapi::source::SourceFile,
     _problems: &[Status],
     _replies: Option<MoreInfoReplies>,
 ) -> Result<FixResult, FontspectorError> {

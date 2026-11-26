@@ -83,17 +83,20 @@ fn cjk_not_enough_glyphs(f: &Testable, context: &Context) -> CheckFnResult {
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
     use fontspector_checkapi::{
-        codetesting::{assert_pass, assert_results_contain, run_check, test_able},
-        StatusCode,
+        codetesting::{assert_pass, assert_results_contain, remap_glyph, run_check, test_able},
+        FileTypeConvert, StatusCode, TTF,
     };
+    use skrifa::raw::TableProvider;
+    use write_fonts::from_obj::ToOwnedTable;
+    use write_fonts::tables::os2::Os2;
 
     #[test]
     fn test_cjk_not_enough_glyphs_pass() {
-        // NotoSansJP is a CJK font with plenty of CJK glyphs (>150), should PASS
-        // (Python test uses Iansui-Regular.ttf which is not available;
-        // NotoSansJP is an equivalent CJK font with sufficient glyphs)
-        let testable = test_able("cjk/NotoSansJP[wght].ttf");
+        // Iansui is a CJK font with plenty of CJK glyphs (>150), should PASS
+        let testable = test_able("cjk/Iansui-Regular.ttf");
         let results = run_check(super::cjk_not_enough_glyphs, testable);
         assert_pass(&results);
     }
@@ -106,9 +109,69 @@ mod tests {
         assert_results_contain(&results, StatusCode::Skip, Some("not-cjk".to_string()));
     }
 
-    // Note: The Python test also modifies Montserrat's cmap and OS/2 codepage bits
-    // in-memory to simulate a font that claims CJK but has only 1-2 CJK glyphs,
-    // triggering WARN "cjk-not-enough-glyphs". This requires OS/2 table modification
-    // which is not available in the current Rust test utilities. A dedicated test font
-    // with CJK codepage flags but very few CJK glyphs would be needed for that test.
+    /// Declare the font to be a CJK font by setting the CJK codepage bit.
+    fn claim_cjk(t: &mut fontspector_checkapi::Testable) {
+        let f = TTF.from_testable(t).unwrap();
+        let mut os2: Os2 = f.font().os2().unwrap().to_owned_table();
+        let range1 = os2.ul_code_page_range_1.unwrap_or(0);
+        // Bit 17 = CJK Unified Ideographs (and other CJK codepages)
+        os2.ul_code_page_range_1 = Some(range1 | (1 << 17));
+        let new_bytes = f.rebuild_with_new_table(&os2).unwrap();
+        t.set(new_bytes);
+    }
+
+    #[test]
+    fn test_cjk_not_enough_glyphs_one_glyph() {
+        // Add the first character of the CJK Unified Ideographs to Montserrat
+        // and declare that we are a CJK font.
+        let mut testable = test_able("montserrat/Montserrat-Regular.ttf");
+        remap_glyph(&mut testable, 0x4E00, "A").unwrap();
+        claim_cjk(&mut testable);
+
+        let results = run_check(super::cjk_not_enough_glyphs, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Warn,
+            Some("cjk-not-enough-glyphs".to_string()),
+        );
+        assert_messages_start_with(&results, "There is only one CJK glyph");
+    }
+
+    #[test]
+    fn test_cjk_not_enough_glyphs_two_glyphs() {
+        let mut testable = test_able("montserrat/Montserrat-Regular.ttf");
+        remap_glyph(&mut testable, 0x4E00, "A").unwrap();
+        remap_glyph(&mut testable, 0x4E01, "B").unwrap();
+        claim_cjk(&mut testable);
+
+        let results = run_check(super::cjk_not_enough_glyphs, testable);
+        assert_results_contain(
+            &results,
+            StatusCode::Warn,
+            Some("cjk-not-enough-glyphs".to_string()),
+        );
+        assert_messages_start_with(&results, "There are only 2 CJK glyphs");
+    }
+
+    /// Assert that some message in the results starts with the given prefix.
+    fn assert_messages_start_with(
+        result: &Option<fontspector_checkapi::CheckResult>,
+        prefix: &str,
+    ) {
+        let result = result.as_ref().unwrap();
+        assert!(
+            result
+                .subresults
+                .iter()
+                .filter_map(|s| s.message.as_ref())
+                .any(|m| m.starts_with(prefix)),
+            "No message started with {prefix:?}. Messages:\n{}",
+            result
+                .subresults
+                .iter()
+                .filter_map(|s| s.message.as_deref())
+                .collect::<Vec<_>>()
+                .join("\n")
+        );
+    }
 }

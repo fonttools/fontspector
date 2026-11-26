@@ -1,4 +1,4 @@
-use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert, SourceFile};
+use fontspector_checkapi::{prelude::*, testfont, FileTypeConvert};
 use skrifa::raw::TableProvider;
 
 #[check(
@@ -39,8 +39,9 @@ fn line_breaks(t: &Testable, _context: &Context) -> CheckFnResult {
     return_result(problems)
 }
 
+#[cfg(feature = "sourcefix")]
 fn sourcefix_line_breaks(
-    source: &mut SourceFile,
+    source: &mut fontspector_checkapi::source::SourceFile,
     _problems: &[Status],
     _replies: Option<MoreInfoReplies>,
 ) -> Result<FixResult, FontspectorError> {

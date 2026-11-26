@@ -84,7 +84,7 @@ fn weightclass(t: &Testable, _context: &Context) -> CheckFnResult {
                 }
             }
         }
-        let preferred_name = expected_names[0];
+        let preferred_name = expected_names.first().unwrap_or(&"");
         if let Some(other_names) = expected_other_names {
             for other_weight_name in &other_names {
                 if style_name_parts.contains(other_weight_name) {

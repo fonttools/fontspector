@@ -52,7 +52,7 @@ fn nested_components(f: &Testable, context: &Context) -> CheckFnResult {
         .collect();
     for (glyphid, composite) in composite_glyphs.iter() {
         for component in composite.components() {
-            if composite_glyphs.contains_key(&component.glyph.into()) {
+            if composite_glyphs.contains_key(&component.glyph) {
                 failures.push(font.glyph_name_for_id_synthesise(*glyphid));
                 break;
             }
@@ -71,32 +71,13 @@ fn nested_components(f: &Testable, context: &Context) -> CheckFnResult {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use fontspector_checkapi::codetesting::{assert_pass, run_check, test_able};
-
-    #[test]
-    fn test_nested_components_pass() {
-        // Nunito Regular should have no nested components
-        let testable = test_able("nunito/Nunito-Regular.ttf");
-        let results = run_check(super::nested_components, testable);
-        assert_pass(&results);
-    }
-
-    // Note: The Python test modifies glyf table in-memory to create nested components
-    // by setting quotedbl's first component to "second" (which itself has components).
-    // This requires glyf table manipulation which is not available in the current
-    // Rust test utilities. A dedicated test font with pre-existing nested components
-    // would be needed for a FAIL test.
-}
-
 fn get_depth(glyph_id: GlyphId, loca: &Loca, glyf: &Glyf) -> u32 {
     let mut depth = 0;
     let glyph_entry = loca.get_glyf(glyph_id, glyf).ok().flatten();
     if let Some(Glyph::Composite(composite)) = glyph_entry {
         depth = 1 + composite
             .components()
-            .map(|component| get_depth(component.glyph.into(), loca, glyf))
+            .map(|component| get_depth(component.glyph, loca, glyf))
             .max()
             .unwrap_or(0)
     }
@@ -123,4 +104,54 @@ fn decompose_nested_components(
     sorted_glyphs.reverse();
 
     decompose_components_impl(t, &sorted_glyphs)
+}
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
+    use fontspector_checkapi::codetesting::{
+        assert_pass, assert_results_contain, glyph_by_name, run_check, set_glyph, test_able,
+    };
+
+    #[test]
+    fn test_nested_components_pass() {
+        // Nunito Regular should have no nested components
+        let testable = test_able("nunito/Nunito-Regular.ttf");
+        let results = run_check(super::nested_components, testable);
+        assert_pass(&results);
+    }
+
+    #[test]
+    fn test_nested_components_fail() {
+        // "second" has components, so pointing one of "quotedbl"'s components
+        // at it creates a nested component.
+        use fontspector_checkapi::codetesting::glyph_id_for_name;
+        use fontspector_checkapi::{FileTypeConvert, TTF};
+        use write_fonts::tables::glyf::Glyph;
+
+        let mut testable = test_able("nunito/Nunito-Regular.ttf");
+        let f = TTF.from_testable(&testable).unwrap();
+        let second = glyph_id_for_name(&f, "second").unwrap();
+        drop(f);
+
+        let quotedbl = glyph_by_name(&testable, "quotedbl").unwrap();
+        let Glyph::Composite(mut composite) = quotedbl else {
+            panic!("expected quotedbl to be a composite glyph");
+        };
+        // We know quotedbl has two components
+        let first = composite
+            .components_mut()
+            .first_mut()
+            .expect("quotedbl should have a component");
+        first.glyph = second;
+        set_glyph(&mut testable, "quotedbl", &Glyph::Composite(composite)).unwrap();
+
+        let results = run_check(super::nested_components, testable);
+        assert_results_contain(
+            &results,
+            fontspector_checkapi::StatusCode::Fail,
+            Some("found-nested-components".to_string()),
+        );
+    }
 }

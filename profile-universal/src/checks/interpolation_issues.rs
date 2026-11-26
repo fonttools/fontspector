@@ -153,10 +153,22 @@ fn interpolation_issues(t: &Testable, _context: &Context) -> CheckFnResult {
 
         if let Ok(variations) = glyph_variations(&f, gid) {
             for variation in variations {
-                let mut glyph_instance =
-                    interpolatable::Glyph::new_from_font(f.font_data(), gid, &variation).ok_or(
-                        FontspectorError::General(format!("Can't convert glyph {glyphname}")),
-                    )?;
+                let boring_variation = variation
+                    .iter()
+                    .map(|v| (v.selector.to_string(), v.value))
+                    .collect::<Vec<_>>();
+                let mut glyph_instance = interpolatable::Glyph::new_from_font(
+                    f.font_data(),
+                    gid,
+                    boring_variation
+                        .iter()
+                        .map(|v| (v.0.as_str(), v.1))
+                        .collect::<Vec<_>>()
+                        .as_slice(),
+                )
+                .ok_or(FontspectorError::General(format!(
+                    "Can't convert glyph {glyphname}"
+                )))?;
                 glyph_instance.master_name = variation
                     .iter()
                     .map(|v| format!("{}={}", v.selector, v.value))

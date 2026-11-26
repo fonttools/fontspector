@@ -50,12 +50,34 @@ fn GDEF_mark_chars(f: &Testable, context: &Context) -> CheckFnResult {
 
 #[cfg(test)]
 mod tests {
-    use fontspector_checkapi::codetesting::{assert_pass, assert_skip, run_check, test_able};
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
+    use fontspector_checkapi::codetesting::{
+        assert_messages_contain, assert_pass, assert_results_contain, assert_skip, remove_table,
+        run_check, set_gdef_glyph_classes, test_able,
+    };
+    use fontspector_checkapi::{FileTypeConvert, StatusCode, TestFont, Testable, TTF};
+    use skrifa::MetadataProvider;
+    use std::collections::BTreeSet;
+
+    /// All glyph names in the font which map from a nonspacing/enclosing mark.
+    fn mark_glyph_names(t: &Testable) -> Vec<String> {
+        let f: TestFont = TTF.from_testable(t).unwrap();
+        f.font()
+            .charmap()
+            .mappings()
+            .filter_map(|(cp, gid)| char::from_u32(cp).map(|c| (c, gid)))
+            .filter(|(c, _)| super::is_nonspacing_mark(*c))
+            .map(|(_, gid)| f.glyph_name_for_id_synthesise(gid))
+            .collect::<BTreeSet<_>>()
+            .into_iter()
+            .collect()
+    }
 
     #[test]
     fn test_gdef_mark_chars_skip_no_gdef() {
         let mut testable = test_able("nunito/Nunito-Regular.ttf");
-        fontspector_checkapi::codetesting::remove_table(&mut testable, b"GDEF");
+        remove_table(&mut testable, b"GDEF");
         let result = run_check(super::GDEF_mark_chars, testable);
         assert_skip(&result);
     }
@@ -63,6 +85,27 @@ mod tests {
     #[test]
     fn test_gdef_mark_chars_pass() {
         let testable = test_able("nunito/Nunito-Regular.ttf");
+        let result = run_check(super::GDEF_mark_chars, testable);
+        assert_pass(&result);
+    }
+
+    #[test]
+    fn test_gdef_mark_chars_empty_gdef_warn() {
+        // A GDEF table with no mark glyphs declared should warn about
+        // every mark character, including U+0301 (acutecomb).
+        let mut testable = test_able("nunito/Nunito-Regular.ttf");
+        set_gdef_glyph_classes(&mut testable, &[]).unwrap();
+        let result = run_check(super::GDEF_mark_chars, testable);
+        assert_results_contain(&result, StatusCode::Warn, Some("mark-chars".to_string()));
+        assert_messages_contain(&result, "U+0301");
+    }
+
+    #[test]
+    fn test_gdef_mark_chars_properly_declared_pass() {
+        let mut testable = test_able("nunito/Nunito-Regular.ttf");
+        let names = mark_glyph_names(&testable);
+        let classes: Vec<(&str, u16)> = names.iter().map(|n| (n.as_str(), 3)).collect();
+        set_gdef_glyph_classes(&mut testable, &classes).unwrap();
         let result = run_check(super::GDEF_mark_chars, testable);
         assert_pass(&result);
     }

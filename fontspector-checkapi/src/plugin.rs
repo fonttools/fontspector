@@ -100,6 +100,7 @@ pub struct CheckMetadata {
     /// Whether or not a hotfix is available for this check
     pub hotfix_available: bool,
     /// Whether or not a source fix is available for this check
+    #[cfg(feature = "sourcefix")]
     pub sourcefix_available: bool,
 }
 
@@ -114,6 +115,7 @@ impl From<Check<'_>> for CheckMetadata {
             runs_on_collection: check.runs_on_collection(),
             metadata: check.metadata(),
             hotfix_available: check.hotfix.is_some(),
+            #[cfg(feature = "sourcefix")]
             sourcefix_available: check.fix_source.is_some(),
         }
     }
@@ -181,11 +183,6 @@ fn build_metadata(
         metadata = metadata.register_filetype(name, filetype.pattern);
     }
     Ok(metadata)
-}
-
-/// Are we a fontspector plugin?
-pub(crate) fn current_executable_is_plugin() -> bool {
-    std::env::var("FONTSPECTOR_PLUGIN").is_ok()
 }
 
 /// The main entry point for a plugin, which sets up the registry and runs the appropriate check based on the command line arguments
@@ -509,6 +506,7 @@ pub fn load_external_plugin(
             ),
             implementation: check_impl,
             hotfix: None,
+            #[cfg(feature = "sourcefix")]
             fix_source: None,
             applies_to: Box::leak(Box::new(check_meta.applies_to.clone())),
             flags: CheckFlags::default(),
