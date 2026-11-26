@@ -1499,7 +1499,7 @@ dependencies = [
  "scraper",
  "serde",
  "serde_json",
- "skrifa 0.49.0",
+ "skrifa 0.50.0",
  "thiserror 2.0.21",
  "toml",
  "write-fonts 0.55.0",
@@ -1537,7 +1537,7 @@ version = "1.0.0"
 dependencies = [
  "fontspector-checkapi",
  "itertools 0.15.0",
- "skrifa 0.49.0",
+ "skrifa 0.50.0",
  "write-fonts 0.55.0",
 ]
 
@@ -1559,7 +1559,7 @@ dependencies = [
  "itertools 0.15.0",
  "regex",
  "serde_json",
- "skrifa 0.49.0",
+ "skrifa 0.50.0",
  "write-fonts 0.55.0",
 ]
 
@@ -1593,7 +1593,7 @@ dependencies = [
  "serde_json",
  "shaperglot",
  "similar",
- "skrifa 0.49.0",
+ "skrifa 0.50.0",
  "tabled",
  "unicode-canonical-combining-class",
  "unicode-normalization",
@@ -1612,7 +1612,7 @@ dependencies = [
  "harfrust",
  "itertools 0.15.0",
  "kurbo",
- "skrifa 0.49.0",
+ "skrifa 0.50.0",
  "write-fonts 0.55.0",
 ]
 
@@ -1623,7 +1623,7 @@ dependencies = [
  "fontspector-checkapi",
  "harfrust",
  "regex",
- "skrifa 0.49.0",
+ "skrifa 0.50.0",
  "write-fonts 0.55.0",
 ]
 
@@ -1638,7 +1638,7 @@ dependencies = [
  "itertools 0.15.0",
  "regex",
  "serde_json",
- "skrifa 0.49.0",
+ "skrifa 0.50.0",
  "write-fonts 0.55.0",
 ]
 
@@ -1651,7 +1651,7 @@ dependencies = [
  "itertools 0.15.0",
  "kurbo",
  "serde_json",
- "skrifa 0.49.0",
+ "skrifa 0.50.0",
  "unicode-properties",
  "write-fonts 0.55.0",
 ]
@@ -1662,7 +1662,7 @@ version = "1.0.0"
 dependencies = [
  "fontspector-checkapi",
  "regex",
- "skrifa 0.49.0",
+ "skrifa 0.50.0",
 ]
 
 [[package]]
@@ -1694,7 +1694,7 @@ dependencies = [
  "ordered-float",
  "reqwest",
  "serde_json",
- "skrifa 0.49.0",
+ "skrifa 0.50.0",
  "stringcase",
  "tabled",
  "unicode-properties",
@@ -4056,6 +4056,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "read-fonts"
+version = "0.47.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a39d2f8f681030a7bcbbcf3e8568775ac2393afd51401a2e2133ee89e3953897"
+dependencies = [
+ "bytemuck",
+ "foldhash 0.2.0",
+ "font-types",
+ "once_cell",
+ "smallvec",
+ "yoke",
+]
+
+[[package]]
 name = "redox_syscall"
 version = "0.5.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4764,6 +4778,19 @@ dependencies = [
  "bytemuck",
  "once_cell",
  "read-fonts 0.46.0",
+ "smallvec",
+ "yoke",
+]
+
+[[package]]
+name = "skrifa"
+version = "0.50.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e85ba678a6023a063d0a78c8770f1c166674ef46af13523d05eff67430f79dfe"
+dependencies = [
+ "bytemuck",
+ "once_cell",
+ "read-fonts 0.47.0",
  "smallvec",
  "yoke",
 ]
