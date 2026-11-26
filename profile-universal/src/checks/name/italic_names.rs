@@ -23,7 +23,7 @@ fn italic_names(t: &Testable, _context: &Context) -> CheckFnResult {
     } else {
         skip!("not-italic", "Font is not italic");
     }
-    if let Some(family_name) = font.get_name_entry_strings(NameId::FAMILY_NAME).next() {
+    if let Some(family_name) = font.get_best_name(&[NameId::FAMILY_NAME]) {
         if family_name.contains("Italic") {
             let message = "Name ID 1 (Family Name) must not contain 'Italic'.";
             let mut status = Status::fail("bad-familyname", message);
@@ -37,7 +37,7 @@ fn italic_names(t: &Testable, _context: &Context) -> CheckFnResult {
             problems.push(status);
         }
     }
-    if let Some(subfamily_name) = font.get_name_entry_strings(NameId::SUBFAMILY_NAME).next() {
+    if let Some(subfamily_name) = font.get_best_name(&[NameId::SUBFAMILY_NAME]) {
         if subfamily_name != "Italic" && subfamily_name != "Bold Italic" {
             let message = format!(
                 "Name ID 2 (Subfamily Name) does not conform to specs. Only R/I/B/BI are allowed, found {subfamily_name}"
@@ -53,10 +53,7 @@ fn italic_names(t: &Testable, _context: &Context) -> CheckFnResult {
             problems.push(status);
         }
     }
-    if let Some(typo_family_name) = font
-        .get_name_entry_strings(NameId::TYPOGRAPHIC_FAMILY_NAME)
-        .next()
-    {
+    if let Some(typo_family_name) = font.get_best_name(&[NameId::TYPOGRAPHIC_FAMILY_NAME]) {
         if typo_family_name.contains("Italic") {
             let message = "Name ID 16 (Typographic Family Name) must not contain 'Italic'.";
             let mut status = Status::fail("bad-typographicfamilyname", message);
@@ -70,10 +67,7 @@ fn italic_names(t: &Testable, _context: &Context) -> CheckFnResult {
             problems.push(status);
         }
     }
-    if let Some(typo_subfamily_name) = font
-        .get_name_entry_strings(NameId::TYPOGRAPHIC_SUBFAMILY_NAME)
-        .next()
-    {
+    if let Some(typo_subfamily_name) = font.get_best_name(&[NameId::TYPOGRAPHIC_SUBFAMILY_NAME]) {
         if !typo_subfamily_name.ends_with("Italic") {
             let message = "Name ID 17 (Typographic Subfamily Name) must contain 'Italic'.";
             let mut status = Status::fail("bad-typographicsubfamilyname", message);
