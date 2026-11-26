@@ -36,6 +36,7 @@ use std::io::Write;
 #[cfg(feature = "cli")]
 use termimad::MadSkin;
 
+#[allow(clippy::expect_used)]
 #[doc(hidden)]
 pub fn get_registry() -> Registry<'static> {
     let mut registry = Registry::new();

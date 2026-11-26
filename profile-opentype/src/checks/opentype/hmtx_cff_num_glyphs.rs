@@ -26,7 +26,7 @@ fn hmtx_cff_num_glyphs(t: &Testable, _context: &Context) -> CheckFnResult {
     );
 
     let number_of_h_metrics = font.font().hmtx()?.h_metrics().len();
-    let charset = font.font().cff()?.charset(0).ok().flatten();
+    let charset = font.font().cff()?.charset(0);
     let cff_num_glyphs = if let Some(charset) = charset {
         charset.num_glyphs()
     } else {

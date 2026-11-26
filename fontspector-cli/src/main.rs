@@ -347,14 +347,10 @@ fn group_inputs(args: &mut Args) -> Vec<TestableCollection> {
             #[allow(clippy::expect_used)] // You are on your own
             let source = match input {
                 // Input::DesignSpacePath(path) => Ok(Box::new(DesignSpaceIrSource::new(path)?)),
-                Input::GlyphsPath(path) => {
-                    use fontir::source::Source as _;
-
-                    Ok(Box::new(
-                        glyphs2fontir::source::GlyphsIrSource::new(&path)
-                            .expect("Could not create GlyphsIrSource from Glyphs file"),
-                    ))
-                }
+                Input::GlyphsPath(path) => Ok(Box::new(
+                    glyphs2fontir::source::GlyphsIrSource::new(&path, None, &[])
+                        .expect("Could not create GlyphsIrSource from Glyphs file"),
+                )),
                 // Input::FontraPath(path) => Ok(Box::new(FontraIrSource::new(path)?)),
                 _ => Err(format!(
                     "Input file {} has unsupported format for compilation",

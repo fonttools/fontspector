@@ -65,7 +65,7 @@ fn consistent_with_fonts(c: &TestableCollection, _context: &Context) -> CheckFnR
     let md_font_pairs: Vec<(&FontProto, TestFont)> = msg
         .fonts
         .iter()
-        .filter(|f| declared_files.contains(&f.filename().to_string()))
+        .filter(|f| declared_files.iter().any(|i: &String| i == f.filename()))
         .flat_map(|font_proto| {
             c.get_file(font_proto.filename())
                 .map(|font| (font_proto, font))

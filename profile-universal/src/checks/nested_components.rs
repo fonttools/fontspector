@@ -52,7 +52,7 @@ fn nested_components(f: &Testable, context: &Context) -> CheckFnResult {
         .collect();
     for (glyphid, composite) in composite_glyphs.iter() {
         for component in composite.components() {
-            if composite_glyphs.contains_key(&component.glyph.into()) {
+            if composite_glyphs.contains_key(&component.glyph) {
                 failures.push(font.glyph_name_for_id_synthesise(*glyphid));
                 break;
             }
@@ -77,7 +77,7 @@ fn get_depth(glyph_id: GlyphId, loca: &Loca, glyf: &Glyf) -> u32 {
     if let Some(Glyph::Composite(composite)) = glyph_entry {
         depth = 1 + composite
             .components()
-            .map(|component| get_depth(component.glyph.into(), loca, glyf))
+            .map(|component| get_depth(component.glyph, loca, glyf))
             .max()
             .unwrap_or(0)
     }
@@ -144,7 +144,7 @@ mod tests {
             .components_mut()
             .first_mut()
             .expect("quotedbl should have a component");
-        first.glyph = skrifa::GlyphId16::try_from(second).unwrap();
+        first.glyph = second;
         set_glyph(&mut testable, "quotedbl", &Glyph::Composite(composite)).unwrap();
 
         let results = run_check(super::nested_components, testable);

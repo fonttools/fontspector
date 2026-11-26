@@ -51,3 +51,6 @@ profiles = [
     # "profile-iso15008",
     # "profile-monotype",
 ]
+
+[lints]
+workspace = true

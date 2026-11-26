@@ -5,6 +5,8 @@ struct Designspace;
 fn direction(contour: &norad::Contour) -> bool {
     let mut total = 0.0;
     for (i, point) in contour.points.iter().enumerate() {
+        #[allow(clippy::unwrap_used)]
+        // We know there's more than zero and we restrict the get to valid indices
         let next = contour.points.get((i + 1) % contour.points.len()).unwrap();
         total += (next.x - point.x) * (next.y + point.y);
     }
@@ -45,6 +47,7 @@ fn path_direction(t: &Testable, _context: &Context) -> CheckFnResult {
         "not-enough-sources",
         "Not enough sources to compare"
     );
+    #[allow(clippy::unwrap_used)] // We know ufos is not empty
     let glyphnames = ufos.first().unwrap().iter_names().collect::<Vec<_>>();
     let mut problems = vec![];
     for glyph in glyphnames {
@@ -53,6 +56,10 @@ fn path_direction(t: &Testable, _context: &Context) -> CheckFnResult {
             .iter()
             .flat_map(|s| s.get_glyph(&glyph))
             .collect::<Vec<_>>();
+        if all_glyphs.is_empty() {
+            continue;
+        }
+        #[allow(clippy::unwrap_used)] // We know all_glyphs is not empty
         let first = all_glyphs.first().unwrap();
         let others = all_glyphs.iter().skip(1);
         for (other_ix, other) in others.enumerate() {
@@ -74,7 +81,9 @@ fn path_direction(t: &Testable, _context: &Context) -> CheckFnResult {
                     &format!(
                         "Glyph {} has different path direction in master {} contour {}",
                         glyph,
-                        master_names[1 + other_ix],
+                        master_names
+                            .get(1 + other_ix)
+                            .unwrap_or(&&format!("{}", 1 + other_ix)),
                         contour_ix
                     ),
                 )
