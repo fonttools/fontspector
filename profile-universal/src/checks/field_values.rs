@@ -229,7 +229,7 @@ fn flatten_map(
 // Explicit serializers replace the removed read-fonts/skrifa traversal feature.
 // Keys are camelCase OpenType field names so existing field_values configs keep working.
 
-use serde_json::{json, Map, Number, Value};
+use serde_json::{json, Map, Value};
 use skrifa::raw::tables::{
     head::Head,
     hhea::Hhea,
@@ -276,8 +276,12 @@ fn version_16_16(v: Version16Dot16) -> Value {
     Value::String(format!("{}", v))
 }
 
-fn fixed_i32(v: Fixed) -> Value {
-    Value::Number(Number::from(v.to_i32()))
+// 16.16 fixed point numbers have at most five decimal places; rounding off anything
+// beyond that avoids exposing the floating point representation to the user
+// (1.008 rather than 1.0080032348632812).
+fn fixed_to_json(value: Fixed) -> Value {
+    let value = (value.to_f64() * 100_000.0).round() / 100_000.0;
+    json!(value)
 }
 
 fn fword(v: FWord) -> Value {
@@ -301,7 +305,7 @@ fn insert_opt<T: Into<Value>>(map: &mut Map<String, Value>, key: &str, value: Op
 fn serialize_head(t: &Head) -> Value {
     json!({
         "version": major_minor(t.version()),
-        "fontRevision": fixed_i32(t.font_revision()),
+        "fontRevision": fixed_to_json(t.font_revision()),
         "checksumAdjustment": t.checksum_adjustment(),
         "magicNumber": t.magic_number(),
         "flags": t.flags().bits(),
@@ -470,7 +474,7 @@ fn serialize_os2(t: &Os2) -> Value {
 fn serialize_post(t: &Post) -> Value {
     let mut map = Map::new();
     map.insert("version".to_string(), version_16_16(t.version()));
-    map.insert("italicAngle".to_string(), fixed_i32(t.italic_angle()));
+    map.insert("italicAngle".to_string(), fixed_to_json(t.italic_angle()));
     map.insert(
         "underlinePosition".to_string(),
         fword(t.underline_position()),
@@ -485,7 +489,8 @@ fn serialize_post(t: &Post) -> Value {
     map.insert("minMemType1".to_string(), t.min_mem_type1().into());
     map.insert("maxMemType1".to_string(), t.max_mem_type1().into());
     insert_opt(&mut map, "numGlyphs", t.num_glyphs());
-    // Format 2.0 name list: same shape as old traversal (index array + Pascal strings).
+    // The glyph name strings are reachable through the (gappy) string data, and were
+    // never serialized meaningfully; only the name indices are reported.
     if let Some(indices) = t.glyph_name_index() {
         map.insert(
             "glyphNameIndex".to_string(),
@@ -493,20 +498,6 @@ fn serialize_post(t: &Post) -> Value {
                 indices
                     .iter()
                     .map(|gid| Value::Number(gid.get().into()))
-                    .collect(),
-            ),
-        );
-    }
-    if let Some(strings) = t.string_data() {
-        map.insert(
-            "stringData".to_string(),
-            Value::Array(
-                strings
-                    .iter()
-                    .map(|s| match s {
-                        Ok(pstring) => Value::String(pstring.as_str().to_string()),
-                        Err(_) => Value::Null,
-                    })
                     .collect(),
             ),
         );
@@ -525,7 +516,7 @@ fn serialize_axis_record(axis: &AxisRecord) -> Value {
 fn serialize_axis_value_record(rec: &AxisValueRecord) -> Value {
     json!({
         "axisIndex": rec.axis_index(),
-        "value": fixed_i32(rec.value()),
+        "value": fixed_to_json(rec.value()),
     })
 }
 
@@ -540,24 +531,24 @@ fn serialize_axis_value(value: &AxisValue) -> Value {
             "axisIndex": t.axis_index(),
             "flags": t.flags().bits(),
             "valueNameId": serialize_name_id(t.value_name_id()),
-            "value": fixed_i32(t.value()),
+            "value": fixed_to_json(t.value()),
         }),
         AxisValue::Format2(t) => json!({
             "format": t.format(),
             "axisIndex": t.axis_index(),
             "flags": t.flags().bits(),
             "valueNameId": serialize_name_id(t.value_name_id()),
-            "nominalValue": fixed_i32(t.nominal_value()),
-            "rangeMinValue": fixed_i32(t.range_min_value()),
-            "rangeMaxValue": fixed_i32(t.range_max_value()),
+            "nominalValue": fixed_to_json(t.nominal_value()),
+            "rangeMinValue": fixed_to_json(t.range_min_value()),
+            "rangeMaxValue": fixed_to_json(t.range_max_value()),
         }),
         AxisValue::Format3(t) => json!({
             "format": t.format(),
             "axisIndex": t.axis_index(),
             "flags": t.flags().bits(),
             "valueNameId": serialize_name_id(t.value_name_id()),
-            "value": fixed_i32(t.value()),
-            "linkedValue": fixed_i32(t.linked_value()),
+            "value": fixed_to_json(t.value()),
+            "linkedValue": fixed_to_json(t.linked_value()),
         }),
         AxisValue::Format4(t) => {
             let axis_values: Vec<Value> = t
