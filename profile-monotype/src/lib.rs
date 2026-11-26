@@ -33,6 +33,10 @@ impl fontspector_checkapi::ProfileProvider for Monotype {
                 "opentype/family/unique_names",
                 HashMap::from([
                     ("unique_name_ids".to_string(), json!([3, 4, 6, 25])),
+                    (
+                        "unique_name_id_pairs".to_string(),
+                        json!([[1, 2], [16, 17], [21, 22]]),
+                    ),
                 ]),
             )
             .add_section("Monotype Checks")
@@ -46,6 +50,7 @@ impl fontspector_checkapi::ProfileProvider for Monotype {
             .add_and_register_check(checks::monotype::style_in_family_name)
             .add_and_register_check(checks::monotype::cmap_recordings_and_subtables)
             .add_and_register_check(checks::monotype::bmp_has_cmap_format4_subtable)
+            .add_and_register_check(checks::monotype::wrong_table_tags)
             .add_and_register_check(checks::monotype::unnecessary_tables)
             .add_and_register_check(checks::monotype::fsselection_subfamily)
             .with_configuration_defaults(
