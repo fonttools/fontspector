@@ -9,11 +9,11 @@ use skrifa::{
             glyf::Glyph,
             gpos::{
                 DeviceOrVariationIndex::{Device, VariationIndex},
-                PairPosFormat1, PairPosFormat2,
+                PairPosFormat1, PairPosFormat2, PairPosFormat3, PairPosFormat4,
             },
             variations::ItemVariationStore,
         },
-        FontData, ReadError, TableProvider,
+        ReadError, TableProvider,
     },
     GlyphId, MetadataProvider,
 };
@@ -159,6 +159,8 @@ fn varfont_duplexed_axis_reflow(t: &Testable, context: &Context) -> CheckFnResul
                 let kerns_with_region = f.process_kerning(
                     &|pp1| pairs_with_region_1(pp1, &effective_regions, &varstore),
                     &|pp2| pairs_with_region_2(pp2, &effective_regions, &varstore),
+                    &|pp3| pairs_with_region_3(pp3, &effective_regions, &varstore),
+                    &|pp4| pairs_with_region_4(pp4, &effective_regions, &varstore),
                 )?;
                 if let Some((left, right)) = kerns_with_region.first() {
                     problems.push(Status::fail("duplexed-kern-causes-reflow", 
@@ -202,16 +204,8 @@ fn pairs_with_region_1(
         for pairrecord in pairset.pair_value_records().iter() {
             let pairrecord = pairrecord?;
             let value_record = pairrecord.value_record1();
-            if grovel_item_variation_store(
-                value_record,
-                pairset.offset_data(),
-                var_store,
-                effective_regions,
-            )? {
-                results.push((
-                    GlyphId::from(left),
-                    GlyphId::from(pairrecord.second_glyph()),
-                ));
+            if grovel_item_variation_store(value_record, var_store, effective_regions)? {
+                results.push((left, GlyphId::from(pairrecord.second_glyph())));
             }
         }
     }
@@ -232,7 +226,7 @@ fn pairs_with_region_2(
             continue;
         } // Gibberish
         let glyphs = glyphs_per_class1.entry(class).or_insert_with(HashSet::new);
-        glyphs.insert(GlyphId::from(gid));
+        glyphs.insert(gid);
     }
 
     let mut glyphs_per_class2: HashMap<_, HashSet<GlyphId>> = HashMap::new();
@@ -241,23 +235,84 @@ fn pairs_with_region_2(
             continue;
         }
         let glyphs = glyphs_per_class2.entry(class).or_insert_with(HashSet::new);
-        glyphs.insert(GlyphId::from(gid));
+        glyphs.insert(gid);
     }
 
     for (class1_id, record) in pp2.class1_records().iter().enumerate() {
         let record = record?;
-        let glyphs1 = glyphs_per_class1.get(&(class1_id as u16));
+        let glyphs1 = glyphs_per_class1.get(&(class1_id as u32));
 
         for (class2_id, class2_rec) in record.class2_records().iter().enumerate() {
             let class2_rec = class2_rec?;
             let value_record = class2_rec.value_record1();
-            let glyphs2 = glyphs_per_class2.get(&(class2_id as u16));
-            if grovel_item_variation_store(
-                value_record,
-                pp2.offset_data(),
-                var_store,
-                effective_regions,
-            )? {
+            let glyphs2 = glyphs_per_class2.get(&(class2_id as u32));
+            if grovel_item_variation_store(value_record, var_store, effective_regions)? {
+                for left in glyphs1.map(|x| x.iter()).into_iter().flatten() {
+                    for right in glyphs2.map(|x| x.iter()).into_iter().flatten() {
+                        results.push((*left, *right));
+                    }
+                }
+            }
+        }
+    }
+    Ok(results)
+}
+
+fn pairs_with_region_3(
+    pp1: PairPosFormat3,
+    effective_regions: &HashSet<u16>,
+    var_store: &ItemVariationStore,
+) -> Result<Vec<(GlyphId, GlyphId)>, ReadError> {
+    let mut results = vec![];
+    let coverage = pp1.coverage()?;
+    for (left, pairset) in coverage.iter().zip(pp1.pair_sets().iter()) {
+        let pairset = pairset?;
+        for pairrecord in pairset.pair_value_records().iter() {
+            let pairrecord = pairrecord?;
+            let value_record = pairrecord.value_record1();
+            if grovel_item_variation_store(value_record, var_store, effective_regions)? {
+                results.push((left, GlyphId::from(pairrecord.second_glyph())));
+            }
+        }
+    }
+    Ok(results)
+}
+
+fn pairs_with_region_4(
+    pp2: PairPosFormat4,
+    effective_regions: &HashSet<u16>,
+    var_store: &ItemVariationStore,
+) -> Result<Vec<(GlyphId, GlyphId)>, ReadError> {
+    let mut results = vec![];
+    let class1 = pp2.class_def1()?;
+    let class2 = pp2.class_def2()?;
+    let mut glyphs_per_class1: HashMap<_, HashSet<GlyphId>> = HashMap::new();
+    for (gid, class) in class1.iter() {
+        if class == 0 {
+            continue;
+        } // Gibberish
+        let glyphs = glyphs_per_class1.entry(class).or_insert_with(HashSet::new);
+        glyphs.insert(gid);
+    }
+
+    let mut glyphs_per_class2: HashMap<_, HashSet<GlyphId>> = HashMap::new();
+    for (gid, class) in class2.iter() {
+        if class == 0 {
+            continue;
+        }
+        let glyphs = glyphs_per_class2.entry(class).or_insert_with(HashSet::new);
+        glyphs.insert(gid);
+    }
+
+    for (class1_id, record) in pp2.class1_records().iter().enumerate() {
+        let record = record?;
+        let glyphs1 = glyphs_per_class1.get(&(class1_id as u32));
+
+        for (class2_id, class2_rec) in record.class2_records().iter().enumerate() {
+            let class2_rec = class2_rec?;
+            let value_record = class2_rec.value_record1();
+            let glyphs2 = glyphs_per_class2.get(&(class2_id as u32));
+            if grovel_item_variation_store(value_record, var_store, effective_regions)? {
                 for left in glyphs1.map(|x| x.iter()).into_iter().flatten() {
                     for right in glyphs2.map(|x| x.iter()).into_iter().flatten() {
                         results.push((*left, *right));
@@ -271,11 +326,10 @@ fn pairs_with_region_2(
 
 fn grovel_item_variation_store(
     value_record: &skrifa::raw::tables::gpos::ValueRecord,
-    offset_data: FontData<'_>,
     var_store: &ItemVariationStore,
     effective_regions: &HashSet<u16>,
 ) -> Result<bool, ReadError> {
-    if let Some(device_index) = value_record.x_advance_device(offset_data) {
+    if let Some(device_index) = value_record.x_advance_device() {
         if let Some(variation) = device_index.map(|v| match v {
             Device(_) => None,
             VariationIndex(table_ref) => Some(table_ref),

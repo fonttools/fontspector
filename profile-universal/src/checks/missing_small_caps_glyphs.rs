@@ -6,7 +6,7 @@ use fontspector_checkapi::{
 use serde_json::json;
 use skrifa::{
     raw::{tables::gsub::SubstitutionLookupList, ReadError, TableProvider},
-    GlyphId16, MetadataProvider,
+    GlyphId, MetadataProvider,
 };
 use unicode_properties::{GeneralCategory, UnicodeGeneralCategory};
 
@@ -54,14 +54,14 @@ fn missing_small_caps_glyphs(t: &Testable, context: &Context) -> CheckFnResult {
             "missing-c2sc-uppercase",
         ),
     ] {
-        let mut glyphset: HashSet<GlyphId16> = f
+        let mut glyphset: HashSet<GlyphId> = f
             .font()
             .charmap()
             .mappings()
             .filter_map(|(c, g)| {
                 char::from_u32(c).and_then(|c| {
                     if c.general_category() == *category {
-                        GlyphId16::try_from(g).ok()
+                        Some(g)
                     } else {
                         None
                     }
@@ -90,7 +90,7 @@ fn missing_small_caps_glyphs(t: &Testable, context: &Context) -> CheckFnResult {
             for gid in glyphset.iter() {
                 status.add_metadata(Metadata::GlyphProblem {
                     glyph_name: f.glyph_name_for_id_synthesise(*gid),
-                    glyph_id: gid.to_u16() as u32,
+                    glyph_id: gid.to_u32(),
                     userspace_location: None,
                     position: None,
                     actual: None,
@@ -106,7 +106,7 @@ fn missing_small_caps_glyphs(t: &Testable, context: &Context) -> CheckFnResult {
 }
 
 fn remove_lhs_glyphs(
-    glyphset: &mut HashSet<GlyphId16>,
+    glyphset: &mut HashSet<GlyphId>,
     lookups: &SubstitutionLookupList,
     lookups_indices: impl Iterator<Item = u16>,
 ) -> Result<(), ReadError> {

@@ -118,7 +118,7 @@ fn family_and_style_max_length(t: &Testable, context: &Context) -> CheckFnResult
                             full_instance_name.chars().count() - instance_name_length;
                         let chars_too_long = chars_too_long_count.to_string();
                         let message = format!(
-                            "Variable font instance name '{}' formed by space-separated concatenation of font family name (nameID {}) and instance subfamily nameID {} exceeds {} characterss ({} characters too long).\n\nThis has been found to cause shaping issues for some accented letters in Microsoft Word on Windows 10 and 11.",
+                            "Variable font instance name '{}' formed by space-separated concatenation of font family name (nameID {}) and instance subfamily nameID {} exceeds {} characters ({} characters too long).\n\nThis has been found to cause shaping issues for some accented letters in Microsoft Word on Windows 10 and 11.",
                             full_instance_name,
                             NameId::FAMILY_NAME,
                             instance_name,
