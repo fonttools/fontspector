@@ -240,12 +240,12 @@ fn involved_pairs_format2(pp2: PairPosFormat2) -> Result<Vec<PairSlot>, ReadErro
     // I'm rethinking my life choices here. Maybe shaping would have been easier.
     for (class1_id, record) in pp2.class1_records().iter().enumerate() {
         let record = record?;
-        let glyphs1 = glyphs_per_class1.get(&(class1_id as u16));
+        let glyphs1 = glyphs_per_class1.get(&(class1_id as u32));
 
         for (class2_id, class2_rec) in record.class2_records().iter().enumerate() {
             if let Some(x) = class2_rec?.value_record1().x_advance() {
                 if x != 0 {
-                    let glyphs2 = glyphs_per_class2.get(&(class2_id as u16));
+                    let glyphs2 = glyphs_per_class2.get(&(class2_id as u32));
                     results.push((
                         glyphs1.cloned().unwrap_or(HashSet::new()),
                         glyphs2.cloned().unwrap_or(HashSet::new()),

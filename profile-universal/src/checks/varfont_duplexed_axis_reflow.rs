@@ -13,7 +13,7 @@ use skrifa::{
             },
             variations::ItemVariationStore,
         },
-        FontData, ReadError, TableProvider,
+        ReadError, TableProvider,
     },
     GlyphId, MetadataProvider,
 };
@@ -202,12 +202,7 @@ fn pairs_with_region_1(
         for pairrecord in pairset.pair_value_records().iter() {
             let pairrecord = pairrecord?;
             let value_record = pairrecord.value_record1();
-            if grovel_item_variation_store(
-                value_record,
-                pairset.offset_data(),
-                var_store,
-                effective_regions,
-            )? {
+            if grovel_item_variation_store(value_record, var_store, effective_regions)? {
                 results.push((
                     GlyphId::from(left),
                     GlyphId::from(pairrecord.second_glyph()),
@@ -246,18 +241,13 @@ fn pairs_with_region_2(
 
     for (class1_id, record) in pp2.class1_records().iter().enumerate() {
         let record = record?;
-        let glyphs1 = glyphs_per_class1.get(&(class1_id as u16));
+        let glyphs1 = glyphs_per_class1.get(&(class1_id as u32));
 
         for (class2_id, class2_rec) in record.class2_records().iter().enumerate() {
             let class2_rec = class2_rec?;
             let value_record = class2_rec.value_record1();
-            let glyphs2 = glyphs_per_class2.get(&(class2_id as u16));
-            if grovel_item_variation_store(
-                value_record,
-                pp2.offset_data(),
-                var_store,
-                effective_regions,
-            )? {
+            let glyphs2 = glyphs_per_class2.get(&(class2_id as u32));
+            if grovel_item_variation_store(value_record, var_store, effective_regions)? {
                 for left in glyphs1.map(|x| x.iter()).into_iter().flatten() {
                     for right in glyphs2.map(|x| x.iter()).into_iter().flatten() {
                         results.push((*left, *right));
@@ -271,11 +261,10 @@ fn pairs_with_region_2(
 
 fn grovel_item_variation_store(
     value_record: &skrifa::raw::tables::gpos::ValueRecord,
-    offset_data: FontData<'_>,
     var_store: &ItemVariationStore,
     effective_regions: &HashSet<u16>,
 ) -> Result<bool, ReadError> {
-    if let Some(device_index) = value_record.x_advance_device(offset_data) {
+    if let Some(device_index) = value_record.x_advance_device() {
         if let Some(variation) = device_index.map(|v| match v {
             Device(_) => None,
             VariationIndex(table_ref) => Some(table_ref),

@@ -58,8 +58,16 @@ fn find_all_attachments(
     let mut does_attach = HashSet::new();
     let mut attachments = HashMap::new();
     for attachment in attachment_rules {
-        for base in attachment.base_coverage()?.iter() {
-            for mark in attachment.mark_coverage()?.iter() {
+        let (base_coverage, mark_coverage) = match &attachment {
+            skrifa::raw::tables::gpos::MarkBasePos::Format1(t) => {
+                (t.base_coverage()?, t.mark_coverage()?)
+            }
+            skrifa::raw::tables::gpos::MarkBasePos::Format2(t) => {
+                (t.base_coverage()?, t.mark_coverage()?)
+            }
+        };
+        for base in base_coverage.iter() {
+            for mark in mark_coverage.iter() {
                 attachments
                     .entry(base.into())
                     .or_insert_with(Vec::new)

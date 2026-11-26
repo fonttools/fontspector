@@ -214,7 +214,9 @@ impl TestFont<'_> {
         {
             GlyphId16::try_from(glyph_id.into())
                 .map(|gid| class_def.get(gid))
-                .map_or(GlyphClassDef::Unknown, GlyphClassDef::new)
+                .map_or(GlyphClassDef::Unknown, |class| {
+                    GlyphClassDef::new(class as u16)
+                })
         } else {
             GlyphClassDef::Unknown
         }
@@ -493,6 +495,8 @@ impl TestFont<'_> {
                 .map(|pp| match pp {
                     PairPos::Format1(pp1) => format1_func(pp1),
                     PairPos::Format2(pp2) => format2_func(pp2),
+                    // Format3/4 use 24-bit glyph IDs (ISO/IEC 14496-22:2026); unused by checks today.
+                    _ => Ok(vec![]),
                 })
                 .flat_map(|v| v.into_iter())
                 .flatten()
