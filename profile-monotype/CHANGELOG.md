@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New Features
 
+ - assert OS/2.fsSelection italic/bold against name-table subfamily
+   (`monotype/fsselection_subfamily`)
  - detect misspelled / near-canonical sfnt table tags (`monotype/wrong_table_tags`)
 
 ## v1.1.0 (2026-11-11)

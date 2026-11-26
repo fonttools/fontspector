@@ -16,5 +16,7 @@ mod vertical_metrics;
 pub use vertical_metrics::vertical_metrics_sane;
 mod unnecessary_tables;
 pub use unnecessary_tables::unnecessary_tables;
+mod fsselection_subfamily;
+pub use fsselection_subfamily::fsselection_subfamily;
 mod wrong_table_tags;
 pub use wrong_table_tags::wrong_table_tags;
