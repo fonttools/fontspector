@@ -16,6 +16,8 @@ mod vertical_metrics;
 pub use vertical_metrics::vertical_metrics_sane;
 mod unnecessary_tables;
 pub use unnecessary_tables::unnecessary_tables;
+mod STAT_table_elided_fallback_name;
+pub use STAT_table_elided_fallback_name::STAT_table_elided_fallback_name;
 mod fvar_STAT_axis_names;
 pub use fvar_STAT_axis_names::fvar_STAT_axis_names;
 mod STAT_axis_value_names;
