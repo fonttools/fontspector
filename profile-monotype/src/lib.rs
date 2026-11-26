@@ -50,6 +50,7 @@ impl fontspector_checkapi::ProfileProvider for Monotype {
             .add_and_register_check(checks::monotype::style_in_family_name)
             .add_and_register_check(checks::monotype::cmap_recordings_and_subtables)
             .add_and_register_check(checks::monotype::bmp_has_cmap_format4_subtable)
+            .add_and_register_check(checks::monotype::fvar_STAT_axis_names)
             .add_and_register_check(checks::monotype::STAT_axis_value_names)
             .add_and_register_check(checks::monotype::wrong_table_tags)
             .add_and_register_check(checks::monotype::unnecessary_tables)
