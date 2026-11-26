@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    FAIL when more than one non-elidable shares a name (regardless of elidable
    duplicates), WARN when duplicates exist with at most one non-elidable;
    exclude format 3 when a matching format 2 shares axis/value/nameID
+ - assert OS/2.fsSelection italic/bold against name-table subfamily
+   (`monotype/fsselection_subfamily`)
+ - detect misspelled / near-canonical sfnt table tags (`monotype/wrong_table_tags`)
 
 ## v1.1.0 (2026-11-11)
 
