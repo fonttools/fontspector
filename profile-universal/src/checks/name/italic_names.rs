@@ -53,10 +53,7 @@ fn italic_names(t: &Testable, _context: &Context) -> CheckFnResult {
             problems.push(status);
         }
     }
-    if let Some(typo_family_name) = font
-        .get_name_entry_strings(NameId::TYPOGRAPHIC_FAMILY_NAME)
-        .next()
-    {
+    if let Some(typo_family_name) = font.get_best_name(&[NameId::TYPOGRAPHIC_FAMILY_NAME]) {
         if typo_family_name.contains("Italic") {
             let message = "Name ID 16 (Typographic Family Name) must not contain 'Italic'.";
             let mut status = Status::fail("bad-typographicfamilyname", message);
@@ -70,10 +67,7 @@ fn italic_names(t: &Testable, _context: &Context) -> CheckFnResult {
             problems.push(status);
         }
     }
-    if let Some(typo_subfamily_name) = font
-        .get_name_entry_strings(NameId::TYPOGRAPHIC_SUBFAMILY_NAME)
-        .next()
-    {
+    if let Some(typo_subfamily_name) = font.get_best_name(&[NameId::TYPOGRAPHIC_SUBFAMILY_NAME]) {
         if !typo_subfamily_name.ends_with("Italic") {
             let message = "Name ID 17 (Typographic Subfamily Name) must contain 'Italic'.";
             let mut status = Status::fail("bad-typographicsubfamilyname", message);
