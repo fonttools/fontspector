@@ -26,8 +26,8 @@ default-members = ["fontspector-cli"]
 pluginator = "1.0.1"
 
 # Font-related deps
-skrifa = "0.49.0"
-write-fonts = "0.55.0"
+skrifa = "0.50.0"
+write-fonts = "0.56.0"
 fontdrasil = "1.0.0"
 unicode-properties = "0.1.3"
 unicode_names2 = "3.0.0"
