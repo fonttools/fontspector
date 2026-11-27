@@ -29,7 +29,7 @@ write-fonts = "0.55.0"
 fontdrasil = "2.0.0"
 unicode-properties = "0.1.3"
 unicode_names2 = "4.0.0"
-harfrust = "0.13.0"
+harfrust = "0.16.0"
 
 kurbo = "0.13" # For italic angle check
 
